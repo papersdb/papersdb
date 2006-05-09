@@ -1,0 +1,11 @@
+AuthName "Database Management"
+AuthType Basic
+AuthUserFile /usr/abee/cshome/papersdb/.htpasswd
+require valid-user
+
+
+
+ErrorDocument 400 ../errors/request.php
+ErrorDocument 401 ../errors/authreq.php
+ErrorDocument 403 ../errors/forbidden.php
+ErrorDocument 404 ../errors/notfound.php

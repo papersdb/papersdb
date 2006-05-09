@@ -3,11 +3,15 @@
 <title>Publication DB Help</title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 </head>
-
 <body>
-<? 
-//echo $helpcat;
-//echo "<br><br>";
+<?
+  /* help.php
+     This page is for giving help information on all the fields necessary when 
+	 entering in a new publication or author or venue.
+	 It is not in the database because this help information does not ever need to be
+	 dynamically changed by someone who isn't the webmaster.
+   */ 
+require('functions.php');
 echo "<b>Help for: ";
 if (isset($helpcat) && $helpcat != "")
 	echo ucfirst($helpcat);
@@ -94,6 +98,11 @@ else if($helpcat=='Additional Fields'){
 	be the edition number of the book. These fields are different for each category.<br><br>
 	To use this field you should input some text to describe the additional field. Alternatively you can leave this
 	field blank if it is not applicable.";	
+}
+
+else if($helpcat=='comments'){
+	echo "This section is used to for the author to add any additional information about the paper. Whether it be links
+	to another paper thats related or conferences where the paper was presented or even links to a affiliated website.";	
 }
 else {
 	echo "Publications Database is a web-based repository for papers. It is used to hold information about 

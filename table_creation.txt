@@ -17,6 +17,7 @@ CREATE TABLE publication (
   title varchar(255) NOT NULL default '',
   paper varchar(255) NOT NULL default '',
   abstract blob default NULL,
+  comments blob default NULL,
   keywords varchar(255) default NULL,
   published date default NULL,
   updated date default NULL,
@@ -85,7 +86,6 @@ CREATE TABLE info (
 CREATE TABLE author (
   author_id int(10) unsigned NOT NULL auto_increment,
   name varchar(255) NOT NULL default '',
-  title, varchar(255) default NULL,
   email varchar(255) default NULL,
   organization varchar(255) default NULL,
   webpage varchar(255) default NULL,

@@ -1,71 +1,89 @@
 <?
-	include 'header.php';
+ /* list_publication.php
+   Lists all the publications in database. Makes each publication a link to it's own seperate page.
+   If a user is logged in, he/she has the option of adding a new publication, editing any of the
+   publications and deleting any of the publications.
+
+   Pretty much identical to list_author.php
+ */
+		if($admin =="true")
+			include 'headeradmin.php';
+		else
+			include 'header.php';
 ?>
 
 <html>
 <head>
-<title><? if ($type == "view") echo "View"; else if ($type == "edit") echo "Edit"; else echo "Delete"; ?> Publication</title>
+<title>Publications</title>
+<link rel="stylesheet" href="style.css">
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<META NAME= "ROBOTS" CONTENT="NOINDEX">
 </head>
 
 <?
-	require('lib_dbfunctions.php');
+	require('functions.php');
 
 	/* Connecting, selecting database */
 	$link = connect_db();
 
-	/* Performing SQL query */
+	// If there exists an author_id, only extract the publications with that author
+	// This is used when viewing an author.
 	if (isset($author_id)) {
 		$pub_query = "SELECT p.pub_id, p.title, p.paper,
 				p.abstract, p.keywords, p.published, p.updated
 			FROM publication p, pub_author a
-			WHERE a.author_id = " . $author_id . "
+			WHERE a.author_id = " . quote_smart($author_id) . "
 			AND a.pub_id = p.pub_id
 			ORDER BY p.title ASC";
-		$author_query = "SELECT name FROM author WHERE author_id = " . $author_id;
+		$author_query = "SELECT name FROM author WHERE author_id = " . quote_smart($author_id);
 		$author_result = query_db($author_query);
 		$author_line = mysql_fetch_array($author_result, MYSQL_ASSOC);
-		$author_name = $author_line[name];
+		$author_name = $author_line['name'];
 	}
+	// Otherwise just get all publications
 	else
 		$pub_query = "SELECT * FROM publication ORDER BY title ASC";
-	$pub_result = mysql_query($pub_query) or die("Query failed : " . mysql_error());
+	$pub_result = query_db($pub_query);
 ?>
 
-<body><br>
-	<table width="750" border="0" cellspacing="0" cellpadding="6">
-		<tr>
-			<td><font face="Arial, Helvetica, sans-serif" size="2"><b><u>Please select the publication you wish to <? if ($type == "view") echo "view"; else if ($type == "edit") echo "edit"; else echo "delete"; if (isset($author_id)) echo " from author ". $author_name; ?>:</u></b></font></td>
-		</tr>
-		<? 
-			if ($type == "view") {		
+<body>
+<h2><b><u>Publications <? if (isset($author_id)) echo "by ". $author_name; ?></u></b></h2>
+<? if ($admin == "true"){ ?>
+<h3><a href="Admin/add_publication.php"><b>Add New Publication</b></a></h3>
+<? } ?>
+	<table id="listtable" width="750" border="0" cellspacing="0" cellpadding="6">
+		<?  $count = 0;
+
+				$itran = false;
 				while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><li><a href=\"view_publication.php?pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></font></td></tr>";
-			   } 
-			}
-			else if ($type == "edit") {
-				if (!isset($author_id) || $author_id == "") {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><a href=\"list_author.php?type=pubedit\">(List publications by specific author for editing)</a></font></td></tr>";
-				}
-				while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><li><a href=\"add_publication.php?pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></font></td></tr>";
-				}
-			}
-			else if ($type == "delete") {
-				if (!isset($author_id) || $author_id == "") {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><a href=\"list_author.php?type=pubdelete\">(List publications by specific author for deletion)</a></font></td></tr>";
-				}
-				while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><li><a href=\"delete_publication.php?pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></font></td></tr>";
-				}
-			}
-			else {		
-				while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-					echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><li><a href=\"add_publication.php?pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></font></td></tr>";
-			   } 
-			}
+					echo "<tr class=\"";
+						if($count%2 == 0)
+							echo "odd";
+						else
+							echo "even";
+					echo "\"><td class=\"standard\"><li><a href=\"view_publication.php?"; if($admin == "true") echo "admin=true&"; echo "pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></td>";
+
+					$count++;
+
+					if($admin == "true"){
+						echo "<td class=\"small\"> <a href=\"Admin/add_publication.php?pub_id="
+							.$pub_line[pub_id]
+							."\"><b> Edit </b></a></td>";
+
+						echo "<td class=\"small\"> <a href=\"Admin/delete_publication.php?pub_id="
+							.$pub_line[pub_id]
+							."\"><b> Delete </b></a></td>";
+					}
+					echo "</tr> \n";
+			   		$itran = true;
+			   }
+			   // If no publications exist, let the user know.
+			   if(!$itran)
+			   	echo "<tr><td class=\"standard\"><li>No publications.</td></tr>";
+
 	   	?>
 	</table>
+<? back_button(); ?>
 </body>
 </html>
 

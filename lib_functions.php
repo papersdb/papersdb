@@ -1,22 +1,23 @@
 <?php
 
-require ("DB.php");
+require_once "DB.php";
 
 class Publication {
     
 }
 
 function db_connect() {
-    // Connect to the DB via PEAR
-    $dsn = "mysql://papersdb@tcp(abee.cs.ualberta.ca:3306)/pubDB";
-    $db = DB::connect($dsn);
 
-    // With DB::isError you can differentiate between an error or
+    // Connect to the DB via PEAR
+	$dsn = "mysql://papersdb@tcp(abee.cs.ualberta.ca:3306)/pubDB";
+	$db = DB::connect($dsn);
+	
+	// With DB::isError you can differentiate between an error or
     // a valid connection.
     if (DB::isError($db)) {
 	die ($db->getMessage());
     }
-
+	echo "worked";
     return $db;
 }
 
@@ -34,8 +35,26 @@ function generate_select($name, $start, $end, $compare) {
     echo "</select> \n";
 }
 
-function generate_select_month($name, $start, $end, $compare) {
+function generate_select_date($name, $start, $end, $compare = NULL) {
     echo "<select name='$name'> \n";
+	echo " <option value='--'"; 
+	if($compare == NULL) echo "selected"; 
+	echo "> -- </option>";
+	
+	for ($i = $start; $i <= $end; $i++) {
+		if($compare == $i)
+			echo "  <option value='$i' selected> $i </option> \n";	
+		else 
+			echo "  <option value='$i'> $i </option> \n";	
+		}
+    echo "</select> \n";
+}
+
+function generate_select_month($name, $start, $end, $compare = NULL) {
+    echo "<select name='$name'> \n";
+	echo " <option value='--'"; 
+	if($compare == NULL) echo "selected"; 
+	echo "> -- </option>";
     for ($i = $start; $i <= $end; $i++) {
 	echo "  <option value='$i' ";
 	if ($compare == $i) echo "selected";
@@ -74,7 +93,6 @@ function get_publication_info ($pubID) {
     
     $sql = "select * from publication where pub_id = $pubID";
     $res = $db->query($sql);
-
     // Check for error in query
     if (DB::isError($result)) {
 	
@@ -176,19 +194,11 @@ function get_info_id ($catID, $infoName) {
 
     $rval = NULL;
     
-    $sql = "SELECT info_id FROM info i, cat_info ci
-      WHERE i.name = \"$infoName\", 
-      ci.cat_id = $catID, info_id = $infoID
-      and i.info_id = ci.info_id";
-    $res = $db->query($sql);
-
-    if (DB::isError($res)) {
-	echo "Error: Couldn't locate info category with name $infoName.";
-	return $rval;
-    }
-
-    $row = $res->fetchRow(DB_FETCHMODE_ASSOC);
-    return $row['info_id'];
+    $info_id_get = "SELECT info_id FROM info WHERE name = \"$infoName\"";
+    $info_id_result = mysql_query($info_id_get) or die("Query failed: " . mysql_error());
+	$info_id_line = mysql_fetch_array($info_id_result, MYSQL_ASSOC);
+	
+	return $info_id_line['info_id'];
 }
 
 
@@ -226,11 +236,12 @@ function get_info_id ($catID, $infoName) {
     return $rval;
 }*/
 
-
-function get_additional_material ($pubID, $i) {
+function removematerial ($pubID, $i) {
     global $db;
-    if ($db == NULL) {
-	return;
+ 
+ 	if ($db == NULL) {
+	
+	return "Did not delete succesfully, DB is NULL";
     }
 
     $rval = NULL;
@@ -240,11 +251,60 @@ function get_additional_material ($pubID, $i) {
 
     if (DB::isError($res)) {
 	echo "Error: Couldn't locate additional material for pub $pubID and item number $i.";
+    }
+	$row = $res->fetchRow(DB_FETCHMODE_ASSOC, $i);
+	
+	$location = $row['location'];
+	
+	$query = "SELECT * FROM additional_info WHERE location = \"$location\"";
+
+	$result = query_db($query);
+	$value = mysql_fetch_array($result, MYSQL_ASSOC);
+
+	$add_id = $value['add_id'];
+	
+	
+	$pub_query = "SELECT * FROM publication WHERE pub_id=$pubID";
+	$pub_result = query_db($pub_query);
+	
+	$query = "DELETE FROM additional_info WHERE add_id = $add_id";
+	$result = query_db($query); 
+	
+	$query = "DELETE FROM pub_add WHERE add_id = $add_id AND pub_id = $pubID";
+	$result = query_db($query);
+	
+	
+	$absolute_path = "/usr/abee4/cshome/paulsen/web_docs/paperdb";
+	system("rm -rf " . $absolute_path . $location);
+	$location = split("/",$location);
+	$name = $location[3];
+	return "Deleted $name Succesfully";
+	
+}
+function get_additional_material ($pubID, $i) {
+    global $db;
+    if ($db == NULL) {
+	return "Error";
+    }
+
+    $rval = NULL;
+    
+    $sql = "SELECT B.location, B.add_id, B.type FROM pub_add A, additional_info B WHERE A.pub_id = $pubID AND A.add_id = B.add_id ORDER BY B.add_id";
+    $res = $db->query($sql);
+
+    if (DB::isError($res)) {
+	echo "Error: Couldn't locate additional material for pub $pubID and item number $i.";
 	return $rval;
     }
 
     $row = $res->fetchRow(DB_FETCHMODE_ASSOC, $i);
-    return ($row['location']);
+	$temp_string = $row['location'];
+	$temp_string2 = split("/additional_",$temp_string);
+	$temparray[0] = $temp_string2[1];
+	$temparray[1] = $row['type'];
+    return $temparray;
 }
+
+
 
 ?>
