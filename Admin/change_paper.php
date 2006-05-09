@@ -8,24 +8,24 @@
 	/* change_paper.php
 		This page is necessary to change a paper
 		that is has been already uploaded and is
-		linked to an existing publication. It is 
+		linked to an existing publication. It is
 		a pop-up that appears when  the "change paper"
 		link is clicked on add_publication.php. It
 		takes in the new file, and makes the necessary
 		changes.
-	
+
 	*/
-	
+
 	require('../functions.php');
 
 	if ($changePaper == "true") {
 		/* Connecting, selecting database */
 		$link = connect_db();
-		
+
 		$paper_query = "SELECT paper FROM publication WHERE pub_id=$pub_id";
 		$paper_result = mysql_query($paper_query) or die("Query failed : " . mysql_error());
 		$paper_array = mysql_fetch_array($paper_result, MYSQL_ASSOC);
-		
+
 		if($nopaper == "true"){
 			$pub_update_query = "UPDATE publication SET paper=\"No paper\" WHERE pub_id=$pub_id";
 			$pub_update_result = query_db($pub_update_query);
@@ -50,12 +50,12 @@
 			/* Save the binary files, and their paths (which will be saved in the DB) */
 			$paper_path = $absolute_files_path . $pub_id . "/paper_" . $uploadpaper_name;
 			$paper_link ="/". $relative_files_path . $pub_id . "/paper_" . $uploadpaper_name;
-					
+
 			// Check if there is actually a file uploaded at uploadadditional[$i]
 			if (is_uploaded_file($uploadpaper)) {
 				copy($uploadpaper, $paper_path);
 			}
-			
+
 			$pub_update_query = "UPDATE publication SET paper=\"$paper_link\" WHERE pub_id=$pub_id";
 			$pub_update_result = mysql_query($pub_update_query) or die("Query failed : " . mysql_error());
 		}

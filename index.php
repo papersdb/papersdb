@@ -29,18 +29,22 @@ a:active {
 -->
 </style>
 </head>
-<body><center><? require('functions.php'); 
+<body><center>
+
+<? require('functions.php');
+
 /* index.php
    Main page for public access, provides a login, and a function that
    selects the most recent publications added.
 */
 ?>
+
 <table border="0" cellpadding="0" cellspacing="0" width="500">
 <form name="pubForm" action="search_publication_db.php" method="POST" enctype="multipart/form-data">
 		    <input type="hidden" name="titlecheck" value="true">
 			<input type="hidden" name="authorcheck" value="true">
 			<input type="hidden" name="halfabstractcheck" value="true">
-			<input type="hidden" name="datecheck" value="true"> 
+			<input type="hidden" name="datecheck" value="true">
  <tr>
    <td><img src="template/spacer.gif" width="102" height="1" border="0" alt=""></td>
    <td><img src="template/spacer.gif" width="120" height="1" border="0" alt=""></td>
@@ -63,10 +67,10 @@ a:active {
   <tr>
    <td><img name="public_r3_c1" src="template/public_r3_c1.jpg" width="102" height="34" border="0" alt=""></td>
    <td colspan="5" background="template/public_r3_c2.jpg">
-	
-			&nbsp;<input type="text" name="search" size="38" maxlength="250" value="">   
+
+			&nbsp;<input type="text" name="search" size="38" maxlength="250" value="">
 			<input type="SUBMIT" name="Quick" value="Go" class="text">
-		
+
 	</td>
   </tr>
   <tr>
@@ -104,9 +108,9 @@ a:active {
 			echo "<td><a href=\"view_publication.php?pub_id=".$pub_line[pub_id]."\">";
 			echo "<b>".$pub_line[title]."</b></a></td></tr>";
 		}
-   	
+
    		echo "</table>";
-   
+
    ?>
    </td>
    <td><img src="template/spacer.gif" width="1" height="150" border="0" alt=""></td>

@@ -7,33 +7,11 @@
    straight forward.
 */
 
-require "DB.php";
+require "lib_dbfunctions.php";
 
-$absolute_path = "/usr/abee/cshome/papersdb/web_docs/";
 $relative_files_path = "uploaded_files/";
-$absolute_files_path = $absolute_path . $relative_files_path;
+$absolute_files_path = FS_PATH . $relative_files_path;
 
-
-/* Useful functions dealing with the database */
-function connect_db() {
-
-	$link = mysql_connect("abee.cs.ualberta.ca:3306", "papersdb", "")
-		or die("Could not connect : " . mysql_error());
-	mysql_select_db("pubDB") or die("Could not select database");
-
-	return $link;
-}
-
-function query_db($query) {
-	$result = mysql_query($query) or die(errorMessage());
-	// Use this line for debugging
-	//$result = mysql_query($query) or die("Query failed : " . mysql_error());
-	return $result;
-}
-
-function disconnect_db($link) {
-	mysql_close($link);
-}
 
 /* isValid
  Checks to see if the given string is nothing but
@@ -300,9 +278,7 @@ function removematerial ($pubID, $i) {
 	$query = "DELETE FROM pub_add WHERE add_id = $add_id AND pub_id = $pubID";
 	$result = query_db($query);
 
-
-	$absolute_path = "/usr/abee4/cshome/paulsen/web_docs/paperdb";
-	system("rm -rf " . $absolute_path . $location);
+	system("rm -rf " . FS_PATH . $location);
 	$location = split("/",$location);
 	$name = $location[3];
 	return "Deleted $name Succesfully";
