@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.1 2006/05/11 22:32:31 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.2 2006/05/11 23:20:21 aicmltec Exp $
 
   /**
    * \file
@@ -55,6 +55,33 @@ class pdPublication {
             $r = $db->fetchObject($q);
         }
 
+        $q = $db->select(array('info', 'cat_info', 'pub_cat'),
+                         array('info.info_id', 'info.name'),
+                         array('info.info_id=cat_info.info_id',
+                               'cat_info.cat_id=pub_cat.cat_id',
+                               'pub_cat.pub_id' => $id),
+                         "pdPublication::dbLoad");
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->info[] = $r;
+            $r = $db->fetchObject($q);
+        }
+
+        foreach ($this->info as $key => $value) {
+            $q = $db->select(array('pub_cat_info', 'pub_cat'),
+                             'pub_cat_info.value',
+                             array('pub_cat.pub_id' => $id,
+                                   'pub_cat.cat_id=pub_cat_info.cat_id',
+                                   'pub_cat_info.pub_id' => $id,
+                                   'pub_cat_info.info_id' => $value->info_id),
+                             "pdPublication::dbLoad");
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->info[$key]->value = $r->value;
+                $r = $db->fetchObject($q);
+            }
+        }
+
         $q = $db->select(array('author', 'pub_author'),
                          array('author.author_id', 'author.name'),
                          array('author.author_id=pub_author.author_id',
@@ -87,7 +114,7 @@ class pdPublication {
 
         $this->dbLoadVenue($db);
 
-        print_r($this);
+        //print_r($this);
     }
 
     function dbLoadVenue(&$db) {

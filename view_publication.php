@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: view_publication.php,v 1.4 2006/05/11 22:32:31 aicmltec Exp $
+  // $Id: view_publication.php,v 1.5 2006/05/11 23:20:21 aicmltec Exp $
 
   /**
    * \file
@@ -39,28 +39,32 @@ else {
 
 <html>
 <head>
-<title><? echo $pub_array['title'] ?></title>
+<title><? echo $pub->title ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <link rel="stylesheet" type="text/css" href="../style.css" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
     </head>
 
 <body>
 <table width="750" border="0" cellspacing="0" cellpadding="6">
     <tr>
-<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Title: </b></font></td>
-<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? echo $pub_array['title'] ?></b></font></td>
+<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2">
+    <b>Title: </b></font></td>
+<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2">
+    <b><? echo $pub->title ?></b></font></td>
 </tr>
 <tr>
-<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Category: </b></font></td>
-<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $cat_array['category'] ?></font></td>
+<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2">
+    <b>Category: </b></font></td>
+<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2">
+    <? echo $pub->category ?></font></td>
 </tr>
 <tr>
-<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2" color="#000000"><b>Paper: </b></font></td>
+<td width="25%"><div id="emph">Paper: </div></td>
 <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $paperstring; ?></font></td>
 </tr>
 
 <?
-if($pub->location != null) {
+if(isset($pub->additional_info)) {
     echo "<tr>";
     echo "<td width=\"25%\"><div id=\"emph\">Additional Materials:</div></td>";
     echo "<td width=\"75%\"><div id=\"emph\">";
@@ -183,24 +187,23 @@ print implode(",", $keywords);
 </div>
 </td>
 </tr>
-<?	while ($info_line = mysql_fetch_array($info_result, MYSQL_ASSOC)) {
-    $info_id = $info_line['info_id'];
-    $value_query = "SELECT pub_cat_info.value FROM pub_cat_info, pub_cat WHERE pub_cat.pub_id=$pub_id AND pub_cat.cat_id=pub_cat_info.cat_id AND pub_cat_info.pub_id=$pub_id AND pub_cat_info.info_id=$info_id";
-    $value_result = mysql_query($value_query) or die("Query failed : " . mysql_error());
-    $value_line = mysql_fetch_array($value_result, MYSQL_ASSOC);
-    if($value_line['value'] != null){
-		echo "<tr>";
-        echo "<td width=\"25%\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><b>" . $info_line['name'] . ": </b></font></td>";
-        echo "<td width=\"75%\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">" . $value_line['value'] . "</font></td>";
-		echo "</tr>";
+<?
+
+foreach ($pub->info as $info) {
+    if(!is_null($info->value)) {
+		echo "<tr>"
+            . "<td width=\"25%\"><div id=\"emph\">" . $info->name
+            . ": </div></td>"
+            . "<td width=\"75%\"><div id=\"emph\">" . $info->value
+            . "</div></td>"
+            . "</tr>";
     }
-    mysql_free_result($value_result);
 }
 
 
 //PARSE DATES
 $string = "";
-$published = split("-",$pub_array[published]);
+$published = split("-",$pub->published);
 if($published[1] != 00)
 	$string .= date("F", mktime (0,0,0,$published[1]))." ";
 if($published[2] != 00)
@@ -211,44 +214,38 @@ if($published[0] != 0000)
 if($string != ""){
     ?>
     <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Date Published: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $string ?></font></td>
+		<td width="25%"><div id="emph">Date Published: </b></font></td>
+		<td width="75%"><div id="emph"><? echo $string ?></font></td>
         </tr>
+        <tr><td></td><td align=right>
         <? }
 $string = "";
-$published = split("-",$pub_array[updated]);
+$published = split("-",$pub->updated);
 if($published[1] != 00)
 	$string .= date("F", mktime (0,0,0,$published[1]))." ";
 if($published[2] != 00)
 	$string .= $published[2].", ";
 if($published[0] != 0000)
 	$string .= $published[0];
+
+if($string != "") {
+    print "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
+        . "Last updated ". $string . "</font><br>";
+}
 ?>
-<tr><td></td><td align=right>
-	<? if($string != "") { ?>
-                           <font face="Arial, Helvetica, sans-serif" size="1"><? echo "Last updated ". $string; ?></font><BR>
-                           <? } ?>
-                           <font face="Arial, Helvetica, sans-serif" size="1"><? echo "Submitted by " . $pub_array['submit'] . "<BR>"; ?></font>
-                           </td></tr>
-                           </table>
-                           <?
-                           if(isset($admin) && $admin == "true"){
-                               echo "<BR><b><a href=\"Admin/add_publication.php?pub_id=" . quote_smart($pub_id) . "\">Edit this publication</a>&nbsp;&nbsp;&nbsp;";
-                               echo "<a href=\"Admin/delete_publication.php?pub_id=" . quote_smart($pub_id) . "\">Delete this publication</a></b><br><BR>";
-                           }
+<font face="Arial, Helvetica, sans-serif" size="1">
+    <?
+echo "Submitted by " . $pub->submit . "<br/>";
+?>
+
+</font>
+</td></tr>
+</table>
+<?
+if(isset($admin) && $admin == "true"){
+    echo "<BR><b><a href=\"Admin/add_publication.php?pub_id=" . quote_smart($pub_id) . "\">Edit this publication</a>&nbsp;&nbsp;&nbsp;";
+    echo "<a href=\"Admin/delete_publication.php?pub_id=" . quote_smart($pub_id) . "\">Delete this publication</a></b><br><BR>";
+}
 back_button(); ?>
 </body>
 </html>
-
-<?
-  /* Free resultset */
-mysql_free_result($pub_result);
-mysql_free_result($cat_result);
-mysql_free_result($add_result);
-mysql_free_result($author_result);
-mysql_free_result($info_result);
-
-/* Closing connection */
-disconnect_db($link);
-
-?>
