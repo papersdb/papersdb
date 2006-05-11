@@ -9,7 +9,7 @@
 		{paper/additional}_{name_of_file}.file_extension
 */
 
-require "constants.php";
+include_once("constants.php");
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;

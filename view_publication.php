@@ -42,12 +42,12 @@
 
 	$extpoint_query = "SELECT name, value FROM pointer WHERE pub_id=" . quote_smart($pub_id) . " AND type=\"ext\"";
 	$extpoint_result = query_db($extpoint_query);
- 
+
 	if($pub_array['paper'] == "No paper")
 		$paperstring = "No Paper at this time.";
 	else {
-		$paperstring = "<a href=\".".$pub_array['paper']; 
-		$papername = split("paper_", $pub_array['paper']); 
+		$paperstring = "<a href=\".".$pub_array['paper'];
+		$papername = split("paper_", $pub_array['paper']);
 		$paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
 	}
 ?>

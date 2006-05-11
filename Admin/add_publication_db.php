@@ -1,25 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<?php
+
+ // $Id: add_publication_db.php,v 1.2 2006/05/11 00:00:56 aicmltec Exp $
+
+ /**
+  * \file
+  *
+  * \brief This takes add_publication.php as the input, and adds the
+  * publication to the database.
+  *
+  * It takes the * file(s) that need to be uploaded, and copies them to * a
+  * designated directory, inside a folder where the * folders name is the
+  * publication id.
+  *
+  * It displays a confirmation that the publication has been * added, and then
+  * provides links to where the user would * like to go next.
+  */
+
+?>
+
 <html>
 <head>
 <title>Add Publication</title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+     <link rel="stylesheet" type="text/css" href="../style.css"/>
+     </head>
+
 <?php
-	/* add_publication_db.php
-		This takes add_publication.php as the input, and
-		adds the publication to the database. It takes the
-		file(s) that need to be uploaded, and copies them to
-		a designated directory, inside a folder where the
-		folders name is the publication id.
 
-		It displays a confirmation that the publication has been
-		added, and then provides links to where the user would
-		like to go next.
-	*/
-
-	require('../functions.php');
+require('../functions.php');
 
 	function singlequery($query){$result= mysql_query($query) or die("Query failed: " . mysql_error());}
 
-	echo "</head>";
 	echo "<body>";
 	include('header.php');
 	$link = connect_db();
