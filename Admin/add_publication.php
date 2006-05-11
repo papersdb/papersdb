@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <?php
 
- // $Id: add_publication.php,v 1.2 2006/05/11 00:00:56 aicmltec Exp $
+ // $Id: add_publication.php,v 1.3 2006/05/11 22:32:31 aicmltec Exp $
 
  /**
   * \file
@@ -416,10 +416,10 @@ if($category != NULL){
     $catid_line = mysql_fetch_array($catid_result, MYSQL_ASSOC);
     $category_id = $catid_line['cat_id'];
 }
-$info_query = "SELECT info.name FROM info, category, cat_info WHERE
-						category.cat_id   = cat_info.cat_id
-	                AND info.info_id      = cat_info.info_id
-					AND category.category = \"$category\"";
+$info_query = "SELECT info.name FROM info, category, cat_info WHERE "
+    . "category.cat_id       = cat_info.cat_id "
+    . "AND info.info_id      = cat_info.info_id "
+    . "AND category.category = \"$category\"";
 $info_result = mysql_query($info_query) or die("Query failed : " . mysql_error());
 
 $info_counter = 0;

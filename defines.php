@@ -9,7 +9,7 @@
   * Defines contants to connect to the PapersDB database.
   */
 
- // $Id: constants.php,v 1.2 2006/05/11 00:00:56 aicmltec Exp $
+ // $Id: defines.php,v 1.1 2006/05/11 22:32:31 aicmltec Exp $
 
  /** The server hosting the database. */
 define("DB_SERVER", "abee.cs.ualberta.ca:3306");
