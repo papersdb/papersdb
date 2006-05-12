@@ -26,6 +26,15 @@ div#emph {
   font-weight: bold;
 }
 
+td#emph {
+  font-weight: bold;
+}
+
+td#footer {
+  font-size:10px;
+  text-align: right;
+}
+
 div#field {
   color: black;
   font-size:14px;
