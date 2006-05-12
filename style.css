@@ -10,6 +10,8 @@ td.large {font-size:18px;}
 td.standard {font-size:16px;}
 td.small {font-size:14px;}
 
+td#formbg { background-image: url(template/header_r2_c2.gif); }
+
 a:link { color: #000099;}
 a:visited { color: #000099;}
 a:hover { color: #0066FF;}

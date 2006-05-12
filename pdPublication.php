@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.2 2006/05/11 23:20:21 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.3 2006/05/12 16:55:49 aicmltec Exp $
 
   /**
    * \file
@@ -67,18 +67,20 @@ class pdPublication {
             $r = $db->fetchObject($q);
         }
 
-        foreach ($this->info as $key => $value) {
-            $q = $db->select(array('pub_cat_info', 'pub_cat'),
-                             'pub_cat_info.value',
-                             array('pub_cat.pub_id' => $id,
-                                   'pub_cat.cat_id=pub_cat_info.cat_id',
-                                   'pub_cat_info.pub_id' => $id,
-                                   'pub_cat_info.info_id' => $value->info_id),
-                             "pdPublication::dbLoad");
-            $r = $db->fetchObject($q);
-            while ($r) {
-                $this->info[$key]->value = $r->value;
+        if (is_array($this->info)) {
+            foreach ($this->info as $key => $value) {
+                $q = $db->select(array('pub_cat_info', 'pub_cat'),
+                                 'pub_cat_info.value',
+                                 array('pub_cat.pub_id' => $id,
+                                       'pub_cat.cat_id=pub_cat_info.cat_id',
+                                       'pub_cat_info.pub_id' => $id,
+                                       'pub_cat_info.info_id' => $value->info_id),
+                                 "pdPublication::dbLoad");
                 $r = $db->fetchObject($q);
+                while ($r) {
+                    $this->info[$key]->value = $r->value;
+                    $r = $db->fetchObject($q);
+                }
             }
         }
 
