@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.3 2006/05/12 16:55:49 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.4 2006/05/12 18:27:00 aicmltec Exp $
 
   /**
    * \file
@@ -31,7 +31,7 @@ class pdPublication {
      * Use flags to load individual tables
      */
     function dbLoad($id, $flags = 0) {
-        $db =& connect_db();
+        $db =& dbCreate();
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
         $this->objLoad($q);
@@ -122,7 +122,8 @@ class pdPublication {
     function dbLoadVenue(&$db) {
         if ($this->venue == "") return;
 
-        if (preg_match("/:<([0-9]+)>/", $this->venue, $venue_id) == 0) return;
+        if (preg_match("/venue_id:<([0-9]+)>/", $this->venue, $venue_id) == 0)
+            return;
 
         if ($venue_id[1] == "") return;
 

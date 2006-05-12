@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.5 2006/05/11 22:32:31 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.6 2006/05/12 18:27:00 aicmltec Exp $
 
   /**
    * \file
@@ -25,10 +25,47 @@ $absolute_files_path = FS_PATH . $relative_files_path;
 $wgSiteName = "PapersDB";
 
 
-/* Useful functions dealing with the database */
-function &connect_db() {
+/**
+ * Creates a database object to operate on the database.
+ */
+function &dbCreate() {
     $db = Database::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, DB_NAME);
     return $db;
+}
+
+/**
+ * \todo this function should not be used anymore.
+ *
+ * \see dbCreate
+ */
+function connect_db() {
+
+	$link = mysql_connect(DB_SERVER, DB_USER, DB_PASSWD)
+		or die("Could not connect : " . mysql_error());
+	mysql_select_db(DB_NAME) or die("Could not select database");
+
+	return $link;
+}
+
+/**
+ * \todo this function should not be used anymore.
+ *
+ * \see dbCreate
+ */
+function disconnect_db($link) {
+	mysql_close($link);
+}
+
+/**
+ * \todo this function should not be used anymore.
+ *
+ * \see dbCreate
+ */
+function query_db($query) {
+	//$result = mysql_query($query) or die(back_button());
+	// Use this line for debugging
+	$result = mysql_query($query) or die("Query failed : " . mysql_error());
+	return $result;
 }
 
 function wfDebug( $text, $logonly = false ) {

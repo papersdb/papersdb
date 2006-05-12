@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: index.php,v 1.4 2006/05/11 22:32:31 aicmltec Exp $
+  // $Id: index.php,v 1.5 2006/05/12 18:27:00 aicmltec Exp $
 
   /**
    * \file
@@ -103,7 +103,7 @@ color: #CCCCCC;
     <tr>
     <td colspan="6" background="template/public_r8_c1.jpg" valign="top">
     <?
-    $db =& connect_db();
+    $db =& dbCreate();
 $pub_query = $db->select('publication', '*', '', "index.php",
                          array('ORDER BY' => 'updated DESC'));
 
