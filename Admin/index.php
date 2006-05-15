@@ -31,7 +31,7 @@ a:active {
 </head>
 <body bgcolor="#666666" link="#000099" vlink="#000099">
 <center>
-<? 	
+<?
 	require('../functions.php');
 	/* Connecting, selecting database */
 	$link = connect_db();
@@ -62,7 +62,7 @@ a:active {
   <tr>
    <td><a href="../advanced_search.php?admin=true"><img name="paperbox_r2_c1" src="template/paperbox_r2_c1.jpg" width="119" height="36" border="0" alt=""></a></td>
    <td colspan="5"><img name="paperbox_r2_c2" src="template/paperbox_r2_c2.jpg" width="150" height="36" border="0" alt=""></td>
-   <td colspan="4"><a href="login.php"><img name="paperbox_r2_c7" src="template/paperbox_r2_c7.jpg" width="231" height="36" border="0" alt=""></a></td>
+   <td colspan="4"><a href="user.php"><img name="paperbox_r2_c7" src="template/paperbox_r2_c7.jpg" width="231" height="36" border="0" alt=""></a></td>
    <td><img src="template/spacer.gif" width="1" height="36" border="0" alt=""></td>
   </tr>
   <tr>
@@ -89,11 +89,11 @@ a:active {
    <td colspan="10" background="template/paperbox_r6_c1.jpg" valign="top">
    <BR>
       <?
-   	if($user_array['login'] == "") 
+   	if($user_array['login'] == "")
 		echo "<center><FONT COLOR=\"#DD0000\"><b><u>ATTENTION</u><BR>YOUR LOGIN INFORMATION MUST BE UPDATED!<BR>".
-		"<a href=\"login.php\">CLICK HERE TO DO SO NOW</a></b></FONT></center>";
+		"<a href=\"user.php\">CLICK HERE TO DO SO NOW</a></b></FONT></center>";
 	else
-		echo "&nbsp;<font color=\"#FFFFFF\">Welcome <B>".$user_array['name']."</B>.</font><BR>"; 
+		echo "&nbsp;<font color=\"#FFFFFF\">Welcome <B>".$user_array['name']."</B>.</font><BR>";
 		$pub_query = "SELECT * FROM publication WHERE submit LIKE \"".$user_array['name']."\" ORDER BY updated DESC";
 		$pub_result = query_db($pub_query);
 		for($r = 0; $r < 3; $r++){
@@ -103,7 +103,7 @@ a:active {
 		if($pub_array['title'] != "")
 			echo "<BR>&nbsp;<li><b><a href=\"../view_publication.php?admin=true&pub_id=".$pub_array['pub_id']."\">".$pub_array['title']."</a></b>";
 		}
-		
+
 		disconnect_db($link);
    ?>
    </td>

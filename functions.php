@@ -346,5 +346,93 @@ function get_venue_info($venue) {
 	return $output;
 }
 
+function pageHeader() {
+    echo <<<END
+<div id="titlebar">
+        <a href="http://www.uofaweb.ualberta.ca/science/">
+        <img src="http://www.cs.ualberta.ca/library/images/science.gif"
+        alt="Faculty of Science Home Page" width="525" height="20"
+        border="0"/></a>
+        <a href="http://www.ualberta.ca/">
+        <img src="http://www.cs.ualberta.ca/library/images/uofa_top.gif"
+        alt="University of Alberta Home Page" width="225" height="20"
+        border="0"/></a>
+    </div>
+
+<div id="header">
+        <h1>Papers Database</h1>
+    </div>
+
+END;
+}
+
+function navigationMenu() {
+    global $logged_in;
+
+    $options = array();
+
+    if ($logged_in) {
+        $options += array('Add Publication' => 'Admin/add_publication.php',
+                          'Add Author' => 'Admin/add_author.php');
+    }
+
+    $options += array('Advanced Search' => 'advanced_search.php',
+                      'All Publications' => 'list_publication.php',
+                      'All Authors' => 'list_author.php');
+
+    if ($logged_in) {
+        $options += array('Logout' => 'logout.php');
+    }
+    else {
+        $options += array('Login or Register' => 'login.php');
+    }
+
+    echo <<<END
+<div id="nav">
+    <h2>navigation</h2>
+    <ul>
+END;
+
+    foreach ($options as $key => $value) {
+        printf("<li><a href='%s'>%s</a></li>", $value, $key);
+    }
+
+    echo <<<END
+</ul>
+<form name="pubForm" action="search_publication_db.php" method="POST"
+    enctype="multipart/form-data">
+    <input type="hidden" name="titlecheck" value="true"/>
+    <input type="hidden" name="authorcheck" value="true"/>
+    <input type="hidden" name="halfabstractcheck" value="true"/>
+    <input type="hidden" name="datecheck" value="true"/>
+    <input type="text" name="search" size="12" maxlength="250" value=""/>
+    <input type="SUBMIT" name="Quick" value="Search" class="text"/>
+    </form>
+</div>
+END;
+}
+
+function pageFooter() {
+    echo <<<END
+<div id="footer">
+
+For any questions/comments about the Papers Database please e-mail
+<a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
+        <div class="ualogo">
+		<a href="http://www.ualberta.ca">
+        <img src="http://www.cs.ualberta.ca/library/images/uofa_logo.gif"
+        width="162" height="36" alt="University of Alberta Logo" />
+        </a>
+        </div>
+        <div id="copyright">
+		<ul>
+		<li>Copyright &copy; 2002-2006</li>
+                                 </ul>
+                                 </div>
+                                 </div>
+
+END;
+}
+
 
 ?>

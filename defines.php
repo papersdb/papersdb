@@ -1,4 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <?php
 
  /**
@@ -9,7 +8,7 @@
   * Defines contants to connect to the PapersDB database.
   */
 
- // $Id: defines.php,v 1.1 2006/05/11 22:32:31 aicmltec Exp $
+ // $Id: defines.php,v 1.2 2006/05/15 22:40:31 aicmltec Exp $
 
  /** The server hosting the database. */
 define("DB_SERVER", "abee.cs.ualberta.ca:3306");
@@ -32,4 +31,3 @@ define("DB_NAME",   "pubDBdev");
 define("FS_PATH", "/usr/abee4/cshome/loyola");
 
 ?>
-

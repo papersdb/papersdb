@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: view_publication.php,v 1.8 2006/05/12 18:27:00 aicmltec Exp $
+  // $Id: view_publication.php,v 1.9 2006/05/15 22:40:31 aicmltec Exp $
 
   /**
    * \file
@@ -15,37 +15,39 @@
    */
 
 require_once('functions.php');
-require_once('pdPublication.php');
-include_once('header.php');
+include_once('check_login.php');
+require_once('includes/pdPublication.php');
 
 require_once('HTML/Table.php');
 
+$pub_id = $_GET['pub_id'];
 isValid($pub_id);
 
+$db =& dbCreate();
+
 makePage();
+
+$db->close();
 
 /**
  * This function creates the page which consists mainly of a table containing
  * publication information.
  */
 function makePage() {
-    global $pub_id;
+    global $logged_in, $pub_id, $db;
 
     print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
         . "lang='en'>\n"
         . "<head>\n"
         . "<title>" . $pub->title . "</title>\n"
         . "<meta http-equiv='Content-Type' content='text/html; "
-        . "charset=iso-8859-1' />"
+        . "charset=iso-8859-1' />\n"
         . "<link rel='stylesheet' type='text/css' href='style.css' />\n"
         . "</head>\n"
         . "<body>\n";
 
-    if (isset($admin) && $admin == "true")
-        include 'headeradmin.php';
-
     $pub = new pdPublication();
-    $pub->dbLoad($pub_id);
+    $pub->dbLoad($pub_id, $db);
 
     if ($pub->paper == "No paper")
         $paperstring = "No Paper at this time.";
@@ -55,7 +57,7 @@ function makePage() {
         $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
     }
 
-    $tableAttrs = array('width' => '750',
+    $tableAttrs = array('width' => '600',
                         'border' => '0',
                         'cellpadding' => '6',
                         'cellspacing' => '0');
@@ -70,10 +72,10 @@ function makePage() {
 
     if(isset($pub->additional_info)) {
         $table->addRow(array('Additional Materials:',
-                             additionalHtmlGet($pub)));
+                             additional2Html($pub)));
     }
 
-    $table->addRow(array('Author(s):', authorHtmlGet($pub)));
+    $table->addRow(array('Author(s):', author2Html($pub)));
 
     $table->addRow(array('Abstract:', stripslashes($pub->abstract)));
 
@@ -101,15 +103,14 @@ function makePage() {
 
     $table->setColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-    if (isset($admin) && $admin == "true")
-        ;
-    else {
-        pdHeader();
-    }
+    pageHeader();
+    navigationMenu();
+
+    print "<div id='content'>\n";
 
     echo $table->toHtml();
 
-    if(isset($admin) && $admin == "true") {
+    if($logged_in) {
         echo "<br><b><a href=\"Admin/add_publication.php?pub_id="
             . quote_smart($pub_id)
             . "\">Edit this publication</a>&nbsp;&nbsp;&nbsp;"
@@ -117,12 +118,14 @@ function makePage() {
             . quote_smart($pub_id)
             . "\">Delete this publication</a></b><br><BR>";
     }
-    back_button();
+    print "</div>\n";
+
+    pageFooter();
 
     print "</body></html>";
 }
 
-function additionalHtmlGet(&$pub) {
+function additional2Html(&$pub) {
     if(!isset($pub->additional_info)) return "No Additional Materials";
 
     $additionalMaterials = "";
@@ -146,12 +149,12 @@ function additionalHtmlGet(&$pub) {
     return $additionalMaterials;
 }
 
-function authorHtmlGet(&$pub) {
+function author2Html(&$pub) {
     $authorsStr = "";
     if (is_array($pub->author)) {
         foreach ($pub->author as $author) {
             $authorsStr .= "<a href=\"./view_author.php?";
-            if(isset($admin) && $admin == "true")
+            if($logged_in)
                 $authorsStr .= "admin=true&";
             $authorsStr .= "popup=true&author_id=" . $author->author_id
                 . "\" target=\"_self\"  'Help', "
@@ -203,15 +206,17 @@ function extPointerRowsAdd(&$pub, &$table) {
 }
 
 function intPointerRowsAdd(&$pub, &$table) {
+    global $db;
+
     if (!isset($pub->intPointer)) return;
 
     foreach ($pub->intPointer as $int) {
         $intLinkStr = "<a href=\"view_publication.php?";
-        if(isset($admin) && ($admin == "true"))
+        if($logged_in)
             $intLinkStr .= "admin=true&";
 
         $intPub = new pdPublication();
-        $intPub->dbLoad($int->value);
+        $intPub->dbLoad($int->value, $db);
 
         $intLinkStr .= "pub_id=" . $int->value . "\">"
             . $intPub->title . "</a>";
@@ -264,6 +269,5 @@ function lastUpdateGet(&$pub) {
         $string .= $published[0];
     return $string;
 }
-
 
 ?>

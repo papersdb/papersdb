@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <?php
 
- // $Id: add_publication.php,v 1.3 2006/05/11 22:32:31 aicmltec Exp $
+ // $Id: add_publication.php,v 1.4 2006/05/15 22:40:31 aicmltec Exp $
 
  /**
   * \file
@@ -935,7 +935,7 @@ while($user_array = mysql_fetch_array($user_result, MYSQL_ASSOC))
 ?>
 &nbsp;&nbsp;
 <font align=bottom face="Arial, Helvetica, sans-serif" size="1">
-          <a href ="login.php?status=edit">Add/Change collaborators</a></font>
+          <a href ="user.php?status=edit">Add/Change collaborators</a></font>
 </td></tr></table></td>
 <td valign="top"> <table width="150"><tr><td>
 <?

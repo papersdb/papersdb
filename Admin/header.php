@@ -30,7 +30,7 @@ a:hover {
    <td><a href="../list_publication.php?type=view&admin=true"><img name="header_r2_c2" src="../buttons/header_r2_c2.gif" width="132" height="26" border="0" alt=""></a></td>
    <td><a href="../list_author.php?type=view&admin=true"><img name="header_r2_c3" src="../buttons/header_r2_c3.gif" width="95" height="26" border="0" alt=""></a></td>
    <td><a href="quickedit.php"><img name="header_r2_c4" src="../buttons/header_r2_c4.gif" width="113" height="26" border="0" alt=""></a></td>
-   <td><a href="login.php"><img name="header_r2_c5" src="../buttons/header_r2_c5.gif" width="78" height="26" border="0" alt=""></td>
+   <td><a href="user.php"><img name="header_r2_c5" src="../buttons/header_r2_c5.gif" width="78" height="26" border="0" alt=""></td>
    <td><img src="../buttons/spacer.gif" width="1" height="26" border="0" alt=""></td>
   </tr>
 </table>

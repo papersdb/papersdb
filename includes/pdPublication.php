@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.4 2006/05/12 18:27:00 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.1 2006/05/15 22:40:31 aicmltec Exp $
 
   /**
    * \file
@@ -10,14 +10,34 @@
    *
    */
 
-  /**
+/**
    *
    * \brief Class for storage and retrieval of publications to / from the
    * database.
    */
 
 class pdPublication {
-    /**
+    var $pub_id;
+    var $title;
+    var $paper;
+    var $abstract;
+    var $keywords;
+    var $published;
+    var $venue;
+    var $venue_info;
+    var $author;
+    var $extra_info;
+    var $submit;
+    var $updated;
+    var $info;
+    var $additional_info;
+    var $category;
+    var $location;
+    var $type;
+    var $intPointer;
+    var $extPointer;
+
+        /**
      * Constructor.
      */
     function pdPublication($obj = NULL) {
@@ -30,8 +50,9 @@ class pdPublication {
      *
      * Use flags to load individual tables
      */
-    function dbLoad($id, $flags = 0) {
-        $db =& dbCreate();
+    function dbLoad($id, &$db, $flags = 0) {
+        assert('is_object($db)');
+
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
         $this->objLoad($q);

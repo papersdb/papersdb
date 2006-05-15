@@ -1,8 +1,8 @@
 <?php
     /* Headeradmin.php
-      This is the admin header that you see on all the pages that is open 
+      This is the admin header that you see on all the pages that is open
 	  to the public but has a user logged in.
-	*/ 
+	*/
 	echo "<body link=\"#000099\" vlink=\"#000099\">";
 	echo "<!--PICOSEARCH_SKIPLINKSTART-->";
 	?>
@@ -25,12 +25,12 @@
    <td><a href="list_publication.php?type=view&admin=true"><img name="header_r2_c2" src="buttons/header_r2_c2.gif" width="132" height="26" border="0" alt=""></a></td>
    <td><a href="list_author.php?type=view&admin=true"><img name="header_r2_c3" src="buttons/header_r2_c3.gif" width="95" height="26" border="0" alt=""></a></td>
    <td><a href="Admin/quickedit.php"><img name="header_r2_c4" src="buttons/header_r2_c4.gif" width="113" height="26" border="0" alt=""></a></td>
-   <td><a href="Admin/login.php"><img name="header_r2_c5" src="buttons/header_r2_c5.gif" width="78" height="26" border="0" alt=""></td>
+   <td><a href="Admin/user.php"><img name="header_r2_c5" src="buttons/header_r2_c5.gif" width="78" height="26" border="0" alt=""></td>
    <td><img src="buttons/spacer.gif" width="1" height="26" border="0" alt=""></td>
   </tr>
 </table>
 		<?
-		
+
 	echo "<!--PICOSEARCH_SKIPLINKEND--> ";
 	echo "</body>";
 ?>
