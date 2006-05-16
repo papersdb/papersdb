@@ -66,7 +66,8 @@ function quickForm($title, $style, $name, $value){
 	echo "<tr> \n";
 	echo "<td width=\"25%\" class=\"".$style."\">".$title.": </td> \n";
 	echo "<td width=\"75%\" class=\"".$style."\"> \n";
-	echo "<input type=\"text\" name=\"".$name."\" size=\"60\" maxlength=\"250\" value=\"".$$value."\"> \n";
+	echo "<input type=\"text\" name=\"" . $name
+        . "\" size=\"60\" maxlength=\"250\" value=\"".$$value."\"> \n";
 	echo "</td></tr> \n";
 }
 
@@ -346,6 +347,16 @@ function get_venue_info($venue) {
 	return $output;
 }
 
+function htmlHeader($title) {
+    print "<html>\n"
+        . "<head>\n"
+        . "<title>". $title . "</title>\n"
+        . "<meta http-equiv='Content-Type' "
+        . "content='text/html; charset=iso-8859-1'>\n"
+        . "<link rel='stylesheet' href='style.css'>\n"
+        . "</head>";
+}
+
 function pageHeader() {
     echo <<<END
 <div id="titlebar">
@@ -399,7 +410,7 @@ END;
 
     echo <<<END
 </ul>
-<form name="pubForm" action="search_publication_db.php" method="POST"
+<form name="quicksearch" action="search_publication_db.php" method="POST"
     enctype="multipart/form-data">
     <input type="hidden" name="titlecheck" value="true"/>
     <input type="hidden" name="authorcheck" value="true"/>

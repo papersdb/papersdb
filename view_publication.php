@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: view_publication.php,v 1.9 2006/05/15 22:40:31 aicmltec Exp $
+  // $Id: view_publication.php,v 1.10 2006/05/16 21:21:33 aicmltec Exp $
 
   /**
    * \file
@@ -64,7 +64,7 @@ function makePage() {
     $table = new HTML_Table($tableAttrs);
     $table->setAutoGrow(true);
 
-    $table->addRow(array('Title:',$pub->title));
+    $table->addRow(array('Title:', $pub->title));
     $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                  array('id' => 'emph'));
     $table->addRow(array('Category:', $pub->category));
@@ -101,7 +101,7 @@ function makePage() {
     $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                  array('id' => 'footer'));
 
-    $table->setColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+    $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
     pageHeader();
     navigationMenu();

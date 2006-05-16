@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: index.php,v 1.6 2006/05/15 22:40:31 aicmltec Exp $
+  // $Id: index.php,v 1.7 2006/05/16 21:21:33 aicmltec Exp $
 
   /**
    * \file
@@ -30,7 +30,7 @@ require_once('includes/pdPublication.php');
 pageHeader();
 navigationMenu();
 
-    $db =& dbCreate();
+$db =& dbCreate();
 $pub_query = $db->select('publication', '*', '', "index.php",
                          array('ORDER BY' => 'updated DESC'));
 

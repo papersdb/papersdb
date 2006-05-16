@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.1 2006/05/15 22:40:31 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.2 2006/05/16 21:21:33 aicmltec Exp $
 
   /**
    * \file
@@ -56,6 +56,7 @@ class pdPublication {
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
         $this->objLoad($q);
+        $db->freeResult($q);
 
         $q = $db->select(array('category', 'pub_cat'),
                          'category.category',
@@ -63,6 +64,7 @@ class pdPublication {
                                'pub_cat.pub_id' => $id),
                          "pdPublication::dbLoad");
         $this->objLoad($db->fetchObject($q));
+        $db->freeResult($q);
 
         $q = $db->select(array('additional_info', 'pub_add'),
                          array('additional_info.location',
@@ -75,6 +77,7 @@ class pdPublication {
             $this->additional_info[] = $r;
             $r = $db->fetchObject($q);
         }
+        $db->freeResult($q);
 
         $q = $db->select(array('info', 'cat_info', 'pub_cat'),
                          array('info.info_id', 'info.name'),
@@ -87,6 +90,7 @@ class pdPublication {
             $this->info[] = $r;
             $r = $db->fetchObject($q);
         }
+        $db->freeResult($q);
 
         if (is_array($this->info)) {
             foreach ($this->info as $key => $value) {
@@ -102,6 +106,7 @@ class pdPublication {
                     $this->info[$key]->value = $r->value;
                     $r = $db->fetchObject($q);
                 }
+                $db->freeResult($q);
             }
         }
 
@@ -116,6 +121,7 @@ class pdPublication {
             $this->author[] = $r;
             $r = $db->fetchObject($q);
         }
+        $db->freeResult($q);
 
         $q = $db->select('pointer', 'value',
                          array('pub_id' => $id, 'type' => 'int'),
@@ -125,6 +131,7 @@ class pdPublication {
             $this->intPointer[] = $r;
             $r = $db->fetchObject($q);
         }
+        $db->freeResult($q);
 
         $q = $db->select('pointer', array('name', 'value'),
                          array('pub_id' => $id, 'type' => 'ext'),
@@ -134,6 +141,7 @@ class pdPublication {
             $this->extPointer[] = $r;
             $r = $db->fetchObject($q);
         }
+        $db->freeResult($q);
 
         $this->dbLoadVenue($db);
 
