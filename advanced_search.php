@@ -1,19 +1,19 @@
-<?php
+<?php ;
 
-  // $Id: advanced_search.php,v 1.6 2006/05/17 22:45:58 aicmltec Exp $
+// $Id: advanced_search.php,v 1.7 2006/05/17 23:08:30 aicmltec Exp $
 
-  /**
-   * \file
-   *
-   * \brief Performs advanced searches on publication information in the
-   * database.
-   *
-   * It is mainly only forms, with little data being read from the database. It
-   * sends the users input to search_publication_db.php.
-   *
-   * Uses the Pear library's HTML_QuickForm and HTML_Table to create and
-   * display the content.
-   */
+/**
+ * \file
+ *
+ * \brief Performs advanced searches on publication information in the
+ * database.
+ *
+ * It is mainly only forms, with little data being read from the database. It
+ * sends the users input to search_publication_db.php.
+ *
+ * Uses the Pear library's HTML_QuickForm and HTML_Table to create and
+ * display the content.
+ */
 
 include_once('functions.php');
 include_once('check_login.php');

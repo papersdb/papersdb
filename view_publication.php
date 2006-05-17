@@ -1,18 +1,18 @@
-<?php
+<?php ;
 
-  // $Id: view_publication.php,v 1.10 2006/05/16 21:21:33 aicmltec Exp $
+// $Id: view_publication.php,v 1.11 2006/05/17 23:08:30 aicmltec Exp $
 
-  /**
-   * \file
-   *
-   * \brief View Publication
-   *
-   * Given a publication id number this page shows most of the information
-   * about the publication. It does not display the extra information which is
-   * hidden and used only for the search function. It provides links to all the
-   * authors that are included. If a user is logged in, then there is an option
-   * to edit or delete the current publication.
-   */
+/**
+ * \file
+ *
+ * \brief View Publication
+ *
+ * Given a publication id number this page shows most of the information about
+ * the publication. It does not display the extra information which is hidden
+ * and used only for the search function. It provides links to all the authors
+ * that are included. If a user is logged in, then there is an option to edit
+ * or delete the current publication.
+ */
 
 require_once('functions.php');
 include_once('check_login.php');

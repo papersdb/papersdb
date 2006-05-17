@@ -1,5 +1,7 @@
 <?php ;
 
+// $Id: list_publication.php,v 1.5 2006/05/17 23:08:30 aicmltec Exp $
+
 /**
  * \file
  *
