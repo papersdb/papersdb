@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: advanced_search.php,v 1.5 2006/05/17 22:18:31 aicmltec Exp $
+  // $Id: advanced_search.php,v 1.6 2006/05/17 22:45:58 aicmltec Exp $
 
   /**
    * \file
@@ -377,9 +377,10 @@ print "<div id='content'>\n"
 . "<h2><b><u>Search</u></b></h2>\n";
 
 $data = '';
-if($_GET['expand'] == "true")
+if($_GET['expand'] == "true") {
     $data .= $renderer->elementToHtml('expand') . "\n";
-else
+}
+else {
     $data .= $renderer->elementToHtml('titlecheck') . "\n"
         . $renderer->elementToHtml('authorcheck') . "\n"
         . $renderer->elementToHtml('halfabstractcheck') . "\n"

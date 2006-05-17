@@ -15,7 +15,7 @@
 include_once('functions.php');
 include_once('check_login.php');
 
-htmlHeader('Search Publication');
+htmlHeader('Publications');
 
 /* Connecting, selecting database */
 $db =& dbCreate();
@@ -62,16 +62,16 @@ navigationMenu();
 print "<div id='content'>\n"
 . "<h2><b><u>Publications";
 
-if (isset($_GET['author_id']))
-    echo "by ". $_GET['author_name'];
+if (isset($_GET['author_id'])) {
+    $q = $db->selectRow(array('author'), 'name',
+                        array('author_id' => $_GET['author_id']),
+                        "list_publication.php");
+
+    print " by " . $q->name;
+    $db->freeResult($q);
+}
 
 print "</u></b></h2>\n";
-
-if ($logged_in) {
-    print <<<END
-    <h3><a href="Admin/add_publication.php"><b>Add New Publication</b></a></h3>
-END;
-}
 
 $tableAttrs = array('width' => '100%',
                     'border' => '0',

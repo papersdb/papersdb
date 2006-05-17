@@ -484,7 +484,7 @@ $countentries = 0;
 $input_unsanitized = str_replace("\'", "", stripslashes($input));
 $titlecheck = true;
 
-$form = searchFormCreate();
+$form =& searchFormCreate();
 $form->setDefaults(array('search' => $input_unsanitized));
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
@@ -499,7 +499,7 @@ $data = 'Search: '
 
 $table->addRow(array($renderer->toHtml($data)), array('id' => 'emph'));
 
-$cvForm = cvFormCreate($pub_id_array);
+$cvForm =& cvFormCreate($pub_id_array);
 if ($cvForm != null) {
     $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
     $cvForm->accept($renderer);
