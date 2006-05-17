@@ -12,35 +12,34 @@
 
 require('functions.php');
 
-?>
+htmlHeader('Search Publication');
 
-<html>
-<head>
-<title>Search Publication</title>
-<link rel="stylesheet" href="style.css">
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-      <link rel="stylesheet" href="style.css">
-
-<?php
-// Simple function to check to see if the string is a common word or not
+/**
+ * Simple function to check to see if the string is a common word or not
+ */
 function is_common_word($string){
+    $common_words = array("a", "all", "am", "an", "and","any","are","as","at",
+                          "be","but","can","did","do","does","for","from",
+                          "had", "has","have","here","how","i","if","in","is",
+                          "it","no", "not","of","on","or","so","that","the",
+                          "then","there", "this","to","too","up","use",
+                          "what","when","where", "who","why","you");
 
-  $common_words = array("a", "all", "am", "an", "and","any","are","as","at","be","but","can","did","do","does","for","from","had","has","have","here","how","i","if","in","is","it","no","not","of","on","or","so","that","the","then","there","this","to","too","up","use", "what","when","where","who","why","you");
+    for ($a =0; $a< count($common_words); $a++)
+        if($string == $common_words[$a])
+            return true;
 
-  for($a =0; $a< count($common_words); $a++)
-    if($string == $common_words[$a])
-      return true;
-
-  return false;
+    return false;
 }
 
 /**
- * Add words to the array except for special tokens,
- * keeps track of ors, doesn't keep track of quotes.
+ * Add words to the array except for special tokens, keeps track of ors,
+ * doesn't keep track of quotes.
  */
 $parse_search_add_word_or_next = false;
 function parse_search_add_word($word, $array) {
 	global $parse_search_add_word_or_next;
+
 	if (strlen($word) == 0)
 		return $array;
 	if (strcasecmp($word, "and") == 0)
@@ -81,7 +80,8 @@ function parse_search($search) {
 				$word = "";
 			}
 		}
-		else if ($search[$index] == " " || $search[$index] == "," || $search[$index] == "\t") {
+		else if ($search[$index] == " " || $search[$index] == ","
+                 || $search[$index] == "\t") {
 			if ($quote_mode == true) {
 				$word .= $search[$index];
 			}
@@ -127,21 +127,18 @@ function keep_the_intersect($array1, $array2)
 	return $intersect_array;
 }
 
-print_r($_POST);
+echo "</head>\n"
+. "<body>";
 
-if($admin =="true")
-    include 'headeradmin.php';
-else
-    include 'header.php';
-echo "</head>";
-echo "<body>";
+pageHeader();
+navigationMenu();
 
 $link = connect_db();
 $pub_id_count = 0;
 
 /* Publish date */
-$pubdate1 = $year1 . "-" . $month1 . "-" . $day1;
-$pubdate2 = $year2 . "-" . $month2 . "-" . $day2;
+$pubdate1 = $startdate;
+$pubdate2 = $enddate;
 
 // We start as the result being every pub_id
 $pub_id_array = NULL;
@@ -164,7 +161,7 @@ $search_url .= "categorycheck=" . urlencode($categorycheck) . "&titlecheck=" . u
 // I would love to make this ridiculously long URL shorter
 // remember to urlencode anything else that gets added as a term to the search
 
-// QUICK SEARCH -----------------------------------------------------------------
+// QUICK SEARCH ---------------------------------------------------------------
 $search = $_POST['search'];
 if($search != "") {
 	$input = $search;
@@ -308,7 +305,7 @@ else {
                         }
                     }
 
-                    //////DATES SEARCH-----------------------------------------------------------------------------------------
+                    ////// DATES SEARCH --------------------------------------
                     if ($pubdate1 != $pubdate2) {
                         $search_url .= "&year1=" . urlencode($year1) . "&" . "month1=" . urlencode($month1) . "&" . "day1=" . urlencode($day1);
                         $search_url .= "&" . "year2=" . urlencode($year2) . "&" . "month2=" . urlencode($month2) . "&" . "day2=" . urlencode($day2);
@@ -318,7 +315,7 @@ else {
                         $pub_id_array = keep_the_intersect($temporary_array, $pub_id_array);
                     }
 }
-//SHOW THE RESULTS-----------------------------------------------------------------------------------------------
+// SHOW THE RESULTS -----------------------------------------------------------
 
 $countentries = 0;
 //$input = str_replace("\\\"","",$input);
@@ -327,6 +324,7 @@ $input_unsanitized = str_replace("\'", "", stripslashes($input));
 $titlecheck = true;
 ?>
 
+<div id='content'>
 <form name="pubForm" action="search_publication_db.php<? if($admin == "true") echo "?admin=true"; ?>" method="POST" enctype="multipart/form-data">
 	<INPUT TYPE=hidden NAME="titlecheck" value="<? echo $titlecheck; ?>">
 	<INPUT TYPE=hidden NAME="authorcheck" value="<? echo $authorcheck; ?>">
@@ -613,5 +611,6 @@ if($pub_id_array != null){
                          disconnect_db($link);
 ?>
 
+                         </div>
                          </body>
                          </html>

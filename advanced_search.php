@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: advanced_search.php,v 1.2 2006/05/16 21:21:33 aicmltec Exp $
+  // $Id: advanced_search.php,v 1.3 2006/05/17 01:47:19 aicmltec Exp $
 
   /**
    * \file
@@ -10,14 +10,20 @@
    *
    * It is mainly only forms, with little data being read from the database. It
    * sends the users input to search_publication_db.php.
+   *
+   * Uses the Pear library's HTML_QuickForm and HTML_Table to create and
+   * display the content.
    */
 
 include_once('functions.php');
 include_once('check_login.php');
 require_once('includes/pdCatList.php');
 require_once('includes/pdAuthorList.php');
-require_once('HTML/Form.php');
+require_once('HTML/QuickForm.php');
+require_once("HTML/QuickForm/Renderer/QuickHtml.php");
 require_once('HTML/Table.php');
+
+global $additionalInfo;
 
 htmlHeader('Search Publication');
 
@@ -72,178 +78,297 @@ END;
 
 END;
 
-$cat_id = strval($_GET['cat_id']);
-isValid($cat_id);
-
-$db =& dbCreate();
-
-$form = new HTML_Form('search_publication_db.php','post','pubForm',
-                      null,'multipart/form-data');
-
-$tableAttrs = array('width' => '100%',
-                    'border' => '0',
-                    'cellpadding' => '6',
-                    'cellspacing' => '0');
-$table = new HTML_Table($tableAttrs);
-$table->setAutoGrow(true);
-
-$table->addRow(array('Search:',
-                     $form->returnText('search', stripslashes($search),
-                                       50, 250)
-                     . $form->returnSubmit('Search', 'Quick')));
-
-// horizontal line
-$table->addRow(array('<hr/>'), array('colspan' => '2'));
-
-$table->addRow(array('<h3>Advanced Search</h3>'), array('colspan' => '2'));
-$table->addRow(array('<h4>Search within:</h4>'), array('colspan' => '2'));
-
-// Category
-$cat_list = new pdCatList();
-$cat_list->dbLoad($db);
-
-$options = array('' => 'All Categories');
-foreach ($cat_list->list as $cat) {
-    $options[$cat->cat_id] = $cat->category;
-}
-$table->addRow(array('Category:',
-                     $form->returnSelect('cat_id', $options, intval($cat_id),
-                                         1, '', false,
-                                         'onChange="dataKeep(0);"')));
-
-// Title
-$table->addRow(array('Title:', $form->returnText('title', $title, 60, 250)));
-
-// Authors
-$auth_list = new pdAuthorList();
-$auth_list->dbLoad($db);
-unset($options);
-$options = array('' => 'All Authors');
-foreach($auth_list->list as $auth) {
-    $options[$auth->author_id] = $auth->name;
-}
-$table->addRow(array('Authors:',
-                     $form->returnText('authortyped',
-                                       stripslashes($authortyped), 18,
-                                       250)
-                     . ' or select from list '
-                     . $form->returnSelect('authorselect', $options,
-                                         null, 1, false)));
-
-//
-$table->addRow(array('Paper Filename:',
-                     $form->returnText('paper', $paper, 60, 250)));
-//
-$table->addRow(array('Abstract:',
-                     $form->returnText('abstract', $abstract, 60, 250)));
-//
-$table->addRow(array('Publication Venue:',
-                     $form->returnText('venue', $venue, 60, 250)));
-//
-$table->addRow(array('Keywords:',
-                     $form->returnText('keywords', $keywords, 60, 250)));
-
-if ($cat_id) {
+/**
+ *
+ */
+function additionalInfoGet(&$db, $cat_id) {
     $q = $db->select(array('info', 'category', 'cat_info'), 'info.name',
                      array('category.cat_id=cat_info.cat_id',
                            'info.info_id=cat_info.info_id',
                            'category.cat_id' => quote_smart($cat_id)));
     $r = $db->fetchObject($q);
     while ($r) {
-        $varname = strtolower($r->name);
+        $varname = $r->name;
         if ($varname != "") {
             $varname = str_replace(" ", "", $varname);
 
-            // This code copied from release version,
-            // but there is no $category_id variable defined!
-            //
-            // If the user didn't enter anything into the form,
-            // use the value we pulled from the database
-            //if ($$varname == "") {
-            //    $infoID = get_info_id($category_id, $info[$i]);
-            //    $$varname = get_info_field_value($pub_id, $category_id,
-            //                                     $infoID);
-            //}
-
-            $table->addRow(array($r->name . ':',
-                                 $form->returnText($varname, $$varname,
-                                                   60, 250)));
+            if (isset($_GET[strtolower($varname)]))
+                $additionalInfo[$varname] = $_GET[strtolower($varname)];
+            else
+                $additionalInfo[$varname] = '';
         }
         $r = $db->fetchObject($q);
     }
+    $db->freeResult($q);
+
+    return $additionalInfo;
 }
 
-// date published
-$table->addRow(array('Published between:',
-                     $form->returnText('startdate', '', 10, 10)
-                     . '<a href="javascript:doNothing()" '
-                     . 'onClick="setDateField(document.pubForm.startdate);'
-                     . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-                     . '\'dependent=yes,width=230,height=250,screenX=200,'
-                     . 'screenY=300,titlebar=yes\')">'
-                     . ' <img src="calendar.gif" border=0></a> (mm/dd/yyyy) '
-                     . 'and '
-                     . $form->returnText('enddate', '', 10, 10)
-                     . '<a href="javascript:doNothing()" '
-                     . 'onClick="setDateField(document.pubForm.enddate);'
-                     . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-                     . '\'dependent=yes,width=230,height=250,screenX=200,'
-                     . 'screenY=300,titlebar=yes\')">'
-                     . ' <img src="calendar.gif" border=0></a> (mm/dd/yyyy) '));
+/**
+ * Creates the from used on this page. The renderer is then used to
+ * display the form correctly on the page.
+ */
+function createFormElements(&$form, &$db) {
+    global $additionalInfo;
 
-if ($_GET['expand']) {
+    $form->addElement('text', 'search', null,
+                      array('size' => 50, 'maxlength' => 250));
+    $form->addElement('submit', 'Quick', 'Search');
+
+    $cat_list = new pdCatList();
+    $cat_list->dbLoad($db);
+
+    $options = array('' => 'All Categories');
+    foreach ($cat_list->list as $cat) {
+        $options[$cat->cat_id] = $cat->category;
+    }
+    $form->addElement('select', 'cat_id', null, $options,
+                      array('onChange' => 'dataKeep(0);'));
+    $form->addElement('text', 'title', null,
+                      array('size' => 60, 'maxlength' => 250));
+    $form->addElement('text', 'authortyped', null,
+                      array('size' => 20, 'maxlength' => 250));
+
+    $auth_list = new pdAuthorList();
+    $auth_list->dbLoad($db);
+    unset($options);
+    $options = array('' => 'All Authors');
+    foreach($auth_list->list as $auth) {
+        $options[$auth->author_id] = $auth->name;
+    }
+    $form->addElement('select', 'authorselect', null, $options);
+    $form->addElement('text', 'paper', null,
+                      array('size' => 60, 'maxlength' => 250));
+    $form->addElement('text', 'abstract', null,
+                      array('size' => 60, 'maxlength' => 250));
+    $form->addElement('text', 'venue', null,
+                      array('size' => 60, 'maxlength' => 250));
+    $form->addElement('text', 'keywords', null,
+                      array('size' => 60, 'maxlength' => 250));
+
+    if ($_GET['cat_id'] && is_array($additionalInfo)) {
+        foreach ($additionalInfo as $name => $value) {
+            $form->addElement('text', strtolower($name), null,
+                              array('size' => 60, 'maxlength' => 250));
+        }
+    }
+
+    $form->addElement('text', 'startdate', null,
+                      array('size' => 10, 'maxlength' => 10));
+    $form->addElement('text', 'enddate', null,
+                      array('size' => 10, 'maxlength' => 10));
+
+    if ($_GET['expand']) {
+        unset($options);
+        $options = array('titlecheck'        => 'Title',
+                         'authorcheck'       => 'Author(s)',
+                         'categorycheck'     => 'Category',
+                         'extracheck'        => 'Category Related Information',
+                         'papercheck'        => 'Link to Paper',
+                         'additionalcheck'   => 'Link to Additional Material',
+                         'halfabstractcheck' => 'Short Abstract',
+                         'venuecheck'        => 'Publication Venue',
+                         'keywordscheck'     => 'Keywords',
+                         'datecheck'         => 'Date Published');
+
+        foreach ($options as $name => $text) {
+            $form->addElement('advcheckbox', $name, null, $text, null,
+                              array('not checked', 'checked'));
+        }
+    }
+
+    $form->addElement('submit', 'Submit', 'Search');
+    $form->addElement('submit', 'Clear', 'Clear');
+
+    if ($_GET['edit'])
+        $form->addElement('hidden', 'pub_id', 'true');
+    if($_GET['expand'] == "true")
+        $form->addElement('hidden', 'expand', 'true');
+
+    if (!$_GET['expand']) {
+        $form->addElement('hidden', 'titlecheck', 'true');
+        $form->addElement('hidden', 'authorcheck', 'true');
+        $form->addElement('hidden', 'halfabstractcheck', 'true');
+        $form->addElement('hidden', 'datecheck', 'true');
+    }
+}
+
+function setFormValues(&$form) {
+    global $additionalInfo;
+
+    $defaultValues['search']            = stripslashes($_GET['search']);
+    $defaultValues['cat_id']            = $_GET['cat_id'];
+    $defaultValues['title']             = $_GET['title'];
+    $defaultValues['authortyped']       = stripslashes($_GET['authortyped']);
+    $defaultValues['paper']             = $_GET['paper'];
+    $defaultValues['abstract']          = $_GET['abstract'];
+    $defaultValues['venue']             = $_GET['venue'];
+    $defaultValues['keywords']          = $_GET['keywords'];
+    $defaultValues['titlecheck']        = 'checked';
+    $defaultValues['authorcheck']       = 'checked';
+    $defaultValues['additionalcheck']   = 'checked';
+    $defaultValues['halfabstractcheck'] = 'checked';
+    $defaultValues['datecheck']         = 'checked';
+
+
+    if ($_GET['cat_id'] && is_array($additionalInfo)) {
+        foreach ($additionalInfo as $name => $value) {
+            $defaultValues[strtolower($name)] = $value;
+        }
+    }
+
+    $form->setDefaults($defaultValues);
+}
+
+/**
+ *
+ */
+function createTable(&$db, &$renderer) {
+    global $additionalInfo;
+
+    $tableAttrs = array('width' => '100%',
+                        'border' => '0',
+                        'cellpadding' => '6',
+                        'cellspacing' => '0');
+    $table = new HTML_Table($tableAttrs);
+    $table->setAutoGrow(true);
+
+    $table->addRow(array('Search:',
+                         $renderer->elementToHtml('search')
+                         . ' ' . $renderer->elementToHtml('Quick')));
+
+    // horizontal line
     $table->addRow(array('<hr/>'), array('colspan' => '2'));
 
-    $prefsTable = new HTML_Table();
+    $table->addRow(array('<h3>Advanced Search</h3>'), array('colspan' => '2'));
+    $table->addRow(array('<h4>Search within:</h4>'), array('colspan' => '2'));
 
-    $prefsTable->addRow(array('<br/>'
-                              . $form->returnCheckbox('titlecheck', true)
-                              . 'Title'
-                              . '<br/>'
-                              . $form->returnCheckbox('authorcheck', true)
-                              . 'Author'
-                              . '<br/>'
-                              . $form->returnCheckbox('categorycheck', false)
-                              . 'Category'
-                              . '<br/>'
-                              . $form->returnCheckbox('extracheck', false)
-                              . 'Category Related Information'
-                              . '<br/>'
-                              . $form->returnCheckbox('papercheck', false)
-                              . 'Link to Paper'
-                              . '<br/>'
-                              . $form->returnCheckbox('additionalcheck', true)
-                              . 'Link to Additional Material',
-                              $form->returnCheckbox('halfabstractcheck', true)
-                              . 'Short Abstract'
-                              . '<br/>'
-                              . $form->returnCheckbox('venuecheck', false)
-                              . 'Publication Venue'
-                              . '<br/>'
-                              . $form->returnCheckbox('keywordscheck', false)
-                              . 'Keywords'
-                              . '<br/>'
-                              . $form->returnCheckbox('datecheck', true)
-                              . 'Date Published'
-                            ));
-    $prefsTable->updateRowAttributes($prefsTable->getRowCount() - 1,
-                                     array('id' => 'middle'));
-    $table->addRow(array('Search Preferences',
-                         'Show the following in search results:'
-                         . $prefsTable->toHtml()));
-    $table->addRow(array('<hr/>'), array('colspan' => '2'));
+    // Category
+    $cat_list = new pdCatList();
+    $cat_list->dbLoad($db);
+
+    $options = array('' => 'All Categories');
+    foreach ($cat_list->list as $cat) {
+        $options[$cat->cat_id] = $cat->category;
+    }
+    $table->addRow(array('Category:', $renderer->elementToHtml('cat_id')));
+
+    // Title
+    $table->addRow(array('Title:', $renderer->elementToHtml('title')));
+
+    // Authors
+    $auth_list = new pdAuthorList();
+    $auth_list->dbLoad($db);
+    unset($options);
+    $options = array('' => 'All Authors');
+    foreach($auth_list->list as $auth) {
+        $options[$auth->author_id] = $auth->name;
+    }
+    $table->addRow(array('Authors:',
+                         $renderer->elementToHtml('authortyped')
+                         . ' or select from list '
+                         . $renderer->elementToHtml('authorselect')));
+
+    $table->addRow(array('Paper Filename:',
+                         $renderer->elementToHtml('paper')));
+    $table->addRow(array('Abstract:',
+                         $renderer->elementToHtml('abstract')));
+    $table->addRow(array('Publication Venue:',
+                         $renderer->elementToHtml('venue')));
+    $table->addRow(array('Keywords:',
+                         $renderer->elementToHtml('keywords')));
+
+    if ($_GET['cat_id'] && is_array($additionalInfo)) {
+        foreach ($additionalInfo as $name => $value) {
+            $table->addRow(array($name . ':',
+                                 $renderer->elementToHtml(strtolower($name))));
+        }
+    }
+
+    // date published
+    $table->addRow(array('Published between:',
+                         $renderer->elementToHtml('startdate')
+                         . '<a href="javascript:doNothing()" '
+                         . 'onClick="setDateField(document.pubForm.startdate);'
+                         . 'top.newWin=window.open(\'calendar.html\', \'cal\','
+                         . '\'dependent=yes,width=230,height=250,screenX=200,'
+                         . 'screenY=300,titlebar=yes\')">'
+                         . '<img src="calendar.gif" border=0></a> (mm/dd/yyyy) '
+                         . 'and '
+                         . $renderer->elementToHtml('enddate')
+                         . '<a href="javascript:doNothing()" '
+                         . 'onClick="setDateField(document.pubForm.enddate);'
+                         . 'top.newWin=window.open(\'calendar.html\', \'cal\','
+                         . '\'dependent=yes,width=230,height=250,screenX=200,'
+                         . 'screenY=300,titlebar=yes\')">'
+                         . '<img src="calendar.gif" border=0></a> (mm/dd/yyyy) '
+                       ));
+
+    if ($_GET['expand']) {
+        $table->addRow(array('<hr/>'), array('colspan' => '2'));
+
+        $prefsTable = new HTML_Table();
+
+        $prefsTable->addRow(array('<br/>'
+                                  . $renderer->elementToHtml('titlecheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('authorcheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('categorycheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('extracheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('papercheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('additionalcheck'),
+                                  $renderer->elementToHtml('halfabstractcheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('venuecheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('keywordscheck')
+                                  . '<br/>'
+                                  . $renderer->elementToHtml('datecheck')
+                                ));
+        $prefsTable->updateRowAttributes($prefsTable->getRowCount() - 1,
+                                         array('id' => 'middle'));
+        $table->addRow(array('Search Preferences',
+                             'Show the following in search results:'
+                             . $prefsTable->toHtml()));
+        $table->addRow(array('<hr/>'), array('colspan' => '2'));
+    }
+    else {
+        $table->addRow(array('<a href="javascript:dataKeep(1);">'
+                             . 'Search Preferences</a>'),
+                       array('colspan' => '2'));
+    }
+
+    $table->addRow(array('',
+                         $renderer->elementToHtml('Submit')
+                         . ' ' . $renderer->elementToHtml('Clear')));
+
+    $table->updateColAttributes(0, array('width' => '25%'));
+
+    return $table;
 }
-else {
-    $table->addRow(array('<a href="javascript:dataKeep(1);">'
-                         . 'Search Preferences</a>'),
-                   array('colspan' => '2'));
-}
 
-$table->addRow(array('',
-                     $form->returnSubmit('Search', 'Submit')
-                     . $form->returnSubmit('Clear', 'Clear'), ''));
+$cat_id = strval($_GET['cat_id']);
+isValid($cat_id);
 
-$table->updateColAttributes(0, array('width' => '25%'));
+$db =& dbCreate();
+
+$form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
+                           '_self', 'multipart/form-data');
+// get our render
+$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+
+$additionalInfo = additionalInfoGet($db, $cat_id);
+createFormElements($form, $db);
+setFormValues($form);
+
+// Do the magic of creating the form.  NOTE: order is important here: this must
+// be called after creating the form elements, but before rendering them.
+$form->accept($renderer);
+$table = createTable($db, $renderer);
 
 pageHeader();
 navigationMenu();
@@ -251,25 +376,26 @@ navigationMenu();
 print "<div id='content'>\n"
 . "<a name='Start'></a>\n";
 
-print $form->returnStart(true);
-
+$data = '';
 if ($_GET['edit'])
-    print $form->retrunHidden('pub_id', $pub_id);
+    $data .= $renderer->elementToHtml('pub_id') . "\n";
 if($_GET['expand'] == "true")
-    print $form->returnHidden('expand', 'true');
-if($logged_in == "true")
-    print $form->returnHidden('admin', 'true');
+    $data .= $renderer->elementToHtml('expand') . "\n";
 
 if (!$_GET['expand']) {
-    print $form->returnHidden('titlecheck', 'true');
-    print $form->returnHidden('authorcheck', 'true');
-    print $form->returnHidden('halfabstractcheck', 'true');
-    print $form->returnHidden('datecheck', 'true');
+    $data .= $renderer->elementToHtml('titlecheck') . "\n"
+        . $renderer->elementToHtml('authorcheck') . "\n"
+        . $renderer->elementToHtml('halfabstractcheck') . "\n"
+        . $renderer->elementToHtml('datecheck') . "\n";
 }
 
 print "<h2><b><u>Search</u></b></h2>\n";
-print $table->toHtml();
-print $form->returnEnd();
+
+// Wrap the form and any remaining elements (i.e. hidden elements) into the
+// form tags.
+print $renderer->toHtml($data . $table->toHtml());
+
+$db->close();
 
 ?>
 
