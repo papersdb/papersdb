@@ -1,15 +1,15 @@
-<?php
+<?php ;
 
-  /**
-   * \file
-   *
-   * \brief Takes info from either advanced_search.php or the navigation menu.
-   *
-   * This takes the search query input and then searches the database and then
-   * displays the results.
-   *
-   * \note register_globals is assumed to be turned off.
-   */
+/**
+ * \file
+ *
+ * \brief Takes info from either advanced_search.php or the navigation menu.
+ *
+ * This takes the search query input and then searches the database and then
+ * displays the results.
+ *
+ * \note register_globals is assumed to be turned off.
+ */
 
 include_once('functions.php');
 require_once('includes/pdPublication.php');
@@ -41,8 +41,7 @@ $allowedOptions = array('categorycheck',
                         'venue',
                         'keywords',
                         'startdate',
-                        'enddate',
-                        'pub_id');
+                        'enddate');
 
 /**
  * Retrieves the allowed options from an array. Note that this function should

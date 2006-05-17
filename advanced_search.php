@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: advanced_search.php,v 1.4 2006/05/17 20:57:49 aicmltec Exp $
+  // $Id: advanced_search.php,v 1.5 2006/05/17 22:18:31 aicmltec Exp $
 
   /**
    * \file
@@ -180,12 +180,9 @@ function createFormElements(&$form, &$db) {
     $form->addElement('submit', 'Submit', 'Search');
     $form->addElement('submit', 'Clear', 'Clear');
 
-    if ($_GET['edit'])
-        $form->addElement('hidden', 'pub_id', 'true');
     if($_GET['expand'] == "true")
         $form->addElement('hidden', 'expand', 'true');
-
-    if (!$_GET['expand']) {
+    else {
         $form->addElement('hidden', 'titlecheck', 'true');
         $form->addElement('hidden', 'authorcheck', 'true');
         $form->addElement('hidden', 'halfabstractcheck', 'true');
@@ -377,22 +374,17 @@ pageHeader();
 navigationMenu();
 
 print "<div id='content'>\n"
-. "<a name='Start'></a>\n";
+. "<h2><b><u>Search</u></b></h2>\n";
 
 $data = '';
-if ($_GET['edit'])
-    $data .= $renderer->elementToHtml('pub_id') . "\n";
 if($_GET['expand'] == "true")
     $data .= $renderer->elementToHtml('expand') . "\n";
-
-if (!$_GET['expand']) {
+else
     $data .= $renderer->elementToHtml('titlecheck') . "\n"
         . $renderer->elementToHtml('authorcheck') . "\n"
         . $renderer->elementToHtml('halfabstractcheck') . "\n"
         . $renderer->elementToHtml('datecheck') . "\n";
 }
-
-print "<h2><b><u>Search</u></b></h2>\n";
 
 // Wrap the form and any remaining elements (i.e. hidden elements) into the
 // form tags.

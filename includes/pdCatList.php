@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdCatList.php,v 1.1 2006/05/16 21:21:33 aicmltec Exp $
+  // $Id: pdCatList.php,v 1.2 2006/05/17 22:18:31 aicmltec Exp $
 
   /**
    * \file
@@ -34,9 +34,7 @@ class pdCatList {
      * Use flags to load individual tables
      */
     function dbLoad(&$db, $flags = 0) {
-        $q = $db->select('category',
-                         array('cat_id', 'category'),
-                         '',
+        $q = $db->select('category', array('cat_id', 'category'), '',
                          "pdCatList::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {

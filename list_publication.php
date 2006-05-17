@@ -1,96 +1,131 @@
-<?
- /* list_publication.php
-   Lists all the publications in database. Makes each publication a link to it's own seperate page.
-   If a user is logged in, he/she has the option of adding a new publication, editing any of the
-   publications and deleting any of the publications.
+<?php ;
 
-   Pretty much identical to list_author.php
+/**
+ * \file
+ *
+ * \brief Lists all the publications in database.
+ *
+ * Makes each publication a link to it's own seperate page.  If a user is
+ * logged in, he/she has the option of adding a new publication, editing any of
+ * the publications and deleting any of the publications.
+ *
+ * Pretty much identical to list_author.php
  */
-		if($admin =="true")
-			include 'headeradmin.php';
-		else
-			include 'header.php';
+
+include_once('functions.php');
+include_once('check_login.php');
+
+htmlHeader('Search Publication');
+
+/* Connecting, selecting database */
+$db =& dbCreate();
+
+if (isset($_GET['author_id'])) {
+    // If there exists an author_id, only extract the publications with that
+    // author
+    //
+    // This is used when viewing an author.
+    $q = $db->select(array('publication', 'pub_author'),
+                     array('publication.pub_id', 'publication.title',
+                           'publication.paper', 'publication.abstract',
+                           'publication.keywords', 'publication.published',
+                           'publication.updated'),
+                     array('pub_author.pub_id = publication.pub_id',
+                           'pub_author.author_id'
+                           => quote_smart($_GET['author_id'])),
+                     "list_publication.php",
+                     array('ORDER BY' => 'publication.title ASC'));
+    $r = $db->fetchObject($q);
+    while ($r) {
+        $pub_array[] = $r;
+        $r = $db->fetchObject($q);
+    }
+    $db->freeResult($q);
+}
+else {
+    // Otherwise just get all publications
+    $q = $db->select(array('publication'), '*', '', "list_publication.php",
+                     array('ORDER BY' => 'title ASC'));
+    $r = $db->fetchObject($q);
+    while ($r) {
+        $pub_array[] = $r;
+        $r = $db->fetchObject($q);
+    }
+    $db->freeResult($q);
+}
+
+print "<body>";
+
+pageHeader();
+navigationMenu();
+
+print "<div id='content'>\n"
+. "<h2><b><u>Publications";
+
+if (isset($_GET['author_id']))
+    echo "by ". $_GET['author_name'];
+
+print "</u></b></h2>\n";
+
+if ($logged_in) {
+    print <<<END
+    <h3><a href="Admin/add_publication.php"><b>Add New Publication</b></a></h3>
+END;
+}
+
+$tableAttrs = array('width' => '100%',
+                    'border' => '0',
+                    'cellpadding' => '6',
+                    'cellspacing' => '0');
+$table = new HTML_Table($tableAttrs);
+$table->setAutoGrow(true);
+
+if (count($pub_array) > 0) {
+    foreach ($pub_array as $pub) {
+        unset($cells);
+        $cells[] = "<a href='view_publication.php?pub_id=" . $pub->pub_id
+            . "'>" . $pub->title . "</a>";
+        $attr[] = '';
+        if ($logged_in) {
+            $cells[] = "<a href='Admin/add_publication.php?pub_id="
+                . $pub->pub_id . "'>Edit</a>";
+            $cells[] = "<a href='Admin/delete_publication.php?pub_id="
+                . $pub->pub_id . "'>Delete</a>";
+        }
+
+        $table->addRow($cells);
+    }
+}
+else {
+    $table->addRow(array('No Publications'));
+}
+
+/* now assign table attributes including highlighting for even and odd rows */
+for ($i = 0; $i < $table->getRowCount(); $i++) {
+    $table->updateCellAttributes($i, 0, array('class' => 'standard'));
+
+    if ($i & 1) {
+        $table->updateRowAttributes($i, array('class' => 'even'), true);
+    }
+    else {
+        $table->updateRowAttributes($i, array('class' => 'odd'), true);
+    }
+
+    if ($logged_in) {
+        $table->updateCellAttributes($i, 1, array('id' => 'emph',
+                                                  'class' => 'small'));
+        $table->updateCellAttributes($i, 2, array('id' => 'emph',
+                                                  'class' => 'small'));
+    }
+}
+
+print  $table->toHtml();
+
+$db->close();
+
 ?>
-
-<html>
-<head>
-<title>Publications</title>
-<link rel="stylesheet" href="style.css">
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<META NAME= "ROBOTS" CONTENT="NOINDEX">
-</head>
-
-<?
-	require('functions.php');
-
-	/* Connecting, selecting database */
-	$link = connect_db();
-
-	// If there exists an author_id, only extract the publications with that author
-	// This is used when viewing an author.
-	if (isset($author_id)) {
-		$pub_query = "SELECT p.pub_id, p.title, p.paper,
-				p.abstract, p.keywords, p.published, p.updated
-			FROM publication p, pub_author a
-			WHERE a.author_id = " . quote_smart($author_id) . "
-			AND a.pub_id = p.pub_id
-			ORDER BY p.title ASC";
-		$author_query = "SELECT name FROM author WHERE author_id = " . quote_smart($author_id);
-		$author_result = query_db($author_query);
-		$author_line = mysql_fetch_array($author_result, MYSQL_ASSOC);
-		$author_name = $author_line['name'];
-	}
-	// Otherwise just get all publications
-	else
-		$pub_query = "SELECT * FROM publication ORDER BY title ASC";
-	$pub_result = query_db($pub_query);
-?>
-
-<body>
-<h2><b><u>Publications <? if (isset($author_id)) echo "by ". $author_name; ?></u></b></h2>
-<? if ($admin == "true"){ ?>
-<h3><a href="Admin/add_publication.php"><b>Add New Publication</b></a></h3>
-<? } ?>
-	<table id="listtable" width="750" border="0" cellspacing="0" cellpadding="6">
-		<?  $count = 0;
-
-				$itran = false;
-				while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-					echo "<tr class=\"";
-						if($count%2 == 0)
-							echo "odd";
-						else
-							echo "even";
-					echo "\"><td class=\"standard\"><li><a href=\"view_publication.php?"; if($admin == "true") echo "admin=true&"; echo "pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></td>";
-
-					$count++;
-
-					if($admin == "true"){
-						echo "<td class=\"small\"> <a href=\"Admin/add_publication.php?pub_id="
-							.$pub_line[pub_id]
-							."\"><b> Edit </b></a></td>";
-
-						echo "<td class=\"small\"> <a href=\"Admin/delete_publication.php?pub_id="
-							.$pub_line[pub_id]
-							."\"><b> Delete </b></a></td>";
-					}
-					echo "</tr> \n";
-			   		$itran = true;
-			   }
-			   // If no publications exist, let the user know.
-			   if(!$itran)
-			   	echo "<tr><td class=\"standard\"><li>No publications.</td></tr>";
-
-	   	?>
-	</table>
-<? back_button(); ?>
+</div>
 </body>
 </html>
 
-<?
-    /* Free resultset */
-    mysql_free_result($pub_result);
 
-    /* Closing connection */
-    disconnect_db($link);
-?>
