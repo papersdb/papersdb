@@ -1,13 +1,18 @@
 <?php
 
-/* functions.php
-   I rewrote lib_functions because it was way too buggy.
-   These functions are used throughout the pages and are here
-   to save on time and complexity. Each function is pretty
-   straight forward.
-*/
+  /**
+   * \file
+   *
+   * \brief Common functions used by all pages.
+   *
+   * These functions are used throughout the pages and are here to save on time
+   * and complexity. Each function is pretty straight forward.
+   */
 
 require "lib_dbfunctions.php";
+require_once('HTML/QuickForm.php');
+require_once("HTML/QuickForm/Renderer/QuickHtml.php");
+require_once('HTML/Table.php');
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
@@ -377,6 +382,24 @@ function pageHeader() {
 END;
 }
 
+function quickSearchFormCreate() {
+    $form = new HTML_QuickForm('quickPubForm', 'post',
+                               'search_publication_db.php', '_self',
+                               'multipart/form-data');
+
+    $options = array('titlecheck', 'authorcheck', 'halfabstractcheck',
+                     'datecheck');
+
+    foreach ($options as $name) {
+        $form->addElement('hidden', $name, 'true');
+    }
+    $form->addElement('text', 'search', null,
+                      array('size' => 12, 'maxlength' => 80));
+    $form->addElement('submit', 'Quick', 'Search');
+
+    return $form;
+}
+
 function navigationMenu() {
     global $logged_in;
 
@@ -405,22 +428,16 @@ function navigationMenu() {
 END;
 
     foreach ($options as $key => $value) {
-        printf("<li><a href='%s'>%s</a></li>", $value, $key);
+        printf("<li><a href='%s'>%s</a></li>\n", $value, $key);
     }
+    $form = quickSearchFormCreate();
+    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+    $form->accept($renderer);
 
-    echo <<<END
-</ul>
-<form name="quicksearch" action="search_publication_db.php" method="POST"
-    enctype="multipart/form-data">
-    <input type="hidden" name="titlecheck" value="true"/>
-    <input type="hidden" name="authorcheck" value="true"/>
-    <input type="hidden" name="halfabstractcheck" value="true"/>
-    <input type="hidden" name="datecheck" value="true"/>
-    <input type="text" name="search" size="12" maxlength="250" value=""/>
-    <input type="SUBMIT" name="Quick" value="Search" class="text"/>
-    </form>
-</div>
-END;
+    echo "</ul>\n"
+        . $renderer->toHtml($renderer->elementToHtml('search') . ' '
+                            . $renderer->elementToHtml('Quick'))
+        . "</div>";
 }
 
 function pageFooter() {
@@ -445,5 +462,22 @@ For any questions/comments about the Papers Database please e-mail
 END;
 }
 
+/**
+ *
+ */
+function arr2obj($arg_array) {
+    $tmp = new stdClass; // start off a new (empty) object
+    foreach ($arg_array as $key => $value) {
+        if (is_array($value)) { // if its multi-dimentional, keep going :)
+            $tmp->$key = arr2obj($value);
+        } else {
+            if (is_numeric($key)) { // can't do it with numbers :(
+                die("Cannot turn numeric arrays into objects!");
+            }
+            $tmp->$key = $value;
+        }
+    }
+    return $tmp; // return the object!
+}
 
 ?>

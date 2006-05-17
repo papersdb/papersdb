@@ -7,14 +7,14 @@
 // Notes:  Added frameset support (changed reference for "newWin" to "top.newWin")
 //         Also changed Spanish "March" from "Marcha" to "Marzo"
 //         Fixed JavaScript Date Anomaly affecting days > 28
-// 
-// 
-// 
+//
+//
+//
 // Usage:  Add the following lines of code to your page to enable the Calendar
 //         component.
 //
 //
-//         // THIS LINE LOADS THE JS LIBRARY FOR THE CALENDAR COMPONENT 
+//         // THIS LINE LOADS THE JS LIBRARY FOR THE CALENDAR COMPONENT
 //
 //         <SCRIPT LANGUAGE="JavaScript" SRC="calendar.js"></SCRIPT>
 //
@@ -22,14 +22,14 @@
 //
 //         // THIS LINE IS USED IN CONJUNCTION WITH A FORM FIELD (myDateField) IN A FORM (myForm).
 //         // Replace "myForm" and "myDateField" WITH THE NAME OF YOUR FORM AND INPUT FIELD RESPECTIVELY
-//         // WINDOW OPTIONS SET THE WIDTH, HEIGHT, AND X/Y POSITION OF THE CALENDAR WINDOW 
+//         // WINDOW OPTIONS SET THE WIDTH, HEIGHT, AND X/Y POSITION OF THE CALENDAR WINDOW
 //         // WITH TITLEBAR ON, ALL OTHER OPTIONS (TOOLBARS, ETC) ARE DISABLED BY DEFAULT
 //
 //         <A HREF="javascript:doNothing()" onClick="setDateField(document.myForm.myDateField);top.newWin = window.open('calendar.html','cal','dependent=yes,width=210,height=230,screenX=200,screenY=300,titlebar=yes')">
 //         <IMG SRC="calendar.gif" BORDER=0></A><font size=1>Popup Calendar</font>
 //
 //
-// 
+//
 // Required Files:
 //
 //         calendar.js   - contains all JavaScript functions to make the calendar work
@@ -39,14 +39,14 @@
 //                         the Java Virtual Machine (JVM) to start which slows down the
 //                         loading of the calendar.)
 //
-// 
+//
 // Files Generally Included:
 //
 //         calendar.gif  - image that looks like a little calendar
-// 
-//         yourPage.html - page that contains a form and a date field which implements 
+//
+//         yourPage.html - page that contains a form and a date field which implements
 //                         the calendar component
-// 
+//
 
 
 
@@ -87,7 +87,7 @@
 // calDateFormat = "DD.MM.YY";     // FORMAT UNSUPPORTED BY JAVASCRIPT -- REQUIRES CUSTOM PARSING
 //
 
-calDateFormat    = "mm/dd/yyyy";
+calDateFormat    = "yyyy-MM-DD";
 
 
 // CALENDAR COLORS
@@ -157,7 +157,7 @@ function setDateField(dateField) {
 
 // SET THE INITIAL CALENDAR DATE TO TODAY OR TO THE EXISTING VALUE IN dateField
 function setInitialDate() {
-   
+
     // CREATE A NEW DATE OBJECT (WILL GENERALLY PARSE CORRECT DATE EXCEPT WHEN "." IS USED AS A DELIMITER)
     // (THIS ROUTINE DOES *NOT* CATCH ALL DATE FORMATS, IF YOU NEED TO PARSE A CUSTOM DATE FORMAT, DO IT HERE)
     calDate = new Date(inDate);
@@ -187,7 +187,7 @@ function showCalendar(dateField) {
     setDateField(dateField);
 
     // USE THE JAVASCRIPT-GENERATED DOCUMENTS (calDocTop, calDocBottom) IN THE FRAMESET
-    calDocFrameset = 
+    calDocFrameset =
         "<HTML><HEAD><TITLE>JavaScript Calendar</TITLE></HEAD>\n" +
         "<FRAMESET ROWS='70,*' FRAMEBORDER='0'>\n" +
         "  <FRAME NAME='topCalFrame' SRC='javascript:parent.opener.calDocTop' SCROLLING='no'>\n" +
@@ -239,9 +239,9 @@ function buildTopCalFrame() {
 }
 
 
-// CREATE THE BOTTOM CALENDAR FRAME 
+// CREATE THE BOTTOM CALENDAR FRAME
 // (THE MONTHLY CALENDAR)
-function buildBottomCalFrame() {       
+function buildBottomCalFrame() {
 
     // START CALENDAR DOCUMENT
     var calDoc = calendarBegin;
@@ -311,7 +311,7 @@ function buildBottomCalFrame() {
 
         // ADD THE DAY TO THE CALENDAR STRING
         calDoc += "<TD align=center bgcolor='" + cellColor + "'>" +
-                  "<a class='" + dayType + "' href='javascript:parent.opener.returnDate(" + 
+                  "<a class='" + dayType + "' href='javascript:parent.opener.returnDate(" +
                   currentDay + ")'>" + padding + currentDay + paddingChar + "</a></TD>";
 
         columnCount++;
@@ -553,12 +553,12 @@ function getMonthSelect() {
 
     // IF FRENCH
     if (selectedLanguage == "fr") {
-        monthArray = new Array('Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                               'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'Décembre');
+        monthArray = new Array('Janvier', 'FÃ©vrier', 'Mars', 'Avril', 'Mai', 'Juin',
+                               'Juillet', 'Aout', 'Septembre', 'Octobre', 'Novembre', 'DÃ©cembre');
     }
     // IF GERMAN
     else if (selectedLanguage == "de") {
-        monthArray = new Array('Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+        monthArray = new Array('Januar', 'Februar', 'MÃ¤rz', 'April', 'Mai', 'Juni',
                                'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember');
     }
     // IF SPANISH
@@ -580,7 +580,7 @@ function getMonthSelect() {
 
     // LOOP THROUGH MONTH ARRAY
     for (i in monthArray) {
-        
+
         // SHOW THE CORRECT MONTH IN THE SELECT LIST
         if (i == activeMonth) {
             monthSelect += "<OPTION SELECTED>" + monthArray[i] + "\n";
@@ -611,7 +611,7 @@ function createWeekdayList() {
     }
     // IF SPANISH
     else if (selectedLanguage == "es") {
-        weekdayList  = new Array('Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado')
+        weekdayList  = new Array('Domingo', 'Lunes', 'Martes', 'MiÃ©rcoles', 'Jueves', 'Viernes', 'SÃ¡bado')
         weekdayArray = new Array('Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa');
     }
     else {
@@ -663,7 +663,7 @@ function buildCalParts() {
 
         // NAVIGATOR NEEDS A TABLE CONTAINER TO DISPLAY THE TABLE OUTLINES PROPERLY
         if (isNav) {
-            calendarBegin += 
+            calendarBegin +=
                 "<TABLE CELLPADDING=0 CELLSPACING=1 BORDER=" + tableBorder + " ALIGN=CENTER BGCOLOR='" + tableBGColor + "'><TR><TD>";
         }
 

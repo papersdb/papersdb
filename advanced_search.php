@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: advanced_search.php,v 1.3 2006/05/17 01:47:19 aicmltec Exp $
+  // $Id: advanced_search.php,v 1.4 2006/05/17 20:57:49 aicmltec Exp $
 
   /**
    * \file
@@ -19,9 +19,6 @@ include_once('functions.php');
 include_once('check_login.php');
 require_once('includes/pdCatList.php');
 require_once('includes/pdAuthorList.php');
-require_once('HTML/QuickForm.php');
-require_once("HTML/QuickForm/Renderer/QuickHtml.php");
-require_once('HTML/Table.php');
 
 global $additionalInfo;
 
@@ -79,7 +76,7 @@ END;
 END;
 
 /**
- *
+ * Retrieves the additional information for the selected category.
  */
 function additionalInfoGet(&$db, $cat_id) {
     $q = $db->select(array('info', 'category', 'cat_info'), 'info.name',
@@ -106,7 +103,9 @@ function additionalInfoGet(&$db, $cat_id) {
 
 /**
  * Creates the from used on this page. The renderer is then used to
- * display the form correctly on the page.
+ * display the form correctly on the page (see createTable).
+ *
+ * Note: calendar.js is used as a shorcut way of entering date values.
  */
 function createFormElements(&$form, &$db) {
     global $additionalInfo;
@@ -136,7 +135,8 @@ function createFormElements(&$form, &$db) {
     foreach($auth_list->list as $auth) {
         $options[$auth->author_id] = $auth->name;
     }
-    $form->addElement('select', 'authorselect', null, $options);
+    $form->addElement('select', 'authorselect', null, $options,
+                      array('multiple' => 'multiple', 'size' => 4));
     $form->addElement('text', 'paper', null,
                       array('size' => 60, 'maxlength' => 250));
     $form->addElement('text', 'abstract', null,
@@ -173,7 +173,7 @@ function createFormElements(&$form, &$db) {
 
         foreach ($options as $name => $text) {
             $form->addElement('advcheckbox', $name, null, $text, null,
-                              array('not checked', 'checked'));
+                              array('no', 'yes'));
         }
     }
 
@@ -193,6 +193,9 @@ function createFormElements(&$form, &$db) {
     }
 }
 
+/**
+ * Assigns the form's values as per the HTTP GET string.
+ */
 function setFormValues(&$form) {
     global $additionalInfo;
 
@@ -204,11 +207,11 @@ function setFormValues(&$form) {
     $defaultValues['abstract']          = $_GET['abstract'];
     $defaultValues['venue']             = $_GET['venue'];
     $defaultValues['keywords']          = $_GET['keywords'];
-    $defaultValues['titlecheck']        = 'checked';
-    $defaultValues['authorcheck']       = 'checked';
-    $defaultValues['additionalcheck']   = 'checked';
-    $defaultValues['halfabstractcheck'] = 'checked';
-    $defaultValues['datecheck']         = 'checked';
+    $defaultValues['titlecheck']        = 'yes';
+    $defaultValues['authorcheck']       = 'yes';
+    $defaultValues['additionalcheck']   = 'yes';
+    $defaultValues['halfabstractcheck'] = 'yes';
+    $defaultValues['datecheck']         = 'yes';
 
 
     if ($_GET['cat_id'] && is_array($additionalInfo)) {
@@ -221,7 +224,7 @@ function setFormValues(&$form) {
 }
 
 /**
- *
+ * Creates the table displaying the form fields.
  */
 function createTable(&$db, &$renderer) {
     global $additionalInfo;
@@ -293,7 +296,7 @@ function createTable(&$db, &$renderer) {
                          . 'top.newWin=window.open(\'calendar.html\', \'cal\','
                          . '\'dependent=yes,width=230,height=250,screenX=200,'
                          . 'screenY=300,titlebar=yes\')">'
-                         . '<img src="calendar.gif" border=0></a> (mm/dd/yyyy) '
+                         . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) '
                          . 'and '
                          . $renderer->elementToHtml('enddate')
                          . '<a href="javascript:doNothing()" '
@@ -301,7 +304,7 @@ function createTable(&$db, &$renderer) {
                          . 'top.newWin=window.open(\'calendar.html\', \'cal\','
                          . '\'dependent=yes,width=230,height=250,screenX=200,'
                          . 'screenY=300,titlebar=yes\')">'
-                         . '<img src="calendar.gif" border=0></a> (mm/dd/yyyy) '
+                         . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) '
                        ));
 
     if ($_GET['expand']) {

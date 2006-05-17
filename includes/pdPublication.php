@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdPublication.php,v 1.2 2006/05/16 21:21:33 aicmltec Exp $
+  // $Id: pdPublication.php,v 1.3 2006/05/17 20:57:49 aicmltec Exp $
 
   /**
    * \file
@@ -32,15 +32,15 @@ class pdPublication {
     var $info;
     var $additional_info;
     var $category;
-    var $location;
-    var $type;
     var $intPointer;
     var $extPointer;
 
-        /**
+    /**
      * Constructor.
      */
     function pdPublication($obj = NULL) {
+        $this->paper = 'No Paper';
+
         if (!is_null($obj))
             $this->objLoad($obj);
     }
@@ -191,10 +191,6 @@ class pdPublication {
             $this->additional_info = $obj->additional_info;
         if (isset($obj->category))
             $this->category = $obj->category;
-        if (isset($obj->location))
-            $this->location = $obj->location;
-        if (isset($obj->type))
-            $this->type = $obj->type;
     }
 }
 
