@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.5 2006/05/18 21:57:45 aicmltec Exp $
+// $Id: view_author.php,v 1.6 2006/05/18 22:08:13 aicmltec Exp $
 
 /**
  * \file
@@ -84,8 +84,9 @@ function authTableCreate(&$db, &$auth) {
     }
     $table->addRow(array('Interest(s):', $interestStr));
 
-    if (($auth->totalPublications > 0) && (is_array($auth->pub_list->list))) {
+    if ($auth->totalPublications > 0) {
         if ($auth->totalPublications <= 6) {
+            assert('is_array($auth->pub_list->list)');
             $headingCell = 'Publications:';
 
             foreach ($auth->pub_list->list as $pub) {

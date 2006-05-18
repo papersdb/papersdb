@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.12 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: view_publication.php,v 1.13 2006/05/18 22:08:13 aicmltec Exp $
 
 /**
  * \file
@@ -153,12 +153,10 @@ function author2Html(&$pub) {
             $authorsStr .= "<a href=\"./view_author.php?";
             if($logged_in)
                 $authorsStr .= "admin=true&";
-            $authorsStr .= "popup=true&author_id=" . $author->author_id
+            $authorsStr .= "author_id=" . $author->author_id
                 . "\" target=\"_self\"  'Help', "
                 . "'width=500,height=250,scrollbars=yes,resizable=yes'); "
-                . "return false\">"
-                . $author->name
-                . "</a><br>";
+                . "return false\">" . $author->name . "</a><br>";
         }
     }
     return $authorsStr;

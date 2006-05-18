@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.8 2006/05/18 21:57:45 aicmltec Exp $
+// $Id: list_publication.php,v 1.9 2006/05/18 22:08:13 aicmltec Exp $
 
 /**
  * \file
@@ -35,11 +35,11 @@ if (isset($_GET['author_id'])) {
     // author
     //
     // This is used when viewing an author.
-    $pub_list = new pdPubList($db);
+    $pub_list = new pdPubList($db, $_GET['author_id']);
 }
 else {
     // Otherwise just get all publications
-    $pub_list = new pdPubList($db, $_GET['author_id']);
+    $pub_list = new pdPubList($db);
 }
 
 print "<h2><b><u>Publications";
