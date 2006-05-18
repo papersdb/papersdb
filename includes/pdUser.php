@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdUser.php,v 1.2 2006/05/16 21:21:33 aicmltec Exp $
+  // $Id: pdUser.php,v 1.3 2006/05/18 20:45:36 aicmltec Exp $
 
   /**
    * \file
@@ -41,6 +41,7 @@ class pdUser {
     function dbLoad($id, &$db, $flags = 0) {
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
+        if ($q === false) return;
         $this->objLoad($q);
         $db->freeResult($q);
 
@@ -59,6 +60,7 @@ class pdUser {
                          array('author.author_id', 'author.name'),
                          array('login' => $id),
                          "pdUser::collaboratorsDbLoad");
+        if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
             $this->collaborators[] = $r;

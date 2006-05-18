@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdCatList.php,v 1.2 2006/05/17 22:18:31 aicmltec Exp $
+  // $Id: pdCatList.php,v 1.3 2006/05/18 20:45:36 aicmltec Exp $
 
   /**
    * \file
@@ -36,6 +36,7 @@ class pdCatList {
     function dbLoad(&$db, $flags = 0) {
         $q = $db->select('category', array('cat_id', 'category'), '',
                          "pdCatList::dbLoad");
+        if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
             $this->list[] = $r;

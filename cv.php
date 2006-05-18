@@ -1,15 +1,24 @@
+<?
+
+/**
+ * \file
+ *
+ * \brief  This file outputs all the search results given to it in a CV format.
+ *
+ * This is mainly for the authors needing to publish there CV.  Given the ID
+ * numbers of the publications, it extracts the information from the database
+ * and outputs the data in a certain format.  Input: $_POST['pub_ids'] - a
+ * string file of the publication ids seperated by commas Output: CV Format
+ */
+
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require('functions.php');
+
+echo <<<END
 <html>
 <body>
-<?
-require('functions.php');
-/* CV.PHP
- This file outputs all the search results given to it in a CV format.
- This is mainly for the authors needing to publish there CV.
- Given the ID numbers of the publications, it extracts the information from
- the database and outputs the data in a certain format.
- Input: $_POST['pub_ids'] - a string file of the publication ids seperated by commas
- Output: CV Format
-*/
+END;
 
 $link = connect_db();
 $ids = split(",", $_POST['pub_ids']);

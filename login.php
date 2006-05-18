@@ -1,7 +1,17 @@
-<?php
+<?php ;
 
-include_once('functions.php');
-include_once('check_login.php');
+// $Id: login.php,v 1.2 2006/05/18 20:45:36 aicmltec Exp $
+
+/**
+ * \file
+ *
+ * \brief Allows a user to log into the system.
+ */
+
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
 require_once('includes/pdUser.php');
 
 session_start();
@@ -12,15 +22,9 @@ if ($logged_in == 1) {
 	die('You are already logged in, '.$_SESSION['user']->login . '.');
 }
 
-print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
-. "lang='en'>\n"
-. "<head>\n"
-. "<title>" . $pub->title . "</title>\n"
-. "<meta http-equiv='Content-Type' content='text/html; "
-. "charset=iso-8859-1' />\n"
-. "<link rel='stylesheet' type='text/css' href='style.css' />\n"
-. "</head>\n"
-. "<body>\n";
+htmlHeader('PapersDB Login');
+
+print "<body>\n";
 
 if (isset($_POST['login'])) {
     // if form has been submitted

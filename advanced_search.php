@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.8 2006/05/18 15:06:52 aicmltec Exp $
+// $Id: advanced_search.php,v 1.9 2006/05/18 20:45:36 aicmltec Exp $
 
 /**
  * \file
@@ -15,8 +15,10 @@
  * display the content.
  */
 
-include_once('functions.php');
-include_once('check_login.php');
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
 require_once('includes/pdCatList.php');
 require_once('includes/pdAuthorList.php');
 

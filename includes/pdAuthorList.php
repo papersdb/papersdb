@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdAuthorList.php,v 1.1 2006/05/17 20:57:49 aicmltec Exp $
+  // $Id: pdAuthorList.php,v 1.2 2006/05/18 20:45:36 aicmltec Exp $
 
   /**
    * \file
@@ -36,6 +36,7 @@ class pdAuthorList {
         $q = $db->select('author', array('author_id', 'name'), '',
                          "pdAuthorList::dbLoad",
                          array('ORDER BY' => 'name ASC'));
+        if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
             $this->list[] = $r;

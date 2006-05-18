@@ -1,19 +1,22 @@
-<?php
+<?php ;
 
-  // $Id: index.php,v 1.8 2006/05/18 15:06:52 aicmltec Exp $
+// $Id: index.php,v 1.9 2006/05/18 20:45:36 aicmltec Exp $
 
-  /**
-   * \file
-   *
-   * \brief Main page for application.
-   *
-   * Main page for public access, provides a login, and a function that selects
-   * the most recent publications added.
-   */
+/**
+ * \file
+ *
+ * \brief Main page for application.
+ *
+ * Main page for public access, provides a login, and a function that selects
+ * the most recent publications added.
+ */
 
-include_once('functions.php');
-include_once('check_login.php');
-require_once('includes/pdPublication.php');
+
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
+require_once('pdPublication.php');
 
 ?>
 
@@ -53,8 +56,6 @@ while ($row && ($stringlength <= 300)) {
     $row = $db->fetchObject($pub_query);
 }
 
-$db->close();
-
 print "<br/>&nbsp;\n"
 . "<br/>&nbsp;\n"
 . "</div>\n";
@@ -62,6 +63,8 @@ print "<br/>&nbsp;\n"
 pageFooter();
 
 echo "</body>\n</html>\n";
+
+$db->close();
 
 ?>
 

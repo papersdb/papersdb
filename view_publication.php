@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.11 2006/05/17 23:08:30 aicmltec Exp $
+// $Id: view_publication.php,v 1.12 2006/05/18 20:45:36 aicmltec Exp $
 
 /**
  * \file
@@ -14,11 +14,23 @@
  * or delete the current publication.
  */
 
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
 require_once('functions.php');
-include_once('check_login.php');
-require_once('includes/pdPublication.php');
+require_once('check_login.php');
+require_once('pdPublication.php');
 
 require_once('HTML/Table.php');
+
+htmlHeader('View Author');
+print "<body>\n";
+pageHeader();
+navigationMenu();
+print "<div id='content'>\n";
+
+if (!isset($_GET['pub_id'])) {
+    errorMessage();
+}
 
 $pub_id = $_GET['pub_id'];
 isValid($pub_id);
@@ -36,18 +48,8 @@ $db->close();
 function makePage() {
     global $logged_in, $pub_id, $db;
 
-    print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
-        . "lang='en'>\n"
-        . "<head>\n"
-        . "<title>" . $pub->title . "</title>\n"
-        . "<meta http-equiv='Content-Type' content='text/html; "
-        . "charset=iso-8859-1' />\n"
-        . "<link rel='stylesheet' type='text/css' href='style.css' />\n"
-        . "</head>\n"
-        . "<body>\n";
-
     $pub = new pdPublication();
-    $pub->dbLoad($pub_id, $db);
+    $pub->dbLoad($db, $pub_id);
 
     if ($pub->paper == "No paper")
         $paperstring = "No Paper at this time.";
@@ -103,14 +105,9 @@ function makePage() {
 
     $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-    pageHeader();
-    navigationMenu();
+    print $table->toHtml();
 
-    print "<div id='content'>\n";
-
-    echo $table->toHtml();
-
-    if($logged_in) {
+    if ($logged_in) {
         echo "<br><b><a href=\"Admin/add_publication.php?pub_id="
             . quote_smart($pub_id)
             . "\">Edit this publication</a>&nbsp;&nbsp;&nbsp;"
@@ -216,7 +213,7 @@ function intPointerRowsAdd(&$pub, &$table) {
             $intLinkStr .= "admin=true&";
 
         $intPub = new pdPublication();
-        $intPub->dbLoad($int->value, $db);
+        $intPub->dbLoad($db, $int->value);
 
         $intLinkStr .= "pub_id=" . $int->value . "\">"
             . $intPub->title . "</a>";

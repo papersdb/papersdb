@@ -11,8 +11,10 @@
  * \note register_globals is assumed to be turned off.
  */
 
-include_once('functions.php');
-require_once('includes/pdPublication.php');
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('pdPublication.php');
 
 htmlHeader('Search Publication');
 

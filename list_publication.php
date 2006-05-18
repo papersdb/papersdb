@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.6 2006/05/18 15:06:52 aicmltec Exp $
+// $Id: list_publication.php,v 1.7 2006/05/18 20:45:36 aicmltec Exp $
 
 /**
  * \file
@@ -14,10 +14,17 @@
  * Pretty much identical to list_author.php
  */
 
-include_once('functions.php');
-include_once('check_login.php');
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
+require_once('pdAuthor.php');
 
 htmlHeader('Publications');
+print "<body>\n";
+pageHeader();
+navigationMenu();
+print "<div id='content'>\n";
 
 /* Connecting, selecting database */
 $db =& dbCreate();
@@ -42,7 +49,6 @@ if (isset($_GET['author_id'])) {
         $pub_array[] = $r;
         $r = $db->fetchObject($q);
     }
-    $db->freeResult($q);
 }
 else {
     // Otherwise just get all publications
@@ -53,24 +59,15 @@ else {
         $pub_array[] = $r;
         $r = $db->fetchObject($q);
     }
-    $db->freeResult($q);
 }
 
-print "<body>";
-
-pageHeader();
-navigationMenu();
-
-print "<div id='content'>\n"
-. "<h2><b><u>Publications";
+print "<h2><b><u>Publications";
 
 if (isset($_GET['author_id'])) {
-    $q = $db->selectRow(array('author'), 'name',
-                        array('author_id' => $_GET['author_id']),
-                        "list_publication.php");
+    $auth = new pdAuthor();
+    $auth->dbLoad($db, $_GET['author_id'], PD_AUTHOR_DB_LOAD_BASIC);
 
-    print " by " . $q->name;
-    $db->freeResult($q);
+    print " by " . $auth->name;
 }
 
 print "</u></b></h2>\n";
@@ -121,7 +118,14 @@ for ($i = 0; $i < $table->getRowCount(); $i++) {
     }
 }
 
-print  $table->toHtml() . "</div>";
+print  $table->toHtml();
+
+if (count($pub_array) < 5) {
+    // add extra space to make the page display well
+    print "<br/><br/><br/>\n";
+}
+
+print "</div>";
 
 $db->close();
 

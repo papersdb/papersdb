@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.6 2006/05/12 18:27:00 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.1 2006/05/18 20:45:36 aicmltec Exp $
 
   /**
    * \file
@@ -16,8 +16,8 @@
    *	{paper/additional}_{name_of_file}.file_extension
    */
 
-include_once("defines.php");
-require_once('includes/Database.php');
+require_once("defines.php");
+require_once('Database.php');
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
@@ -72,13 +72,17 @@ function wfDebug( $text, $logonly = false ) {
     print $text;
 }
 
+$wgProfiling = 0;
+
+function wfProfileIn($str) {}
+function wfProfileOut($str) { echo $str . "<br/>\n"; }
 function wfLogDBError( $text ) {}
 function wfGetSiteNotice() {}
 function wfErrorExit() {}
 function wfSetBit( &$dest, $bit, $state = true ) {}
 function wfSuppressWarnings( $end = false ) {}
 function wfRestoreWarnings() {}
-function wfDebugDieBacktrace( $msg = '' ) {}
+function wfDebugDieBacktrace( $msg = '' ) { die($msg); }
 function wfSetVar( &$dest, $source ) {}
 
 ?>

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.3 2006/05/17 23:08:30 aicmltec Exp $
+// $Id: view_author.php,v 1.4 2006/05/18 20:45:36 aicmltec Exp $
 
 /**
  * \file
@@ -16,112 +16,113 @@
  * author.
  */
 
-include_once('functions.php');
-include_once('check_login.php');
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
+require_once('pdAuthor.php');
 
 htmlHeader('View Author');
+pageHeader();
+navigationMenu();
+print "<body>\n<div id='content'>\n";
+
+if (!isset($_GET['author_id'])) {
+    errorMessage();
+}
 
 /* Connecting, selecting database */
-$link = connect_db();
+$db =& dbCreate();
 
-/* Performing SQL query */
-$author_query = "SELECT * FROM author WHERE author_id=" . quote_smart($author_id);
-$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-$author_array = mysql_fetch_array($author_result, MYSQL_ASSOC);
+$auth = new pdAuthor();
+$auth->dbLoad($db, $_GET['author_id'], (PD_AUTHOR_DB_LOAD_PUBS_MIN
+                                        | PD_AUTHOR_DB_LOAD_INTERESTS));
 
-$int_query = "SELECT interest.interest FROM interest, author_interest WHERE interest.interest_id=author_interest.interest_id AND author_interest.author_id=" . quote_smart($author_id);
-$int_result = mysql_query($int_query) or die("Query failed : " . mysql_error());
-?>
+// check if this author id is valid
+if (!isset($auth->author_id)) {
+    errorMessage();
+}
 
-<body><h3><? echo $author_array['name'] ?></h3><br>
-<table width="525" border="0" cellspacing="0" cellpadding="6">
-    <tr>
-<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Name: </b></font></td>
-<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? echo $author_array['name'] ?></b></font></td>
-</tr>
-<?php if (isset($author_array['title']) && trim($author_array['title']) != "") {?>
-                                                                                <tr>
-                                                                                <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Title: </b></font></td>
-                                                                                <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $author_array['title'] ?></font></td>
-                                                                                </tr>
-                                                                                <?php } ?>
-                                                                                <tr>
-                                                                                <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Email: </b></font></td>
-                                                                                <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo "<a href=\"mailto:".$author_array['email']."\">".$author_array['email']."</a>"; ?></font></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Organization: </b></font></td>
-                                                                                <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $author_array['organization'] ?></font></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Webpage: </b></font></td>
-                                                                                <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? if (isset($author_array['webpage']) && trim($author_array['webpage']) != "") echo "<a href=\"" . $author_array['webpage'] . "\" target=\"_blank\">" . $author_array['webpage'] . "</a>"; else echo "none"; ?></font></td>
-                                                                                </tr>
-                                                                                <tr>
-                                                                                <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Interest(s): </b></font></td>
-                                                                                <td width="75%"><font face="Arial, Helvetica, sans-serif" size="2">
-    <?
-                                                                                while ($int_line = mysql_fetch_array($int_result, MYSQL_ASSOC)) {
-                                                                                    echo $int_line[interest] . "<br>";
-                                                                                }
-?>
-</font>
-</td>
-</tr>
+print "<h3>" . $auth->name . "</h3>";
 
-<?
-$count_query = "SELECT COUNT(p.pub_id) as countid
-			FROM publication p, pub_author a
-			WHERE a.author_id = " . quote_smart($author_id) . "
-			AND a.pub_id = p.pub_id
-			ORDER BY p.title ASC";
-$count_result = mysql_query($count_query) or die("Query failed : " . mysql_error());
-$countid = mysql_fetch_array($count_result, MYSQL_ASSOC);
-$count = $countid[countid];
-if($count < 6){
-    $pub_query = "SELECT p.pub_id, p.title, p.paper,
-					p.abstract, p.keywords, p.published, p.updated
-				FROM publication p, pub_author a
-				WHERE a.author_id = " . quote_smart($author_id) . "
-				AND a.pub_id = p.pub_id
-				ORDER BY p.title ASC";
-    $pub_result = mysql_query($pub_query) or die("Query failed : " . mysql_error());
-    $itran = false;
-    while ($pub_line = mysql_fetch_array($pub_result, MYSQL_ASSOC)) {
-        if(!$itran)
-            echo "<tr><td width=\"25%\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><b>Publications:</b></font></td>";
-        else
-            echo "<tr><td width =\"25%\"></td>";
-        echo "<td width =\"75%\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><a href=\"view_publication.php?"; if($admin == "true") echo "admin=true&"; echo "pub_id=" . $pub_line[pub_id] . "\">" . $pub_line[title] . "</a></font></td></tr>";
+$table =& authTableCreate($db, $auth);
 
-        $itran = true;
+print $table->toHtml();
+
+function authTableCreate(&$db, &$auth) {
+    $tableAttrs = array('width' => '600',
+                        'border' => '0',
+                        'cellpadding' => '6',
+                        'cellspacing' => '0');
+    $table = new HTML_Table($tableAttrs);
+    $table->setAutoGrow(true);
+
+    $table->addRow(array('Name:', $auth->name));
+
+    if (isset($auth->title) && (trim($auth->title) != "")) {
+        $table->addRow(array('Title:', $auth->title));
     }
-    if(!$itran)echo "<tr><td><font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><li>No publications by this author.</font></td></tr>";
+
+    $table->addRow(array('Email:',
+                         "<a href='mailto:" . $auth->email . "'>"
+                         . $auth->email . "</a>"));
+    $table->addRow(array('Organization:', $auth->organization));
+
+    if (isset($auth->webpage) && (trim($auth->webpage) != ""))
+        $webpage = "<a href=\"" . $auth->webpage . "\" target=\"_blank\">"
+            . $auth->webpage . "</a>";
+    else
+        $webpage = "none";
+
+    $table->addRow(array('Webpage:', $webpage));
+
+    $interestStr = '';
+    if (is_array($auth->interest)) {
+        foreach ($auth->interest as $interest) {
+            $interestStr .= $interest . '<br/>';
+        }
+    }
+    $table->addRow(array('Interest(s):', $interestStr));
+
+    if ($auth->totalPublications > 0) {
+        if ($auth->totalPublications <= 6) {
+            $headingCell = 'Publications:';
+            foreach ($auth->publications as $pub) {
+                if (isset($pub->title) && ($pub->title != '')) {
+                    $title = "<a href='view_publication.php?pub_id="
+                        . $pub->pub_id . "'>". $pub->title . "</a>";
+                    $table->addRow(array($headingCell, $title));
+                }
+                $headingCell = '';
+            }
+        }
+        else {
+            $table->addRow(array('Publications:',
+                                 '<a href="./list_publication.php?'
+                                 . 'type=view&author_id=' . $auth->author_id
+                                 . '">View All Publications</a>'));
+        }
+    }
+    else {
+        $table->addRow(array('No publications by this author'));
+    }
+
+    $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+
+    return $table;
 }
-else {
-    ?>
-    <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Publications:</b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><a href="./list_publication.php?<? if($admin == "true") echo "admin=true&"; ?>type=view&author_id=<?php echo $author_id; ?>">View All Publications</a></font></td>
-        </tr>
-        <? }
 
-?>
-</table>
-<?
-if($admin == "true"){
-    echo "<BR><b><a href=\"Admin/edit_author.php?author_id=".$author_id."\">Edit this author</a>&nbsp;&nbsp;&nbsp;";
-    echo "<a href=\"Admin/delete_author.php?author_id=".$author_id."\">Delete this author</a></b><br><BR>";
+if ($logged_in) {
+    print "<br/><b><a href='Admin/edit_author.php?author_id="
+        . $author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
+        . "<a href='Admin/delete_author.php?author_id="
+        . $author_id . "'>Delete this author</a></b><br/><br/>";
 }
-back_button(); ?>
-</body>
-</html>
 
-<?
-  /* Free resultset */
-mysql_free_result($author_result);
-mysql_free_result($int_result);
+print "</div>\n";
 
-/* Closing connection */
-disconnect_db($link);
+pageFooter();
+echo "</body>\n</html>\n";
+
+$db->close();
 ?>

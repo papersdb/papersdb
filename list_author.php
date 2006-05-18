@@ -10,8 +10,10 @@
  * deleting any of the authors.
  */
 
-include_once('functions.php');
-include_once('check_login.php');
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
 
 htmlHeader('Authors');
 

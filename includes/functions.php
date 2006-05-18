@@ -1,15 +1,15 @@
-<?php
+<?php ;
 
-  /**
-   * \file
-   *
-   * \brief Common functions used by all pages.
-   *
-   * These functions are used throughout the pages and are here to save on time
-   * and complexity. Each function is pretty straight forward.
-   */
+/**
+ * \file
+ *
+ * \brief Common functions used by all pages.
+ *
+ * These functions are used throughout the pages and are here to save on time
+ * and complexity. Each function is pretty straight forward.
+ */
 
-require "lib_dbfunctions.php";
+require_once('lib_dbfunctions.php');
 require_once('HTML/QuickForm.php');
 require_once("HTML/QuickForm/Renderer/QuickHtml.php");
 require_once('HTML/Table.php');
@@ -18,10 +18,10 @@ $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
 
 
-/* isValid
- Checks to see if the given string is nothing but
- letters or numbers and is shorter then a certain
- length. */
+/**
+ *  Checks to see if the given string is nothing but letters or numbers and is
+ *  shorter then a certain length.
+ */
 function isValid($string){
 	for($a = 0; $a < strlen($string); $a++){
 		$char = substr($string,$a,1);
@@ -59,11 +59,22 @@ function quote_smart($value) {
 }
 
 function errorMessage(){
-	echo "<BR><BR>";
-	echo "<h4>There was a problem handling your request.<BR>Please go back and try again.</h4>";
-	echo "<BR>";
-	back_button();
+	echo "<br/>"
+        . "<h4>There was a problem handling your request."
+        . "<br/>Please go back and try again.</h4>"
+        . "<BR>";
+    back_button();
+    print "</div>\n";
+    pageFooter();
 	exit;
+}
+
+// Handy back button usually used at the end of pages.
+function back_button()
+{
+	echo "<form> \n";
+	echo "<input type=\"button\" value=\"Back\" onclick=\"history.back()\"> \n";
+	echo "</form> \n";
 }
 
 function quickForm($title, $style, $name, $value){
@@ -74,14 +85,6 @@ function quickForm($title, $style, $name, $value){
 	echo "<input type=\"text\" name=\"" . $name
         . "\" size=\"60\" maxlength=\"250\" value=\"".$$value."\"> \n";
 	echo "</td></tr> \n";
-}
-
-// Handy back button usually used at the end of pages.
-function back_button()
-{
-	echo "<form> \n";
-	echo "<input type=\"button\" value=\"Back\" onclick=\"history.back()\"> \n";
-	echo "</form> \n";
 }
 
 function generate_select_body ($start, $end, $compare) {
@@ -353,12 +356,13 @@ function get_venue_info($venue) {
 }
 
 function htmlHeader($title) {
-    print "<html>\n"
+    print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
+        . "lang='en'>\n"
         . "<head>\n"
         . "<title>". $title . "</title>\n"
         . "<meta http-equiv='Content-Type' "
-        . "content='text/html; charset=iso-8859-1'>\n"
-        . "<link rel='stylesheet' href='style.css'>\n"
+        . "content='text/html; charset=iso-8859-1' />\n"
+        . "<link rel='stylesheet' href='style.css' />\n"
         . "</head>";
 }
 

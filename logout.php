@@ -1,7 +1,17 @@
-<?php
+<?php ;
 
-include_once('functions.php');
-include_once('check_login.php');
+// $Id: logout.php,v 1.2 2006/05/18 20:45:36 aicmltec Exp $
+
+/**
+ * \file
+ *
+ * \brief Allows a user to log out of the system.
+ */
+
+ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+
+require_once('functions.php');
+require_once('check_login.php');
 
 if ($logged_in == 0) {
     print_r($_SESSION);
