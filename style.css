@@ -45,8 +45,6 @@ td.large {font-size:16px;}
 td.standard {font-size:12px;}
 td.small {font-size:10px;}
 
-td#formbg { background-image: url(template/header_r2_c2.gif); }
-
 a:link { color: #000099;}
 a:visited { color: #000099;}
 a:hover { color: #0066FF;}
@@ -68,6 +66,10 @@ div#highlight {
 
 div#emph {
   font-weight: bold;
+}
+
+div#small {
+  font-size:9px;
 }
 
 td#emph {
@@ -155,6 +157,11 @@ div#footer {
   color: #FFFFFF;
   border-top: 2px solid #FFCC00;
 }
+
+div#footer a:link {
+  color: #CCCCCC;
+}
+
 
 .ualogo {
   line-height : 14px;

@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: index.php,v 1.7 2006/05/16 21:21:33 aicmltec Exp $
+  // $Id: index.php,v 1.8 2006/05/18 15:06:52 aicmltec Exp $
 
   /**
    * \file
@@ -61,7 +61,7 @@ print "<br/>&nbsp;\n"
 
 pageFooter();
 
+echo "</body>\n</html>\n";
+
 ?>
 
-</body>
-</html>

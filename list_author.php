@@ -108,13 +108,13 @@ for ($i = 0; $i < $table->getRowCount(); $i++) {
     }
 }
 
-print  $table->toHtml();
+print  $table->toHtml() . "</div>";
 
 $db->close();
 
-?>
+pageFooter();
 
-</div>
-</body>
-</html>
+echo "</body>\n</html>\n";
+
+?>
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.5 2006/05/17 23:08:30 aicmltec Exp $
+// $Id: list_publication.php,v 1.6 2006/05/18 15:06:52 aicmltec Exp $
 
 /**
  * \file
@@ -121,13 +121,14 @@ for ($i = 0; $i < $table->getRowCount(); $i++) {
     }
 }
 
-print  $table->toHtml();
+print  $table->toHtml() . "</div>";
 
 $db->close();
 
+pageFooter();
+
+echo "</body>\n</html>\n";
+
 ?>
-</div>
-</body>
-</html>
 
 

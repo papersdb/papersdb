@@ -677,18 +677,16 @@ else {
     }
     echo "</table>";
 }
-?>
 
-<hr/>
-
-<?php
-
-echo "Link to this search: <font size=-2><a href=\"$search_url\">"
-. substr($search_url,0,96) . "...</a></font><br>";
+echo "<hr/>"
+. "Link to this search: <div id='small'><a href='" . $search_url . "'>"
+. substr($search_url,0,96) . "...</a></div><br/>"
+. "</div>";
 
 $db->close();
-?>
 
-</div>
-</body>
-</html>
+pageFooter();
+
+echo "</body>\n</html>\n";
+
+?>

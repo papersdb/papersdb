@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.7 2006/05/17 23:08:30 aicmltec Exp $
+// $Id: advanced_search.php,v 1.8 2006/05/18 15:06:52 aicmltec Exp $
 
 /**
  * \file
@@ -389,13 +389,14 @@ else {
 
 // Wrap the form and any remaining elements (i.e. hidden elements) into the
 // form tags.
-print $renderer->toHtml($data . $table->toHtml());
+print $renderer->toHtml($data . $table->toHtml()) . "</div>";
 
 $db->close();
 
+pageFooter();
+
+echo "</body>\n</html>\n";
+
 ?>
 
-</div>
-</body>
-</html>
 
