@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.1 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.2 2006/05/18 21:57:45 aicmltec Exp $
 
 /**
  * \file
@@ -10,13 +10,14 @@
  *
  */
 
+require_once('pdPubList.php');
+
 define('PD_AUTHOR_DB_LOAD_BASIC',     0);
 define('PD_AUTHOR_DB_LOAD_INTERESTS', 1);
 define('PD_AUTHOR_DB_LOAD_PUBS_MIN',  2);
 define('PD_AUTHOR_DB_LOAD_PUBS_ALL',  4);
 define('PD_AUTHOR_DB_LOAD_ALL',       0x7);
 
-require_once('pdPublication.php');
 
 /**
  *
@@ -31,7 +32,7 @@ class pdAuthor {
     var $email;
     var $organization;
     var $dbLoadFlags;
-    var $publications;
+    var $pub_list;
     var $totalPublications;
 
     /**
@@ -54,20 +55,22 @@ class pdAuthor {
 
         $q = $db->selectRow('author', '*', array('author_id' => $id),
                             "pdAuthor::dbLoad");
-
-        if ($q === false) return;
         $this->objLoad($q);
 
         if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
             $this->interestsDbLoad($db);
 
         if ($flags & (PD_AUTHOR_DB_LOAD_PUBS_MIN
-                      | PD_AUTHOR_DB_LOAD_PUBS_ALL))
+                      | PD_AUTHOR_DB_LOAD_PUBS_ALL)) {
             $this->publicationsDbLoad($db);
+        }
 
         //print_r($this);
     }
 
+    /**
+     *
+     */
     function interestsDbLoad(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
@@ -78,8 +81,6 @@ class pdAuthor {
                                'author_interest.author_id' => $this->author_id),
                          "pdAuthor::interestsDbLoad");
 
-        if ($q === false) return;
-
         $r = $db->fetchObject($q);
         while ($r) {
             $this->interest[] = $r->interest;
@@ -87,23 +88,19 @@ class pdAuthor {
         }
     }
 
+    /**
+     *
+     */
     function publicationsDbLoad(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
         assert('$this->dbLoadFlags & (PD_AUTHOR_DB_LOAD_PUBS_MIN | PD_AUTHOR_DB_LOAD_PUBS_ALL)');
 
-        $q = $db->select(array('publication', 'pub_author'),
-                         array('publication.pub_id', 'publication.title'),
-                         array('publication.pub_id=pub_author.pub_id',
-                               'pub_author.author_id' => $this->author_id),
-                         "pdAuthor::publicationsDbLoad",
-                         array( 'ORDER BY' => 'publication.title ASC'));
-        if ($q === false) return;
+        $this->totalPublications
+            = pdPubList::authorNumPublications($db, $this->author_id);
 
-        $this->totalPublications = $db->numRows($q);
-
-        // if PD_AUTHOR_DB_LOAD_PUBS_MIN and the author has published
-        // more than 6 papers, then load nothing
+        // if PD_AUTHOR_DB_LOAD_PUBS_MIN flag is set and the author has
+        // published more than 6 papers, then load nothing
         $numToLoad = 0;
         if (($this->dbLoadFlags & PD_AUTHOR_DB_LOAD_PUBS_MIN)
             && ($this->totalPublications <= 6)) {
@@ -115,14 +112,7 @@ class pdAuthor {
         }
 
         if ($numToLoad > 0) {
-            $r = $db->fetchObject($q);
-            while ($r && ($numToLoad > 0)) {
-                $this->publications[$r->pub_id] = new pdPublication();
-                $this->publications[$r->pub_id]
-                    ->dbLoad($db, $r->pub_id, PD_PUB_DB_LOAD_BASIC);
-                $r = $db->fetchObject($q);
-                $numToLoad--;
-            }
+            $this->pub_list = new pdPubList($db, $this->author_id, $numToLoad);
         }
     }
 

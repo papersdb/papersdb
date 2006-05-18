@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.4 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: view_author.php,v 1.5 2006/05/18 21:57:45 aicmltec Exp $
 
 /**
  * \file
@@ -84,10 +84,11 @@ function authTableCreate(&$db, &$auth) {
     }
     $table->addRow(array('Interest(s):', $interestStr));
 
-    if ($auth->totalPublications > 0) {
+    if (($auth->totalPublications > 0) && (is_array($auth->pub_list->list))) {
         if ($auth->totalPublications <= 6) {
             $headingCell = 'Publications:';
-            foreach ($auth->publications as $pub) {
+
+            foreach ($auth->pub_list->list as $pub) {
                 if (isset($pub->title) && ($pub->title != '')) {
                     $title = "<a href='view_publication.php?pub_id="
                         . $pub->pub_id . "'>". $pub->title . "</a>";
@@ -104,7 +105,8 @@ function authTableCreate(&$db, &$auth) {
         }
     }
     else {
-        $table->addRow(array('No publications by this author'));
+        $table->addRow(array('No publications by this author'),
+                       array('colspan' => 2));
     }
 
     $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));

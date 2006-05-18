@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.7 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: list_publication.php,v 1.8 2006/05/18 21:57:45 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,7 @@ ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 require_once('functions.php');
 require_once('check_login.php');
 require_once('pdAuthor.php');
+require_once('pdPubList.php');
 
 htmlHeader('Publications');
 print "<body>\n";
@@ -30,35 +31,15 @@ print "<div id='content'>\n";
 $db =& dbCreate();
 
 if (isset($_GET['author_id'])) {
-    // If there exists an author_id, only extract the publications with that
+    // If there exists an author_id, only extract the publications for that
     // author
     //
     // This is used when viewing an author.
-    $q = $db->select(array('publication', 'pub_author'),
-                     array('publication.pub_id', 'publication.title',
-                           'publication.paper', 'publication.abstract',
-                           'publication.keywords', 'publication.published',
-                           'publication.updated'),
-                     array('pub_author.pub_id = publication.pub_id',
-                           'pub_author.author_id'
-                           => quote_smart($_GET['author_id'])),
-                     "list_publication.php",
-                     array('ORDER BY' => 'publication.title ASC'));
-    $r = $db->fetchObject($q);
-    while ($r) {
-        $pub_array[] = $r;
-        $r = $db->fetchObject($q);
-    }
+    $pub_list = new pdPubList($db);
 }
 else {
     // Otherwise just get all publications
-    $q = $db->select(array('publication'), '*', '', "list_publication.php",
-                     array('ORDER BY' => 'title ASC'));
-    $r = $db->fetchObject($q);
-    while ($r) {
-        $pub_array[] = $r;
-        $r = $db->fetchObject($q);
-    }
+    $pub_list = new pdPubList($db, $_GET['author_id']);
 }
 
 print "<h2><b><u>Publications";
@@ -79,8 +60,8 @@ $tableAttrs = array('width' => '100%',
 $table = new HTML_Table($tableAttrs);
 $table->setAutoGrow(true);
 
-if (count($pub_array) > 0) {
-    foreach ($pub_array as $pub) {
+if (count($pub_list->list) > 0) {
+    foreach ($pub_list->list as $pub) {
         unset($cells);
         $cells[] = "<a href='view_publication.php?pub_id=" . $pub->pub_id
             . "'>" . $pub->title . "</a>";
@@ -120,7 +101,7 @@ for ($i = 0; $i < $table->getRowCount(); $i++) {
 
 print  $table->toHtml();
 
-if (count($pub_array) < 5) {
+if (count($pub_list->list) < 5) {
     // add extra space to make the page display well
     print "<br/><br/><br/>\n";
 }

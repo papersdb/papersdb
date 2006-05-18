@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.4 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: pdPublication.php,v 1.5 2006/05/18 21:57:45 aicmltec Exp $
 
 /**
  * \file
@@ -20,11 +20,10 @@ define('PD_PUB_DB_LOAD_VENUE',           0x20);
 define('PD_PUB_DB_LOAD_ALL',             0x3f);
 
 /**
-   *
-   * \brief Class for storage and retrieval of publications to / from the
-   * database.
-   */
-
+ *
+ * \brief Class for storage and retrieval of publications to / from the
+ * database.
+ */
 class pdPublication {
     var $pub_id;
     var $title;
@@ -67,9 +66,6 @@ class pdPublication {
 
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
-
-        if ($q === false) return;
-
         $this->objLoad($q);
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
@@ -78,8 +74,7 @@ class pdPublication {
                              array('category.cat_id=pub_cat.cat_id',
                                    'pub_cat.pub_id' => $id),
                              "pdPublication::dbLoad");
-            if ($q)
-                $this->objLoad($db->fetchObject($q));
+            $this->objLoad($db->fetchObject($q));
         }
 
 
@@ -90,12 +85,10 @@ class pdPublication {
                              array('additional_info.add_id=pub_add.add_id',
                                    'pub_add.pub_id' => $id),
                              "pdPublication::dbLoad");
-            if ($q) {
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->additional_info[] = $r;
                 $r = $db->fetchObject($q);
-                while ($r) {
-                    $this->additional_info[] = $r;
-                    $r = $db->fetchObject($q);
-                }
             }
         }
 
@@ -106,12 +99,10 @@ class pdPublication {
                                    'cat_info.cat_id=pub_cat.cat_id',
                                    'pub_cat.pub_id' => $id),
                              "pdPublication::dbLoad");
-            if ($q) {
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->info[] = $r;
                 $r = $db->fetchObject($q);
-                while ($r) {
-                    $this->info[] = $r;
-                    $r = $db->fetchObject($q);
-                }
             }
 
             if (is_array($this->info)) {
@@ -124,12 +115,10 @@ class pdPublication {
                                            'pub_cat_info.info_id'
                                            => $value->info_id),
                                      "pdPublication::dbLoad");
-                    if ($q) {
+                    $r = $db->fetchObject($q);
+                    while ($r) {
+                        $this->info[$key]->value = $r->value;
                         $r = $db->fetchObject($q);
-                        while ($r) {
-                            $this->info[$key]->value = $r->value;
-                            $r = $db->fetchObject($q);
-                        }
                     }
                 }
             }
@@ -142,12 +131,10 @@ class pdPublication {
                                    'pub_author.pub_id' => $id),
                              "pdPublication::dbLoad",
                              array( 'ORDER BY' => 'pub_author.rank'));
-            if ($q) {
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->author[] = $r;
                 $r = $db->fetchObject($q);
-                while ($r) {
-                    $this->author[] = $r;
-                    $r = $db->fetchObject($q);
-                }
             }
         }
 
@@ -155,22 +142,20 @@ class pdPublication {
             $q = $db->select('pointer', 'value',
                              array('pub_id' => $id, 'type' => 'int'),
                              "pdPublication::dbLoad");
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->intPointer[] = $r;
+                $r = $db->fetchObject($q);
+            }
+
+            $q = $db->select('pointer', array('name', 'value'),
+                             array('pub_id' => $id, 'type' => 'ext'),
+                             "pdPublication::dbLoad");
             if ($q) {
                 $r = $db->fetchObject($q);
                 while ($r) {
-                    $this->intPointer[] = $r;
+                    $this->extPointer[] = $r;
                     $r = $db->fetchObject($q);
-                }
-
-                $q = $db->select('pointer', array('name', 'value'),
-                                 array('pub_id' => $id, 'type' => 'ext'),
-                                 "pdPublication::dbLoad");
-                if ($q) {
-                    $r = $db->fetchObject($q);
-                    while ($r) {
-                        $this->extPointer[] = $r;
-                        $r = $db->fetchObject($q);
-                    }
                 }
             }
         }
