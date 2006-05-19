@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.10 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: index.php,v 1.11 2006/05/19 19:41:20 aicmltec Exp $
 
 /**
  * \file
@@ -18,18 +18,7 @@ require_once 'functions.php';
 require_once 'check_login.php';
 require_once 'pdPublication.php';
 
-?>
-
-<html>
-<head>
-<title>Papers Database</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-    <link rel='stylesheet' type='text/css' href='style.css' />
-</head>
-<body>
-
-<?
-
+htmlHeader('Papers Database');
 pageHeader();
 navigationMenu();
 
