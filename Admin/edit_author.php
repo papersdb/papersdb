@@ -9,11 +9,11 @@
  * replaces the information in the database.
  */
 
-ini_set("include_path", ini_get("include_path") . ":..:../includes:../HTML");
+ini_set("include_path", ini_get("include_path") . ":.:..");
 
-require_once 'functions.php';
-require_once 'check_login.php';
-require_once 'pdAuthor.php';
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pdAuthor.php';
 
 htmlHeader('Edit Author');
 pageHeader();

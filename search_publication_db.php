@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.9 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.10 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -13,10 +13,8 @@
  * \note register_globals is assumed to be turned off.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
-require_once 'pdPublication.php';
+require_once 'includes/functions.php';
+require_once 'includes/pdPublication.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/Table.php';

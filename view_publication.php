@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.14 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: view_publication.php,v 1.15 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -14,39 +14,35 @@
  * or delete the current publication.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
-require_once 'check_login.php';
-require_once 'pdPublication.php';
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pdPublication.php';
 
 require_once 'HTML/Table.php';
 
-htmlHeader('View Author');
-print "<body>\n";
-pageHeader();
-navigationMenu();
-print "<div id='content'>\n";
-
-if (!isset($_GET['pub_id'])) {
-    errorMessage();
-}
-
-$pub_id = $_GET['pub_id'];
-isValid($pub_id);
-
-$db =& dbCreate();
-
 makePage();
-
-$db->close();
 
 /**
  * This function creates the page which consists mainly of a table containing
  * publication information.
  */
 function makePage() {
-    global $logged_in, $pub_id, $db;
+    global $logged_in;
+
+    htmlHeader('View Publication');
+    print "<body>\n";
+    pageHeader();
+    navigationMenu();
+    print "<div id='content'>\n";
+
+    if (!isset($_GET['pub_id'])) {
+        errorMessage();
+    }
+
+    $db =& dbCreate();
+
+    $pub_id = $_GET['pub_id'];
+    isValid($pub_id);
 
     $pub = new pdPublication();
     $pub->dbLoad($db, $pub_id);
@@ -83,12 +79,12 @@ function makePage() {
 
     venueRowsAdd($pub, $table);
     extPointerRowsAdd($pub, $table);
-    intPointerRowsAdd($pub, $table);
+    intPointerRowsAdd($db, $pub, $table);
 
     $table->addRow(array('Keywords:', keywordsGet($pub)));
     infoRowsAdd($pub, $table);
 
-    $pubDate = publisDateGet($pub);
+    $pubDate = publishDateGet($pub);
     if ($pubDate != "") {
         $table->addRow(array('Date Published:', $pubDate));
     }
@@ -105,6 +101,9 @@ function makePage() {
 
     $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
+    $pub_id = $_GET['pub_id'];
+    isValid($pub_id);
+
     print $table->toHtml();
 
     if ($logged_in) {
@@ -120,6 +119,8 @@ function makePage() {
     pageFooter();
 
     print "</body></html>";
+
+    $db->close();
 }
 
 function additional2Html(&$pub) {
@@ -200,9 +201,7 @@ function extPointerRowsAdd(&$pub, &$table) {
     }
 }
 
-function intPointerRowsAdd(&$pub, &$table) {
-    global $db;
-
+function intPointerRowsAdd(&$db, &$pub, &$table) {
     if (!isset($pub->intPointer)) return;
 
     foreach ($pub->intPointer as $int) {
@@ -241,7 +240,7 @@ function infoRowsAdd(&$pub, &$table) {
     }
 }
 
-function publisDateGet(&$pub) {
+function publishDateGet(&$pub) {
     $string = "";
     $published = split("-",$pub->published);
     if($published[1] != 00)

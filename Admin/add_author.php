@@ -1,39 +1,32 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<?php
+<?php ;
 
- // $Id: add_author.php,v 1.2 2006/05/11 00:00:56 aicmltec Exp $
+// $Id: add_author.php,v 1.3 2006/05/19 22:43:02 aicmltec Exp $
 
- /**
-  * \file
-  *
-  * \brief This is the form portion for adding/editing an author.
-  *
-  * The changes in the database actually are made in add_publication.php. This
-  * is so when the author is added to the database the publication a user is
-  * working in is then updated with that author available to them.
-  *
-  * If the user chooses the "add author to database" link while editing/adding
-  * a publication, then it will be a pop-up and when submitted will return to
-  * add_publication page with the fields restored and author added to the list.
-  *
-  * If the user chooses "add new publication" from the list_authors.php
-  * page. Then the information will be sent to add_publication and the author
-  * will be added to the database, the user will be given confirmation and the
-  * option to return to the authors page or go the admin menu(index.php).
-  *
-  */
-?>
+/**
+ * \file
+ *
+ * \brief This is the form portion for adding/editing an author.
+ *
+ * The changes in the database actually are made in add_publication.php. This
+ * is so when the author is added to the database the publication a user is
+ * working in is then updated with that author available to them.
+ *
+ * If the user chooses the "add author to database" link while editing/adding
+ * a publication, then it will be a pop-up and when submitted will return to
+ * add_publication page with the fields restored and author added to the list.
+ *
+ * If the user chooses "add new publication" from the list_authors.php
+ * page. Then the information will be sent to add_publication and the author
+ * will be added to the database, the user will be given confirmation and the
+ * option to return to the authors page or go the admin menu(index.php).
+ *
+ */
 
-<html>
-<head>
-<title>Add Author</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-     <link rel="stylesheet" type="text/css" href="../style.css"/>
-     </head>
+ini_set("include_path", ini_get("include_path") . ":..");
 
-<?php
+require('include/functions.php');
 
-require('../functions.php');
+htmlHeader('Add Author');
 
 /* Connecting, selecting database */
 $link = connect_db();
@@ -134,28 +127,28 @@ echo ">";
 <table width="590" border="0" cellspacing="0" cellpadding="6">
     <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>First Name: </b></font></td>
-		<td colspan="2" width="75%"><input type="text" name="firstname" size="50" maxlength="250" value="<? echo stripslashes($firstname); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="firstname" size="50" maxlength="250" value="<? echo stripslashes($firstname); ?>"></td>
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Last Name: </b></font></td>
-		<td colspan="2" width="75%"><input type="text" name="lastname" size="50" maxlength="250" value="<? echo stripslashes($lastname); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="lastname" size="50" maxlength="250" value="<? echo stripslashes($lastname); ?>"></td>
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Title: </b></font><a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Author Title', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a></td>
-		<td colspan="2" width="75%"><input type="text" name="auth_title" size="50" maxlength="250" value="<? echo stripslashes($auth_title); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="auth_title" size="50" maxlength="250" value="<? echo stripslashes($auth_title); ?>"></td>
 </tr>
 <tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>E-mail: </b></font></td>
-		<td colspan="2" width="75%"><input type="text" name="email" size="50" maxlength="250" value="<? echo stripslashes($email); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="email" size="50" maxlength="250" value="<? echo stripslashes($email); ?>"></td>
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Organization: </b></font></td>
-		<td colspan="2" width="75%"><input type="text" name="organization" size="50" maxlength="250" value="<? echo stripslashes($organization); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="organization" size="50" maxlength="250" value="<? echo stripslashes($organization); ?>"></td>
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Webpage: </b></font></td>
-		<td colspan="2" width="75%"><input type="text" name="webpage" size="50" maxlength="250" value="<? echo stripslashes($webpage); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="webpage" size="50" maxlength="250" value="<? echo stripslashes($webpage); ?>"></td>
 </tr>
 <tr>
 <td width="25%">
@@ -164,8 +157,8 @@ echo ">";
     </td>
     <td width="20%" align="left">
     <select name="interests[]" size="5" multiple>
-				<?
-$counter = 0;
+    <?
+    $counter = 0;
 while ($interest_line = mysql_fetch_array($interest_result, MYSQL_ASSOC)) {
     echo "<option value=\"" . $interest_line[interest_id] . "\"" . "";
     if ($interests[$counter] != "") echo " selected";
@@ -176,36 +169,36 @@ while ($interest_line = mysql_fetch_array($interest_result, MYSQL_ASSOC)) {
 </select>
 </td>
 </tr>
-	  <? for ($i = 0; $i < $newInterests; $i++) { ?>
+<? for ($i = 0; $i < $newInterests; $i++) { ?>
     <tr>
         <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Interest Name: </b></font></td>
-				<td colspan="2" width="75%"><input type="text" name="newInterest[<? echo $i ?>]" size="50" maxlength="250" value="<? echo stripslashes($newInterest[$i]); ?>"></td>
+        <td colspan="2" width="75%"><input type="text" name="newInterest[<? echo $i ?>]" size="50" maxlength="250" value="<? echo stripslashes($newInterest[$i]); ?>"></td>
         </tr>
-	  <? } ?>
+        <? } ?>
         <tr>
         <td>
 
         </td>
         <td colspan="2" width="75%" align="left">
-			<input type="SUBMIT" name="Submit" value="Add Author" class="text" onClick="return verify();">&nbsp;&nbsp;
-			<input type="RESET" name="Reset" value="Reset" class="text" onClick="resetAll();">&nbsp;&nbsp;
-			<input type="RESET" name="Cancel" value="Cancel" class="text" onClick="<? if($popup == "false")echo "history.back()"; else echo "closewindow();"; ?>">
-                  <input type="hidden" name="newAuthorSubmitted" value="true">
-                                          <input type="hidden" name="numInterests" value="<? echo ($counter + 1) ?>">
-			<? if($popup == "false") { ?>
-    <input type="hidden" name="fromauthorspage" value="true">
-			<? } ?>
-        </td>
-        </tr>
-        </table>
-        </form>
+    <input type="SUBMIT" name="Submit" value="Add Author" class="text" onClick="return verify();">&nbsp;&nbsp;
+<input type="RESET" name="Reset" value="Reset" class="text" onClick="resetAll();">&nbsp;&nbsp;
+<input type="RESET" name="Cancel" value="Cancel" class="text" onClick="<? if($popup == "false")echo "history.back()"; else echo "closewindow();"; ?>">
+<input type="hidden" name="newAuthorSubmitted" value="true">
+                                                                                                                                                   <input type="hidden" name="numInterests" value="<? echo ($counter + 1) ?>">
+                                                                                                                                                   <? if($popup == "false") { ?>
+                                                                                                                                                                              <input type="hidden" name="fromauthorspage" value="true">
+                                                                                                                                                                              <? } ?>
+                                                                                                                                                                              </td>
+                                                                                                                                                                              </tr>
+                                                                                                                                                                              </table>
+                                                                                                                                                                              </form>
 
-        </body>
-        </html>
+                                                                                                                                                                              </body>
+                                                                                                                                                                              </html>
 
-<?
-/* Free resultset */
-mysql_free_result($interest_result);
+                                                                                                                                                                              <?
+                                                                                                                                                                                /* Free resultset */
+                                                                                                                                                                              mysql_free_result($interest_result);
 
 /* Closing connection */
 disconnect_db($link);

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: help.php,v 1.3 2006/05/19 21:14:07 aicmltec Exp $
+// $Id: help.php,v 1.4 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -13,9 +13,7 @@
  * by someone who isn't the webmaster.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
+require_once 'includes/functions.php';
 
 htmlHeader('Publication DB Help');
 

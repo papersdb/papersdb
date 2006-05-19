@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.12 2006/05/19 22:05:25 aicmltec Exp $
+// $Id: advanced_search.php,v 1.13 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -17,8 +17,6 @@
  * \note Follows coding standards from
  * http://pear.php.net/manual/en/standards.php.
  */
-
-ini_set("include_path", ini_get("include_path") . ":.");
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';

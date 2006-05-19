@@ -1,7 +1,6 @@
-<?php
-;
+<?php ;
 
-// $Id: index.php,v 1.12 2006/05/19 22:05:25 aicmltec Exp $
+// $Id: index.php,v 1.13 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -12,8 +11,6 @@
  * the most recent publications added.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.");
-
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 require_once 'includes/pdPublication.php';
@@ -21,45 +18,45 @@ require_once 'includes/pdPublication.php';
 makePage();
 
 function makePage() {
-	$db= & dbCreate();
-	$pub_query= $db->select('publication', '*', '', "index.php", array (
-		'ORDER BY' => 'updated DESC'
-	));
+    $db= & dbCreate();
+    $pub_query= $db->select('publication', '*', '', "index.php", array (
+        'ORDER BY' => 'updated DESC'
+    ));
 
-	$stringlength= 0;
-	$row= $db->fetchObject($pub_query);
+    $stringlength= 0;
+    $row= $db->fetchObject($pub_query);
 
-	htmlHeader('Papers Database');
-	pageHeader();
-	navigationMenu();
+    htmlHeader('Papers Database');
+    pageHeader();
+    navigationMenu();
 
-	print "<div id='content'>" . "Recent Additions:" . "<ul>\n";
+    print "<div id='content'>" . "Recent Additions:" . "<ul>\n";
 
-	while ($row && ($stringlength <= 300)) {
-		$pub= new pdPublication($row);
+    while ($row && ($stringlength <= 300)) {
+        $pub= new pdPublication($row);
 
-		if (strlen($pub->title) < 60)
-			$stringlength += 60;
-		else
-			if (strlen($pub->title) <= 120)
-				$stringlength += 120;
-			else
-				if (strlen($pub->title) > 120)
-					$stringlength += 180;
-		if ($stringlength > 300)
-			break;
-		echo "<li><a href=\"view_publication.php?pub_id=" . $pub->pub_id . "\">";
-		echo "<b>" . $pub->title . "</b></a></li>\n";
-		$row= $db->fetchObject($pub_query);
-	}
+        if (strlen($pub->title) < 60)
+            $stringlength += 60;
+        else
+            if (strlen($pub->title) <= 120)
+                $stringlength += 120;
+            else
+                if (strlen($pub->title) > 120)
+                    $stringlength += 180;
+        if ($stringlength > 300)
+            break;
+        echo "<li><a href=\"view_publication.php?pub_id=" . $pub->pub_id . "\">";
+        echo "<b>" . $pub->title . "</b></a></li>\n";
+        $row= $db->fetchObject($pub_query);
+    }
 
-	print "<br/>&nbsp;\n" . "<br/>&nbsp;\n" . "</div>\n";
+    print "<br/>&nbsp;\n" . "<br/>&nbsp;\n" . "</div>\n";
 
-	pageFooter();
+    pageFooter();
 
-	echo "</body>\n</html>\n";
+    echo "</body>\n</html>\n";
 
-	$db->close();
+    $db->close();
 }
 ?>
 

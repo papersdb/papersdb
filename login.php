@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.4 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: login.php,v 1.5 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -8,11 +8,9 @@
  * \brief Allows a user to log into the system.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
-require_once 'check_login.php';
-require_once 'pdUser.php';
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pdUser.php';
 require_once 'HTML/Table.php';
 
 session_start();

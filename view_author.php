@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.8 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: view_author.php,v 1.9 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -16,40 +16,57 @@
  * author.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
-require_once 'check_login.php';
-require_once 'pdAuthor.php';
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pdAuthor.php';
 
 require_once 'HTML/Table.php';
 
-htmlHeader('View Author');
-pageHeader();
-navigationMenu();
-print "<body>\n<div id='content'>\n";
+makePage();
 
-if (!isset($_GET['author_id'])) {
-    errorMessage();
+function makePage() {
+    global $logged_in;
+
+    htmlHeader('View Author');
+    pageHeader();
+    navigationMenu();
+    print "<body>\n<div id='content'>\n";
+
+    if (!isset($_GET['author_id'])) {
+        errorMessage();
+    }
+
+    /* Connecting, selecting database */
+    $db =& dbCreate();
+
+    $auth = new pdAuthor();
+    $auth->dbLoad($db, $_GET['author_id'], (PD_AUTHOR_DB_LOAD_PUBS_MIN
+                                            | PD_AUTHOR_DB_LOAD_INTERESTS));
+
+    // check if this author id is valid
+    if (!isset($auth->author_id)) {
+        errorMessage();
+    }
+
+    print "<h3>" . $auth->name . "</h3>";
+
+    $table =& authTableCreate($db, $auth);
+
+    print $table->toHtml();
+
+    if ($logged_in) {
+        print "<br/><b><a href='Admin/edit_author.php?author_id="
+            . $auth->author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
+            . "<a href='Admin/delete_author.php?author_id="
+            . $auth->author_id . "'>Delete this author</a></b><br/><br/>";
+    }
+
+    print "</div>\n";
+    pageFooter();
+    echo "</body>\n</html>\n";
+
+    $db->close();
 }
-
-/* Connecting, selecting database */
-$db =& dbCreate();
-
-$auth = new pdAuthor();
-$auth->dbLoad($db, $_GET['author_id'], (PD_AUTHOR_DB_LOAD_PUBS_MIN
-                                        | PD_AUTHOR_DB_LOAD_INTERESTS));
-
-// check if this author id is valid
-if (!isset($auth->author_id)) {
-    errorMessage();
-}
-
-print "<h3>" . $auth->name . "</h3>";
-
-$table =& authTableCreate($db, $auth);
-
-print $table->toHtml();
 
 function authTableCreate(&$db, &$auth) {
     $tableAttrs = array('width' => '600',
@@ -117,17 +134,4 @@ function authTableCreate(&$db, &$auth) {
     return $table;
 }
 
-if ($logged_in) {
-    print "<br/><b><a href='Admin/edit_author.php?author_id="
-        . $auth->author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
-        . "<a href='Admin/delete_author.php?author_id="
-        . $auth->author_id . "'>Delete this author</a></b><br/><br/>";
-}
-
-print "</div>\n";
-
-pageFooter();
-echo "</body>\n</html>\n";
-
-$db->close();
 ?>

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.4 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: cv.php,v 1.5 2006/05/19 22:43:02 aicmltec Exp $
 
 /**
  * \file
@@ -13,10 +13,8 @@
  * string file of the publication ids seperated by commas Output: CV Format
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
-
-require_once 'functions.php';
-require_once 'pdPublication.php';
+require_once 'includes/functions.php';
+require_once 'includes/pdPublication.php';
 
 makePage();
 
