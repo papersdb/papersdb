@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.5 2006/05/18 21:57:45 aicmltec Exp $
+// $Id: pdPublication.php,v 1.6 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -33,7 +33,7 @@ class pdPublication {
     var $published;
     var $venue;
     var $venue_info;
-    var $author;
+    var $authors;
     var $extra_info;
     var $submit;
     var $updated;
@@ -133,7 +133,7 @@ class pdPublication {
                              array( 'ORDER BY' => 'pub_author.rank'));
             $r = $db->fetchObject($q);
             while ($r) {
-                $this->author[] = $r;
+                $this->authors[] = $r;
                 $r = $db->fetchObject($q);
             }
         }
@@ -181,6 +181,7 @@ class pdPublication {
                          "pdPublication::dbLoadVenue");
         if ($q === false) return;
         $this->venue_info = $q;
+        $this->venue = '';
     }
 
     /**

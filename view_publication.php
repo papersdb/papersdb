@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.13 2006/05/18 22:08:13 aicmltec Exp $
+// $Id: view_publication.php,v 1.14 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -16,11 +16,11 @@
 
 ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
-require_once('functions.php');
-require_once('check_login.php');
-require_once('pdPublication.php');
+require_once 'functions.php';
+require_once 'check_login.php';
+require_once 'pdPublication.php';
 
-require_once('HTML/Table.php');
+require_once 'HTML/Table.php';
 
 htmlHeader('View Author');
 print "<body>\n";

@@ -11,9 +11,9 @@
 
 ini_set("include_path", ini_get("include_path") . ":..:../includes:../HTML");
 
-require_once('functions.php');
-require_once('check_login.php');
-require_once('pdAuthor.php');
+require_once 'functions.php';
+require_once 'check_login.php';
+require_once 'pdAuthor.php';
 
 htmlHeader('Edit Author');
 pageHeader();

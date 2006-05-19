@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.1 2006/05/18 20:45:36 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.2 2006/05/19 17:42:40 aicmltec Exp $
 
   /**
    * \file
@@ -16,8 +16,8 @@
    *	{paper/additional}_{name_of_file}.file_extension
    */
 
-require_once("defines.php");
-require_once('Database.php');
+require_once "defines.php";
+require_once 'Database.php';
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;

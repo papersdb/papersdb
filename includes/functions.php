@@ -9,9 +9,9 @@
  * and complexity. Each function is pretty straight forward.
  */
 
-require_once('lib_dbfunctions.php');
-require_once('HTML/QuickForm.php');
-require_once("HTML/QuickForm/Renderer/QuickHtml.php");
+require_once 'lib_dbfunctions.php';
+require_once 'HTML/QuickForm.php';
+require_once "HTML/QuickForm/Renderer/QuickHtml.php";
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
+// $Id: login.php,v 1.4 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -10,10 +10,10 @@
 
 ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
-require_once('functions.php');
-require_once('check_login.php');
-require_once('pdUser.php');
-require_once('HTML/Table.php');
+require_once 'functions.php';
+require_once 'check_login.php';
+require_once 'pdUser.php';
+require_once 'HTML/Table.php';
 
 session_start();
 

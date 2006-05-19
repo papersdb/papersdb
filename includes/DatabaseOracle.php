@@ -9,7 +9,7 @@
 /**
  * Depends on database
  */
-require_once( 'Database.php' );
+require_once  'Database.php' ;
 
 class OracleBlob extends DBObject {
 	function isLOB() {

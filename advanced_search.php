@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.10 2006/05/19 15:55:55 aicmltec Exp $
+// $Id: advanced_search.php,v 1.11 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -22,66 +22,125 @@ ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
 require_once 'functions.php';
 require_once 'check_login.php';
-require_once 'includes/pdCatList.php';
-require_once 'includes/pdAuthorList.php';
+require_once 'pdCatList.php';
+require_once 'pdAuthorList.php';
+require_once 'pdAuthorList.php';
+
+require_once 'HTML/QuickForm.php';
+require_once 'HTML/Table.php';
 
 global $additionalInfo;
 
+makePage();
+
+/**
+ * Generates all the HTML for the page.
+ */
 function makePage() {
-}
+    $cat_id = strval($_GET['cat_id']);
+    isValid($cat_id);
 
-htmlHeader('Search Publication');
+    $db =& dbCreate();
 
-echo <<<END
+    $form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
+                               '_self', 'multipart/form-data');
+    // get our render
+    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 
-<script language="JavaScript" src="calendar.js"></script>
+    $additionalInfo = additionalInfoGet($db, $cat_id);
+    createFormElements($form, $db);
+    setFormValues($form);
 
-<script language="JavaScript" type="text/JavaScript">
-window.name="search_publication.php";
-function resetAll() {
-	location.href="advanced_search.php";
-}
-function refresher() { window.location.reload(true);}
+    // Do the magic of creating the form.  NOTE: order is important here: this
+    // must be called after creating the form elements, but before rendering
+    // them.
+    $form->accept($renderer);
+    $table = createTable($db, $renderer);
 
-function dataKeep(num) {
-	var temp_qs = "";
-	var info_counter = 0;
-	var form = document.forms["pubForm"];
+    htmlHeader('Search Publication');
+    printJavascript();
+    pageHeader();
+    navigationMenu();
 
-	for (i = 0; i < form.elements.length; i++) {
-		if ((form.elements[i].value != "")
-            && (form.elements[i].value != null)) {
-			if (info_counter > 0) {
-                temp_qs = temp_qs + "&";
-			}
+    print "<div id='content'>\n"
+        . "<h2><b><u>Search</u></b></h2>\n";
 
-            temp_qs = temp_qs + form.elements[i].name + "="
-                + form.elements[i].value;
-
-			info_counter++;
-		}
-	}
-	if(num == 1) {
-        temp_qs = temp_qs + "&expand=true";
+    $data = '';
+    if($_GET['expand'] == "true") {
+        $data .= $renderer->elementToHtml('expand') . "\n";
     }
-	temp_qs = temp_qs.replace("\"", "?");
-	temp_qs = temp_qs.replace(" ", "%20");
-	location.href = "http://"
+    else {
+        $data .= $renderer->elementToHtml('titlecheck') . "\n"
+            . $renderer->elementToHtml('authorcheck') . "\n"
+            . $renderer->elementToHtml('halfabstractcheck') . "\n"
+            . $renderer->elementToHtml('datecheck') . "\n";
+    }
 
-END;
+    // Wrap the form and any remaining elements (i.e. hidden elements) into the
+    // form tags.
+    print $renderer->toHtml($data . $table->toHtml()) . "</div>";
 
-    echo "+ \"" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?\""
-        . "+ temp_qs;";
+    $db->close();
 
+    pageFooter();
 
+    echo "</body>\n</html>\n";
+}
+
+/**
+ * Outputs the java script used by the page.
+ */
+function printJavascript() {
     echo <<<END
 
-    }
-    </script>
+        <script language="JavaScript" src="calendar.js"></script>
 
-    <body>
+        <script language="JavaScript" type="text/JavaScript">
+        window.name="search_publication.php";
+    function resetAll() {
+        location.href="advanced_search.php";
+    }
+    function refresher() { window.location.reload(true);}
+
+    function dataKeep(num) {
+        var temp_qs = "";
+        var info_counter = 0;
+        var form = document.forms["pubForm"];
+
+        for (i = 0; i < form.elements.length; i++) {
+            if ((form.elements[i].value != "")
+                && (form.elements[i].value != null)) {
+                if (info_counter > 0) {
+                    temp_qs = temp_qs + "&";
+                }
+
+                temp_qs = temp_qs + form.elements[i].name + "="
+                    + form.elements[i].value;
+
+                info_counter++;
+            }
+        }
+        if(num == 1) {
+            temp_qs = temp_qs + "&expand=true";
+        }
+        temp_qs = temp_qs.replace("\"", "?");
+        temp_qs = temp_qs.replace(" ", "%20");
+        location.href = "http://"
 
 END;
+
+        echo "+ \"" . $_SERVER['HTTP_HOST'] . $_SERVER['PHP_SELF'] ."?\""
+            . "+ temp_qs;";
+
+
+        echo <<<END
+
+            }
+    </script>
+          <body>
+
+END;
+}
 
 /**
  * Retrieves the additional information for the selected category.
@@ -292,7 +351,8 @@ function createTable(&$db, &$renderer) {
         }
     }
 
-    // date published
+    // date published - uses jscal (http://sourceforge.net/projects/jscal/)
+    // to enter dates.
     $table->addRow(array('Published between:',
                          $renderer->elementToHtml('startdate')
                          . '<a href="javascript:doNothing()" '
@@ -357,52 +417,6 @@ function createTable(&$db, &$renderer) {
 
     return $table;
 }
-
-$cat_id = strval($_GET['cat_id']);
-isValid($cat_id);
-
-$db =& dbCreate();
-
-$form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
-                           '_self', 'multipart/form-data');
-// get our render
-$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-
-$additionalInfo = additionalInfoGet($db, $cat_id);
-createFormElements($form, $db);
-setFormValues($form);
-
-// Do the magic of creating the form.  NOTE: order is important here: this must
-// be called after creating the form elements, but before rendering them.
-$form->accept($renderer);
-$table = createTable($db, $renderer);
-
-pageHeader();
-navigationMenu();
-
-print "<div id='content'>\n"
-. "<h2><b><u>Search</u></b></h2>\n";
-
-$data = '';
-if($_GET['expand'] == "true") {
-    $data .= $renderer->elementToHtml('expand') . "\n";
-}
-else {
-    $data .= $renderer->elementToHtml('titlecheck') . "\n"
-        . $renderer->elementToHtml('authorcheck') . "\n"
-        . $renderer->elementToHtml('halfabstractcheck') . "\n"
-        . $renderer->elementToHtml('datecheck') . "\n";
-}
-
-// Wrap the form and any remaining elements (i.e. hidden elements) into the
-// form tags.
-print $renderer->toHtml($data . $table->toHtml()) . "</div>";
-
-$db->close();
-
-pageFooter();
-
-echo "</body>\n</html>\n";
 
 ?>
 

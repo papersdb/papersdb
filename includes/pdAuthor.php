@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.4 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -10,7 +10,7 @@
  *
  */
 
-require_once('pdPubList.php');
+require_once 'pdPubList.php';
 
 define('PD_AUTHOR_DB_LOAD_BASIC',     0);
 define('PD_AUTHOR_DB_LOAD_INTERESTS', 1);

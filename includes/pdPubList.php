@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.1 2006/05/18 21:57:45 aicmltec Exp $
+// $Id: pdPubList.php,v 1.2 2006/05/19 17:42:40 aicmltec Exp $
 
 /**
  * \file
@@ -9,7 +9,7 @@
  *
  */
 
-require_once('pdPublication.php');
+require_once 'pdPublication.php';
 
 /**
  *
