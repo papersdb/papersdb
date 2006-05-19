@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdAuthorList.php,v 1.2 2006/05/18 20:45:36 aicmltec Exp $
+  // $Id: pdAuthorList.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
 
   /**
    * \file
@@ -42,7 +42,6 @@ class pdAuthorList {
             $this->list[] = $r;
             $r = $db->fetchObject($q);
         }
-        $db->freeResult($q);
     }
 }
 

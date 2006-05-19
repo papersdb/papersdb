@@ -14,6 +14,7 @@ ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
 require_once('functions.php');
 require_once('check_login.php');
+require_once('HTML/Table.php');
 
 htmlHeader('Authors');
 
@@ -29,7 +30,6 @@ while ($r) {
     $auth_array[] = $r;
     $r = $db->fetchObject($q);
 }
-$db->freeResult($q);
 print "<body>";
 
 pageHeader();

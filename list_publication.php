@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.9 2006/05/18 22:08:13 aicmltec Exp $
+// $Id: list_publication.php,v 1.10 2006/05/19 15:55:55 aicmltec Exp $
 
 /**
  * \file
@@ -20,6 +20,8 @@ require_once('functions.php');
 require_once('check_login.php');
 require_once('pdAuthor.php');
 require_once('pdPubList.php');
+
+require_once('HTML/Table.php');
 
 htmlHeader('Publications');
 print "<body>\n";

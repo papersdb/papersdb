@@ -12,7 +12,6 @@
 require_once('lib_dbfunctions.php');
 require_once('HTML/QuickForm.php');
 require_once("HTML/QuickForm/Renderer/QuickHtml.php");
-require_once('HTML/Table.php');
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
@@ -355,14 +354,20 @@ function get_venue_info($venue) {
 	return $output;
 }
 
-function htmlHeader($title) {
+function htmlHeader($title, $redirect = '') {
     print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
         . "lang='en'>\n"
         . "<head>\n"
         . "<title>". $title . "</title>\n"
         . "<meta http-equiv='Content-Type' "
-        . "content='text/html; charset=iso-8859-1' />\n"
-        . "<link rel='stylesheet' href='style.css' />\n"
+        . "content='text/html; charset=iso-8859-1' />\n";
+
+    if ($redirect != '') {
+        print "<meta http-equiv='refresh' content='5;url=" . $redirect
+            . "' />\n";
+    }
+
+    print "<link rel='stylesheet' href='style.css' />\n"
         . "</head>";
 }
 

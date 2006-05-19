@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.2 2006/05/18 21:57:45 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
 
 /**
  * \file
@@ -29,6 +29,8 @@ class pdAuthor {
     var $title;
     var $webpage;
     var $name;
+    var $firstname;
+    var $lastname;
     var $email;
     var $organization;
     var $dbLoadFlags;
@@ -128,12 +130,18 @@ class pdAuthor {
             $this->title = $obj->title;
         if (isset($obj->webpage))
             $this->webpage = $obj->webpage;
-        if (isset($obj->name))
-            $this->name = $obj->name;
         if (isset($obj->email))
             $this->email = $obj->email;
         if (isset($obj->organization))
             $this->organization = $obj->organization;
+
+        if (isset($obj->name)) {
+            $this->name = $obj->name;
+            $this->firstname
+                = trim(substr($this->name, 1 + strpos($this->name, ',')));
+            $this->lastname
+                = substr($this->name, 0, strpos($this->name, ','));
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdCatList.php,v 1.4 2006/05/18 21:57:45 aicmltec Exp $
+  // $Id: pdCatList.php,v 1.5 2006/05/19 15:55:55 aicmltec Exp $
 
   /**
    * \file
@@ -41,7 +41,6 @@ class pdCatList {
             $this->list[] = $r;
             $r = $db->fetchObject($q);
         }
-        $db->freeResult($q);
     }
 }
 

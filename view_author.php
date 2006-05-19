@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.6 2006/05/18 22:08:13 aicmltec Exp $
+// $Id: view_author.php,v 1.7 2006/05/19 15:55:55 aicmltec Exp $
 
 /**
  * \file
@@ -21,6 +21,8 @@ ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 require_once('functions.php');
 require_once('check_login.php');
 require_once('pdAuthor.php');
+
+require_once('HTML/Table.php');
 
 htmlHeader('View Author');
 pageHeader();
@@ -117,9 +119,9 @@ function authTableCreate(&$db, &$auth) {
 
 if ($logged_in) {
     print "<br/><b><a href='Admin/edit_author.php?author_id="
-        . $author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
+        . $auth->author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
         . "<a href='Admin/delete_author.php?author_id="
-        . $author_id . "'>Delete this author</a></b><br/><br/>";
+        . $auth->author_id . "'>Delete this author</a></b><br/><br/>";
 }
 
 print "</div>\n";

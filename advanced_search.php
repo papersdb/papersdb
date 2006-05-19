@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.9 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: advanced_search.php,v 1.10 2006/05/19 15:55:55 aicmltec Exp $
 
 /**
  * \file
@@ -13,16 +13,22 @@
  *
  * Uses the Pear library's HTML_QuickForm and HTML_Table to create and
  * display the content.
+ *
+ * \note Follows coding standards from
+ * http://pear.php.net/manual/en/standards.php.
  */
 
 ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
-require_once('functions.php');
-require_once('check_login.php');
-require_once('includes/pdCatList.php');
-require_once('includes/pdAuthorList.php');
+require_once 'functions.php';
+require_once 'check_login.php';
+require_once 'includes/pdCatList.php';
+require_once 'includes/pdAuthorList.php';
 
 global $additionalInfo;
+
+function makePage() {
+}
 
 htmlHeader('Search Publication');
 
@@ -98,7 +104,6 @@ function additionalInfoGet(&$db, $cat_id) {
         }
         $r = $db->fetchObject($q);
     }
-    $db->freeResult($q);
 
     return $additionalInfo;
 }

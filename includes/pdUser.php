@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: pdUser.php,v 1.4 2006/05/18 21:57:45 aicmltec Exp $
+  // $Id: pdUser.php,v 1.5 2006/05/19 15:55:55 aicmltec Exp $
 
   /**
    * \file
@@ -42,7 +42,6 @@ class pdUser {
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
         $this->objLoad($q);
-        $db->freeResult($q);
 
         if (!isset($this->login)) return;
 
@@ -64,7 +63,6 @@ class pdUser {
             $this->collaborators[] = $r;
             $r = $db->fetchObject($q);
         }
-        $db->freeResult($q);
     }
 
     /**

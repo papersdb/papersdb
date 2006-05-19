@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.2 2006/05/18 20:45:36 aicmltec Exp $
+// $Id: login.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
 
 /**
  * \file
@@ -12,7 +12,8 @@ ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
 
 require_once('functions.php');
 require_once('check_login.php');
-require_once('includes/pdUser.php');
+require_once('pdUser.php');
+require_once('HTML/Table.php');
 
 session_start();
 
@@ -21,10 +22,6 @@ $passwd_hash = "aicml";
 if ($logged_in == 1) {
 	die('You are already logged in, '.$_SESSION['user']->login . '.');
 }
-
-htmlHeader('PapersDB Login');
-
-print "<body>\n";
 
 if (isset($_POST['login'])) {
     // if form has been submitted
@@ -62,6 +59,8 @@ if (isset($_POST['login'])) {
 
     $logged_in = 1;
 
+    htmlHeader('PapersDB Login', 'index.php');
+    print "<body>\n";
     pageHeader();
     navigationMenu();
 
@@ -70,6 +69,7 @@ if (isset($_POST['login'])) {
         . "You have succesfully logged in as "
         . $_SESSION['user']->login . ".\n"
         . "<p/>Return to <a href='index.php'>main page</a>."
+        . "<br/><br/><br/><br/><br/><br/>"
         . "</div>";
 
     pageFooter();
@@ -132,52 +132,77 @@ else if (isset($_POST['newaccount'])) {
                . "'" . $_POST['email'] ."', "
                . "'" . $_POST['realname'] ."');");
 
+    $logged_in = 1;
+	$_SESSION['user'] = $user;
+
+    htmlHeader('PapersDB Login', 'index.php');
+    print "<body>\n";
+    pageHeader();
+    navigationMenu();
+
+    print "<div id='content'>"
+        . "<h2>Login created</h1>"
+        . "You have succesfully created your new login "
+        . $_SESSION['user']->login . " and are now logged in.\n"
+        . "<p/>Return to <a href='index.php'>main page</a>."
+        . "<br/><br/><br/><br/><br/><br/>"
+        . "</div>";
+
+    pageFooter();
     $db->close();
 }
 else {
 	// if form hasn't been submitted
+    htmlHeader('PapersDB Login');
+
+    print "<body>\n";
+
     pageHeader();
     navigationMenu();
 
     print "<div id=\"content\">\n"
         . "<h2>Create new account or log in</h2>\n"
         . "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>\n";
-    echo <<<END
-        <table border="0" cellspacing="0" cellpadding="3">
-          <tr>
-            <td id="emph">Login:</td>
-            <td><input type="text" name="loginid" maxlength="40"/></td>
-            <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td id="emph">Password:</td>
-            <td><input type="password" name="passwd" maxlength="50"/></td>
-            <td><input type="submit" name="login" value="Login"/></td>
-          </tr>
-          <tr>
-            <td colspan="3">&nbsp;</td>
-          </tr>
-          <tr>
-            <td id="emph">Confirm Password:</td>
-            <td><input type="password" name="passwd_again" maxlength="50"/></td>
-            <td>(new users only)</td>
-          </tr>
-          <tr>
-            <td id="emph">E-Mail*:</td>
-            <td><input type="text" name="email" maxlength="100"/></td>
-                                        <td>&nbsp;</td>
-          </tr>
-          <tr>
-            <td id="emph">Real name*:</td>
-            <td><input type="text" name="realname" maxlength="100"/></td>
-            <td><input type="submit" name="newaccount"
-                  value="Create new account"/></td>
-          </tr>
-        </table>
-      </form>
-    </div>
 
-END;
+    $tableAttrs = array('width' => '600',
+                        'border' => '0',
+                        'cellpadding' => '6',
+                        'cellspacing' => '0');
+    $table = new HTML_Table($tableAttrs);
+    $table->setAutoGrow(true);
+
+    $form = new HTML_QuickForm('quickPubForm', 'post', $_SERVER['PHP_SELF']);
+
+    $form->addElement('text', 'loginid', null,
+                      array('size' => 25, 'maxlength' => 40));
+    $form->addElement('password', 'passwd', null,
+                      array('size' => 25, 'maxlength' => 40));
+    $form->addElement('submit', 'login', 'Login');
+    $form->addElement('password', 'passwd_again', null,
+                      array('size' => 25, 'maxlength' => 40));
+    $form->addElement('text', 'email', null,
+                      array('size' => 25, 'maxlength' => 80));
+    $form->addElement('text', 'realname', null,
+                      array('size' => 25, 'maxlength' => 80));
+    $form->addElement('submit', 'newaccount', 'Create new account');
+
+    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+    $form->accept($renderer);
+
+    $table->addRow(array('Login:', $renderer->elementToHtml('loginid')));
+    $table->addRow(array('Password:', $renderer->elementToHtml('passwd'),
+                         $renderer->elementToHtml('login')));
+    $table->addRow();
+    $table->addRow(array('Confirm Password:',
+                         $renderer->elementToHtml('passwd_again'),
+                         '(new users only)'));
+    $table->addRow(array('email:', $renderer->elementToHtml('email')));
+    $table->addRow(array('Real Name:', $renderer->elementToHtml('realname'),
+                         $renderer->elementToHtml('newaccount')));
+
+    $table->updateColAttributes(0, array('id' => 'emph'));
+
+    print $renderer->toHtml($table->toHtml()) . "</div>";
 
     pageFooter();
 }
