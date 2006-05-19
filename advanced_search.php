@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.11 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: advanced_search.php,v 1.12 2006/05/19 22:05:25 aicmltec Exp $
 
 /**
  * \file
@@ -18,13 +18,13 @@
  * http://pear.php.net/manual/en/standards.php.
  */
 
-ini_set("include_path", ini_get("include_path") . ":.:./includes:./HTML");
+ini_set("include_path", ini_get("include_path") . ":.");
 
-require_once 'functions.php';
-require_once 'check_login.php';
-require_once 'pdCatList.php';
-require_once 'pdAuthorList.php';
-require_once 'pdAuthorList.php';
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pdCatList.php';
+require_once 'includes/pdAuthorList.php';
+require_once 'includes/pdAuthorList.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/Table.php';
@@ -40,7 +40,7 @@ function makePage() {
     $cat_id = strval($_GET['cat_id']);
     isValid($cat_id);
 
-    $db =& dbCreate();
+$db =& dbCreate();
 
     $form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
                                '_self', 'multipart/form-data');
