@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <?php
 
- // $Id: add_publication.php,v 1.4 2006/05/15 22:40:31 aicmltec Exp $
+ // $Id: add_publication.php,v 1.5 2006/05/25 01:36:18 aicmltec Exp $
 
  /**
   * \file
@@ -213,7 +213,7 @@ if ($newAuthorSubmitted == "true") {
     $check_result = mysql_query($check_query);
     $check_array =  mysql_fetch_array($check_result, MYSQL_ASSOC);
     if ($check_array[author_id] != "") {
-        print "<script language=\"Javascript\">"
+        echo "<script language=\"Javascript\">"
             . "alert (\"Author already exists.\")"
             . "</script>";
     }
@@ -329,9 +329,9 @@ if ($newAuthorSubmitted == "true") {
 
 	if($fromauthorspage == "true")
 	{
-		print "<h3>Author added.</h3>";
-		print "<a href=\"../list_author.php?admin=true\">Back to Authors</a>";
-		print "<br><a href=\"./\">Administrator Page</a>";
+		echo "<h3>Author added.</h3>";
+		echo "<a href=\"../list_author.php?admin=true\">Back to Authors</a>";
+		echo "<br><a href=\"./\">Administrator Page</a>";
 		exit;
 
 	}
@@ -484,25 +484,25 @@ function dataKeep(tab) {
 			}
 			else if(document.forms["pubForm"].elements[i].name == "ext"){
                 if(tab == "addext")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($ext+1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($ext+1); ?>";
                 else if(tab == "remext")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($ext-1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($ext-1); ?>";
                 else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print $ext; ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo $ext; ?>";
 			}
 			else if(document.forms["pubForm"].elements[i].name == "intpoint"){
                 if(tab == "addint")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($intpoint+1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($intpoint+1); ?>";
                 else if(tab == "remint")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($intpoint-1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($intpoint-1); ?>";
                 else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print $intpoint; ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo $intpoint; ?>";
 			}
 			else if(document.forms["pubForm"].elements[i].name == "numMaterials"){
                 if(tab == "addnum")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($numMaterials+1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($numMaterials+1); ?>";
                 else if(tab == "remnum")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? print ($numMaterials-1); ?>";
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($numMaterials-1); ?>";
             }
 			else
 				temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value;
@@ -518,7 +518,7 @@ function dataKeep(tab) {
 		temp_qs = temp_qs + "&#" + tab;
 	temp_qs = temp_qs.replace("\"", "?");
 	temp_qs = temp_qs.replace(" ", "%20");
-	location.href = "http://" + "<? print $_SERVER["HTTP_HOST"]; print $PHP_SELF; ?>?" + temp_qs;
+	location.href = "http://" + "<? echo $_SERVER["HTTP_HOST"]; echo $PHP_SELF; ?>?" + temp_qs;
 }
 
 function dataKeepPopup(page) {
@@ -565,7 +565,7 @@ function dataKeepPopup(page) {
 	}
     temp_qs = temp_qs + "&new=false";
 
-	//var temp_url = "http://" + "<? print $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs;
+	//var temp_url = "http://" + "<? echo $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs;
 	var temp_url = "./" + page + "?" + temp_qs;
 	temp_url = temp_url.replace(" ", "%20");
 	temp_url = temp_url.replace("\"", "'");
@@ -624,7 +624,7 @@ function dataKeepPopupWithID(page, id) {
 	}
 	temp_qs = temp_qs.replace("\"", "?");
 
-	//var temp_url = "http://" + "<? print $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs + "&pub_id=" + id;
+	//var temp_url = "http://" + "<? echo $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs + "&pub_id=" + id;
 	var temp_url = "./" + page + "?" + temp_qs + "&pub_id=" + id;
 	temp_url = temp_url.replace(" ", "%20");
 	window.open(temp_url, 'Add');//, 'width=600,height=350,scrollbars=yes,resizable=yes');
@@ -675,10 +675,10 @@ function refresher() { window.location.reload(true);}
 
 <body  onLoad="opt.init(document.forms[0])">
     <a name="Start"></a>
-    <h3><? if ($edit)print "Edit"; else print "Add"; ?> Publication</h3>
+    <h3><? if ($edit)echo "Edit"; else echo "Add"; ?> Publication</h3>
     <?
     if(!$edit) {
-        print "Adding a publication takes two steps:<br>"
+        echo "Adding a publication takes two steps:<br>"
             . "1. Fill in the appropriate fields<br>"
             . "2. Upload the paper and any additional materials<br><br>"
             . "<div id=\"highlight\">For help on any field just click the "
@@ -691,7 +691,7 @@ function refresher() { window.location.reload(true);}
 
     <?
 if ($edit) {
-    print "<input type=\"hidden\" name=\"pub_id\" value=\"". $pub_id
+    echo "<input type=\"hidden\" name=\"pub_id\" value=\"". $pub_id
     . "\"> \n";
 }
 ?>
@@ -708,7 +708,7 @@ if ($edit) {
 if ($edit == true) {
     if (strstr($venue, "venue_id:<")) {
         $tokens = split('venue_id:<|>', $venue);
-        //print "<br> $venue <br>";
+        //echo "<br> $venue <br>";
        //print_r($tokens);
         for ($i=0; $i<count($tokens); $i++) {
             if (strlen($tokens[$i]) > 0) {
@@ -733,17 +733,17 @@ if ($edit == true) {
     <td width="75%">
     <select name="venue_id" onChange="javascript:dataKeep('Start');">
     <option value="-1">--- Select a Venue ---</option>
-    <option value="-1" <? if($venue_id == -1) print "SELECTED"; ?>>No Venue</option>
-    <option value="-2" <? if($venue_id == -2) print "SELECTED"; ?>>Unique Venue</option>
+    <option value="-1" <? if($venue_id == -1) echo "SELECTED"; ?>>No Venue</option>
+    <option value="-2" <? if($venue_id == -2) echo "SELECTED"; ?>>Unique Venue</option>
     <option value="-1">----------------------------</option>
     <?
     while ($venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC)) {
-        print "<option value=\"" . $venue_line['venue_id'] . "\"";
+        echo "<option value=\"" . $venue_line['venue_id'] . "\"";
 
         if ($venue_id == $venue_line['venue_id'])
-            print " SELECTED ";
+            echo " SELECTED ";
 
-        print ">" . $venue_line['title'] . "</option> \n";
+        echo ">" . $venue_line['title'] . "</option> \n";
     }
 ?>
 </select>
@@ -798,12 +798,12 @@ if(($venue_id != "")&&($venue_id != -1)&&($venue_id != -2)) {
           <option value=" ">--- Please Select a Category ---</option>
 <?
 while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
-    print "<option value=\"" . $cat_line['category'] . "\"";
+    echo "<option value=\"" . $cat_line['category'] . "\"";
 
     if ($category == $cat_line['category'])
-        print " SELECTED ";
+        echo " SELECTED ";
 
-    print ">" . $cat_line['category'] . "</option> \n";
+    echo ">" . $cat_line['category'] . "</option> \n";
 }
 ?>
 </select>
@@ -816,7 +816,7 @@ while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
 <tr>
 
 <td width="25%" valign="top"><A href="javascript:help('title');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Title: </b></font></a></td>
-<td width="75%"><input type="text" name="title" size="93" maxlength="250" value="<? print stripslashes($title); ?>"></td>
+<td width="75%"><input type="text" name="title" size="93" maxlength="250" value="<? echo stripslashes($title); ?>"></td>
 </tr>
 
 
@@ -840,8 +840,8 @@ while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
                                                                                                                                         while ($author_line1 = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
                                                                                                                                         if ($authors[$counter1] != "" ||
                                                                                                                                         $authors_from_db[$author_line1[name]] != ""){
-                                                                                                                                        print "<option value=\"" . $author_line1[author_id] . "\"" . "";
-                                                                                                                                        print ">" . $author_line1[name] . "</option>";}
+                                                                                                                                        echo "<option value=\"" . $author_line1[author_id] . "\"" . "";
+                                                                                                                                        echo ">" . $author_line1[name] . "</option>";}
                                                                                                                                         $counter1++;
                                                                                                                                         }
 
@@ -852,8 +852,8 @@ while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
                                                                                                                                         $authorkeep_query = "SELECT * FROM author WHERE author_id=\"".$temparray[$a]."\"";
                                                                                                                                         $authorkeep_result = mysql_query($authorkeep_query) or die("Query failed : " . mysql_error());
                                                                                                                                         $authorkeep_line = mysql_fetch_array($authorkeep_result, MYSQL_ASSOC);
-                                                                                                                                        print "<option value=\"" . $temparray[$a] . "\"" . "";
-                                                                                                                                        print ">" . $authorkeep_line[name] . "</option>";
+                                                                                                                                        echo "<option value=\"" . $temparray[$a] . "\"" . "";
+                                                                                                                                        echo ">" . $authorkeep_line[name] . "</option>";
                                                                                                                                         }
                                                                                                                                         }*/
 if ($edit == TRUE) {
@@ -867,8 +867,8 @@ if ($edit == TRUE) {
                 if($author_line[author_id] == $temparray[$a])
                     $found = true;
             if(!$found){
-                print "<option value=\"" . $author_line['author_id'] . "\"" . "";
-                print ">" . $author_line['name'] . "</option>\n";
+                echo "<option value=\"" . $author_line['author_id'] . "\"" . "";
+                echo ">" . $author_line['name'] . "</option>\n";
             }
         }
         $counter++;
@@ -901,8 +901,8 @@ while ($author_line = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
             if($author_line[author_id] == $temparray[$a])
                 $found = true;
         if(!$found){
-            print "<option value=\"" . $author_line['author_id'] . "\"" . "";
-            print ">" . $author_line['name'] . "</option>\n";
+            echo "<option value=\"" . $author_line['author_id'] . "\"" . "";
+            echo ">" . $author_line['name'] . "</option>\n";
         }
     }
     $counter++;
@@ -916,7 +916,7 @@ while ($author_line = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
     <table width="150"><tr><td>
 <?
   // User selected author list
-print "<b>Favorite Collaborators:</b><br>";
+echo "<b>Favorite Collaborators:</b><br>";
 $user_query = "SELECT author.author_id, author.name FROM user_author, author "
     . "WHERE user_author.author_id=author.author_id "
     . "AND user_author.login=\"" . $_SERVER['PHP_AUTH_USER']
@@ -927,7 +927,7 @@ $user_result = mysql_query($user_query)
 
 while($user_array = mysql_fetch_array($user_result, MYSQL_ASSOC))
 {
-    print "<li><a href=\"javascript:opt.moveToLeft(". $user_array['author_id']
+    echo "<li><a href=\"javascript:opt.moveToLeft(". $user_array['author_id']
         . ");\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
         . $user_array['name'] . "</font></a><br>";
 }
@@ -940,14 +940,14 @@ while($user_array = mysql_fetch_array($user_result, MYSQL_ASSOC))
 <td valign="top"> <table width="150"><tr><td>
 <?
  // Most used authors by the user list
-print "<b>Your Most Used Authors:</b><br>";
+echo "<b>Your Most Used Authors:</b><br>";
 $thelist = popularauthors();
 for($a = 0; $a < count($thelist); $a++)
     if($thelist[$a] != ""){
         $user_query = "SELECT name FROM author WHERE author_id = ".$thelist[$a];
         $user_result = mysql_query($user_query) or die("Query failed: " . mysql_error());
         $user_array = mysql_fetch_array($user_result, MYSQL_ASSOC);
-        print "<li><a href=\"javascript:opt.moveToLeft(".$thelist[$a].");\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">".$user_array['name']."</font></a><br>";
+        echo "<li><a href=\"javascript:opt.moveToLeft(".$thelist[$a].");\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">".$user_array['name']."</font></a><br>";
     }
 ?>
 </td></tr></table></td>
@@ -961,46 +961,46 @@ for($a = 0; $a < count($thelist); $a++)
 <tr>
 <td width="25%" valign="top"><A href="javascript:help('abstract');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Abstract:</b></font></a><BR>
 <font face="Arial, Helvetica, sans-serif" size="1" color="red">HTML enabled</font></td>
-<td width="75%"><textarea name="abstract" cols="70" rows="10"><? print stripslashes($abstract); ?></textarea></td>
+<td width="75%"><textarea name="abstract" cols="70" rows="10"><? echo stripslashes($abstract); ?></textarea></td>
 </tr>
 <!-- Venue Show  -->
 <?
 if($venue_id >= 0){
-    print "<tr>";
+    echo "<tr>";
     if($venue_type != "") {
-        print "<td width=\"25%\" valign=\"top\">"
+        echo "<td width=\"25%\" valign=\"top\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
             . "<b>" . $venue_type . ":</b></font></td>";
 
         }
-    print "<td>";
+    echo "<td>";
     if($venue_url != "")
-        print " <a href=\"".$venue_url."\" target=\"_blank\">";
+        echo " <a href=\"".$venue_url."\" target=\"_blank\">";
     if($venue_name != "")
-        print $venue_name;
+        echo $venue_name;
     if($venue_url != "")
-        print "</a>";
-    print "</td></tr>";
+        echo "</a>";
+    echo "</td></tr>";
     if($venue_data != ""){
-        print "<tr>";
-        print "<td width=\"25%\" valign=\"top\">"
+        echo "<tr>";
+        echo "<td width=\"25%\" valign=\"top\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><b>";
 
         if($venue_type == "Conference")
-            print "Location:";
+            echo "Location:";
         else if($venue_type == "Journal")
-            print "Publisher:";
+            echo "Publisher:";
         else if($venue_type == "Workshop")
-            print "Associated Conference:";
+            echo "Associated Conference:";
 
-        print "</b></font></td>";
-        print "<td>" . $venue_data ."</td></tr>";
+        echo "</b></font></td>";
+        echo "<td>" . $venue_data ."</td></tr>";
     }
 
 }
 
 if($venue_id == -2) {
-    print "<tr>"
+    echo "<tr>"
         . "<td width=\"25%\" valign=\"top\">"
         . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
         . "<b>Unique Venue:</b></font><br/>"
@@ -1034,7 +1034,7 @@ if($venue_id == -2) {
     </td>
     <td width="75%">
     <textarea name="extra_info" cols="70" rows="5">
-    <? print stripslashes($extra_info); ?></textarea>
+    <? echo stripslashes($extra_info); ?></textarea>
     <br.>&nbsp;&nbsp;
 <a href="javascript:dataKeepPopup('extra_info.php');">
                    <font face="Arial, Helvetica, sans-serif" size="1">
@@ -1048,21 +1048,21 @@ if($venue_id == -2) {
      $ext = 0;
 if($intpoint == "")
     $intpoint = 0;
-print "<input type=\"hidden\" name=\"ext\" value=\"$ext\">";
-print "<input type=\"hidden\" name=\"intpoint\" value=\"$intpoint\">";
+echo "<input type=\"hidden\" name=\"ext\" value=\"$ext\">";
+echo "<input type=\"hidden\" name=\"intpoint\" value=\"$intpoint\">";
 $e = 0;
 do{
-    print "<tr>"
+    echo "<tr>"
         . "<td width=\"25%\" valign=\"top\">";
     if($e == 0) {
-        print "<a name=\"pointers\"></a>"
+        echo "<a name=\"pointers\"></a>"
             . "<a href=\"javascript:help('pointers');\">"
             . "<font color=\"#000000\" size=\"2\" "
             . "face=\"Arial, Helvetica, sans-serif\">"
             . "<b>External Pointers:</b></font></a><br/>"
             . "<font size=\"1\">Optional</font>";
         }
-    print "</td>"
+    echo "</td>"
         . "<td width=\"75%\">";
     if($ext != 0) {
         $tempname = "extname".$e;
@@ -1072,7 +1072,7 @@ do{
         if($$templink == "") $$templink = "http://";
         if($$tempvalue == "") $$tempvalue = "Title of link";
 
-        print "<table><tr>"
+        echo "<table><tr>"
             . "<td><input type=\"text\" name=\"extname" . $e . "\""
             . " size=\"17\" maxlength=\"250\" value=\"" . $$tempname
             . "\"><b> :</b></td>"
@@ -1085,23 +1085,23 @@ do{
             . "</tr></table>";
     }
     else {
-        print "<a href=\"javascript:dataKeep('addext');\">"
+        echo "<a href=\"javascript:dataKeep('addext');\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"3\">"
             . "Add an external pointer</a>";
     }
-    print "</td></tr>";
+    echo "</td></tr>";
 
     if($e == ($ext-1)) {
-        print "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
+        echo "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
             . "<a href=\"javascript:dataKeep('addext');\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
             . "Add another external pointer</a>";
         if ($ext > 0) {
-            print "&nbsp;&nbsp;<a href=\"javascript:dataKeep('remext');\">"
+            echo "&nbsp;&nbsp;<a href=\"javascript:dataKeep('remext');\">"
                 . "Remove the above pointer</a>";
 
         }
-        print "</font></td></tr>";
+        echo "</font></td></tr>";
     }
     $e++;
 } while($e < $ext);
@@ -1109,53 +1109,53 @@ do{
 
 $e = 0;
 do{
-    print "<tr>"
+    echo "<tr>"
         . "<td width=\"25%\" valign=\"top\">";
     if($e == 0) {
-        print "<a href=\"javascript:help('pointers');\">"
+        echo "<a href=\"javascript:help('pointers');\">"
             . "<font color=\"#000000\" size=\"2\" "
             . " face=\"Arial, Helvetica, sans-serif\">"
             . "<b>Internal Pointers:</b></font></A><br/>"
             . "<font size=\"1\">Optional</font>";
     }
-    print "</td>"
+    echo "</td>"
         . "<td width=\"75%\">";
     if($intpoint != 0) {
-        print "<select name=\"intpointer" . $e . "\">"
+        echo "<select name=\"intpointer" . $e . "\">"
             . "<option value=\"\">--- Link to a publication ---</option>";
         $pubs_query = "SELECT title, pub_id FROM publication";
         $pubs_result = mysql_query($pubs_query) or die("Query failed : " . mysql_error());
         while ($pubs_line = mysql_fetch_array($pubs_result, MYSQL_ASSOC)) {
-            print "<option value=\"" . $pubs_line[pub_id] . "\"";
+            echo "<option value=\"" . $pubs_line[pub_id] . "\"";
             $pointer = "intpointer".$e;
             if (stripslashes($$pointer) == $pubs_line[pub_id])
-                print " selected";
+                echo " selected";
             $tempstring = stripslashes($pubs_line[title]);
             if(strlen($tempstring) > 70) {
                 $tempstring = substr($tempstring,0,67)."...";
             }
-            print ">" . $tempstring . "</option>";
+            echo ">" . $tempstring . "</option>";
         }
-        print "</select>";
+        echo "</select>";
     }
     else {
-        print "<a href=\"javascript:dataKeep('addint');\">"
+        echo "<a href=\"javascript:dataKeep('addint');\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"3\">"
             . "Add an internal pointer</font></a>";
     }
-    print "</td></tr>";
+    echo "</td></tr>";
 
     if($e == ($intpoint-1)) {
-        print "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
+        echo "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
             . "<a href=\"javascript:dataKeep('addint');\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
             . "Add another internal pointer</a>";
         if ($intpoint > 0) {
-            print "&nbsp;&nbsp;"
+            echo "&nbsp;&nbsp;"
                 . "<a href=\"javascript:dataKeep('remint');\">"
                 . "Remove the above pointer</a>";
         }
-        print "</font></td></tr>";
+        echo "</font></td></tr>";
     }
     $e++;
 }
@@ -1171,7 +1171,7 @@ while($e < $intpoint);
 }?>
 <tr>
 <td width="25%" valign="top"><A NAME=keywords></a><A href="javascript:help('keywords');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Keywords: </b></font></A></td>
-<td width="75%"><input type="text" name="keywords" size="60" maxlength="250" value="<? print stripslashes($keywords); ?>">&nbsp;&nbsp;<font face="Arial, Helvetica, sans-serif" size="1">seperate by semi-colon (;)</font>
+<td width="75%"><input type="text" name="keywords" size="60" maxlength="250" value="<? echo stripslashes($keywords); ?>">&nbsp;&nbsp;<font face="Arial, Helvetica, sans-serif" size="1">seperate by semi-colon (;)</font>
 <BR>&nbsp;&nbsp;<a href="javascript:dataKeepPopup('keywords.php');"><font face="Arial, Helvetica, sans-serif" size="1">Select from a list of previously used keywords</font></a>
 </td>
 </tr>
@@ -1190,8 +1190,8 @@ while($e < $intpoint);
 		}
         ?>
             <tr>
-                 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? print $info[$i] ?>: </b></font><a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Additional Fields', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a></td>
-                 <td width="75%"><input type="text" name="<? print $varname ?>" size="50" maxlength="250" value="<? print stripslashes($$varname); ?>"></td>
+                 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? echo $info[$i] ?>: </b></font><a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Additional Fields', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a></td>
+                 <td width="75%"><input type="text" name="<? echo $varname ?>" size="50" maxlength="250" value="<? echo stripslashes($$varname); ?>"></td>
                  </tr>
                  <? 	  }
 }
@@ -1238,7 +1238,7 @@ else 	{
     <b>Paper: </b></a></font></td>
 <?
 if ($edit) {
-    print "<td width=\"75%\">" . $paper . "&nbsp; &nbsp; &nbsp;"
+    echo "<td width=\"75%\">" . $paper . "&nbsp; &nbsp; &nbsp;"
     . "<a href=\"javascript:dataKeepPopupWithID('change_paper.php',"
     . $pub_id . ");\">"
     . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
@@ -1246,26 +1246,26 @@ if ($edit) {
     . "</td>";
 }
 else {
-    print "<td width=\"75%\">"
+    echo "<td width=\"75%\">"
         . "<input type=\"radio\" name=\"nopaper\" value=\"false\" ";
     if(($nopaper == "false")||($nopaper == ""))
-        print "checked";
-    print "><input type=\"file\" name=\"uploadpaper\" size=\"60\" "
+        echo "checked";
+    echo "><input type=\"file\" name=\"uploadpaper\" size=\"60\" "
         . " maxlength=\"250\"><br/>"
         . "<input type=\"radio\" name=\"nopaper\" value=\"true\" ";
     if($nopaper == "true")
-        print "checked";
-    print "> No paper at this time."
+        echo "checked";
+    echo "> No paper at this time."
         . "</td>";
 }
 
-print "</tr>";
+echo "</tr>";
 ?>
 
 <!-- Additional Materials -->
 <?
 if($numMaterials > 0) {
-    print "<tr><td width=\"25%\" valign=\"top\">"
+    echo "<tr><td width=\"25%\" valign=\"top\">"
         . "<a href=\"javascript:help('additional_materials');\">"
         . "<font color=\"#000000\" size=\"2\""
         . " face=\"Arial, Helvetica, sans-serif\">"
@@ -1274,24 +1274,24 @@ if($numMaterials > 0) {
 }
 
 for ($i = 0; $i < $numMaterials; $i++) {
-    print "<tr>";
+    echo "<tr>";
 
     if ($i < $dbMaterials) {
         $add_info_array = get_additional_material($pub_id, $i);
-        print "<td width=\"25%\">"
+        echo "<td width=\"25%\">"
             . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\" "
             . "color=\"#990000\"><b>";
         if($add_info_array[1] != "")
-            print $add_info_array[1];
+            echo $add_info_array[1];
         else
-            print "Additional Material " . ($i+1);
-        print ": </b></font></td>"
+            echo "Additional Material " . ($i+1);
+        echo ": </b></font></td>"
             . "<td width=\"75%\">";
-        print $add_info_array[0];
-        print "&nbsp; &nbsp; &nbsp; "
+        echo $add_info_array[0];
+        echo "&nbsp; &nbsp; &nbsp; "
             . "<a href=\"javascript:\" "
             . " onClick=\"javascript:window.open('";
-        print "delete.php?info=" . $pub_id . "/" . $i . "&confirm=false"
+        echo "delete.php?info=" . $pub_id . "/" . $i . "&confirm=false"
             ."','deleteadd','width=200,height=200,directories=no,location=no,"
             . "menubar=no,scrollbars=no,status=no,toolbar=no,"
             . "resizable=no')\">"
@@ -1299,11 +1299,11 @@ for ($i = 0; $i < $numMaterials; $i++) {
             . "Delete</font></a> </td>";
     }
     else {
-        print "<td width=\"25%\"><input type=\"text\" name=\"type" . $i
+        echo "<td width=\"25%\"><input type=\"text\" name=\"type" . $i
             . "\" size=\"17\" maxlength=\"250\" "
             . "value=\"Additional Material ";
-        print $i+1;
-        print "\"><b>:</b></td>"
+        echo $i+1;
+        echo "\"><b>:</b></td>"
             . "<td width=\"75%\">"
             . "<input type=\"file\" name=\"uploadadditional" . $i
             . "\" size=\"50\" maxlength=\"250\"></td>"
@@ -1319,7 +1319,7 @@ if($numMaterials == "") {
     $numMaterials = 0;
 }
 
-print "<input type=\"hidden\" name=\"numMaterials\" value=\"" . $numMaterials
+echo "<input type=\"hidden\" name=\"numMaterials\" value=\"" . $numMaterials
 . "\">"
 . "&nbsp;&nbsp;"
 . "<a href=\"javascript:dataKeep('addnum');\">"
@@ -1327,10 +1327,10 @@ print "<input type=\"hidden\" name=\"numMaterials\" value=\"" . $numMaterials
 . "Add other material</a>";
 
 if ($numMaterials > 0) {
-    print "&nbsp;&nbsp;<a href=\"javascript:dataKeep('remnum');\">"
+    echo "&nbsp;&nbsp;<a href=\"javascript:dataKeep('remnum');\">"
         . "Remove this material</a>";
 }
-print "</font></td></tr>"
+echo "</font></td></tr>"
 . "<tr><td colspan=\"2\"><hr></td></tr>";
 ?>
 
@@ -1340,7 +1340,7 @@ print "</font></td></tr>"
      <td width="75%" align="left">
 
     <? if ($edit) { ?>
-                    <input type="SUBMIT" name="Save" value="<? if ($edit) print "Accept Modifications"; else print "Accept New Publication"; ?>" class="text" onClick="return verify(1);">
+                    <input type="SUBMIT" name="Save" value="<? if ($edit) echo "Accept Modifications"; else echo "Accept New Publication"; ?>" class="text" onClick="return verify(1);">
                     <input type="RESET" name="Clear" value="Reset" class="text" onClick="refresher();">
                     <? } else { ?>
     <input type="SUBMIT" name="Submit" value="Add Publication" class="text" onClick="return verify(0);">

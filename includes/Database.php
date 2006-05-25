@@ -803,7 +803,7 @@ class Database {
 			$sql = "SELECT $vars $from $useIndex $tailOpts";
 		}
 
-        #print_r($sql); print "<br/>\n";
+        #print_r($sql); echo "<br/>\n";
 
 		return $this->query( $sql, $fname );
 	}

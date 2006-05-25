@@ -18,7 +18,7 @@
 // |                                                                      |
 // +----------------------------------------------------------------------+
 //
-// $Id: pearcmd.php,v 1.1 2006/05/09 19:02:11 aicmltec Exp $
+// $Id: pearcmd.php,v 1.2 2006/05/25 01:36:18 aicmltec Exp $
 
 ob_end_clean();
 /**
@@ -301,7 +301,7 @@ function error_handler($errno, $errmsg, $file, $line, $vars) {
     );
     $prefix = $errortype[$errno];
     $file = basename($file);
-    print "\n$prefix: $errmsg in $file on line $line\n";
+    echo "\n$prefix: $errmsg in $file on line $line\n";
 }
 
 

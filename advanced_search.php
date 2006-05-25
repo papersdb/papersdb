@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.13 2006/05/19 22:43:02 aicmltec Exp $
+// $Id: advanced_search.php,v 1.14 2006/05/25 01:36:18 aicmltec Exp $
 
 /**
  * \file
@@ -29,61 +29,55 @@ require_once 'HTML/Table.php';
 
 global $additionalInfo;
 
-makePage();
-
-/**
- * Generates all the HTML for the page.
- */
-function makePage() {
-    $cat_id = strval($_GET['cat_id']);
-    isValid($cat_id);
+$cat_id = strval($_GET['cat_id']);
+isValid($cat_id);
 
 $db =& dbCreate();
 
-    $form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
-                               '_self', 'multipart/form-data');
-    // get our render
-    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+$form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
+                           '_self', 'multipart/form-data');
+// get our render
+$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 
-    $additionalInfo = additionalInfoGet($db, $cat_id);
-    createFormElements($form, $db);
-    setFormValues($form);
+$additionalInfo = additionalInfoGet($db, $cat_id);
+createFormElements($form, $db);
+setFormValues($form);
 
-    // Do the magic of creating the form.  NOTE: order is important here: this
-    // must be called after creating the form elements, but before rendering
-    // them.
-    $form->accept($renderer);
-    $table = createTable($db, $renderer);
+// Do the magic of creating the form.  NOTE: order is important here: this
+// must be called after creating the form elements, but before rendering
+// them.
+$form->accept($renderer);
+$table = createTable($db, $renderer);
 
-    htmlHeader('Search Publication');
-    printJavascript();
-    pageHeader();
-    navigationMenu();
+htmlHeader('Search Publication');
+printJavascript();
+echo "<body>\n";
+pageHeader();
+navigationMenu();
 
-    print "<div id='content'>\n"
-        . "<h2><b><u>Search</u></b></h2>\n";
+echo "<div id='content'>\n"
+. "<h2><b><u>Search</u></b></h2>\n";
 
-    $data = '';
-    if($_GET['expand'] == "true") {
-        $data .= $renderer->elementToHtml('expand') . "\n";
-    }
-    else {
-        $data .= $renderer->elementToHtml('titlecheck') . "\n"
-            . $renderer->elementToHtml('authorcheck') . "\n"
-            . $renderer->elementToHtml('halfabstractcheck') . "\n"
-            . $renderer->elementToHtml('datecheck') . "\n";
-    }
-
-    // Wrap the form and any remaining elements (i.e. hidden elements) into the
-    // form tags.
-    print $renderer->toHtml($data . $table->toHtml()) . "</div>";
-
-    $db->close();
-
-    pageFooter();
-
-    echo "</body>\n</html>\n";
+$data = '';
+if($_GET['expand'] == "true") {
+    $data .= $renderer->elementToHtml('expand') . "\n";
 }
+else {
+    $data .= $renderer->elementToHtml('titlecheck') . "\n"
+        . $renderer->elementToHtml('authorcheck') . "\n"
+        . $renderer->elementToHtml('halfabstractcheck') . "\n"
+        . $renderer->elementToHtml('datecheck') . "\n";
+}
+
+// Wrap the form and any remaining elements (i.e. hidden elements) into the
+// form tags.
+echo $renderer->toHtml($data . $table->toHtml()) . "</div>";
+
+$db->close();
+
+pageFooter();
+
+echo "</body>\n</html>\n";
 
 /**
  * Outputs the java script used by the page.
@@ -135,7 +129,6 @@ END;
 
             }
     </script>
-          <body>
 
 END;
 }

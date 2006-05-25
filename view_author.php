@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.9 2006/05/19 22:43:02 aicmltec Exp $
+// $Id: view_author.php,v 1.10 2006/05/25 01:36:18 aicmltec Exp $
 
 /**
  * \file
@@ -22,51 +22,46 @@ require_once 'includes/pdAuthor.php';
 
 require_once 'HTML/Table.php';
 
-makePage();
+htmlHeader('View Author');
+echo "<body>\n";
+pageHeader();
+navigationMenu();
+echo "<div id='content'>\n";
 
-function makePage() {
-    global $logged_in;
-
-    htmlHeader('View Author');
-    pageHeader();
-    navigationMenu();
-    print "<body>\n<div id='content'>\n";
-
-    if (!isset($_GET['author_id'])) {
-        errorMessage();
-    }
-
-    /* Connecting, selecting database */
-    $db =& dbCreate();
-
-    $auth = new pdAuthor();
-    $auth->dbLoad($db, $_GET['author_id'], (PD_AUTHOR_DB_LOAD_PUBS_MIN
-                                            | PD_AUTHOR_DB_LOAD_INTERESTS));
-
-    // check if this author id is valid
-    if (!isset($auth->author_id)) {
-        errorMessage();
-    }
-
-    print "<h3>" . $auth->name . "</h3>";
-
-    $table =& authTableCreate($db, $auth);
-
-    print $table->toHtml();
-
-    if ($logged_in) {
-        print "<br/><b><a href='Admin/edit_author.php?author_id="
-            . $auth->author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
-            . "<a href='Admin/delete_author.php?author_id="
-            . $auth->author_id . "'>Delete this author</a></b><br/><br/>";
-    }
-
-    print "</div>\n";
-    pageFooter();
-    echo "</body>\n</html>\n";
-
-    $db->close();
+if (!isset($_GET['author_id'])) {
+    errorMessage();
 }
+
+/* Connecting, selecting database */
+$db =& dbCreate();
+
+$auth = new pdAuthor();
+$auth->dbLoad($db, $_GET['author_id'], (PD_AUTHOR_DB_LOAD_PUBS_MIN
+                                        | PD_AUTHOR_DB_LOAD_INTERESTS));
+
+// check if this author id is valid
+if (!isset($auth->author_id)) {
+    errorMessage();
+}
+
+echo "<h3>" . $auth->name . "</h3>";
+
+$table =& authTableCreate($db, $auth);
+
+echo $table->toHtml();
+
+if ($logged_in) {
+    echo "<br/><b><a href='Admin/edit_author.php?author_id="
+        . $auth->author_id . "'>Edit this author</a>&nbsp;&nbsp;&nbsp;"
+        . "<a href='Admin/delete_author.php?author_id="
+        . $auth->author_id . "'>Delete this author</a></b><br/><br/>";
+}
+
+echo "</div>\n";
+pageFooter();
+echo "</body>\n</html>\n";
+
+$db->close();
 
 function authTableCreate(&$db, &$auth) {
     $tableAttrs = array('width' => '600',

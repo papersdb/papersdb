@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.5 2006/05/19 22:43:02 aicmltec Exp $
+// $Id: login.php,v 1.6 2006/05/25 01:36:18 aicmltec Exp $
 
 /**
  * \file
@@ -58,11 +58,11 @@ if (isset($_POST['login'])) {
     $logged_in = 1;
 
     htmlHeader('PapersDB Login', 'index.php');
-    print "<body>\n";
+    echo "<body>\n";
     pageHeader();
     navigationMenu();
 
-    print "<div id='content'>"
+    echo "<div id='content'>"
         . "<h2>Logged in</h1>"
         . "You have succesfully logged in as "
         . $_SESSION['user']->login . ".\n"
@@ -134,11 +134,11 @@ else if (isset($_POST['newaccount'])) {
 	$_SESSION['user'] = $user;
 
     htmlHeader('PapersDB Login', 'index.php');
-    print "<body>\n";
+    echo "<body>\n";
     pageHeader();
     navigationMenu();
 
-    print "<div id='content'>"
+    echo "<div id='content'>"
         . "<h2>Login created</h1>"
         . "You have succesfully created your new login "
         . $_SESSION['user']->login . " and are now logged in.\n"
@@ -153,14 +153,13 @@ else {
 	// if form hasn't been submitted
     htmlHeader('PapersDB Login');
 
-    print "<body>\n";
+    echo "<body>\n";
 
     pageHeader();
     navigationMenu();
 
-    print "<div id=\"content\">\n"
-        . "<h2>Create new account or log in</h2>\n"
-        . "<form action='" . $_SERVER['PHP_SELF'] . "' method='post'>\n";
+    echo "<div id=\"content\">\n"
+        . "<h2>Create new account or log in</h2>\n";
 
     $tableAttrs = array('width' => '600',
                         'border' => '0',
@@ -200,7 +199,7 @@ else {
 
     $table->updateColAttributes(0, array('id' => 'emph'));
 
-    print $renderer->toHtml($table->toHtml()) . "</div>";
+    echo $renderer->toHtml($table->toHtml()) . "</div>";
 
     pageFooter();
 }

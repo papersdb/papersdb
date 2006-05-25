@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: help.php,v 1.4 2006/05/19 22:43:02 aicmltec Exp $
+// $Id: help.php,v 1.5 2006/05/25 01:36:18 aicmltec Exp $
 
 /**
  * \file
@@ -17,7 +17,7 @@ require_once 'includes/functions.php';
 
 htmlHeader('Publication DB Help');
 
-echo "<b>Help for: ";
+echo "<body>\n<b>Help for: ";
 if (isset($_GET['helpcat']) && $_GET['helpcat'] != "")
 	echo ucfirst($_GET['helpcat']);
 else

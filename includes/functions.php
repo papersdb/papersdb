@@ -63,7 +63,7 @@ function errorMessage(){
         . "<br/>Please go back and try again.</h4>"
         . "<BR>";
     back_button();
-    print "</div>\n";
+    echo "</div>\n";
     pageFooter();
 	exit;
 }
@@ -355,7 +355,7 @@ function get_venue_info($venue) {
 }
 
 function htmlHeader($title, $redirect = '') {
-    print "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
+    echo "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
         . "lang='en'>\n"
         . "<head>\n"
         . "<title>". $title . "</title>\n"
@@ -363,11 +363,11 @@ function htmlHeader($title, $redirect = '') {
         . "content='text/html; charset=iso-8859-1' />\n";
 
     if ($redirect != '') {
-        print "<meta http-equiv='refresh' content='5;url=" . $redirect
+        echo "<meta http-equiv='refresh' content='5;url=" . $redirect
             . "' />\n";
     }
 
-    print "<link rel='stylesheet' href='style.css' />\n"
+    echo "<link rel='stylesheet' href='style.css' />\n"
         . "</head>";
 }
 

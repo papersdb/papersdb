@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.10 2006/05/19 22:43:02 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.11 2006/05/25 01:36:18 aicmltec Exp $
 
 /**
  * \file
@@ -46,282 +46,273 @@ $allowedOptions = array('categorycheck',
                         'startdate',
                         'enddate');
 
-makePage();
+htmlHeader('Search Publication');
+echo "<body>";
 
-/**
- * Generates all the HTML for the page.
- */
-function makePage() {
-    global $allowedOptions;
+if (count($_POST) > 0)
+    $option = optionsGet($_POST);
+else
+    $option = optionsGet($_GET);
 
-    htmlHeader('Search Publication');
-    echo "</head>\n<body>";
+pageHeader();
+navigationMenu();
 
-    if (count($_POST) > 0)
-        $option = optionsGet($_POST);
-    else
-        $option = optionsGet($_GET);
+echo "<div id='content'>\n";
 
-    pageHeader();
-    navigationMenu();
+$link = connect_db();
+$pub_id_count = 0;
 
-    print "<div id='content'>\n";
+// We start as the result being every pub_id
+$pub_id_array = NULL;
+$search_query = "SELECT DISTINCT pub_id FROM publication";
+add_to_array($search_query, $pub_id_array);
 
-    $link = connect_db();
-    $pub_id_count = 0;
+$s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
+$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0,
+                              strpos($_SERVER["SERVER_PROTOCOL"], "/"))).$s;
+$port = ($_SERVER["SERVER_PORT"] == "80")
+    ? "" : (":".$_SERVER["SERVER_PORT"]);
+$position = strpos($_SERVER["REQUEST_URI"], "?");
 
-    // We start as the result being every pub_id
-    $pub_id_array = NULL;
-    $search_query = "SELECT DISTINCT pub_id FROM publication";
-    add_to_array($search_query, $pub_id_array);
+if ($position === false)
+    $location = $_SERVER["REQUEST_URI"];
+else
+    $location = substr($_SERVER['REQUEST_URI'], 0,  $position);
 
-    $s = empty($_SERVER["HTTPS"]) ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "";
-    $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"], 0,
-                                  strpos($_SERVER["SERVER_PROTOCOL"], "/"))).$s;
-    $port = ($_SERVER["SERVER_PORT"] == "80")
-        ? "" : (":".$_SERVER["SERVER_PORT"]);
-    $position = strpos($_SERVER["REQUEST_URI"], "?");
+$search_url = $protocol."://".$_SERVER['SERVER_NAME'].$port.$location."?";
 
-    if ($position === false)
-        $location = $_SERVER["REQUEST_URI"];
-    else
-        $location = substr($_SERVER['REQUEST_URI'], 0,  $position);
-
-    $search_url = $protocol."://".$_SERVER['SERVER_NAME'].$port.$location."?";
-
-    $url_opt = array();
-    foreach ($allowedOptions as $opt) {
-        if (isset($option->$opt))
-            $url_opt[] = $opt . "=" . urlencode($option->$opt);
-    }
-
-    if (count($url_opt) > 0) {
-        $search_url .= implode("&", $url_opt);
-    }
-
-    // I would love to make this ridiculously long URL shorter remember to
-    // urlencode anything else that gets added as a term to the search
-
-    if($option->search != "") {
-        $pub_id_array = quickSearch($pub_id_array, $option);
-        echo "<h3> QUICK SEARCH </h3>";
-    }
-    else {
-        $pub_id_array = advncedSearch($pub_id_array, $option);
-    }
-
-    // SHOW THE RESULTS -------------------------------------------------------
-    $db =& dbCreate();
-    $countentries = 0;
-    $input_unsanitized = str_replace("\'", "", stripslashes($input));
-    $titlecheck = true;
-
-    $form =& searchFormCreate();
-    $form->setDefaults(array('search' => $input_unsanitized));
-    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-    $form->accept($renderer);
-
-    $table = new HTML_Table();
-
-    $data = 'Search: '
-        . $renderer->elementToHtml('search') . ' '
-        . $renderer->elementToHtml('Quick') . ' '
-        . "<a href='advanced_search.php'>"
-        . "<b>Advanced Search</b></a>";
-
-    $table->addRow(array($renderer->toHtml($data)), array('id' => 'emph'));
-
-    $cvForm =& cvFormCreate($pub_id_array);
-    if ($cvForm != null) {
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-        $cvForm->accept($renderer);
-        $table->addRow(array($renderer->toHtml()));
-    }
-
-    print $table->toHtml();
-
-    if($pub_id_array == null) {
-        echo "<br><h3>No entries found.</h3>";
-    }
-    else {
-        if (count($pub_id_array) == 1)
-            echo "<h3>1 entry found.</h3>";
-        else
-            echo "<h3>" . count($pub_id_array) . " entries found.</h3>";
-        echo "<table id='nomargins'>";
-
-        $b = 0;
-        foreach ($pub_id_array as $pub_id) {
-            $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
-
-            echo "<tr class=\"";
-            if ($b%2 == 0)
-                echo "odd";
-            else
-                echo "even";
-
-            echo "\"><td class=\"large\" valign=\"top\">".($b+1).": </td><td>";
-
-            echo "<table id='nomargins' width='550' border='0' cellspacing='0' cellpadding='2'>";
-
-            // Show Category
-            if(($option->categorycheck == "yes") || ($option->category != "")) {
-                echo "<tr><td class=\"small\">";
-                echo "<u>" . $pub->category . "</u>";
-                echo "</td></tr>";
-            }
-
-            // Show Title
-            if(($option->titlecheck == "yes") || ($option->title != "")) {
-                echo "<tr><td class=\"large\">";
-                echo "<b><a href=\"view_publication.php?";
-                if($admin == "true") echo "admin=true&";
-                echo "pub_id=".$pub_id."\">".$pub->title;
-                echo "</a></b>";
-                echo "</td></tr>";
-            }
-
-            // Show Author
-            if($option->authorcheck == "yes"){
-                echo "<tr><td class=\"standard\">";
-                $first = true;
-                foreach ($pub->author as $auth) {
-                    if(!$first) echo " <b>-</b> ";
-                    echo "<a href=\"./view_author.php?";
-                    echo "author_id=" . $auth->author_id . "\">";
-                    $author = split(",", $auth->name);
-                    echo "".$author[1]." ".$author[0]."</a>";
-                    $first = false;
-                }
-                echo "</td></tr>";
-            }
-
-            // Show Paper
-            if(($option->papercheck == 'yes')||($option->paper != "")){
-                if($pub->paper == "No paper")
-                    $paperstring = "No Paper at this time.";
-                else {
-                    $paperstring = "<a href=\".".$pub->paper;
-                    $papername = split("paper_", $pub->paper);
-                    $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
-                }
-                echo "<tr><td class=\"standard\">";
-                echo "<b>Paper:</b>".$paperstring;
-                echo "</td></tr>";
-            }
-
-            // Show Additional Materials
-            if (($option->additionalcheck == 'yes')
-                || ($option->additional != "")) {
-                if(is_array($pub->additional_info)) {
-                    echo "<tr><td class=\"small\">";
-                    $add_count = 1;
-                    foreach ($pub->additional_info as $additional) {
-                        $temp = split("additional_", $additional->location);
-                        echo "<b>";
-                        if ($additional->type != "")
-                            echo $additional->type . ":";
-                        else
-                            echo "Additional Material " . ($add_count++).":";
-                        echo "</b>";
-                        echo "<a href=." . $additional->location . ">";
-                        echo "<i><b>".$temp[1]."</b></i>";
-                        echo "</a><br>";
-                    }
-                    echo "</td></tr>";
-                }
-            }
-
-            // Show the venue.
-            if(($option->venuecheck = 'yes')||($option->venue != "")){
-                if($pub->venue != ""){
-                    echo "<tr><td class=\"standard\">";
-                    echo get_venue_info($pub->venue);
-                    echo "</td></tr>";
-                }
-            }
-
-            if($option->fullabstractcheck == 'yes'){
-                // Show the full abstract, and not the part abstract.
-                echo "<tr><td class=\"small\">";
-                echo stripslashes($pub->abstract);
-                echo "</td></tr>";
-            }
-            else if(($option->halfabstractcheck == 'yes')
-                    || ($option->abstract != "")){
-                // Show part of the abstract.
-                echo "<tr><td class=\"small\">";
-                $tempstring = stripslashes($pub->abstract);
-                if(strlen($tempstring) > 350) {
-                    $tempstring = substr($tempstring,0,350)."...";
-                }
-                echo $tempstring;
-                echo "</td></tr>";
-            }
-
-            // Show the keywords
-            if(($option->keywordscheck = 'yes') || ($option->keywords != "")){
-                echo "<tr><td class=\"small\">";
-                echo "<b>Keywords: </b>";
-                $display_array = explode(";", $pub->keywords);
-                for ($i = 0; $i < count($display_array); $i++) {
-                    if (($display_array[$i] != "")&& ($display_array[$i] != null))
-                    { 	echo $display_array[$i];
-                        if($i < count($display_array)-2)
-                        {echo ", ";}
-                    }
-                }
-                echo "</td></tr>";
-            }
-
-            // Show the extra information related to the category
-            if (($option->extracheck = 'yes') && is_array($pub->info)) {
-                foreach ($pub->info as $info) {
-                    if(($info->value != "") && ($info->name != "")) {
-                        echo "<tr><td class=\"small\">";
-                        echo "<b>" . $info->name . ": </b>";
-                        echo $info->value;
-                        echo "</td></tr>";
-                    }
-                }
-            }
-            // Show the date the publication was published.
-            if(($option->datecheck) || ($startdate != $enddate)){
-                //PARSE DATES
-                $thedate = "";
-                $published = split("-",$pub->published);
-                if($published[1] != 00)
-                    $thedate .= date("F", mktime (0,0,0,$published[1]))." ";
-                if($published[2] != 00)
-                    $thedate .= $published[2].", ";
-                if($published[0] != 0000)
-                    $thedate .= $published[0];
-                if($thedate != NULL){
-                    echo "<tr><td class=\"small\">";
-                    echo "<b>Date Published: </b>";
-                    echo $thedate;
-                    echo "</td></tr>";
-                }
-            }
-            echo "</table></td></tr>";
-            $b++;
-        }
-        echo "</table>";
-    }
-
-    echo "<hr/>"
-        . "Link to this search: <div id='small'><a href='" . $search_url . "'>"
-        . substr($search_url,0,96) . "...</a></div><br/>"
-        . "</div>";
-
-    $db->close();
-
-    pageFooter();
-
-    echo "</body>\n</html>\n";
-
+$url_opt = array();
+foreach ($allowedOptions as $opt) {
+    if (isset($option->$opt))
+        $url_opt[] = $opt . "=" . urlencode($option->$opt);
 }
+
+if (count($url_opt) > 0) {
+    $search_url .= implode("&", $url_opt);
+}
+
+// I would love to make this ridiculously long URL shorter remember to
+// urlencode anything else that gets added as a term to the search
+
+if($option->search != "") {
+    $pub_id_array = quickSearch($pub_id_array, $option);
+    echo "<h3> QUICK SEARCH </h3>";
+}
+else {
+    $pub_id_array = advncedSearch($pub_id_array, $option);
+}
+
+// SHOW THE RESULTS -------------------------------------------------------
+$db =& dbCreate();
+$countentries = 0;
+$input_unsanitized = str_replace("\'", "", stripslashes($input));
+$titlecheck = true;
+
+$form =& searchFormCreate();
+$form->setDefaults(array('search' => $input_unsanitized));
+$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+$form->accept($renderer);
+
+$table = new HTML_Table();
+
+$data = 'Search: '
+    . $renderer->elementToHtml('search') . ' '
+    . $renderer->elementToHtml('Quick') . ' '
+    . "<a href='advanced_search.php'>"
+    . "<b>Advanced Search</b></a>";
+
+$table->addRow(array($renderer->toHtml($data)), array('id' => 'emph'));
+
+$cvForm =& cvFormCreate($pub_id_array);
+if ($cvForm != null) {
+    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+    $cvForm->accept($renderer);
+    $table->addRow(array($renderer->toHtml()));
+}
+
+echo $table->toHtml();
+
+if($pub_id_array == null) {
+    echo "<br><h3>No entries found.</h3>";
+}
+else {
+    if (count($pub_id_array) == 1)
+        echo "<h3>1 entry found.</h3>";
+    else
+        echo "<h3>" . count($pub_id_array) . " entries found.</h3>";
+    echo "<table id='nomargins'>";
+
+    $b = 0;
+    foreach ($pub_id_array as $pub_id) {
+        $pub = new pdPublication();
+        $pub->dbLoad($db, $pub_id);
+
+        echo "<tr class=\"";
+        if ($b%2 == 0)
+            echo "odd";
+        else
+            echo "even";
+
+        echo "\"><td class=\"large\" valign=\"top\">".($b+1).": </td><td>";
+
+        echo "<table id='nomargins' width='550' border='0' cellspacing='0' cellpadding='2'>";
+
+        // Show Category
+        if(($option->categorycheck == "yes") || ($option->category != "")) {
+            echo "<tr><td class=\"small\">";
+            echo "<u>" . $pub->category . "</u>";
+            echo "</td></tr>";
+        }
+
+        // Show Title
+        if(($option->titlecheck == "yes") || ($option->title != "")) {
+            echo "<tr><td class=\"large\">";
+            echo "<b><a href=\"view_publication.php?";
+            if($admin == "true") echo "admin=true&";
+            echo "pub_id=".$pub_id."\">".$pub->title;
+            echo "</a></b>";
+            echo "</td></tr>";
+        }
+
+        // Show Author
+        if($option->authorcheck == "yes"){
+            echo "<tr><td class=\"standard\">";
+            $first = true;
+            foreach ($pub->authors as $auth) {
+                if(!$first) echo " <b>-</b> ";
+                echo "<a href=\"./view_author.php?";
+                echo "author_id=" . $auth->author_id . "\">";
+                $author = split(",", $auth->name);
+                echo "".$author[1]." ".$author[0]."</a>";
+                $first = false;
+            }
+            echo "</td></tr>";
+        }
+
+        // Show Paper
+        if(($option->papercheck == 'yes')||($option->paper != "")){
+            if($pub->paper == "No paper")
+                $paperstring = "No Paper at this time.";
+            else {
+                $paperstring = "<a href=\".".$pub->paper;
+                $papername = split("paper_", $pub->paper);
+                $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
+            }
+            echo "<tr><td class=\"standard\">";
+            echo "<b>Paper:</b>".$paperstring;
+            echo "</td></tr>";
+        }
+
+        // Show Additional Materials
+        if (($option->additionalcheck == 'yes')
+            || ($option->additional != "")) {
+            if(is_array($pub->additional_info)) {
+                echo "<tr><td class=\"small\">";
+                $add_count = 1;
+                foreach ($pub->additional_info as $additional) {
+                    $temp = split("additional_", $additional->location);
+                    echo "<b>";
+                    if ($additional->type != "")
+                        echo $additional->type . ":";
+                    else
+                        echo "Additional Material " . ($add_count++).":";
+                    echo "</b>";
+                    echo "<a href=." . $additional->location . ">";
+                    echo "<i><b>".$temp[1]."</b></i>";
+                    echo "</a><br>";
+                }
+                echo "</td></tr>";
+            }
+        }
+
+        // Show the venue.
+        if(($option->venuecheck = 'yes')||($option->venue != "")){
+            if($pub->venue != ""){
+                echo "<tr><td class=\"standard\">";
+                echo get_venue_info($pub->venue);
+                echo "</td></tr>";
+            }
+        }
+
+        if($option->fullabstractcheck == 'yes'){
+            // Show the full abstract, and not the part abstract.
+            echo "<tr><td class=\"small\">";
+            echo stripslashes($pub->abstract);
+            echo "</td></tr>";
+        }
+        else if(($option->halfabstractcheck == 'yes')
+                || ($option->abstract != "")){
+            // Show part of the abstract.
+            echo "<tr><td class=\"small\">";
+            $tempstring = stripslashes($pub->abstract);
+            if(strlen($tempstring) > 350) {
+                $tempstring = substr($tempstring,0,350)."...";
+            }
+            echo $tempstring;
+            echo "</td></tr>";
+        }
+
+        // Show the keywords
+        if(($option->keywordscheck = 'yes') || ($option->keywords != "")){
+            echo "<tr><td class=\"small\">";
+            echo "<b>Keywords: </b>";
+            $display_array = explode(";", $pub->keywords);
+            for ($i = 0; $i < count($display_array); $i++) {
+                if (($display_array[$i] != "")&& ($display_array[$i] != null))
+                { 	echo $display_array[$i];
+                    if($i < count($display_array)-2)
+                    {echo ", ";}
+                }
+            }
+            echo "</td></tr>";
+        }
+
+        // Show the extra information related to the category
+        if (($option->extracheck = 'yes') && is_array($pub->info)) {
+            foreach ($pub->info as $info) {
+                if(($info->value != "") && ($info->name != "")) {
+                    echo "<tr><td class=\"small\">";
+                    echo "<b>" . $info->name . ": </b>";
+                    echo $info->value;
+                    echo "</td></tr>";
+                }
+            }
+        }
+        // Show the date the publication was published.
+        if(($option->datecheck) || ($startdate != $enddate)){
+            //PARSE DATES
+            $thedate = "";
+            $published = split("-",$pub->published);
+            if($published[1] != 00)
+                $thedate .= date("F", mktime (0,0,0,$published[1]))." ";
+            if($published[2] != 00)
+                $thedate .= $published[2].", ";
+            if($published[0] != 0000)
+                $thedate .= $published[0];
+            if($thedate != NULL){
+                echo "<tr><td class=\"small\">";
+                echo "<b>Date Published: </b>";
+                echo $thedate;
+                echo "</td></tr>";
+            }
+        }
+        echo "</table></td></tr>";
+        $b++;
+    }
+    echo "</table>";
+}
+
+echo "<hr/>"
+. "Link to this search: <div id='small'><a href='" . $search_url . "'>"
+. substr($search_url,0,96) . "...</a></div><br/>"
+. "</div>";
+
+$db->close();
+
+pageFooter();
+
+echo "</body>\n</html>\n";
+
 
 /**
  * Retrieves the allowed options from an array. Note that this function should
@@ -636,7 +627,7 @@ function advncedSearch(&$pub_id_array, &$option) {
 
         $temporary_array = NULL;
 
-        print "startdate: ". $startdate . " enddate: " . $enddate . "<br/>\n";
+        echo "startdate: ". $startdate . " enddate: " . $enddate . "<br/>\n";
 
         $search_query = "SELECT DISTINCT pub_id from publication "
             . "WHERE published BETWEEN " . quote_smart($startdate)
