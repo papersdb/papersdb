@@ -409,46 +409,6 @@ function quickSearchFormCreate() {
     return $form;
 }
 
-function navigationMenu() {
-    global $logged_in;
-
-    $options = array();
-
-    if ($logged_in) {
-        $options += array('Add Publication' => 'Admin/add_publication.php',
-                          'Add Author' => 'Admin/add_author.php');
-    }
-
-    $options += array('Advanced Search' => 'advanced_search.php',
-                      'All Publications' => 'list_publication.php',
-                      'All Authors' => 'list_author.php');
-
-    if ($logged_in) {
-        $options += array('Logout' => 'logout.php');
-    }
-    else {
-        $options += array('Login or Register' => 'login.php');
-    }
-
-    echo <<<END
-<div id="nav">
-    <h2>navigation</h2>
-    <ul>
-END;
-
-    foreach ($options as $key => $value) {
-        printf("<li><a href='%s'>%s</a></li>\n", $value, $key);
-    }
-    $form = quickSearchFormCreate();
-    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-    $form->accept($renderer);
-
-    echo "</ul>\n"
-        . $renderer->toHtml($renderer->elementToHtml('search') . ' '
-                            . $renderer->elementToHtml('Quick'))
-        . "</div>";
-}
-
 function pageFooter() {
     echo <<<END
 <div id="footer">

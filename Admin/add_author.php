@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.4 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: add_author.php,v 1.5 2006/05/25 16:44:55 aicmltec Exp $
 
 /**
  * \file
@@ -24,8 +24,10 @@
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
-require('includes/functions.php');
-require('includes/pdAuthInterests.php');
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
+require_once 'includes/pdAuthInterests.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/Table.php';
@@ -117,7 +119,7 @@ function resetAll() {
 
 echo "<body>\n";
 pageHeader();
-navigationMenu();
+navigationMenu('add_author');
 echo "<div id='content'>\n";
 
 /* Connecting, selecting database */
@@ -175,19 +177,17 @@ foreach($interests->list as $intr) {
 $form->addElement('select', 'interests', null, $options,
                       array('multiple' => 'multiple', 'size' => 4));
 
-$form->addElement('submit', 'Submit', 'Add Author');
-    $form->addElement('reset', 'Reset', 'Reset',
-                      array('class' => 'text',
-                          'onClick' => 'resetAll();'));
+$form->addElement('submit', 'Submit', 'Add Author',
+                  array('onClick' => 'return verify();'));
+$form->addElement('reset', 'Reset', 'Reset',
+                  array('class' => 'text', 'onClick' => 'resetAll();'));
 
 if ($_GET['popup'])
     $form->addElement('reset', 'Cancel', 'Cancel',
-                      array('class' => 'text',
-                            'onClick' => 'closeWindow();'));
+                      array('class' => 'text', 'onClick' => 'closeWindow();'));
 else
     $form->addElement('reset', 'Cancel', 'Cancel',
-                      array('class' => 'text',
-                            'onClick' => 'history.back();'));
+                      array('class' => 'text', 'onClick' => 'history.back();'));
 
 $form->addElement('hidden', 'newAuthorSubmitted', 'true');
 $form->addElement('hidden', 'numInterests', $counter + 1);
@@ -197,6 +197,8 @@ for ($i = 0; $i < $newInterests; $i++) {
     $form->addElement('text', 'newInterest' . $i, null,
                       array('size' => 50, 'maxlength' => 250));
 }
+
+$form->setDefaults($_GET);
 
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
