@@ -1,32 +1,35 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<?php
+<?php ;
 
- // $Id: add_publication.php,v 1.5 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: add_publication.php,v 1.6 2006/05/30 23:01:09 aicmltec Exp $
 
- /**
-  * \file
-  *
-  * \brief This page is the form for adding/editing a publication.
-  *
-  * It has many side functions that are needed for the form to work
-  * smoothly. It takes the input from the user, and then sends that input to
-  * add_publication_db.php.
-  */
+/**
+ * \file
+ *
+ * \brief This page is the form for adding/editing a publication.
+ *
+ * It has many side functions that are needed for the form to work
+ * smoothly. It takes the input from the user, and then sends that input to
+ * add_publication_db.php.
+ */
 
-?>
+ini_set("include_path", ini_get("include_path") . ":..");
 
-<html>
-<head>
-<title>Add or Edit Publication</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-     <link rel="stylesheet" type="text/css" href="../style.css"/>
-     </head>
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
+require_once 'includes/pdAuthorList.php';
+require_once 'includes/pdCatList.php';
+require_once 'includes/pdVenueList.php';
+require_once 'includes/pdPublication.php';
+require_once 'includes/pdPubList.php';
 
-<?
+require_once 'HTML/QuickForm.php';
+require_once 'HTML/QuickForm/combobox.php';
+require_once 'HTML/Table.php';
 
-include("header.php");
-require('../functions.php');
-$link = connect_db();
+htmlHeader('Add or Edit Publication');
+
+$db =& dbCreate();
 
 //User's 10 most popular Authors
 function popularauthors(){
@@ -66,18 +69,23 @@ function popularauthors(){
 $edit = FALSE;
 //////////////////////EDIT START/////////////////////////////////
 // Check to see if we've been passed a publication ID
-if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "") && ($new != "false")) {
+if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
+    && ($_GET['new'] != "false")) {
 
 	// Set "edit mode" to true - we could just check for the existence
 	// of pub_id in the GET variables, but this is more clear.
 	$edit = TRUE;
 	// Get publication info
-	$pubInfo = get_publication_info($_GET['pub_id']);
+    $pub = new pdPublication();
+    $pub->dbLoad($db, $_GET['pub_id']);
 
 	// Check if the publication actually exists
-	if ($pubInfo == NULL) {
+	if (!isset($pub->pub_id)) {
         "Error: Publication with ID " . $_GET['pub_id'] . " doesn't exist.";
-        disconnect_db($link);
+        echo "</div>\n";
+        pageFooter();
+        echo "</body></html>";
+        $db->close();
 		exit;
 	}
     if(($intpoint == "")&&($ext == "")){
@@ -434,16 +442,20 @@ else
         " author.author_id=pub_author.author_id AND pub_author.pub_id=$pub_id ORDER BY pub_author.rank";
 $author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
 
+if ($_GET['ext'] == '')
+    $ext = 0;
+else
+    $ext = intval($_GET['ext']);
+
+if ($_GET['intpoint'] == '')
+    $intpoint = 0;
+else
+    $intpoint = intval($_GET['intpoint']);
+
 // Optiontransfer is the author selection windows.
 ?>
+<script language="JavaScript" src="../calendar.js"></script>
 <SCRIPT LANGUAGE="JavaScript" SRC="OptionTransfer.js"></SCRIPT>
-<SCRIPT LANGUAGE="JavaScript">
-	var opt = new OptionTransfer("authors[]","authorslist[]");
-//opt.setAutoSort(true);
-opt.saveRemovedLeftOptions("removedLeft");
-opt.saveAddedLeftOptions("addedLeft");
-opt.saveNewLeftOptions("selected_authors");
-</SCRIPT>
 <script language="JavaScript" type="text/JavaScript">
 
     window.name="add_publication.php";
@@ -518,7 +530,7 @@ function dataKeep(tab) {
 		temp_qs = temp_qs + "&#" + tab;
 	temp_qs = temp_qs.replace("\"", "?");
 	temp_qs = temp_qs.replace(" ", "%20");
-	location.href = "http://" + "<? echo $_SERVER["HTTP_HOST"]; echo $PHP_SELF; ?>?" + temp_qs;
+	location.href = "http://" + "<? echo $_SERVER['HTTP_HOST']; echo $_SERVER['PHP_SELF']; ?>?" + temp_qs;
 }
 
 function dataKeepPopup(page) {
@@ -541,7 +553,8 @@ function dataKeepPopup(page) {
 						if (author_count > 0) {
 							author_list = author_list + "&";
 						}
-						author_list = author_list + "authors[" + j + "]=" + author_array[j].value;
+						author_list = author_list + "authors[" + j + "]="
+                            + author_array[j].value;
 						author_count++;
 					}
 				}
@@ -550,10 +563,12 @@ function dataKeepPopup(page) {
 			}
 			else {
 				if(document.forms["pubForm"].elements[i].name == "comments"){
-					temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value.replace("\"","'");
+					temp_qs = temp_qs + document.forms["pubForm"].elements[i].name
+                        + "=" + document.forms["pubForm"].elements[i].value.replace("\"","'");
 				}
 				else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value;
+                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "="
+                        + document.forms["pubForm"].elements[i].value;
 			}
 
 			info_counter++;
@@ -565,8 +580,13 @@ function dataKeepPopup(page) {
 	}
     temp_qs = temp_qs + "&new=false";
 
-	//var temp_url = "http://" + "<? echo $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs;
-	var temp_url = "./" + page + "?" + temp_qs;
+    var term_url;
+    if (page.indexOf('?') > 0) {
+        temp_url = "./" + page + "&" + temp_qs;
+    }
+    else {
+        temp_url = "./" + page + "?" + temp_qs;
+    }
 	temp_url = temp_url.replace(" ", "%20");
 	temp_url = temp_url.replace("\"", "'");
 	if(page == "keywords.php")
@@ -624,14 +644,12 @@ function dataKeepPopupWithID(page, id) {
 	}
 	temp_qs = temp_qs.replace("\"", "?");
 
-	//var temp_url = "http://" + "<? echo $_SERVER["HTTP_HOST"]; ?>/~loh/" + page + "?" + temp_qs + "&pub_id=" + id;
 	var temp_url = "./" + page + "?" + temp_qs + "&pub_id=" + id;
 	temp_url = temp_url.replace(" ", "%20");
-	window.open(temp_url, 'Add');//, 'width=600,height=350,scrollbars=yes,resizable=yes');
+	window.open(temp_url, 'Add');
 }
 
 function verify(num) {
-
 	if (document.forms["pubForm"].elements["category"].value == "") {
         alert("Please select a category for the publication.");
         return false;
@@ -673,20 +691,311 @@ function refresher() { window.location.reload(true);}
 
 </script>
 
-<body  onLoad="opt.init(document.forms[0])">
-    <a name="Start"></a>
-    <h3><? if ($edit)echo "Edit"; else echo "Add"; ?> Publication</h3>
-    <?
-    if(!$edit) {
-        echo "Adding a publication takes two steps:<br>"
-            . "1. Fill in the appropriate fields<br>"
-            . "2. Upload the paper and any additional materials<br><br>"
-            . "<div id=\"highlight\">For help on any field just click the "
-            . "field name.</div>";
-    }
+
+<?php
+
+echo '<body onLoad="opt.init(document.forms[0])">'
+. '<a name="Start"></a>';
+pageHeader();
+navMenu('add_publication');
+echo "<div id='content'>\n";
+
 ?>
 
-<form name="pubForm" action="add_publication_db.php" method="POST"
+<h3><? if ($_GET['edit']) echo "Edit"; else echo "Add"; ?> Publication</h3>
+<?
+
+if(!$edit) {
+    echo "Adding a publication takes two steps:<br>"
+        . "1. Fill in the appropriate fields<br>"
+        . "2. Upload the paper and any additional materials<br><br>"
+        . "<div id=\"highlight\">For help on any field just click the "
+        . "field name.</div>";
+}
+
+$form = new HTML_QuickForm('pubForm', 'post', "./add_publication.php?",
+                           "add_publication.php");
+if ($edit) {
+    $form->addElement('hidden', 'pub_id', $_GET['pub_id']);
+}
+
+// Venue
+if (($_GET['venue_id'] != "") && ($_GET['venue_id'] != -1)
+   && ($_GET['venue_id'] != -2)) {
+
+    $venue_id = $_GET['venue_id'];
+
+    $venue = new pdVenue();
+    $venue->dbLoad($db, $venue_id);
+
+    if ((($category == "") || ($category == "In Conference"))
+        || (($category == "In Workshop") || ($category == "In Journal"))) {
+        if($venue->type == "Conference")
+            $category = "In Conference";
+        else if($venue->type == "Workshop")
+            $category = "In Workshop";
+        else if($venue->type == "Journal")
+            $category = "In Journal";
+    }
+
+    if(($venue->date != NULL) && ($venue->date != "")) {
+        $date = split("-", $venue->date);
+        $year = $date[0];
+        $month = $date[1];
+        $day = $date[2];
+    }
+}
+
+$options = array(''   => '--- Select a Venue ---',
+                 '-1' => 'No Venue',
+                 '-2' => 'Unique Venue');
+$venue_list = new pdVenueList();
+$venue_list->dbLoad($db);
+assert('is_array($venue_list->list)');
+foreach ($venue_list->list as $v) {
+    $options[$v->venue_id] = $v->title;
+}
+$form->addElement('select', 'venue_id', null, $options,
+                  array('onChange' => "javascript:dataKeep('Start');"));
+
+
+// Category
+$options = array('' => '--- Please Select a Category ---');
+$category_list = new pdCatList();
+$category_list->dbLoad($db);
+assert('is_array($category_list->list)');
+unset($options);
+foreach ($category_list->list as $category) {
+    $options[$category->cat_id] = $category->category;
+}
+$form->addElement('select', 'category', null, $options,
+                  array('onChange' => "javascript:dataKeep('Start');"));
+
+// title
+$form->addElement('text', 'title', null,
+                  array('size' => 70, 'maxlength' => 250));
+
+
+// Authors
+if (!isset($_GET['num_authors'])) {
+    $num_authors = 1;
+}
+else {
+    $num_authors = $_GET['num_authors'];
+}
+
+$form->addElement('hidden', 'num_authors', $num_authors);
+$form->addElement('submit', 'add_author', 'Add Author');
+$auth_list = new pdAuthorList();
+$auth_list->dbLoad($db);
+assert('is_array($auth_list->list)');
+unset($options);
+foreach ($auth_list->list as $auth) {
+    $options[$auth->author_id] = $auth->name;
+}
+
+for ($i = 1; $i <= $num_authors; $i++) {
+    $form->addElement('combobox', 'author' . $i, null, $options,
+                      array('buttonValue' => '...'));
+}
+
+
+
+$form->addElement('textarea', 'abstract', null,
+                  array('cols' => 70, 'rows' => 10));
+if ($_GET['venue_id'] == -2)
+    $form->addElement('textarea', 'venue_name', null,
+                      array('cols' => 70, 'rows' => 5));
+$form->addElement('textarea', 'extra_info', null,
+                  array('cols' => 70, 'rows' => 5));
+
+$form->addElement('hidden', 'ext', $ext);
+
+if ($ext > 0)
+    for ($e = 1; $e <= $ext; $e++) {
+        $form->addElement('text', 'extname' . $e, null,
+                          array('size' => 15, 'maxlength' => 250));
+        $form->addElement('text', 'extvalue' . $e, null,
+                          array('size' => 18, 'maxlength' => 250));
+        $form->addElement('text', 'extlink' . $e, null,
+                          array('size' => 25, 'maxlength' => 250));
+    }
+
+$form->addElement('hidden', 'intpoint', $intpoint);
+
+if ($intpoint > 0) {
+    $pub_list = new pdPubList($db);
+    unset($options);
+    $options[''] = '--- Link to a publication --';
+    foreach ($pub_list->list as $pub) {
+        if (strlen($pub->title) > 70)
+            $options[$pub->pub_id] = substr($pub->title, 0, 67) . '...';
+        else
+            $options[$pub->pub_id] = $pub->title;
+    }
+    for ($e = 1; $e <= $intpoint; $e++) {
+        $form->addElement('select', 'intpointer' . $e, null, $options);
+    }
+}
+
+$form->addElement('text', 'keywords', null,
+                  array('size' => 55, 'maxlength' => 250));
+
+$form->addElement('text', 'date_published', null,
+                  array('size' => 10, 'maxlength' => 10));
+
+//
+//
+//
+$form->setDefaults($_GET);
+
+if ($ext > 0) {
+    for ($e = 1; $e <= $ext; $e++) {
+        if (!isset($_GET['extname'.$e]) || $_GET['extname'.$e] == '')
+            $defaults['extname'.$e] = "Pointer Type";
+        if (!isset($_GET['extvalue'.$e]) || $_GET['extvalue'.$e] == '')
+            $defaults['extvalue'.$e] = "http://";
+        if (!isset($_GET['extlink'.$e]) || $_GET['extlink'.$e] == '')
+            $defaults['extlink'.$e] = "Title of link";
+        $form->setDefaults($defaults);
+    }
+}
+
+
+$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+$form->accept($renderer);
+
+$tableAttrs = array('width' => '100%',
+                    'border' => '0',
+                    'cellpadding' => '6',
+                    'cellspacing' => '0');
+$table = new HTML_Table($tableAttrs);
+$table->setAutoGrow(true);
+
+$table->addRow(array('Publication Venue:',
+                     $renderer->elementToHtml('venue_id')));
+$table->addRow(array('Category:', $renderer->elementToHtml('category')));
+$table->addRow(array('Title:', $renderer->elementToHtml('title')));
+$table->addRow(array('Author(s):',
+                     $renderer->elementToHtml('author1')
+                     . ' ' . $renderer->elementToHtml('add_author')));
+
+for ($i = 2; $i <= $num_authors; $i++) {
+    $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
+}
+
+$table->addRow(array('Abstract:<br/><div id="small">HTML Enabled</div>',
+                     $renderer->elementToHtml('abstract')));
+
+// Show venue info
+if (isset($venue) && is_object($venue)) {
+    $cell1 = '';
+    $cell2 = '';
+
+    if ($venue->type != '')
+        $cell1 .= $venue->type;
+
+    if ($venue->url != '')
+        $cell2 .= '<a href="' . $venue->url . '" target="_blank">';
+
+    if ($venue->name != '')
+        $cell2 .= $venue->name;
+
+    if ($venue->url != '')
+        $cell2 .= '</a>';
+
+    $table->addRow(array($cell1 . ':', $cell2));
+
+	if($venue->type == "Conference")
+		$cell1 = 'Location:';
+	else if($venue->type == "Journal")
+		$cell1 = 'Publisher:';
+	else if($venue->type == "Workshop")
+		$cell1 = 'Associated Conference:';
+
+    $table->addRow(array($cell1, $venue->data));
+}
+
+if ($_GET['venue_id'] == -2) {
+    $table->addRow(array('Unique Venue:'
+                         . '<br/><div id="small">HTML Enabled</div>',
+                         $renderer->elementToHtml('venue_name')));
+}
+
+$table->addRow(array('Extra Information:'
+                     . '<br/><div id="small">optional</div>',
+                     $renderer->elementToHtml('extra_info')));
+
+if ($ext == 0) {
+    $table->addRow(array('External Pointers:'
+                         . '<br/><div id="small">optional</div>',
+                         '<a href="javascript:dataKeep(\'addext\');">'
+                         . 'Add an external pointer</a>'));
+}
+else {
+    for ($e = 1; $e <= $ext; $e++) {
+        $cell = '';
+        if ($e == 1) {
+            $cell = 'External Pointers:<br/><div id="small">optional</div>';
+        }
+
+        $table->addRow(array($cell,
+                             $renderer->elementToHtml('extname'.$e)
+                             . ' ' . $renderer->elementToHtml('extvalue'.$e)
+                             . ' ' . $renderer->elementToHtml('extlink'.$e)));
+
+    }
+    $table->addRow(array('',
+                         '<a href="javascript:dataKeep(\'addext\');">'
+                         . 'Add another external pointer</a>'
+                         . '&nbsp;&nbsp;'
+                         . '<a href="javascript:dataKeep(\'remext\');">'
+                         . 'Remove the above pointer</a>'));
+}
+
+if ($intpoint == 0) {
+    $table->addRow(array('Internal Pointers:'
+                         . '<br/><div id="small">optional</div>',
+                         '<a href="javascript:dataKeep(\'addint\');">'
+                         . 'Add an internal pointer</a>'));
+}
+else {
+    for ($e = 1; $e <= $intpoint; $e++) {
+        $cell = '';
+        if ($e == 1)
+            $cell = 'Internal Pointers:<br/><div id="small">optional</div>';
+        $table->addRow(array($cell,
+                             $renderer->elementToHtml('intpointer' . $e)));
+    }
+    $table->addRow(array('',
+                         '<a href="javascript:dataKeep(\'addint\');">'
+                         . 'Add another internal pointer</a>'
+                         . '&nbsp;&nbsp;'
+                         . '<a href="javascript:dataKeep(\'remint\');">'
+                         . 'Remove the above pointer</a>'));
+}
+
+$table->addRow(array('Keywords:',
+                     $renderer->elementToHtml('keywords')
+                   . ' <div id="small">separate using semicolon (;)</div>'));
+
+$table->addRow(array('Date Published:',
+                     $renderer->elementToHtml('date_published')
+                     . '<a href="javascript:doNothing()" '
+                     . 'onClick="setDateField('
+                     . 'document.pubForm.date_published);'
+                     . 'top.newWin=window.open(\'../calendar.html\','
+                     . '\'cal\',\'dependent=yes,width=230,height=250,'
+                     . 'screenX=200,screenY=300,titlebar=yes\')">'
+                     . '<img src="../calendar.gif" border=0></a> '
+                     . '(yyyy-mm-dd) '
+                   ));
+
+echo $renderer->toHtml(($table->toHtml())) . '</div>';
+
+?>
+
+<form name="pubForm2" action="add_publication_db.php" method="POST"
     enctype="multipart/form-data">
 
     <?
@@ -725,67 +1034,6 @@ if ($edit == true) {
     }
 }
 ?>
-<tr>
-<td width="25%" valign="top">
-    <a href="javascript:help('publication_venue');">
-    <div id="field">Publication Venue:</div></a>
-    </td>
-    <td width="75%">
-    <select name="venue_id" onChange="javascript:dataKeep('Start');">
-    <option value="-1">--- Select a Venue ---</option>
-    <option value="-1" <? if($venue_id == -1) echo "SELECTED"; ?>>No Venue</option>
-    <option value="-2" <? if($venue_id == -2) echo "SELECTED"; ?>>Unique Venue</option>
-    <option value="-1">----------------------------</option>
-    <?
-    while ($venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC)) {
-        echo "<option value=\"" . $venue_line['venue_id'] . "\"";
-
-        if ($venue_id == $venue_line['venue_id'])
-            echo " SELECTED ";
-
-        echo ">" . $venue_line['title'] . "</option> \n";
-    }
-?>
-</select>
-&nbsp;&nbsp;<a href="javascript:dataKeepPopup('add_venue.php');"><font face="Arial, Helvetica, sans-serif" size="1">Add a New Venue</font></a>
-<BR>
-<?
-if(($venue_id != "")&&($venue_id != -1)&&($venue_id != -2)) {
-
-    $venue_query = "SELECT * FROM venue WHERE venue_id=$venue_id";
-    $venue_result = mysql_query($venue_query) or die("Query failed : " . mysql_error());
-    $venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC);
-    $venue_name = $venue_line['name'];
-    $venue_url = $venue_line['url'];
-    $venue_type = $venue_line['type'];
-    $venue_data = $venue_line['data'];
-
-    //if($pub_id == ""){
-    if((($category == "")||($category == "In Conference"))||(($category == "In Workshop")||($category == "In Journal"))){
-
-        if($venue_type == "Conference")
-            $category = "In Conference";
-        else if($venue_type == "Workshop")
-            $category = "In Workshop";
-        else if($venue_type == "Journal")
-            $category = "In Journal";
-
-    }
-
-    if(($venue_line[date] != NULL)&&($venue_line[date] != ""))
-    {
-        $date = split("-", $venue_line[date]);
-        $year = $date[0];
-        $month = $date[1];
-        $day = $date[2];
-    }
-    //}
-}
-
-
-?>
-</td>
-</tr>
 
 <!-- Category -->
 <tr>
@@ -818,143 +1066,6 @@ while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
 <td width="25%" valign="top"><A href="javascript:help('title');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Title: </b></font></a></td>
 <td width="75%"><input type="text" name="title" size="93" maxlength="250" value="<? echo stripslashes($title); ?>"></td>
 </tr>
-
-
-<!-- Authors  -->
-<tr>
-<td width="25%"><A href="javascript:help('authors');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Authors: </b></font></a></td>
-<td width="75%">
-          <TABLE>
-<tr>
-<td>
-<a href="javascript:opt.moveOptionUp()"><FONT COLOR="#FFFFFF"><img src="../up_arrow.jpg"></FONT></a><BR><BR>
-<a href="javascript:opt.moveOptionDown()"><FONT COLOR="#FFFFFF"><img src="../down_arrow.jpg"></FONT></a><BR><BR>
-</td>
-<td>
-<SELECT NAME="authors[]" MULTIPLE SIZE=14 onDblClick="opt.transferRight()">
-          <?
-                                                                                                                                       // Jeff: the below code doesn't appear to do fuck-all
-                                                                                                                                       /*$counter1 = 0;
-                                                                                                                                        if($selected_authors == "")
-                                                                                                                                        if($pub_id != "")
-                                                                                                                                        while ($author_line1 = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
-                                                                                                                                        if ($authors[$counter1] != "" ||
-                                                                                                                                        $authors_from_db[$author_line1[name]] != ""){
-                                                                                                                                        echo "<option value=\"" . $author_line1[author_id] . "\"" . "";
-                                                                                                                                        echo ">" . $author_line1[name] . "</option>";}
-                                                                                                                                        $counter1++;
-                                                                                                                                        }
-
-                                                                                                                                        if($selected_authors != ""){
-
-                                                                                                                                        $temparray = split(",",$selected_authors);
-                                                                                                                                        for($a = 0; $a < count($temparray); $a++){
-                                                                                                                                        $authorkeep_query = "SELECT * FROM author WHERE author_id=\"".$temparray[$a]."\"";
-                                                                                                                                        $authorkeep_result = mysql_query($authorkeep_query) or die("Query failed : " . mysql_error());
-                                                                                                                                        $authorkeep_line = mysql_fetch_array($authorkeep_result, MYSQL_ASSOC);
-                                                                                                                                        echo "<option value=\"" . $temparray[$a] . "\"" . "";
-                                                                                                                                        echo ">" . $authorkeep_line[name] . "</option>";
-                                                                                                                                        }
-                                                                                                                                        }*/
-if ($edit == TRUE) {
-    $author_query = "SELECT author.name, author.author_id FROM author, pub_author WHERE author.author_id=pub_author.author_id AND pub_author.pub_id=" . quote_smart($_GET['pub_id']) . " ORDER BY author.name ASC";
-    $author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-    $counter = 0;
-    while ($author_line = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
-        if (!($authors[$counter] != "" || $authors_from_db[$author_line['name']] != "")){
-            $found = false;
-            for($a = 0; $a < count($temparray); $a++)
-                if($author_line[author_id] == $temparray[$a])
-                    $found = true;
-            if(!$found){
-                echo "<option value=\"" . $author_line['author_id'] . "\"" . "";
-                echo ">" . $author_line['name'] . "</option>\n";
-            }
-        }
-        $counter++;
-    }
-}
-?>
-
-</SELECT>
-</td>
-<td><center>
-
-<INPUT TYPE="button" NAME="right" VALUE="&gt;&gt;" ONCLICK="opt.transferRight()"><BR><BR>
-<INPUT TYPE="button" NAME="left" VALUE="&lt;&lt;" ONCLICK="opt.transferLeft()"><BR><BR>
-<a href="javascript:dataKeepPopup('add_author.php?popup=true');"><font face="Arial, Helvetica, sans-serif" size="1">Add New<BR>Author To<BR>Database</font></a><BR><BR>
-</center>
-</td>
-<td>
-<SELECT NAME="authorslist[]" MULTIPLE SIZE=14 onDblClick="opt.transferLeft()">
-          <?
-if ($edit == TRUE)
-    $author_query = "SELECT author.name, author.author_id FROM author LEFT JOIN pub_author ON (author.author_id=pub_author.author_id AND pub_author.pub_id=" . quote_smart($_GET['pub_id']) . ") WHERE pub_author.pub_id IS NULL ORDER BY author.name ASC";
-else
-    $author_query = "SELECT author.name, author.author_id FROM author ORDER BY author.name ASC";
-$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-$counter = 0;
-while ($author_line = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
-    if (!($authors[$counter] != "" || $authors_from_db[$author_line['name']] != "")){
-        $found = false;
-        for($a = 0; $a < count($temparray); $a++)
-            if($author_line[author_id] == $temparray[$a])
-                $found = true;
-        if(!$found){
-            echo "<option value=\"" . $author_line['author_id'] . "\"" . "";
-            echo ">" . $author_line['name'] . "</option>\n";
-        }
-    }
-    $counter++;
-}
-?>
-</SELECT>
-<input type="hidden" name="selected_authors">
-
-    </td>
-<td valign="top">
-    <table width="150"><tr><td>
-<?
-  // User selected author list
-echo "<b>Favorite Collaborators:</b><br>";
-$user_query = "SELECT author.author_id, author.name FROM user_author, author "
-    . "WHERE user_author.author_id=author.author_id "
-    . "AND user_author.login=\"" . $_SERVER['PHP_AUTH_USER']
-    . "\" ORDER BY author.name";
-
-$user_result = mysql_query($user_query)
-    or die("Query failed: " . mysql_error());
-
-while($user_array = mysql_fetch_array($user_result, MYSQL_ASSOC))
-{
-    echo "<li><a href=\"javascript:opt.moveToLeft(". $user_array['author_id']
-        . ");\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
-        . $user_array['name'] . "</font></a><br>";
-}
-
-?>
-&nbsp;&nbsp;
-<font align=bottom face="Arial, Helvetica, sans-serif" size="1">
-          <a href ="user.php?status=edit">Add/Change collaborators</a></font>
-</td></tr></table></td>
-<td valign="top"> <table width="150"><tr><td>
-<?
- // Most used authors by the user list
-echo "<b>Your Most Used Authors:</b><br>";
-$thelist = popularauthors();
-for($a = 0; $a < count($thelist); $a++)
-    if($thelist[$a] != ""){
-        $user_query = "SELECT name FROM author WHERE author_id = ".$thelist[$a];
-        $user_result = mysql_query($user_query) or die("Query failed: " . mysql_error());
-        $user_array = mysql_fetch_array($user_result, MYSQL_ASSOC);
-        echo "<li><a href=\"javascript:opt.moveToLeft(".$thelist[$a].");\"><font face=\"Arial, Helvetica, sans-serif\" size=\"2\">".$user_array['name']."</font></a><br>";
-    }
-?>
-</td></tr></table></td>
-</tr>
-</TABLE>
-</td>
-</TR>
 
 
 <!-- Abstract -->

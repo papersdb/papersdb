@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.17 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: view_publication.php,v 1.18 2006/05/30 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -57,7 +57,7 @@ $table->setAutoGrow(true);
 $table->addRow(array('Title:', $pub->title));
 $table->updateCellAttributes($table->getRowCount() - 1, 1,
                              array('id' => 'emph'));
-$table->addRow(array('Category:', $pub->category));
+$table->addRow(array('Category:', $pub->category->category));
 $table->addRow(array('Paper:', $paperstring));
 
 if(isset($pub->additional_info)) {
@@ -140,8 +140,8 @@ function additional2Html(&$pub) {
 
 function author2Html(&$pub) {
     $authorsStr = "";
-    if (is_array($pub->author)) {
-        foreach ($pub->author as $author) {
+    if (is_array($pub->authors)) {
+        foreach ($pub->authors as $author) {
             $authorsStr .= "<a href=\"./view_author.php?";
             if($logged_in)
                 $authorsStr .= "admin=true&";
@@ -222,11 +222,10 @@ function keywordsGet(&$pub) {
 }
 
 function infoRowsAdd(&$pub, &$table) {
-    if (!isset($pub->info)) return;
-
-    foreach ($pub->info as $info) {
-        if($info->value != "") {
-            $table->addRow(array($info->name . ":", $info->value));
+    if (!is_array($pub->info)) return;
+    foreach ($pub->info as $key => $value) {
+        if($key!= "") {
+            $table->addRow(array($key . ":", $value));
         }
     }
 }

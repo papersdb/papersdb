@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.6 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: pdUser.php,v 1.7 2006/05/30 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -38,7 +38,7 @@ class pdUser {
      *
      * Use flags to load individual tables
      */
-    function dbLoad($id, &$db, $flags = 0) {
+    function dbLoad(&$db, $id, $flags = 0) {
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
         $this->objLoad($q);

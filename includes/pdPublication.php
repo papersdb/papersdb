@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.6 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.7 2006/05/30 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -9,6 +9,9 @@
  *
  *
  */
+
+require_once 'includes/pdCategory.php';
+require_once 'includes/pdVenue.php';
 
 define('PD_PUB_DB_LOAD_BASIC',           0);
 define('PD_PUB_DB_LOAD_CATEGORY',        1);
@@ -38,7 +41,6 @@ class pdPublication {
     var $submit;
     var $updated;
     var $info;
-    var $additional_info;
     var $category;
     var $intPointer;
     var $extPointer;
@@ -69,14 +71,30 @@ class pdPublication {
         $this->objLoad($q);
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
-            $q = $db->select(array('category', 'pub_cat'),
-                             'category.category',
-                             array('category.cat_id=pub_cat.cat_id',
-                                   'pub_cat.pub_id' => $id),
+            $q = $db->selectRow('pub_cat', '*', array('pub_id' => $id),
                              "pdPublication::dbLoad");
-            $this->objLoad($db->fetchObject($q));
+            $this->category = new pdCategory();
+            $this->category->dbLoad($db, $q->cat_id, PD_CATEGORY_DB_LOAD_BASIC);
         }
 
+        if ($flags & PD_PUB_DB_LOAD_CATEGORY_INFO) {
+            $this->category->dbLoadCategoryInfo($db);
+
+            foreach ($this->category->info as $info) {
+                $q = $db->select(array('pub_cat_info', 'pub_cat'),
+                                 'pub_cat_info.value',
+                                 array('pub_cat.cat_id=pub_cat_info.cat_id',
+                                       'pub_cat_info.info_id' => quote_smart($info->info_id),
+                                       'pub_cat.pub_id' => quote_smart($id),
+                                       'pub_cat_info.pub_id' => quote_smart($id)),
+                                 "pdPublication::dbLoad");
+                $r = $db->fetchObject($q);
+                while ($r) {
+                    $this->info[$info->name] = $r->value;
+                    $r = $db->fetchObject($q);
+                }
+            }
+        }
 
         if ($flags & PD_PUB_DB_LOAD_ADDITIONAL_INFO) {
             $q = $db->select(array('additional_info', 'pub_add'),
@@ -89,38 +107,6 @@ class pdPublication {
             while ($r) {
                 $this->additional_info[] = $r;
                 $r = $db->fetchObject($q);
-            }
-        }
-
-        if ($flags & PD_PUB_DB_LOAD_CATEGORY_INFO) {
-            $q = $db->select(array('info', 'cat_info', 'pub_cat'),
-                             array('info.info_id', 'info.name'),
-                             array('info.info_id=cat_info.info_id',
-                                   'cat_info.cat_id=pub_cat.cat_id',
-                                   'pub_cat.pub_id' => $id),
-                             "pdPublication::dbLoad");
-            $r = $db->fetchObject($q);
-            while ($r) {
-                $this->info[] = $r;
-                $r = $db->fetchObject($q);
-            }
-
-            if (is_array($this->info)) {
-                foreach ($this->info as $key => $value) {
-                    $q = $db->select(array('pub_cat_info', 'pub_cat'),
-                                     'pub_cat_info.value',
-                                     array('pub_cat.pub_id' => $id,
-                                           'pub_cat.cat_id=pub_cat_info.cat_id',
-                                           'pub_cat_info.pub_id' => $id,
-                                           'pub_cat_info.info_id'
-                                           => $value->info_id),
-                                     "pdPublication::dbLoad");
-                    $r = $db->fetchObject($q);
-                    while ($r) {
-                        $this->info[$key]->value = $r->value;
-                        $r = $db->fetchObject($q);
-                    }
-                }
             }
         }
 
@@ -177,17 +163,15 @@ class pdPublication {
 
         if ($venue_id[1] == "") return;
 
-        $q = $db->selectRow('venue', '*', array('venue_id' => $venue_id[1]),
-                         "pdPublication::dbLoadVenue");
-        if ($q === false) return;
-        $this->venue_info = $q;
+        $this->venue_info = new pdVenue();
+        $this->venue_info->dbload($db, $venue_id[1]);
         $this->venue = '';
     }
 
     /**
      * Loads publication data from the object passed in
      */
-    function objLoad($obj) {
+    function objLoad(&$obj) {
         if ($obj == NULL) return;
 
         if (isset($obj->pub_id))

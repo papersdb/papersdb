@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.7 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: login.php,v 1.8 2006/05/30 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -37,7 +37,7 @@ if (isset($_POST['login'])) {
 	}
     $db =& dbCreate();
     $user = new pdUser();
-    $user->dbLoad(stripslashes($_POST['loginid']), $db);
+    $user->dbLoad($db, stripslashes($_POST['loginid']));
 
 	// check passwords match
 
