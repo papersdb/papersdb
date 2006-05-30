@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.5 2006/05/25 16:44:55 aicmltec Exp $
+// $Id: add_author.php,v 1.6 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -118,9 +118,12 @@ function resetAll() {
 <?php ;
 
 echo "<body>\n";
-pageHeader();
-navigationMenu('add_author');
-echo "<div id='content'>\n";
+
+if ($_GET['popup'] != 'true') {
+    pageHeader();
+    navMenu('add_author');
+    echo "<div id='content'>\n";
+}
 
 /* Connecting, selecting database */
 $db =& dbCreate();
@@ -131,13 +134,6 @@ if (isset($_GET['newInterests'])) {
 else {
     $newInterests = 0;
 }
-
-/* Performing SQL query */
-$interest_query = "SELECT * FROM interest";
-$interest_result = mysql_query($interest_query)
-    or die("Query failed : " . mysql_error());
-$num_rows = mysql_num_rows($interest_result);
-
 
 echo "<h3>Add Author "
 . "<a href='../help.php' target='_blank' "
@@ -240,7 +236,11 @@ $table->addRow(array('Interest Name:',
 echo $renderer->toHtml($table->toHtml()) . "</div>";
 
 $db->close();
-pageFooter();
+
+if ($_GET['popup'] != 'true') {
+    pageFooter();
+}
+
 echo "</body>\n</html>\n";
 
 ?>

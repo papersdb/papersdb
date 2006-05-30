@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.10 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: view_author.php,v 1.11 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -18,6 +18,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdAuthor.php';
 
 require_once 'HTML/Table.php';
@@ -25,7 +26,7 @@ require_once 'HTML/Table.php';
 htmlHeader('View Author');
 echo "<body>\n";
 pageHeader();
-navigationMenu();
+navMenu();
 echo "<div id='content'>\n";
 
 if (!isset($_GET['author_id'])) {

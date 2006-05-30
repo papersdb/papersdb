@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.11 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.12 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -55,7 +55,7 @@ else
     $option = optionsGet($_GET);
 
 pageHeader();
-navigationMenu();
+navMenu();
 
 echo "<div id='content'>\n";
 

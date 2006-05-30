@@ -17,7 +17,7 @@ require_once 'includes/pdAuthor.php';
 
 htmlHeader('Edit Author');
 pageHeader();
-navigationMenu();
+navMenu();
 echo "<body>\n<div id='content'>\n";
 
 if (!isset($_GET['author_id'])) {

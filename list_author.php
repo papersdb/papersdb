@@ -12,6 +12,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'HTML/Table.php';
 
 /* Connecting, selecting database */
@@ -29,7 +30,7 @@ while ($r) {
 htmlHeader('Authors');
 echo "<body>";
 pageHeader();
-navigationMenu();
+navMenu('all_authors');
 
 echo "<div id='content'>\n"
 . "<h2><u>Authors<h2>";

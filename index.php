@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.14 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: index.php,v 1.15 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -13,6 +13,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdPublication.php';
 
 $db= & dbCreate();
@@ -25,7 +26,7 @@ $row= $db->fetchObject($pub_query);
 htmlHeader('Papers Database');
 echo "<body>\n";
 pageHeader();
-navigationMenu();
+navMenu('index');
 
 echo "<div id='content'>" . "Recent Additions:" . "<ul>\n";
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.16 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: view_publication.php,v 1.17 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -16,6 +16,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdPublication.php';
 
 require_once 'HTML/Table.php';
@@ -23,7 +24,7 @@ require_once 'HTML/Table.php';
 htmlHeader('View Publication');
 echo "<body>\n";
 pageHeader();
-navigationMenu();
+navMenu();
 echo "<div id='content'>\n";
 
 if (!isset($_GET['pub_id'])) {

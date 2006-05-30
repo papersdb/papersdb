@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.6 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: login.php,v 1.7 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -10,6 +10,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdUser.php';
 require_once 'HTML/Table.php';
 
@@ -60,7 +61,7 @@ if (isset($_POST['login'])) {
     htmlHeader('PapersDB Login', 'index.php');
     echo "<body>\n";
     pageHeader();
-    navigationMenu();
+    navMenu('login');
 
     echo "<div id='content'>"
         . "<h2>Logged in</h1>"
@@ -136,7 +137,7 @@ else if (isset($_POST['newaccount'])) {
     htmlHeader('PapersDB Login', 'index.php');
     echo "<body>\n";
     pageHeader();
-    navigationMenu();
+    navMenu('login');
 
     echo "<div id='content'>"
         . "<h2>Login created</h1>"
@@ -156,7 +157,7 @@ else {
     echo "<body>\n";
 
     pageHeader();
-    navigationMenu();
+    navMenu('login');
 
     echo "<div id=\"content\">\n"
         . "<h2>Create new account or log in</h2>\n";

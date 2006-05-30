@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.13 2006/05/25 01:36:18 aicmltec Exp $
+// $Id: list_publication.php,v 1.14 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -16,6 +16,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdPubList.php';
 
@@ -39,7 +40,7 @@ else {
 htmlHeader('Publications');
 echo "<body>\n";
 pageHeader();
-navigationMenu();
+navMenu('all_publications');
 echo "<div id='content'>\n";
 echo "<h2><b><u>Publications";
 

@@ -1,21 +1,17 @@
-<?php
+<?php ;
 
-  // $Id: pdAuthorList.php,v 1.3 2006/05/19 15:55:55 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.4 2006/05/30 00:09:07 aicmltec Exp $
 
-  /**
-   * \file
-   *
-   * \brief Storage and retrieval of publication authors to / from the
-   * database.
-   *
-   *
-   */
+/**
+ * \file
+ *
+ * \brief Storage and retrieval of publication authors to / from the database.
+ */
 
-  /**
-   *
-   * \brief Class for storage and retrieval of publication authors to / from
-   * the database.
-   */
+/**
+ * \brief Class for storage and retrieval of publication authors to / from the
+ * database.
+ */
 class pdAuthorList {
     var $list;
 

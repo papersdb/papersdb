@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.15 2006/05/25 16:44:55 aicmltec Exp $
+// $Id: advanced_search.php,v 1.16 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
  * \file
@@ -20,7 +20,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'navMenu.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdAuthorList.php';
@@ -54,7 +54,7 @@ htmlHeader('Search Publication');
 printJavascript();
 echo "<body>\n";
 pageHeader();
-navigationMenu('advanced_search');
+navMenu('advanced_search');
 
 echo "<div id='content'>\n"
 . "<h2><b><u>Search</u></b></h2>\n";

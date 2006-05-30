@@ -1,21 +1,20 @@
-<?php
+<?php ;
 
-  // $Id: pdUser.php,v 1.5 2006/05/19 15:55:55 aicmltec Exp $
-
-  /**
-   * \file
-   *
-   * \brief Storage and retrieval of user data to / from the database.
-   *
-   *
-   */
+// $Id: pdUser.php,v 1.6 2006/05/30 00:09:07 aicmltec Exp $
 
 /**
-   *
-   * \brief Class for storage and retrieval of user to / from the
-   * database.
-   */
+ * \file
+ *
+ * \brief Storage and retrieval of user data to / from the database.
+ *
+ *
+ */
 
+/**
+ *
+ * \brief Class for storage and retrieval of user to / from the
+ * database.
+ */
 class pdUser {
     var $login;
     var $password;
@@ -24,6 +23,7 @@ class pdUser {
     var $comments;
     var $search;
     var $collaborators;
+    var $author_rank;
 
     /**
      * Constructor.
@@ -50,9 +50,11 @@ class pdUser {
         //print_r($this);
     }
 
+    /**
+     *
+     */
     function collaboratorsDbLoad(&$db) {
-        if (!isset($this->login))
-            die("pdUser::collaboratorsDbLoad: pdUser id not assigned");
+        assert('isset($this->login)');
 
         $q = $db->select(array('user_author', 'author'),
                          array('author.author_id', 'author.name'),
@@ -63,6 +65,27 @@ class pdUser {
             $this->collaborators[] = $r;
             $r = $db->fetchObject($q);
         }
+    }
+
+    /**
+     * User's most popular Authors, sorted according to number of publications
+     * submitted.
+     */
+    function popularAuthorsDbLoad(&$db) {
+        assert('isset($this->login)');
+
+        $q = $db->select(array('pub_author', 'user'),
+                         'pub_author.author_id',
+                         array('publication.submit=user.name',
+                               'publication.pub_id=pub_author.pub_id',
+                               'user.login' => $this->login),
+                         "pdUser::popularAuthorsDbLoad");
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->author_rank[$r->author_id]++;
+            $r = $db->fetchObject($q);
+        }
+        asort($this->author_rank);
     }
 
     /**
