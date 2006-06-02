@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.7 2006/06/02 20:44:54 aicmltec Exp $
+// $Id: add_publication.php,v 1.8 2006/06/02 23:13:12 aicmltec Exp $
 
 /**
  * \file
@@ -452,6 +452,12 @@ if ($_GET['intpoint'] == '')
 else
     $intpoint = intval($_GET['intpoint']);
 
+if (isset($_GET['numMaterials']))
+    $numMaterials = intval($_GET['numMaterials']);
+else
+    $numMaterials = 0;
+
+
 // Optiontransfer is the author selection windows.
 ?>
 <script language="JavaScript" src="../calendar.js"></script>
@@ -459,6 +465,39 @@ else
 <script language="JavaScript" type="text/JavaScript">
 
     window.name="add_publication.php";
+var venueHelp=
+    "Where the paper was published -- specific journal, conference, "
+    + "workshop, etc. If many of the database papers are in the same venue, "
+    + "you can create a single &quot;label&quot; for that venue, to specify "
+    + "name of "
+    + "the venue, location, date, editors and other common information. "
+    + "You will then be able to use and re-use that information.";
+
+var categoryHelp=
+    "Category describes the type of document that you are submitting to the "
+    + "site. For examplethis could be a journal entry, a book chapter, etc."
+    + "<br><br>"
+    + "Please use the drop down menu to select an appropriate category to "
+    + "classify your paper. If you cannot find an appropriate category you "
+    + "can use the Add Category link to update the category listings."
+    + "<br><br>"
+    + "Clicking Add Category will bring up another window that will allow "
+    + "you to specifiy a new category by entering the Category Name and then "
+    + "selecting related fields.";
+
+var titleHelp=
+    "Title should contain the title given to your document.<br><br>"
+    +  "Please enter the title of your document in the field provided.";
+
+var authorsHelp=
+    "This field is to store the author(s) of your document in the database."
+    + "<br><br>"
+    + "To use this field select the author(s) of your document from the"
+    + "listbox. You can select multiple authors by holding down the control"
+    + "key and clicking. If you do not see the name of the author(s) of the"
+    + "document listed in the listbox then you must add them with the Add"
+    + "Author button.";
+
 function dataKeep(tab) {
 	var temp_qs = "";
 	var info_counter = 0;
@@ -705,14 +744,6 @@ echo "<div id='content'>\n";
 <h3><? if ($_GET['edit']) echo "Edit"; else echo "Add"; ?> Publication</h3>
 <?
 
-if(!$edit) {
-    echo "Adding a publication takes two steps:<br>"
-        . "1. Fill in the appropriate fields<br>"
-        . "2. Upload the paper and any additional materials<br><br>"
-        . "<div id=\"highlight\">For help on any field just click the "
-        . "field name.</div>";
-}
-
 $form = new HTML_QuickForm('pubForm', 'post', "./add_publication.php?",
                            "add_publication.php");
 if ($edit) {
@@ -720,7 +751,7 @@ if ($edit) {
 }
 
 // Venue
-if (isset($_GET['category_id']) && ($_GET['category_iod'] != '')) {
+if (isset($_GET['category_id']) && ($_GET['category_id'] != '')) {
     $category = new pdCategory();
     $category->dbLoad($db, $_GET['category_id']);
 }
@@ -737,11 +768,11 @@ if (($_GET['venue_id'] != "") && ($_GET['venue_id'] != -1)
         || ($category->category == "In Conference")
         || ($category->category == "In Workshop")
         || ($category->category == "In Journal")) {
-        if($venue->type == "Conference")
+        if ($venue->type == "Conference")
             $category->category = "In Conference";
-        else if($venue->type == "Workshop")
+        else if ($venue->type == "Workshop")
             $category->category = "In Workshop";
-        else if($venue->type == "Journal")
+        else if ($venue->type == "Journal")
             $category->category = "In Journal";
     }
 
@@ -767,25 +798,27 @@ $form->addElement('select', 'venue_id', null, $options,
 
 
 // Category
+unset($options);
 $options = array('' => '--- Please Select a Category ---');
 $category_list = new pdCatList();
 $category_list->dbLoad($db);
 assert('is_array($category_list->list)');
-unset($options);
-foreach ($category_list->list as $category) {
-    $options[$category->cat_id] = $category->category;
+foreach ($category_list->list as $cat) {
+    $options[$cat->cat_id] = $cat->category;
 }
 $form->addElement('select', 'category_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
 
-if (is_object($category)) {
-    $form->addElement('text', 'title', null,
-
+if (is_object($category) && is_array($category->info)) {
+    foreach ($category->info as $info_id => $name) {
+        $form->addElement('text', $name, null,
+                          array('size' => 70, 'maxlength' => 250));
+    }
 }
 
 // title
 $form->addElement('text', 'title', null,
-                  array('size' => 70, 'maxlength' => 250));
+                  array('size' => 60, 'maxlength' => 250));
 
 
 // Authors
@@ -812,14 +845,13 @@ for ($i = 1; $i <= $num_authors; $i++) {
 }
 
 
-
 $form->addElement('textarea', 'abstract', null,
-                  array('cols' => 70, 'rows' => 10));
+                  array('cols' => 60, 'rows' => 10));
 if ($_GET['venue_id'] == -2)
     $form->addElement('textarea', 'venue_name', null,
-                      array('cols' => 70, 'rows' => 5));
+                      array('cols' => 60, 'rows' => 5));
 $form->addElement('textarea', 'extra_info', null,
-                  array('cols' => 70, 'rows' => 5));
+                  array('cols' => 60, 'rows' => 5));
 
 $form->addElement('hidden', 'ext', $ext);
 
@@ -856,10 +888,36 @@ $form->addElement('text', 'keywords', null,
 $form->addElement('text', 'date_published', null,
                   array('size' => 10, 'maxlength' => 10));
 
+$form->addElement('radio', 'nopaper', null, null, 'false');
+$form->addElement('radio', 'nopaper', null, 'no paper at this time', 'true');
+$form->addElement('file', 'uploadpaper', null,
+                  array('size' => 45, 'maxlength' => 250));
+$form->addElement('hidden', 'numMaterials', $numMaterials);
+
+if ($numMaterials > 0) {
+    for ($i = 1; $i <= $numMaterials; $i++) {
+        $form->addElement('text', 'type' . $i, null,
+                          array('size' => 17, 'maxlength' => 250));
+        $form->addElement('text', 'uploadadditional' . $i, null,
+                          array('size' => 50, 'maxlength' => 250));
+    }
+}
+
+$form->addElement('submit', 'Save', 'Add Publication');
+$form->addElement('reset', 'Clear', 'Clear');
+
 //
 //
 //
 $form->setDefaults($_GET);
+if ($numMaterials > 0) {
+    for ($i = 1; $i <= $numMaterials; $i++) {
+        if (!isset($_GET['type' . $i]) || ($_GET['type' . $i] = '')) {
+            $materials['type' . $i] = 'Additional Material ' . $i;
+        }
+    }
+    $form->setDefaults($materials);
+}
 
 if ($ext > 0) {
     for ($e = 1; $e <= $ext; $e++) {
@@ -873,6 +931,11 @@ if ($ext > 0) {
     }
 }
 
+function helpTooltip($text, $varname) {
+    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=200;'
+        . 'return escape(' . $varname . ')">' . $text . '</a>';
+}
+
 
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
@@ -884,11 +947,15 @@ $tableAttrs = array('width' => '100%',
 $table = new HTML_Table($tableAttrs);
 $table->setAutoGrow(true);
 
-$table->addRow(array('Publication Venue:',
+$table->addRow(array('<hr/>'), array('colspan' => 2));
+$table->addRow(array('Step 1:'));
+$table->addRow(array(helpTooltip('Publication Venue', 'venueHelp') . ':',
                      $renderer->elementToHtml('venue_id')));
-$table->addRow(array('Category:', $renderer->elementToHtml('category_id')));
-$table->addRow(array('Title:', $renderer->elementToHtml('title')));
-$table->addRow(array('Author(s):',
+$table->addRow(array(helpTooltip('Category', 'categoryHelp') . ':',
+                                 $renderer->elementToHtml('category_id')));
+$table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
+                                 $renderer->elementToHtml('title')));
+$table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
                      $renderer->elementToHtml('author1')
                      . ' ' . $renderer->elementToHtml('add_author')));
 
@@ -994,7 +1061,10 @@ $table->addRow(array('Keywords:',
                    . ' <div id="small">separate using semicolon (;)</div>'));
 
 // Additional Information
-if ($_GET['category_id']) {
+if (is_object($category) && is_array($category->info)) {
+    foreach ($category->info as $info_id => $name) {
+        $table->addRow(array($name . ':', $renderer->elementToHtml($name)));
+    }
 }
 
 $table->addRow(array('Date Published:',
@@ -1008,6 +1078,50 @@ $table->addRow(array('Date Published:',
                      . '<img src="../calendar.gif" border=0></a> '
                      . '(yyyy-mm-dd) '
                    ));
+
+$table->addRow(array('<hr/>'), array('colspan' => 2));
+$table->addRow(array('Step 2:'));
+$table->addRow(array('Paper:',
+                     $renderer->elementToHtml('nopaper', 'false')
+                     . ' ' . $renderer->elementToHtml('uploadpaper')));
+$table->addRow(array('', $renderer->elementToHtml('nopaper', 'true')));
+if ($numMaterials > 0) {
+    $table->addRow(array('Additional Materials:'));
+
+    for ($i = 1; $i <= $numMaterials; $i++) {
+        $table->addRow(array($renderer->elementToHtml('type' . $i),
+                             ':' . $renderer->elementToHtml('uploadadditional' . $i)));
+    }
+    $table->addRow(array('',
+                         '<a href="javascript:dataKeep(\'addnum\');">'
+                         . 'Add other material</a>'
+                         . ' <a href="javascript:dataKeep(\'remnum\');">'
+                         . 'Remove this material</a>'));
+}
+else {
+    $table->addRow(array('',
+                         '<a href="javascript:dataKeep(\'addnum\');">'
+                         . 'Add other material</a>'));
+}
+
+$table->addRow(array('<hr/>'), array('colspan' => 2));
+$table->addRow(array('',
+                     $renderer->elementToHtml('Save')
+                     . ' ' . $renderer->elementToHtml('Clear')));
+
+$table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+
+// emphasize the 'step' cells
+$table->updateCellAttributes(1, 0, array('id' => 'emph_large'));
+$table->updateCellAttributes(13, 0, array('id' => 'emph_large'));
+
+if(!$edit) {
+    echo "Adding a publication takes two steps:<br>"
+        . "1. Fill in the appropriate fields<br>"
+        . "2. Upload the paper and any additional materials<br><br>"
+        . "<div id=\"highlight\">For help on any field just click the "
+        . "field name.</div>";
+}
 
 echo $renderer->toHtml(($table->toHtml())) . '</div>';
 
@@ -1024,372 +1138,6 @@ if ($edit) {
 ?>
 
 <table width="790" border="0" cellspacing="0" cellpadding="6">
-    <tr>
-<td colspan="2"><hr></td>
-</tr>
-<tr>
-<td colspan="2"><a name="STEP1"></a><div id="emph">Step 1:</div></td>
-</tr>
-<!-- Publication Venue -->
-<?
-if ($edit == true) {
-    if (strstr($venue, "venue_id:<")) {
-        $tokens = split('venue_id:<|>', $venue);
-        //echo "<br> $venue <br>";
-       //print_r($tokens);
-        for ($i=0; $i<count($tokens); $i++) {
-            if (strlen($tokens[$i]) > 0) {
-                $venue_id = $tokens[$i];
-                break;
-            }
-        }
-    }
-    else if (strlen($venue) > 0) {
-        $venue_id = -2;
-    }
-    else {
-        $venue_id = -1;
-    }
-}
-?>
-
-<!-- Category -->
-<tr>
-<td width="25%" valign="top">
-          <a href="javascript:help('category');">
-          <div id="field">
-          Category: </a></td>
-<td width="75%">
-          <select name="category" onChange="javascript:dataKeep('Start');">
-          <option value=" ">--- Please Select a Category ---</option>
-<?
-while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
-    echo "<option value=\"" . $cat_line['category'] . "\"";
-
-    if ($category == $cat_line['category'])
-        echo " SELECTED ";
-
-    echo ">" . $cat_line['category'] . "</option> \n";
-}
-?>
-</select>
-&nbsp;&nbsp;<a href="javascript:dataKeepPopup('add_category.php');"><font face="Arial, Helvetica, sans-serif" size="1">Add Category</font></a>
-</td>
-</tr>
-
-
-<!-- Title of the paper -->
-<tr>
-
-<td width="25%" valign="top"><A href="javascript:help('title');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Title: </b></font></a></td>
-<td width="75%"><input type="text" name="title" size="93" maxlength="250" value="<? echo stripslashes($title); ?>"></td>
-</tr>
-
-
-<!-- Abstract -->
-<tr>
-<td width="25%" valign="top"><A href="javascript:help('abstract');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Abstract:</b></font></a><BR>
-<font face="Arial, Helvetica, sans-serif" size="1" color="red">HTML enabled</font></td>
-<td width="75%"><textarea name="abstract" cols="70" rows="10"><? echo stripslashes($abstract); ?></textarea></td>
-</tr>
-<!-- Venue Show  -->
-<?
-if($venue_id >= 0){
-    echo "<tr>";
-    if($venue_type != "") {
-        echo "<td width=\"25%\" valign=\"top\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
-            . "<b>" . $venue_type . ":</b></font></td>";
-
-        }
-    echo "<td>";
-    if($venue_url != "")
-        echo " <a href=\"".$venue_url."\" target=\"_blank\">";
-    if($venue_name != "")
-        echo $venue_name;
-    if($venue_url != "")
-        echo "</a>";
-    echo "</td></tr>";
-    if($venue_data != ""){
-        echo "<tr>";
-        echo "<td width=\"25%\" valign=\"top\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\"><b>";
-
-        if($venue_type == "Conference")
-            echo "Location:";
-        else if($venue_type == "Journal")
-            echo "Publisher:";
-        else if($venue_type == "Workshop")
-            echo "Associated Conference:";
-
-        echo "</b></font></td>";
-        echo "<td>" . $venue_data ."</td></tr>";
-    }
-
-}
-
-if($venue_id == -2) {
-    echo "<tr>"
-        . "<td width=\"25%\" valign=\"top\">"
-        . "<font face=\"Arial, Helvetica, sans-serif\" size=\"2\">"
-        . "<b>Unique Venue:</b></font><br/>"
-        . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\" color=\"red\">"
-        . "HTML enabled</font></td>"
-        . "<td width=\"75%\">"
-        . "<textarea name=\"venue\" cols=\"70\" rows=\"5\">"
-        . stripslashes($venue) . "</textarea></td>"
-        . "</tr>";
-}
-?>
-
-<!-- Extra Information -->
-<? if($extrainfoSubmitted){
-    $extra_info = trim($extra_info);
-    $count = count($extra);
-    for($q=0; $q < $count; $q++){
-        if($extra_info != "")
-            $extra_info .= ", ";
-        $extra_info .= array_shift($extra);
-    }
-    $extra_info = trim($extra_info);
-}?>
-<tr>
-<td width="25%" valign="top">
-    <a href="javascript:help('extra_information');">
-    <font color="#000000" size="2" face="Arial, Helvetica, sans-serif">
-    <b>Extra Information:</b></a><a NAME="extra"></a>
-    </font><br/>
-    <font size="1">Optional</font>
-    </td>
-    <td width="75%">
-    <textarea name="extra_info" cols="70" rows="5">
-    <? echo stripslashes($extra_info); ?></textarea>
-    <br.>&nbsp;&nbsp;
-<a href="javascript:dataKeepPopup('extra_info.php');">
-                   <font face="Arial, Helvetica, sans-serif" size="1">
-                   Select from a list of previously used information options
-                   </font></a>
-</td>
-</tr>
-
-<!-- Pointers -->
-<? if($ext == "")
-     $ext = 0;
-if($intpoint == "")
-    $intpoint = 0;
-echo "<input type=\"hidden\" name=\"ext\" value=\"$ext\">";
-echo "<input type=\"hidden\" name=\"intpoint\" value=\"$intpoint\">";
-$e = 0;
-do{
-    echo "<tr>"
-        . "<td width=\"25%\" valign=\"top\">";
-    if($e == 0) {
-        echo "<a name=\"pointers\"></a>"
-            . "<a href=\"javascript:help('pointers');\">"
-            . "<font color=\"#000000\" size=\"2\" "
-            . "face=\"Arial, Helvetica, sans-serif\">"
-            . "<b>External Pointers:</b></font></a><br/>"
-            . "<font size=\"1\">Optional</font>";
-        }
-    echo "</td>"
-        . "<td width=\"75%\">";
-    if($ext != 0) {
-        $tempname = "extname".$e;
-        $tempvalue = "extvalue".$e;
-        $templink = "extlink".$e;
-        if($$tempname == "") $$tempname = "Pointer Type";
-        if($$templink == "") $$templink = "http://";
-        if($$tempvalue == "") $$tempvalue = "Title of link";
-
-        echo "<table><tr>"
-            . "<td><input type=\"text\" name=\"extname" . $e . "\""
-            . " size=\"17\" maxlength=\"250\" value=\"" . $$tempname
-            . "\"><b> :</b></td>"
-            . "<td><input type=\"text\" name=\"extvalue" . $e . "\""
-            . " size=\"20\" maxlength=\"250\" value=\"" . $$tempvalue . "\">"
-            . "</td>"
-            . "<td><input type=\"text\" name=\"extlink" . $e . "\""
-            . " size=\"30\" maxlength=\"250\" value=\"" . $$templink . "\">"
-            . "</td>"
-            . "</tr></table>";
-    }
-    else {
-        echo "<a href=\"javascript:dataKeep('addext');\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"3\">"
-            . "Add an external pointer</a>";
-    }
-    echo "</td></tr>";
-
-    if($e == ($ext-1)) {
-        echo "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
-            . "<a href=\"javascript:dataKeep('addext');\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
-            . "Add another external pointer</a>";
-        if ($ext > 0) {
-            echo "&nbsp;&nbsp;<a href=\"javascript:dataKeep('remext');\">"
-                . "Remove the above pointer</a>";
-
-        }
-        echo "</font></td></tr>";
-    }
-    $e++;
-} while($e < $ext);
-
-
-$e = 0;
-do{
-    echo "<tr>"
-        . "<td width=\"25%\" valign=\"top\">";
-    if($e == 0) {
-        echo "<a href=\"javascript:help('pointers');\">"
-            . "<font color=\"#000000\" size=\"2\" "
-            . " face=\"Arial, Helvetica, sans-serif\">"
-            . "<b>Internal Pointers:</b></font></A><br/>"
-            . "<font size=\"1\">Optional</font>";
-    }
-    echo "</td>"
-        . "<td width=\"75%\">";
-    if($intpoint != 0) {
-        echo "<select name=\"intpointer" . $e . "\">"
-            . "<option value=\"\">--- Link to a publication ---</option>";
-        $pubs_query = "SELECT title, pub_id FROM publication";
-        $pubs_result = mysql_query($pubs_query) or die("Query failed : " . mysql_error());
-        while ($pubs_line = mysql_fetch_array($pubs_result, MYSQL_ASSOC)) {
-            echo "<option value=\"" . $pubs_line[pub_id] . "\"";
-            $pointer = "intpointer".$e;
-            if (stripslashes($$pointer) == $pubs_line[pub_id])
-                echo " selected";
-            $tempstring = stripslashes($pubs_line[title]);
-            if(strlen($tempstring) > 70) {
-                $tempstring = substr($tempstring,0,67)."...";
-            }
-            echo ">" . $tempstring . "</option>";
-        }
-        echo "</select>";
-    }
-    else {
-        echo "<a href=\"javascript:dataKeep('addint');\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"3\">"
-            . "Add an internal pointer</font></a>";
-    }
-    echo "</td></tr>";
-
-    if($e == ($intpoint-1)) {
-        echo "<tr><td></td><td valign=\"top\">&nbsp;&nbsp;"
-            . "<a href=\"javascript:dataKeep('addint');\">"
-            . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
-            . "Add another internal pointer</a>";
-        if ($intpoint > 0) {
-            echo "&nbsp;&nbsp;"
-                . "<a href=\"javascript:dataKeep('remint');\">"
-                . "Remove the above pointer</a>";
-        }
-        echo "</font></td></tr>";
-    }
-    $e++;
-}
-while($e < $intpoint);
-?>
-
-<!-- Keywords -->
-<? if($keywordsSubmitted){
-    for($q=0; $q < $keywordcount; $q++)
-        if($keyword[$q] != "")
-            $keywords .= $keyword[$q]."; ";
-    $keywords = trim($keywords);
-}?>
-<tr>
-<td width="25%" valign="top"><A NAME=keywords></a><A href="javascript:help('keywords');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Keywords: </b></font></A></td>
-<td width="75%"><input type="text" name="keywords" size="60" maxlength="250" value="<? echo stripslashes($keywords); ?>">&nbsp;&nbsp;<font face="Arial, Helvetica, sans-serif" size="1">seperate by semi-colon (;)</font>
-<BR>&nbsp;&nbsp;<a href="javascript:dataKeepPopup('keywords.php');"><font face="Arial, Helvetica, sans-serif" size="1">Select from a list of previously used keywords</font></a>
-</td>
-</tr>
-
-<!-- Additional info fields  -->
-<? for ($i = 0; $i < count($info); $i++) {
-    $varname = strtolower($info[$i]);
-    if (($$varname == "")&&($pub_id != NULL)) {
-        $infoID = get_info_id($category_id, $varname);
-        if ($varname != "") {
-            $varname = str_replace(" ", "", $varname);
-
-            // If the user didn't enter anything into the form,
-            // use the value we pulled from the databasefo_id($category_id, $info[$i]);
-		    $$varname = get_info_field_value($pub_id, $category_id, $infoID);
-		}
-        ?>
-            <tr>
-                 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? echo $info[$i] ?>: </b></font><a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Additional Fields', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a></td>
-                 <td width="75%"><input type="text" name="<? echo $varname ?>" size="50" maxlength="250" value="<? echo stripslashes($$varname); ?>"></td>
-                 </tr>
-                 <? 	  }
-}
-?>
-
-
-<!-- Date Published -->
-<tr>
-<td width="25%" valign="top"><A href="javascript:help('date_published');"><font color="#000000" size="2" face="Arial, Helvetica, sans-serif"><b>Date Published: </b></font></a></td>
-
-<td width="75%">
-              <?  if ($month == "")
-     generate_select_month("month", 1, 12);
-else
-    generate_select_month("month", 1, 12, $month);
-?>&nbsp;&nbsp;<?
-if ($day == "")
-    generate_select_date("day", 1, 31);
-else
-    generate_select_date("day", 1, 31, $day);
-?>&nbsp;&nbsp;<?
-$today = getdate();
-if ($year == "")
-    generate_select_date("year", 1960, $today[year]);
-else 	{
-    generate_select_date("year", 1960, $today[year], $year);
-}
-?>
-</td>
-</tr>
-<!-- STEP 2 -->
-<tr>
-<td colspan="2"><hr></td>
-</tr>
-<tr>
-<td colpsan="2"><a name="STEP2"><div id="emph">Step 2:</div></a></td>
-
-</tr>
-
-<!-- The Paper -->
-<tr>
-<td width="25%" valign="top"><A href="javascript:help('paper');">
-    <font color="#000000" size="2" face="Arial, Helvetica, sans-serif">
-    <b>Paper: </b></a></font></td>
-<?
-if ($edit) {
-    echo "<td width=\"75%\">" . $paper . "&nbsp; &nbsp; &nbsp;"
-    . "<a href=\"javascript:dataKeepPopupWithID('change_paper.php',"
-    . $pub_id . ");\">"
-    . "<font face=\"Arial, Helvetica, sans-serif\" size=\"1\">"
-    . "Change Paper</font></a>"
-    . "</td>";
-}
-else {
-    echo "<td width=\"75%\">"
-        . "<input type=\"radio\" name=\"nopaper\" value=\"false\" ";
-    if(($nopaper == "false")||($nopaper == ""))
-        echo "checked";
-    echo "><input type=\"file\" name=\"uploadpaper\" size=\"60\" "
-        . " maxlength=\"250\"><br/>"
-        . "<input type=\"radio\" name=\"nopaper\" value=\"true\" ";
-    if($nopaper == "true")
-        echo "checked";
-    echo "> No paper at this time."
-        . "</td>";
-}
-
-echo "</tr>";
-?>
 
 <!-- Additional Materials -->
 <?
@@ -1463,31 +1211,8 @@ echo "</font></td></tr>"
 . "<tr><td colspan=\"2\"><hr></td></tr>";
 ?>
 
-<!-- Buttons to control what we do with the data -->
-     <tr>
-     <td width="25%">&nbsp;</td>
-     <td width="75%" align="left">
-
-    <? if ($edit) { ?>
-                    <input type="SUBMIT" name="Save" value="<? if ($edit) echo "Accept Modifications"; else echo "Accept New Publication"; ?>" class="text" onClick="return verify(1);">
-                    <input type="RESET" name="Clear" value="Reset" class="text" onClick="refresher();">
-                    <? } else { ?>
-    <input type="SUBMIT" name="Submit" value="Add Publication" class="text" onClick="return verify(0);">
-        <input type="RESET" name="Clear" value="Clear" class="text" onClick="resetAll();">
-		<? }  ?>
-
-		&nbsp;&nbsp;
-
-<!-- This will clear out all the values in all fields -->
-
-<!-- Reset will set everything back to what they are in the DB (not implemented) -->
-<!-- <input type="RESET" name="Reset" value="Reset" class="text"></td> -->
-</tr>
 </table>
 </form>
-<? back_button(); ?>
-</body>
-</html>
 
 <?
 
@@ -1496,6 +1221,8 @@ echo "</div>";
 $db->close();
 
 pageFooter();
+
+echo '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
 
 echo "</body>\n</html>\n";
 

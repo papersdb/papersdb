@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.17 2006/06/02 20:44:54 aicmltec Exp $
+// $Id: advanced_search.php,v 1.18 2006/06/02 23:13:12 aicmltec Exp $
 
 /**
  * \file
@@ -379,7 +379,7 @@ function createTable(&$db, &$renderer) {
                          $renderer->elementToHtml('Submit')
                          . ' ' . $renderer->elementToHtml('Clear')));
 
-    $table->updateColAttributes(0, array('width' => '25%'));
+    $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
     return $table;
 }

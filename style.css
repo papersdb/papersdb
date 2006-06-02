@@ -76,6 +76,11 @@ td#emph {
   font-weight: bold;
 }
 
+td#emph_large {
+  font-weight: bold;
+  font-size:18px;
+}
+
 td#footer {
   font-size: 9px;
   text-align: right;
