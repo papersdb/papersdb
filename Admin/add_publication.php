@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.6 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: add_publication.php,v 1.7 2006/06/02 20:44:54 aicmltec Exp $
 
 /**
  * \file
@@ -720,6 +720,11 @@ if ($edit) {
 }
 
 // Venue
+if (isset($_GET['category_id']) && ($_GET['category_iod'] != '')) {
+    $category = new pdCategory();
+    $category->dbLoad($db, $_GET['category_id']);
+}
+
 if (($_GET['venue_id'] != "") && ($_GET['venue_id'] != -1)
    && ($_GET['venue_id'] != -2)) {
 
@@ -728,14 +733,16 @@ if (($_GET['venue_id'] != "") && ($_GET['venue_id'] != -1)
     $venue = new pdVenue();
     $venue->dbLoad($db, $venue_id);
 
-    if ((($category == "") || ($category == "In Conference"))
-        || (($category == "In Workshop") || ($category == "In Journal"))) {
+    if (($category->category == "")
+        || ($category->category == "In Conference")
+        || ($category->category == "In Workshop")
+        || ($category->category == "In Journal")) {
         if($venue->type == "Conference")
-            $category = "In Conference";
+            $category->category = "In Conference";
         else if($venue->type == "Workshop")
-            $category = "In Workshop";
+            $category->category = "In Workshop";
         else if($venue->type == "Journal")
-            $category = "In Journal";
+            $category->category = "In Journal";
     }
 
     if(($venue->date != NULL) && ($venue->date != "")) {
@@ -768,8 +775,13 @@ unset($options);
 foreach ($category_list->list as $category) {
     $options[$category->cat_id] = $category->category;
 }
-$form->addElement('select', 'category', null, $options,
+$form->addElement('select', 'category_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
+
+if (is_object($category)) {
+    $form->addElement('text', 'title', null,
+
+}
 
 // title
 $form->addElement('text', 'title', null,
@@ -874,7 +886,7 @@ $table->setAutoGrow(true);
 
 $table->addRow(array('Publication Venue:',
                      $renderer->elementToHtml('venue_id')));
-$table->addRow(array('Category:', $renderer->elementToHtml('category')));
+$table->addRow(array('Category:', $renderer->elementToHtml('category_id')));
 $table->addRow(array('Title:', $renderer->elementToHtml('title')));
 $table->addRow(array('Author(s):',
                      $renderer->elementToHtml('author1')
@@ -926,6 +938,7 @@ $table->addRow(array('Extra Information:'
                      . '<br/><div id="small">optional</div>',
                      $renderer->elementToHtml('extra_info')));
 
+// External Pointers
 if ($ext == 0) {
     $table->addRow(array('External Pointers:'
                          . '<br/><div id="small">optional</div>',
@@ -953,6 +966,7 @@ else {
                          . 'Remove the above pointer</a>'));
 }
 
+// Internal Pointers
 if ($intpoint == 0) {
     $table->addRow(array('Internal Pointers:'
                          . '<br/><div id="small">optional</div>',
@@ -978,6 +992,10 @@ else {
 $table->addRow(array('Keywords:',
                      $renderer->elementToHtml('keywords')
                    . ' <div id="small">separate using semicolon (;)</div>'));
+
+// Additional Information
+if ($_GET['category_id']) {
+}
 
 $table->addRow(array('Date Published:',
                      $renderer->elementToHtml('date_published')
@@ -1472,12 +1490,13 @@ echo "</font></td></tr>"
 </html>
 
 <?
-  /* Free resultset */
-mysql_free_result($cat_result);
-mysql_free_result($info_result);
-mysql_free_result($author_result);
 
-/* Closing connection */
-disconnect_db($link);
+echo "</div>";
+
+$db->close();
+
+pageFooter();
+
+echo "</body>\n</html>\n";
 
 ?>

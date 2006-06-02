@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.12 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.13 2006/06/02 20:44:54 aicmltec Exp $
 
 /**
  * \file
@@ -14,6 +14,7 @@
  */
 
 require_once 'includes/functions.php';
+require_once 'includes/navMenu.php';
 require_once 'includes/pdPublication.php';
 
 require_once 'HTML/QuickForm.php';

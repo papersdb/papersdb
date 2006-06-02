@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.16 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: advanced_search.php,v 1.17 2006/06/02 20:44:54 aicmltec Exp $
 
 /**
  * \file
@@ -21,26 +21,26 @@
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 require_once 'includes/navMenu.php';
+require_once 'includes/pdAuthorList.php';
+require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
-require_once 'includes/pdAuthorList.php';
-require_once 'includes/pdAuthorList.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/Table.php';
-
-global $additionalInfo;
 
 $cat_id = strval($_GET['cat_id']);
 isValid($cat_id);
 
 $db =& dbCreate();
 
+$category = new pdCategory();
+$category->dbLoad($db, $cat_id);
+
 $form = new HTML_QuickForm('pubForm', 'post', 'search_publication_db.php',
                            '_self', 'multipart/form-data');
 // get our render
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 
-$additionalInfo = additionalInfoGet($db, $cat_id);
 createFormElements($form, $db);
 setFormValues($form);
 
@@ -135,38 +135,13 @@ END;
 }
 
 /**
- * Retrieves the additional information for the selected category.
- */
-function additionalInfoGet(&$db, $cat_id) {
-    $q = $db->select(array('info', 'category', 'cat_info'), 'info.name',
-                     array('category.cat_id=cat_info.cat_id',
-                           'info.info_id=cat_info.info_id',
-                           'category.cat_id' => quote_smart($cat_id)));
-    $r = $db->fetchObject($q);
-    while ($r) {
-        $varname = $r->name;
-        if ($varname != "") {
-            $varname = str_replace(" ", "", $varname);
-
-            if (isset($_GET[strtolower($varname)]))
-                $additionalInfo[$varname] = $_GET[strtolower($varname)];
-            else
-                $additionalInfo[$varname] = '';
-        }
-        $r = $db->fetchObject($q);
-    }
-
-    return $additionalInfo;
-}
-
-/**
  * Creates the from used on this page. The renderer is then used to
  * display the form correctly on the page (see createTable).
  *
  * Note: calendar.js is used as a shorcut way of entering date values.
  */
 function createFormElements(&$form, &$db) {
-    global $additionalInfo;
+    global $category;
 
     $form->addElement('text', 'search', null,
                       array('size' => 50, 'maxlength' => 250));
@@ -204,8 +179,8 @@ function createFormElements(&$form, &$db) {
     $form->addElement('text', 'keywords', null,
                       array('size' => 60, 'maxlength' => 250));
 
-    if ($_GET['cat_id'] && is_array($additionalInfo)) {
-        foreach ($additionalInfo as $name => $value) {
+    if (is_object($category) && is_array($category->info)) {
+        foreach ($category->info as $name) {
             $form->addElement('text', strtolower($name), null,
                               array('size' => 60, 'maxlength' => 250));
         }
@@ -252,7 +227,7 @@ function createFormElements(&$form, &$db) {
  * Assigns the form's values as per the HTTP GET string.
  */
 function setFormValues(&$form) {
-    global $additionalInfo;
+    global $category;
 
     $defaultValues['search']            = stripslashes($_GET['search']);
     $defaultValues['cat_id']            = $_GET['cat_id'];
@@ -268,10 +243,9 @@ function setFormValues(&$form) {
     $defaultValues['halfabstractcheck'] = 'yes';
     $defaultValues['datecheck']         = 'yes';
 
-
-    if ($_GET['cat_id'] && is_array($additionalInfo)) {
-        foreach ($additionalInfo as $name => $value) {
-            $defaultValues[strtolower($name)] = $value;
+    if (is_object($category) && is_array($category->info)) {
+        foreach ($category->info as $name) {
+            $defaultValues[strtolower($name)] = $_GET[$name];
         }
     }
 
@@ -282,7 +256,7 @@ function setFormValues(&$form) {
  * Creates the table displaying the form fields.
  */
 function createTable(&$db, &$renderer) {
-    global $additionalInfo;
+    global $category;
 
     $tableAttrs = array('width' => '100%',
                         'border' => '0',
@@ -336,8 +310,8 @@ function createTable(&$db, &$renderer) {
     $table->addRow(array('Keywords:',
                          $renderer->elementToHtml('keywords')));
 
-    if ($_GET['cat_id'] && is_array($additionalInfo)) {
-        foreach ($additionalInfo as $name => $value) {
+    if (is_object($category) && is_array($category->info)) {
+        foreach ($category->info as $name) {
             $table->addRow(array($name . ':',
                                  $renderer->elementToHtml(strtolower($name))));
         }

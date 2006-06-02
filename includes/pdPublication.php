@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.7 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: pdPublication.php,v 1.8 2006/06/02 20:44:54 aicmltec Exp $
 
 /**
  * \file
@@ -77,21 +77,27 @@ class pdPublication {
             $this->category->dbLoad($db, $q->cat_id, PD_CATEGORY_DB_LOAD_BASIC);
         }
 
-        if ($flags & PD_PUB_DB_LOAD_CATEGORY_INFO) {
+        // some categories are not defined
+        if (($flags & PD_PUB_DB_LOAD_CATEGORY_INFO)
+            && isset($this->category->cat_id)) {
             $this->category->dbLoadCategoryInfo($db);
 
-            foreach ($this->category->info as $info) {
-                $q = $db->select(array('pub_cat_info', 'pub_cat'),
-                                 'pub_cat_info.value',
-                                 array('pub_cat.cat_id=pub_cat_info.cat_id',
-                                       'pub_cat_info.info_id' => quote_smart($info->info_id),
-                                       'pub_cat.pub_id' => quote_smart($id),
-                                       'pub_cat_info.pub_id' => quote_smart($id)),
-                                 "pdPublication::dbLoad");
-                $r = $db->fetchObject($q);
-                while ($r) {
-                    $this->info[$info->name] = $r->value;
+            if (is_array($this->category->info)) {
+                foreach ($this->category->info as $info_id => $name) {
+                    $q = $db->select('pub_cat_info',
+                                     'value',
+                                     array('info_id'
+                                           => quote_smart($info_id),
+                                           'pub_id'
+                                           => quote_smart($id),
+                                           'cat_id'
+                                           => quote_smart($this->category->cat_id)),
+                                     "pdPublication::dbLoad");
                     $r = $db->fetchObject($q);
+                    while ($r) {
+                        $this->info[$name] = $r->value;
+                        $r = $db->fetchObject($q);
+                    }
                 }
             }
         }
