@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.8 2006/06/02 23:13:12 aicmltec Exp $
+// $Id: add_publication.php,v 1.9 2006/06/02 23:38:24 aicmltec Exp $
 
 /**
  * \file
@@ -492,11 +492,58 @@ var titleHelp=
 var authorsHelp=
     "This field is to store the author(s) of your document in the database."
     + "<br><br>"
-    + "To use this field select the author(s) of your document from the"
-    + "listbox. You can select multiple authors by holding down the control"
-    + "key and clicking. If you do not see the name of the author(s) of the"
-    + "document listed in the listbox then you must add them with the Add"
+    + "To use this field select the author(s) of your document from the "
+    + "listbox. You can select multiple authors by holding down the control "
+    + "key and clicking. If you do not see the name of the author(s) of the "
+    + "document listed in the listbox then you must add them with the Add "
     + "Author button.";
+
+var abstractHelp=
+    "Abstract is an area for you to provide an abstract of the document you "
+    + "are submitting.<br><br>"
+    + "To do this enter a plain text abstract for your paper in the field "
+    + "provided. HTML tags can be used.";
+
+var extraInfoHelp=
+    "Specify auxiliary information, to help classify this publication. "
+    + "Eg, &quot;with student&quot; or &quot;best paper&quot;, etc. Note "
+    + "that, by default, this information will NOT be shown when this "
+    + "document is presented. Separate using semicolons(;). You can see "
+    + "previously enterred entries by clicking the &quot;Select from a list "
+    + "of previously used information options&quot;, and just check off "
+    + "those that apply to the current publication.";
+
+var externalPtrHelp=
+    "These can be used to connect this publication to an outside source "
+    + "such as a website or a publication that is not in the current "
+    + "database."
+    + "<ul>"
+    + "<li>The &quot;Pointer Type&quot; is the kind of object you are linking "
+    + "with. eg website or publication,</li>"
+    + "<li>The &quot;Title of link&quot; would be the name of the website, or "
+    + "the nameof the publication</li>"
+    + "<li>The &quot;http://&quot; would be where you would enter the url."
+    + "</li>"
+    + "</ul>";
+
+var internalPtrHelp=
+    "These can be used to connect this publication with another publication "
+    + "inside the database.";
+
+
+var keywordsHelp=
+    "Keywords is a field where you can enter keywords that will be used to "
+    + "possibly locate your paper by others searching the database. You may "
+    + "want to enter multiple terms that are associated with your document. "
+    + "Examples may include words like: medical imaging; robotics; data "
+    + "mining.<br><br>"
+    + "Please enter keywords used to describe your paper, each keyword should "
+    + "be seperated by a semicolon.";
+
+var datePublishedHelp=
+    "Specifies the date that this document was published. If you have "
+    + "specified a publication_venue that include a date, then this date "
+    + "field will already be enterred.";
 
 function dataKeep(tab) {
 	var temp_qs = "";
@@ -932,7 +979,7 @@ if ($ext > 0) {
 }
 
 function helpTooltip($text, $varname) {
-    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=200;'
+    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
         . 'return escape(' . $varname . ')">' . $text . '</a>';
 }
 
@@ -963,7 +1010,8 @@ for ($i = 2; $i <= $num_authors; $i++) {
     $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
 }
 
-$table->addRow(array('Abstract:<br/><div id="small">HTML Enabled</div>',
+$table->addRow(array(helpTooltip('Abstract', 'abstractHelp')
+                     . ':<br/><div id="small">HTML Enabled</div>',
                      $renderer->elementToHtml('abstract')));
 
 // Show venue info
@@ -1001,14 +1049,14 @@ if ($_GET['venue_id'] == -2) {
                          $renderer->elementToHtml('venue_name')));
 }
 
-$table->addRow(array('Extra Information:'
+$table->addRow(array(helpTooltip('Extra Information', 'extraInfoHelp') . ':'
                      . '<br/><div id="small">optional</div>',
                      $renderer->elementToHtml('extra_info')));
 
 // External Pointers
 if ($ext == 0) {
-    $table->addRow(array('External Pointers:'
-                         . '<br/><div id="small">optional</div>',
+    $table->addRow(array(helpTooltip('External Pointers', 'externalPtrHelp')
+                         . ':<br/><div id="small">optional</div>',
                          '<a href="javascript:dataKeep(\'addext\');">'
                          . 'Add an external pointer</a>'));
 }
@@ -1035,8 +1083,8 @@ else {
 
 // Internal Pointers
 if ($intpoint == 0) {
-    $table->addRow(array('Internal Pointers:'
-                         . '<br/><div id="small">optional</div>',
+    $table->addRow(array(helpTooltip('Internal Pointers', 'internalPtrHelp')
+                         . ':<br/><div id="small">optional</div>',
                          '<a href="javascript:dataKeep(\'addint\');">'
                          . 'Add an internal pointer</a>'));
 }
@@ -1044,7 +1092,8 @@ else {
     for ($e = 1; $e <= $intpoint; $e++) {
         $cell = '';
         if ($e == 1)
-            $cell = 'Internal Pointers:<br/><div id="small">optional</div>';
+            $cell = helpTooltip('Internal Pointers', 'internalPtrHelp')
+                . ':<br/><div id="small">optional</div>';
         $table->addRow(array($cell,
                              $renderer->elementToHtml('intpointer' . $e)));
     }
@@ -1056,7 +1105,7 @@ else {
                          . 'Remove the above pointer</a>'));
 }
 
-$table->addRow(array('Keywords:',
+$table->addRow(array(helpTooltip('Keywords', 'keywordsHelp') . ':',
                      $renderer->elementToHtml('keywords')
                    . ' <div id="small">separate using semicolon (;)</div>'));
 
@@ -1067,7 +1116,7 @@ if (is_object($category) && is_array($category->info)) {
     }
 }
 
-$table->addRow(array('Date Published:',
+$table->addRow(array(helpTooltip('Date Published', 'datePublishedHelp') . ':',
                      $renderer->elementToHtml('date_published')
                      . '<a href="javascript:doNothing()" '
                      . 'onClick="setDateField('
