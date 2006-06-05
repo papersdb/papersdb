@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.7 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: pdUser.php,v 1.8 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -58,7 +58,7 @@ class pdUser {
 
         $q = $db->select(array('user_author', 'author'),
                          array('author.author_id', 'author.name'),
-                         array('login' => $id),
+                         array('login' => $this->login),
                          "pdUser::collaboratorsDbLoad");
         $r = $db->fetchObject($q);
         while ($r) {

@@ -354,23 +354,6 @@ function get_venue_info($venue) {
 	return $output;
 }
 
-function htmlHeader($title, $redirect = '') {
-    echo "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
-        . "lang='en'>\n"
-        . "<head>\n"
-        . "<title>". $title . "</title>\n"
-        . "<meta http-equiv='Content-Type' "
-        . "content='text/html; charset=iso-8859-1' />\n";
-
-    if ($redirect != '') {
-        echo "<meta http-equiv='refresh' content='5;url=" . $redirect
-            . "' />\n";
-    }
-
-    echo "<link rel='stylesheet' href='style.css' />\n"
-        . "</head>";
-}
-
 function pageHeader() {
     echo <<<END
 <div id="titlebar">

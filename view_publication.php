@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.18 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: view_publication.php,v 1.19 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -16,7 +16,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'includes/pdPublication.php';
 
 require_once 'HTML/Table.php';

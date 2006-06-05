@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.18 2006/06/02 23:13:12 aicmltec Exp $
+// $Id: advanced_search.php,v 1.19 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -20,7 +20,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';

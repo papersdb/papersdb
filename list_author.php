@@ -12,7 +12,7 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'HTML/Table.php';
 
 /* Connecting, selecting database */

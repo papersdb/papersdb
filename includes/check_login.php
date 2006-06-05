@@ -1,12 +1,13 @@
-<?php
+<?php ;
 
-  /* check login script */
+/* check login script */
+
+require_once 'includes/pdUser.php';
+
 
 session_start();
 $passwd_hash = "aicml";
 $db =& dbCreate();
-
-//print_r($_SESSION);
 
 if (!isset($_SESSION['user'])) {
 	$logged_in = 0;

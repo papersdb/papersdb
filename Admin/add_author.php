@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.6 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: add_author.php,v 1.7 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -26,7 +26,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'includes/pdAuthInterests.php';
 
 require_once 'HTML/QuickForm.php';

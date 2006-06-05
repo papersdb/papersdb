@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.8 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: login.php,v 1.9 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -10,11 +10,11 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'includes/pdUser.php';
 require_once 'HTML/Table.php';
 
-session_start();
+//session_start();
 
 $passwd_hash = "aicml";
 
@@ -41,9 +41,7 @@ if (isset($_POST['login'])) {
 
 	// check passwords match
 
-	$_POST['passwd'] = stripslashes($passwd_hash . $_POST['passwd']);
-	$q->password = stripslashes($passwd_hash . $q->password);
-	$_POST['passwd'] = md5($_POST['passwd']);
+	$_POST['passwd'] = md5(stripslashes($passwd_hash . $_POST['passwd']));
 
 	if ($_POST['passwd'] != $user->password) {
 		die('Incorrect password, please try again.');

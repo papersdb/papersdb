@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.9 2006/06/02 23:38:24 aicmltec Exp $
+// $Id: add_publication.php,v 1.10 2006/06/05 04:28:41 aicmltec Exp $
 
 /**
  * \file
@@ -16,7 +16,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
-require_once 'includes/navMenu.php';
+require_once 'includes/pageConfig.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdVenueList.php';
@@ -24,12 +24,12 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 
 require_once 'HTML/QuickForm.php';
-require_once 'HTML/QuickForm/combobox.php';
 require_once 'HTML/Table.php';
 
-htmlHeader('Add or Edit Publication');
-
 $db =& dbCreate();
+
+htmlHeader('add_publication', 'Add or Edit Publication');
+
 
 //User's 10 most popular Authors
 function popularauthors(){
@@ -203,6 +203,7 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
 while (!(strpos($category, "\\") === FALSE)) {
     $category = stripslashes($category);
 }
+
 while (!(strpos($title, "\\") === FALSE)) {
     $title = stripslashes($title);
 }
@@ -409,45 +410,12 @@ if ($newCatSubmitted == "true") {
 
 }
 
-$info[0] = "";
-
-/* Performing SQL query */
-$cat_query = "SELECT category FROM category";
-$cat_result = mysql_query($cat_query) or die("Query failed : " . mysql_error());
-
-$venue_query = "SELECT venue_id, title FROM venue ORDER BY title";
-$venue_result = mysql_query($venue_query) or die("Query failed : " . mysql_error());
-
-if($category != NULL){
-    $catid_query = "SELECT cat_id FROM category WHERE category = \"$category\"";
-    $catid_result = mysql_query($catid_query) or die("Query failed : " . mysql_error());
-    $catid_line = mysql_fetch_array($catid_result, MYSQL_ASSOC);
-    $category_id = $catid_line['cat_id'];
-}
-$info_query = "SELECT info.name FROM info, category, cat_info WHERE "
-    . "category.cat_id       = cat_info.cat_id "
-    . "AND info.info_id      = cat_info.info_id "
-    . "AND category.category = \"$category\"";
-$info_result = mysql_query($info_query) or die("Query failed : " . mysql_error());
-
-$info_counter = 0;
-while ($info_line = mysql_fetch_array($info_result, MYSQL_ASSOC)) {
-    $info[$info_counter] = $info_line[name];
-    $info_counter++;
-}
-if($pub_id == "")
-	$author_query = "SELECT * FROM author ORDER BY name ASC";
-else
-	$author_query = "SELECT author.name, author.author_id FROM author, pub_author where".
-        " author.author_id=pub_author.author_id AND pub_author.pub_id=$pub_id ORDER BY pub_author.rank";
-$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-
-if ($_GET['ext'] == '')
+if (!isset($_GET['ext']) || ($_GET['ext'] == ''))
     $ext = 0;
 else
     $ext = intval($_GET['ext']);
 
-if ($_GET['intpoint'] == '')
+if (!isset($_GET['intpoint']) || ($_GET['intpoint'] == ''))
     $intpoint = 0;
 else
     $intpoint = intval($_GET['intpoint']);
@@ -788,7 +756,7 @@ echo "<div id='content'>\n";
 
 ?>
 
-<h3><? if ($_GET['edit']) echo "Edit"; else echo "Add"; ?> Publication</h3>
+<h3><? if (isset($_GET['edit'])) echo "Edit"; else echo "Add"; ?> Publication</h3>
 <?
 
 $form = new HTML_QuickForm('pubForm', 'post', "./add_publication.php?",
@@ -803,8 +771,8 @@ if (isset($_GET['category_id']) && ($_GET['category_id'] != '')) {
     $category->dbLoad($db, $_GET['category_id']);
 }
 
-if (($_GET['venue_id'] != "") && ($_GET['venue_id'] != -1)
-   && ($_GET['venue_id'] != -2)) {
+if (isset($_GET['venue_id']) && ($_GET['venue_id'] != "")
+    && ($_GET['venue_id'] != -1) && ($_GET['venue_id'] != -2)) {
 
     $venue_id = $_GET['venue_id'];
 
@@ -856,7 +824,7 @@ foreach ($category_list->list as $cat) {
 $form->addElement('select', 'category_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
 
-if (is_object($category) && is_array($category->info)) {
+if (isset($category) && is_object($category) && is_array($category->info)) {
     foreach ($category->info as $info_id => $name) {
         $form->addElement('text', $name, null,
                           array('size' => 70, 'maxlength' => 250));
@@ -887,14 +855,15 @@ foreach ($auth_list->list as $auth) {
 }
 
 for ($i = 1; $i <= $num_authors; $i++) {
-    $form->addElement('combobox', 'author' . $i, null, $options,
-                      array('buttonValue' => '...'));
+//    $form->addElement('combobox', 'author' . $i, null, $options,
+//                      array('buttonValue' => '...'));
 }
 
 
 $form->addElement('textarea', 'abstract', null,
                   array('cols' => 60, 'rows' => 10));
-if ($_GET['venue_id'] == -2)
+
+if (isset($_GET['venue_id']) && ($_GET['venue_id'] == -2))
     $form->addElement('textarea', 'venue_name', null,
                       array('cols' => 60, 'rows' => 5));
 $form->addElement('textarea', 'extra_info', null,
@@ -1003,8 +972,9 @@ $table->addRow(array(helpTooltip('Category', 'categoryHelp') . ':',
 $table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
                                  $renderer->elementToHtml('title')));
 $table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
-                     $renderer->elementToHtml('author1')
-                     . ' ' . $renderer->elementToHtml('add_author')));
+                     //$renderer->elementToHtml('author1')
+                     //. ' ' . $renderer->elementToHtml('add_author')));
+                     ''));
 
 for ($i = 2; $i <= $num_authors; $i++) {
     $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
@@ -1043,7 +1013,7 @@ if (isset($venue) && is_object($venue)) {
     $table->addRow(array($cell1, $venue->data));
 }
 
-if ($_GET['venue_id'] == -2) {
+if (isset($_GET['venue_id']) && ($_GET['venue_id'] == -2)) {
     $table->addRow(array('Unique Venue:'
                          . '<br/><div id="small">HTML Enabled</div>',
                          $renderer->elementToHtml('venue_name')));
@@ -1110,7 +1080,7 @@ $table->addRow(array(helpTooltip('Keywords', 'keywordsHelp') . ':',
                    . ' <div id="small">separate using semicolon (;)</div>'));
 
 // Additional Information
-if (is_object($category) && is_array($category->info)) {
+if (isset($category) && is_object($category) && is_array($category->info)) {
     foreach ($category->info as $info_id => $name) {
         $table->addRow(array($name . ':', $renderer->elementToHtml($name)));
     }
