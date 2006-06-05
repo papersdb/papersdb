@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.11 2006/06/05 20:04:59 aicmltec Exp $
+// $Id: add_publication.php,v 1.12 2006/06/05 23:33:42 aicmltec Exp $
 
 /**
  * \file
@@ -537,13 +537,14 @@ function dataKeep(tab) {
 				var author_count = 0;
 
 				for (j = 0; j < author_array.length; j++) {
-
-                    if (author_count > 0) {
-                        author_list = author_list + "&";
+                    if (author_array[j].selected) {
+                        if (author_count > 0) {
+                            author_list = author_list + "&";
+                        }
+                        author_list = author_list + "authors["
+                            + author_count + "]=" + author_array[j].value;
+                        author_count++;
                     }
-                    author_list = author_list + "authors[" + j + "]=" + author_array[j].value;
-                    author_count++;
-
 				}
 
 				temp_qs = temp_qs + author_list;
@@ -851,7 +852,7 @@ foreach ($auth_list->list as $auth) {
 $authSelect =& $form->addElement('advmultiselect', 'authors', null, $options,
                                  array('class' => 'pool',
                                        'style' => 'width:150px;'),
-                                 null);
+                                 SORT_ASC);
 $authSelect->setLabel(array('Authors:', 'Selected', 'Available'));
 
 $authSelect->setButtonAttributes('add'     , array('value' => '<<',
@@ -985,11 +986,6 @@ $table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
                                  $renderer->elementToHtml('title')));
 $table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
                      $renderer->elementToHtml('authors')));
-
-//for ($i = 2; $i <= $num_authors; $i++) {
-//    $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
-//}
-
 $table->addRow(array(helpTooltip('Abstract', 'abstractHelp')
                      . ':<br/><div id="small">HTML Enabled</div>',
                      $renderer->elementToHtml('abstract')));
@@ -1158,8 +1154,7 @@ else
 echo 'Publication</h3>';
 
 if(!$edit) {
-    echo
-        'Adding a publication takes two steps:<br>
+    echo 'Adding a publication takes two steps:<br>
         1. Fill in the appropriate fields<br>
         2. Upload the paper and any additional materials';
 }
@@ -1257,7 +1252,7 @@ echo "</font></td></tr>"
 
 <?
 
-echo "</div>";
+echo '</div>';
 
 $db->close();
 

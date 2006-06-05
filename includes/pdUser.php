@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.9 2006/06/05 20:04:59 aicmltec Exp $
+// $Id: pdUser.php,v 1.10 2006/06/05 23:33:42 aicmltec Exp $
 
 /**
  * \file
@@ -37,6 +37,7 @@ class pdUser {
      *
      */
     function dbLoad(&$db, $id, $flags = 0) {
+        assert('is_object($db)');
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
         $this->objLoad($q);
@@ -45,17 +46,43 @@ class pdUser {
 
         $this->collaboratorsDbLoad($db);
 
-        //print_r($this);
+        print_r($this);
+    }
+
+    /**
+     *
+     */
+    function dbSave(&$db) {
+        assert('is_object($db)');
+        assert('isset($this->login)');
+        $db->update('user', array('name' => $this->name,
+                                  'email' => $this->email),
+                    array('login' => $this->login),
+                    'pdUser::dbSave');
+        if (is_array($this->collaborators)) {
+            $db->delete('user_author',
+                        array('login' => $this->login),
+                        'pdUser::dbSave');
+            $values = '';
+            foreach($this->collaborators as $collaborator) {
+                $values[] .= '(' . quote_smart($this->login) . ','
+                    . quote_smart($collaborator->author_id) . ')';
+            }
+            $db->query('INSERT INTO user_author (login, author_id) VALUES'
+                       . implode(', ', $values));
+            print_r(implode(', ', $values));
+        }
     }
 
     /**
      *
      */
     function collaboratorsDbLoad(&$db) {
+        assert('is_object($db)');
         assert('isset($this->login)');
 
         $q = $db->select(array('user_author', 'author'),
-                         array('author.author_id', 'author.name'),
+                         array('DISTINCT author.author_id', 'author.name'),
                          array('login' => $this->login),
                          "pdUser::collaboratorsDbLoad");
         $r = $db->fetchObject($q);
@@ -70,6 +97,7 @@ class pdUser {
      * submitted.
      */
     function popularAuthorsDbLoad(&$db) {
+        assert('is_object($db)');
         assert('isset($this->login)');
 
         $q = $db->select(array('pub_author', 'user'),

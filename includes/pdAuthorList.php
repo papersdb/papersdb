@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.4 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.5 2006/06/05 23:33:42 aicmltec Exp $
 
 /**
  * \file
@@ -35,7 +35,7 @@ class pdAuthorList {
         if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[] = $r;
+            $this->list[$r->author_id] = $r;
             $r = $db->fetchObject($q);
         }
     }
