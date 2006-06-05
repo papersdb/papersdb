@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.7 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: add_author.php,v 1.8 2006/06/05 20:04:59 aicmltec Exp $
 
 /**
  * \file
@@ -32,11 +32,35 @@ require_once 'includes/pdAuthInterests.php';
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/Table.php';
 
-htmlHeader('Add Author');
+htmlHeader('add_author', 'Add Author');
+
+if (!$logged_in) {
+    pageHeader();
+    navMenu('add_publication');
+    echo "<div id='content'>\n";
+    loginErrorMessage();
+}
 
 ?>
 
 <script language="JavaScript" type="text/JavaScript">
+    var authorPageHelp=
+    "This window is used to add an author to the database. In order to add "
+    + "an author you need to input the author's first name, last name, "
+    + "email address and organization. You must also select interet(s) that "
+    + "the author has. To do this you can select interest(s) allready in the "
+    + "database by selecting them from the listbox. You can select multiple "
+    + "interests by control-clicking on them. If you do not see the "
+    + "appropriate interest(s) you can add interest(s) using the Add Interest "
+    + "link.<br/><br/>"
+    + "Clicking the Add Interest link will bring up additional fields "
+    + "everytime you click it. You can then type in the name of the interest "
+    + "into the new field provided.";
+
+var authTitleHelp=
+    "The title of an author. Will take the form of one of: {Prof, PostDoc, "
+    + "PhD student, MSc student, Colleague, etc...}.";
+
     function verify() {
     if (document.forms["authorForm"].elements["firstname"].value == "") {
         alert("Please enter a complete name for the new author.");
@@ -135,11 +159,7 @@ else {
     $newInterests = 0;
 }
 
-echo "<h3>Add Author "
-. "<a href='../help.php' target='_blank' "
-. "onClick=\"window.open('../help.php?helpcat=AddAuthor', 'Help', "
-. "'width=400,height=400'); return false\">"
-. "<img src='./question_mark_sm.JPG' border='0' alt='help'></a></h3>";
+echo '<h3>' . helpTooltip('Add Author', 'authorPageHelp') . '</h3>';
 
 $formAttr = array();
 if($_GET['popup'] != "false")
@@ -209,13 +229,7 @@ $table->setAutoGrow(true);
 
 $table->addRow(array('First Name:', $renderer->elementToHtml('firstname')));
 $table->addRow(array('Last Name:', $renderer->elementToHtml('lastname')));
-$table->addRow(array('Title:'
-                     . '<a href="../help.php" target="_blank" '
-                     . 'onClick="window.open(\'../help.php?'
-                     . 'helpcat=Author Title\', \'Help\','
-                     . '\'width=400,height=400\'); return false">'
-                     . '<img src="./question_mark_sm.JPG" border="0" '
-                     . 'alt="help"></a>',
+$table->addRow(array(helpTooltip('Title', 'authTitleHelp') . ':',
                      $renderer->elementToHtml('auth_title')));
 $table->addRow(array('Email:', $renderer->elementToHtml('email')));
 $table->addRow(array('Organization:',
@@ -240,6 +254,8 @@ $db->close();
 if ($_GET['popup'] != 'true') {
     pageFooter();
 }
+
+echo '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
 
 echo "</body>\n</html>\n";
 

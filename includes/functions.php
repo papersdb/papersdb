@@ -57,11 +57,24 @@ function quote_smart($value) {
 	return $value;
 }
 
+function loginErrorMessage(){
+	echo '<br/>'
+        . '<h4>You must be logged in to access this page.</h4>'
+        . '<br/>'
+        . '<br/>'
+        . '<br/>'
+        . '<br/>'
+        . '<br/>';
+    echo "</div>\n";
+    pageFooter();
+	exit;
+}
+
 function errorMessage(){
-	echo "<br/>"
-        . "<h4>There was a problem handling your request."
-        . "<br/>Please go back and try again.</h4>"
-        . "<BR>";
+	echo '<br/>'
+        . '<h4>There was a problem handling your request.'
+        . '<br/>Please go back and try again.</h4>'
+        . '<br/>';
     back_button();
     echo "</div>\n";
     pageFooter();
@@ -430,6 +443,11 @@ function arr2obj($arg_array) {
         }
     }
     return $tmp; // return the object!
+}
+
+function helpTooltip($text, $varname) {
+    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
+        . 'return escape(' . $varname . ')">' . $text . '</a>';
 }
 
 ?>

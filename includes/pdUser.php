@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.8 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: pdUser.php,v 1.9 2006/06/05 20:04:59 aicmltec Exp $
 
 /**
  * \file
@@ -34,9 +34,7 @@ class pdUser {
     }
 
     /**
-     * Loads a specific publication from the database.
      *
-     * Use flags to load individual tables
      */
     function dbLoad(&$db, $id, $flags = 0) {
         $q = $db->selectRow('user', '*', array('login' => $id),

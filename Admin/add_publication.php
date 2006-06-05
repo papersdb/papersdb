@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.10 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: add_publication.php,v 1.11 2006/06/05 20:04:59 aicmltec Exp $
 
 /**
  * \file
@@ -24,11 +24,19 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 
 require_once 'HTML/QuickForm.php';
+require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/Table.php';
 
 $db =& dbCreate();
 
 htmlHeader('add_publication', 'Add or Edit Publication');
+
+if (!$logged_in) {
+    pageHeader();
+    navMenu('add_publication');
+    echo "<div id='content'>\n";
+    loginErrorMessage();
+}
 
 
 //User's 10 most popular Authors
@@ -429,7 +437,6 @@ else
 // Optiontransfer is the author selection windows.
 ?>
 <script language="JavaScript" src="../calendar.js"></script>
-<SCRIPT LANGUAGE="JavaScript" SRC="OptionTransfer.js"></SCRIPT>
 <script language="JavaScript" type="text/JavaScript">
 
     window.name="add_publication.php";
@@ -648,11 +655,6 @@ function dataKeepPopup(page) {
 	else
 		window.open(temp_url, 'Add', 'width=700,height=405,scrollbars=yes,resizable=yes');
 }
-function help(q) {
-    temp_url = "./help.php?q=" + q;
-    window.open(temp_url, 'Add', 'width=700,height=405,scrollbars=yes,resizable=no');
-
-}
 
 function dataKeepPopupWithID(page, id) {
 	var temp_qs = "";
@@ -745,18 +747,6 @@ function refresher() { window.location.reload(true);}
 
 </script>
 
-
-<?php
-
-echo '<body onLoad="opt.init(document.forms[0])">'
-. '<a name="Start"></a>';
-pageHeader();
-navMenu('add_publication');
-echo "<div id='content'>\n";
-
-?>
-
-<h3><? if (isset($_GET['edit'])) echo "Edit"; else echo "Add"; ?> Publication</h3>
 <?
 
 $form = new HTML_QuickForm('pubForm', 'post', "./add_publication.php?",
@@ -841,7 +831,7 @@ if (!isset($_GET['num_authors'])) {
     $num_authors = 1;
 }
 else {
-    $num_authors = $_GET['num_authors'];
+    $num_authors = intval($_GET['num_authors']);
 }
 
 $form->addElement('hidden', 'num_authors', $num_authors);
@@ -854,11 +844,39 @@ foreach ($auth_list->list as $auth) {
     $options[$auth->author_id] = $auth->name;
 }
 
-for ($i = 1; $i <= $num_authors; $i++) {
-//    $form->addElement('combobox', 'author' . $i, null, $options,
-//                      array('buttonValue' => '...'));
-}
+//for ($i = 1; $i <= $num_authors; $i++) {
+//    $form->addElement('combobox', 'author' . $i, null, $options);
+//}
 
+$authSelect =& $form->addElement('advmultiselect', 'authors', null, $options,
+                                 array('class' => 'pool',
+                                       'style' => 'width:150px;'),
+                                 null);
+$authSelect->setLabel(array('Authors:', 'Selected', 'Available'));
+
+$authSelect->setButtonAttributes('add'     , array('value' => '<<',
+                                                   'class' => 'inputCommand'));
+$authSelect->setButtonAttributes('remove'  , array('value' => '>>',
+                                                   'class' => 'inputCommand'));
+$authSelect->setButtonAttributes('moveup'  , array('class' => 'inputCommand'));
+$authSelect->setButtonAttributes('movedown', array('class' => 'inputCommand'));
+
+// template for a dual multi-select element shape
+$template = '
+<table{class}>
+<!-- BEGIN label_2 --><tr><th>{label_2}</th><!-- END label_2 -->
+<!-- BEGIN label_3 --><th>&nbsp;</th><th>{label_3}</th></tr><!-- END label_3 -->
+<tr>
+  <td>{selected}</td>
+  <td align="center">
+    {add}<br />{remove}<br /><br />{moveup}<br />{movedown}
+  </td>
+  <td>{unselected}</td>
+</tr>
+</table>
+{javascript}
+';
+$authSelect->setElementTemplate($template);
 
 $form->addElement('textarea', 'abstract', null,
                   array('cols' => 60, 'rows' => 10));
@@ -947,12 +965,6 @@ if ($ext > 0) {
     }
 }
 
-function helpTooltip($text, $varname) {
-    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
-        . 'return escape(' . $varname . ')">' . $text . '</a>';
-}
-
-
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
 
@@ -972,13 +984,11 @@ $table->addRow(array(helpTooltip('Category', 'categoryHelp') . ':',
 $table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
                                  $renderer->elementToHtml('title')));
 $table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
-                     //$renderer->elementToHtml('author1')
-                     //. ' ' . $renderer->elementToHtml('add_author')));
-                     ''));
+                     $renderer->elementToHtml('authors')));
 
-for ($i = 2; $i <= $num_authors; $i++) {
-    $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
-}
+//for ($i = 2; $i <= $num_authors; $i++) {
+//    $table->addRow(array('', $renderer->elementToHtml('author' . $i)));
+//}
 
 $table->addRow(array(helpTooltip('Abstract', 'abstractHelp')
                      . ':<br/><div id="small">HTML Enabled</div>',
@@ -1134,12 +1144,24 @@ $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 $table->updateCellAttributes(1, 0, array('id' => 'emph_large'));
 $table->updateCellAttributes(13, 0, array('id' => 'emph_large'));
 
+echo '<body>'
+. '<a name="Start"></a>';
+pageHeader();
+navMenu('add_publication');
+echo "<div id='content'>\n";
+
+echo '<h3>';
+if (isset($_GET['edit']))
+    echo 'Edit';
+else
+    echo 'Add';
+echo 'Publication</h3>';
+
 if(!$edit) {
-    echo "Adding a publication takes two steps:<br>"
-        . "1. Fill in the appropriate fields<br>"
-        . "2. Upload the paper and any additional materials<br><br>"
-        . "<div id=\"highlight\">For help on any field just click the "
-        . "field name.</div>";
+    echo
+        'Adding a publication takes two steps:<br>
+        1. Fill in the appropriate fields<br>
+        2. Upload the paper and any additional materials';
 }
 
 echo $renderer->toHtml(($table->toHtml())) . '</div>';

@@ -25,6 +25,30 @@ $page_info = array(
     => array('Login or Register', 'login.php', 0)
     );
 
+function htmlHeader($page, $title, $redirect = '') {
+    global $page_info;
+
+    echo "<html xmlns='http://www.w3.org/1999/xhtml' xml:lang='en' "
+        . "lang='en'>\n"
+        . "<head>\n"
+        . "<title>". $title . "</title>\n"
+        . "<meta http-equiv='Content-Type' "
+        . "content='text/html; charset=iso-8859-1' />\n";
+
+    if ($redirect != '') {
+        echo "<meta http-equiv='refresh' content='5;url=" . $redirect
+            . "' />\n";
+    }
+
+    if (($page != '') && isset($page_info[$page])
+        && (strstr($page_info[$page][1], '/')))
+        $cssFile = '../style.css';
+    else
+        $cssFile = 'style.css';
+
+    echo '<link rel="stylesheet" href="' . $cssFile . '" /></head>';
+}
+
 function navMenu($page = '') {
     global $logged_in, $page_info;
 
@@ -40,12 +64,10 @@ function navMenu($page = '') {
             if ($name == $page) {
                 $options[$info[0]] = '';
             }
-            else {
-                if (strstr($page_info[$page][1], '/'))
-                    $options[$info[0]] = $url_prefix . $info[1];
-                else
-                    $options[$info[0]] = $info[1];
-            }
+            else if (($page != '') && (strstr($page_info[$page][1], '/')))
+                $options[$info[0]] = $url_prefix . $info[1];
+            else
+                $options[$info[0]] = $info[1];
         }
     }
 

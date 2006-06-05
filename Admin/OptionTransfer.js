@@ -155,17 +155,20 @@ o[j].selected = i_selected;
 function moveOptionUp(){
 	obj = this.left;
 
-	if(!hasOptions(obj)){return;
-}
-	for(i=0;
-i<obj.options.length;
-i++)
-	{if(obj.options[i].selected){if(i != 0 && !obj.options[i-1].selected){swapOptions(obj,i,i-1);
-obj.options[i-1].selected = true;
-}}}
+	if(!hasOptions(obj)) {
+        return;
+    }
+	for(i=0; i<obj.options.length; i++) {
+        if(obj.options[i].selected) {
+            if(i != 0 && !obj.options[i-1].selected){
+                swapOptions(obj,i,i-1);
+                obj.options[i-1].selected = true;
+            }
+        }
+    }
 	this.update();
-
 }
+
 function moveOptionDown(){
 	obj = this.left;
 
