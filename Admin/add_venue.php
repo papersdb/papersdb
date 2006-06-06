@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.2 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: add_venue.php,v 1.3 2006/06/06 23:12:31 aicmltec Exp $
 
 /**
  * \file
@@ -35,7 +35,7 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/Table.php';
 
-htmlHeader('add_venue', 'Add or Edit Publication');
+htmlHeader('add_venue', 'Add or Edit Venue');
 
 if (!$logged_in) {
     echo '<body>';
@@ -60,9 +60,12 @@ if ($_GET['submit'] == 'true') {
         $venue->dbSaveNew($db);
 
         echo '<body onLoad="window.opener.location.reload(); window.close();">';
-        pageHeader();
-        navMenu('add_venue');
-        echo "<div id='content'>\n";
+
+        if (!isset($_GET['popup']) || ($_GET['popup'] != 'true')) {
+            pageHeader();
+            navMenu('add_venue');
+            echo "<div id='content'>\n";
+        }
 
         echo 'You have successfully added the venue "' .  $venue->title . '".';
         echo '<br><a href="./add_venue.php">Add another venue</a>';
@@ -70,9 +73,12 @@ if ($_GET['submit'] == 'true') {
     else {
         $venue->dbSave($db);
         echo '<body>';
-        pageHeader();
-        navMenu('add_venue');
-        echo "<div id='content'>\n";
+        if (!isset($_GET['popup']) || ($_GET['popup'] != 'true')) {
+            pageHeader();
+            navMenu('add_venue');
+            echo "<div id='content'>\n";
+        }
+
         echo 'You have successfully edited the venue "' . $venue->title . '".';
         echo '<br><a href="./add_venue.php?status=edit">Edit another venue</a>';
     }
@@ -83,20 +89,9 @@ if ($_GET['submit'] == 'true') {
 <script language="JavaScript" src="../calendar.js"></script>
 <script language="JavaScript" type="text/JavaScript">
 
-    function verify() {
-	if (document.forms["venueForm"].elements["title"].value == "") {
-		alert("Please enter a title for this venue.");
-		return false;
-	}
-
-	if (document.forms["venueForm"].elements["name"].value == "") {
-		alert("Please enter information for this venue.");
-		return false;
-	}
-
-	return true;
+    function closewindow(){
+    window.close();
 }
-function closewindow(){ window.close();}
 function dataKeep() {
 	var temp_qs = "";
 	var info_counter = 0;
@@ -230,6 +225,12 @@ else {
     $form = new HTML_QuickForm('venueForm', 'post',
                                './add_venue.php?submit=true');
 
+    if (!isset($_GET['popup']) || ($_GET['popup'] != 'true'))
+        $value = 'false';
+    else
+        $value = 'true';
+    $form->addElement('hidden', 'popup', $value);
+
     if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
         $form->addElement('hidden', 'editmode', 'true');
         $form->addElement('hidden', 'venue_id', $_GET['venue_id']);
@@ -247,8 +248,12 @@ else {
                       array('onClick' => 'javascript:dataKeep();'));
     $form->addElement('text', 'title', null,
                       array('size' => 50, 'maxlength' => 250));
+    $form->addRule('title', 'venue title cannot be empty',
+                   'required', null, 'client');
     $form->addElement('text', 'name', null,
                       array('size' => 50, 'maxlength' => 250));
+    $form->addRule('name', 'venue name cannot be empty',
+                   'required', null, 'client');
     $form->addElement('text', 'url', null,
                       array('size' => 50, 'maxlength' => 250));
     if (isset($venue) && ($venue->type != '')) {
@@ -264,12 +269,10 @@ else {
 
     if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
         $form->addElement('hidden', 'id', 'true');
-        $form->addElement('submit', 'Submit', 'Edit Venue',
-                          array('onClick' => 'reurn verify();'));
+        $form->addElement('submit', 'Submit', 'Edit Venue');
     }
     else {
-        $form->addElement('submit', 'Submit', 'Add Venue',
-                          array('onClick' => 'reurn verify();'));
+        $form->addElement('submit', 'Submit', 'Add Venue');
     }
 
     $form->addElement('reset', 'Reset', 'Reset');
@@ -282,6 +285,7 @@ else {
         $form->addElement('submit', 'Cancel', 'Cancel',
                           array('onClick' => 'closewindow();'));
 
+    $form->setDefaults($_GET);
     if (isset($venue) && ($venue->venue_id != '')) {
         $defaults['venue_id'] = $venue->venue_id;
         $defaults['title']    = $venue->title;
@@ -335,13 +339,15 @@ else {
                                  $renderer->elementToHtml('date')
                                  . '<a href="javascript:doNothing()" '
                                  . 'onClick="setDateField('
-                                 . 'document.venueForm.venue_date);'
+                                 . 'document.venueForm.date);'
                                  . 'top.newWin=window.open(\'../calendar.html\','
                                  . '\'cal\',\'dependent=yes,width=230,height=250,'
                                  . 'screenX=200,screenY=300,titlebar=yes\')">'
                                  . '<img src="../calendar.gif" border=0></a> '
                                  . '(yyyy-mm-dd) '));
     }
+
+    $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
 
     if(($_GET['status'] == "change")||($_GET['editmode'] == "true"))
@@ -354,9 +360,9 @@ else {
 
 if (!isset($_GET['popup']) || ($_GET['popup'] != 'true')) {
     echo '</div>';
+    pageFooter();
 }
 
-pageFooter();
 echo "</body>\n</html>\n";
 $db->close();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.19 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: advanced_search.php,v 1.20 2006/06/06 23:12:31 aicmltec Exp $
 
 /**
  * \file
@@ -50,7 +50,7 @@ setFormValues($form);
 $form->accept($renderer);
 $table = createTable($db, $renderer);
 
-htmlHeader('Search Publication');
+htmlHeader('advanced_search', 'Search Publication');
 printJavascript();
 echo "<body>\n";
 pageHeader();

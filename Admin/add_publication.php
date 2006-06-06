@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.14 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: add_publication.php,v 1.15 2006/06/06 23:12:31 aicmltec Exp $
 
 /**
  * \file
@@ -526,13 +526,14 @@ function dataKeep(tab) {
 	var info_counter = 0;
 
 	for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-		if ((document.forms["pubForm"].elements[i].value != "") &&
-            (document.forms["pubForm"].elements[i].value != null)) {
+        var element = document.forms["pubForm"].elements[i];
+		if ((element.type != "submit") && (element.type != "reset")
+            && (element.value != "") && (element.value != null)) {
 			if (info_counter > 0) {
                 temp_qs = temp_qs + "&";
 			}
 
-			if (document.forms["pubForm"].elements[i].name == "authors[]") {
+			if (element.name == "authors[]") {
 				author_array = document.forms["pubForm"].elements['authors[]'];
 				var author_list = "";
 				var author_count = 0;
@@ -550,37 +551,37 @@ function dataKeep(tab) {
 
 				temp_qs = temp_qs + author_list;
 			}
-			else if(document.forms["pubForm"].elements[i].name == "comments")
-				temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value.replace("\"","'");
+			else if(element.name == "comments")
+				temp_qs = temp_qs + element.name + "=" + element.value.replace("\"","'");
 
-			else if(document.forms["pubForm"].elements[i].name == "nopaper"){
-                if(document.forms["pubForm"].elements[i].checked)
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value;
+			else if(element.name == "nopaper"){
+                if(element.checked)
+                    temp_qs = temp_qs + element.name + "=" + element.value;
 			}
-			else if(document.forms["pubForm"].elements[i].name == "ext"){
+			else if(element.name == "ext"){
                 if(tab == "addext")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($ext+1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($ext+1); ?>";
                 else if(tab == "remext")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($ext-1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($ext-1); ?>";
                 else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo $ext; ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo $ext; ?>";
 			}
-			else if(document.forms["pubForm"].elements[i].name == "intpoint"){
+			else if(element.name == "intpoint"){
                 if(tab == "addint")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($intpoint+1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($intpoint+1); ?>";
                 else if(tab == "remint")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($intpoint-1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($intpoint-1); ?>";
                 else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo $intpoint; ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo $intpoint; ?>";
 			}
-			else if(document.forms["pubForm"].elements[i].name == "numMaterials"){
+			else if(element.name == "numMaterials"){
                 if(tab == "addnum")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($numMaterials+1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($numMaterials+1); ?>";
                 else if(tab == "remnum")
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + "<? echo ($numMaterials-1); ?>";
+                    temp_qs = temp_qs + element.name + "=" + "<? echo ($numMaterials-1); ?>";
             }
 			else
-				temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value;
+				temp_qs = temp_qs + element.name + "=" + element.value;
 
 			info_counter++;
 		}
@@ -601,12 +602,14 @@ function dataKeepPopup(page) {
 	var info_counter = 0;
 
 	for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-		if ((document.forms["pubForm"].elements[i].value != "") &&
-            (document.forms["pubForm"].elements[i].value != null)) {
+        var element = document.forms["pubForm"].elements[i];
+		if ((element.type != "submit") && (element.type != "reset")
+            && (element.type != "button") && (element.type != "radio")
+            && (element.value != "") && (element.value != null)) {
 			if (info_counter > 0) {
                 temp_qs = temp_qs + "&";
 			}
-			if (document.forms["pubForm"].elements[i].name == "authors[]") {
+			if (element.name == "authors[]") {
 				author_array = document.forms["pubForm"].elements['authors[]'];
 				var author_list = "";
 				var author_count = 0;
@@ -624,18 +627,16 @@ function dataKeepPopup(page) {
 
 				temp_qs = temp_qs + author_list;
 			}
-			else {
-				if(document.forms["pubForm"].elements[i].name == "comments"){
-					temp_qs = temp_qs + document.forms["pubForm"].elements[i].name
-                        + "=" + document.forms["pubForm"].elements[i].value.replace("\"","'");
-				}
-				else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "="
-                        + document.forms["pubForm"].elements[i].value;
-			}
+			else if(element.name == "comments") {
+                temp_qs = temp_qs + element.name
+                    + "=" + element.value.replace("\"","'");
+            }
+            else
+                temp_qs = temp_qs + element.name + "="
+                    + element.value;
 
-			info_counter++;
-		}
+            info_counter++;
+        }
 	}
 
 	if (page == "add_category.php") {
@@ -663,12 +664,13 @@ function dataKeepPopupWithID(page, id) {
 	var info_counter = 0;
 
 	for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-		if ((document.forms["pubForm"].elements[i].value != "") &&
-            (document.forms["pubForm"].elements[i].value != null)) {
+        var element = document.forms["pubForm"].elements[i];
+		if ((element.value != "") &&
+            (element.value != null)) {
 			if (info_counter > 0) {
                 temp_qs = temp_qs + "&";
 			}
-			if (document.forms["pubForm"].elements[i].name == "authors[]") {
+			if (element.name == "authors[]") {
 				author_array = document.forms["pubForm"].elements['authors[]'];
 				var author_list = "";
 				var author_count = 0;
@@ -686,11 +688,11 @@ function dataKeepPopupWithID(page, id) {
 				temp_qs = temp_qs + author_list;
 			}
 			else {
-				if(document.forms["pubForm"].elements[i].name == "comments"){
-					temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value.replace("\"","'");
+				if(element.name == "comments"){
+					temp_qs = temp_qs + element.name + "=" + element.value.replace("\"","'");
 				}
 				else
-                    temp_qs = temp_qs + document.forms["pubForm"].elements[i].name + "=" + document.forms["pubForm"].elements[i].value;
+                    temp_qs = temp_qs + element.name + "=" + element.value;
 			}
 
 			info_counter++;
@@ -803,7 +805,7 @@ foreach ($venue_list->list as $v) {
 $form->addElement('select', 'venue_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
 $form->addElement('button', 'add_venue', 'Add Venue',
-                  'onClick="dataKeepPopup(\'add_venue.php\');"');
+                  'onClick="dataKeepPopup(\'add_venue.php?popup=true\');"');
 
 
 // Category
