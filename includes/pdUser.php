@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.10 2006/06/05 23:33:42 aicmltec Exp $
+// $Id: pdUser.php,v 1.11 2006/06/06 16:12:59 aicmltec Exp $
 
 /**
  * \file
@@ -45,8 +45,6 @@ class pdUser {
         if (!isset($this->login)) return;
 
         $this->collaboratorsDbLoad($db);
-
-        print_r($this);
     }
 
     /**
@@ -70,7 +68,6 @@ class pdUser {
             }
             $db->query('INSERT INTO user_author (login, author_id) VALUES'
                        . implode(', ', $values));
-            print_r(implode(', ', $values));
         }
     }
 
@@ -82,8 +79,9 @@ class pdUser {
         assert('isset($this->login)');
 
         $q = $db->select(array('user_author', 'author'),
-                         array('DISTINCT author.author_id', 'author.name'),
-                         array('login' => $this->login),
+                         array('author.author_id', 'author.name'),
+                         array('user_author.login' => $this->login,
+                               'user_author.author_id=author.author_id'),
                          "pdUser::collaboratorsDbLoad");
         $r = $db->fetchObject($q);
         while ($r) {

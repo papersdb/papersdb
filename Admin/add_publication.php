@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.12 2006/06/05 23:33:42 aicmltec Exp $
+// $Id: add_publication.php,v 1.13 2006/06/06 16:12:59 aicmltec Exp $
 
 /**
  * \file
@@ -32,6 +32,7 @@ $db =& dbCreate();
 htmlHeader('add_publication', 'Add or Edit Publication');
 
 if (!$logged_in) {
+    echo '<body>';
     pageHeader();
     navMenu('add_publication');
     echo "<div id='content'>\n";

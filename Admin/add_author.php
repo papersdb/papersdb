@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.8 2006/06/05 20:04:59 aicmltec Exp $
+// $Id: add_author.php,v 1.9 2006/06/06 16:12:59 aicmltec Exp $
 
 /**
  * \file
@@ -35,6 +35,7 @@ require_once 'HTML/Table.php';
 htmlHeader('add_author', 'Add Author');
 
 if (!$logged_in) {
+    echo '<body>';
     pageHeader();
     navMenu('add_publication');
     echo "<div id='content'>\n";
