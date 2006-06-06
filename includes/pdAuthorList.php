@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.5 2006/06/05 23:33:42 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.6 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -20,7 +20,7 @@ class pdAuthorList {
      */
     function pdAuthorList($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**

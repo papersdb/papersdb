@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.7 2006/05/30 00:09:07 aicmltec Exp $
+// $Id: pdCatList.php,v 1.8 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -24,7 +24,7 @@ class pdCatList {
      */
     function pdCatList($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**

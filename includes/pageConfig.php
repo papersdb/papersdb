@@ -13,6 +13,8 @@ $page_info = array(
     => array('Add Publication', 'Admin/add_publication.php', 2),
     'add_author'
     => array('Add Author', 'Admin/add_author.php', 2),
+    'add_venue'
+    => array('Add Venue', 'Admin/add_venue.php', 2),
     'edit_user'
     => array('Edit User', 'Admin/edit_user.php', 2),
     'advanced_search'

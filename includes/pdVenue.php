@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.1 2006/05/30 23:01:09 aicmltec Exp $
+// $Id: pdVenue.php,v 1.2 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -30,7 +30,7 @@ class pdVenue {
      */
     function pdVenue($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**
@@ -41,31 +41,83 @@ class pdVenue {
     function dbLoad(&$db, $id, $flags = 0) {
         $q = $db->selectRow('venue', '*', array('venue_id' => $id),
                          "pdPublication::dbLoadVenue");
-        $this->objLoad($q);
+        $this->load($q);
+    }
+
+    /**
+     *
+     */
+    function dbSaveNew(&$db) {
+        assert('is_object($db)');
+        $db->query('INSERT INTO venue '
+                   . '(venue_id, title, name, url, type, data, editor, date)'
+                   . 'VALUES (NULL, "' . $this->title .'", '
+                   . '"' . $this->name . '", '
+                   . '"' . $this->url . '", '
+                   . '"' . $this->type . '", '
+                   . '"' . $this->data . '", '
+                   . '"' . $this->editor . '", '
+                   . '"' . $this->date . '")');
+    }
+
+    /**
+     *
+     */
+    function dbSave(&$db) {
+        assert('is_object($db)');
+        assert('isset($this->venue_id)');
+        $db->update('venue',
+                    array('title' => $this->title,
+                          'name' => $this->name,
+                          'url' => $this->url,
+                          'type' => $this->type,
+                          'data' => $this->data,
+                          'editor' => $this->editor,
+                          'date' => $this->date),
+                    array('venue_id' => $this->venue_id),
+                    'pdUser::dbSave');
     }
 
     /**
      * Loads publication data from the object passed in
      */
-    function objLoad($obj) {
-        if ($obj == NULL) return;
-
-        if (isset($obj->venue_id))
-            $this->venue_id = $obj->venue_id;
-        if (isset($obj->title))
-            $this->title = $obj->title;
-        if (isset($obj->name))
-            $this->name = $obj->name;
-        if (isset($obj->url))
-            $this->url = $obj->url;
-        if (isset($obj->type))
-            $this->type = $obj->type;
-        if (isset($obj->data))
-            $this->data = $obj->data;
-        if (isset($obj->editor))
-            $this->editor = $obj->editor;
-        if (isset($obj->date))
-            $this->date = $obj->date;
+    function load($o) {
+        if (is_object($o)) {
+            if (isset($o->venue_id))
+                $this->venue_id = $o->venue_id;
+            if (isset($o->title))
+                $this->title = $o->title;
+            if (isset($o->name))
+                $this->name = $o->name;
+            if (isset($o->url))
+                $this->url = $o->url;
+            if (isset($o->type))
+                $this->type = $o->type;
+            if (isset($o->data))
+                $this->data = $o->data;
+            if (isset($o->editor))
+                $this->editor = $o->editor;
+            if (isset($o->date))
+                $this->date = $o->date;
+        }
+        else if (is_array($o)) {
+            if (isset($o['venue_id']))
+                $this->venue_id = $o['venue_id'];
+            if (isset($o['title']))
+                $this->title = $o['title'];
+            if (isset($o['name']))
+                $this->name = $o['name'];
+            if (isset($o['url']))
+                $this->url = $o['url'];
+            if (isset($o['type']))
+                $this->type = $o['type'];
+            if (isset($o['data']))
+                $this->data = $o['data'];
+            if (isset($o['editor']))
+                $this->editor = $o['editor'];
+            if (isset($o['date']))
+                $this->date = $o['date'];
+        }
 
     }
 }

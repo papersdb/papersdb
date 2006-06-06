@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.11 2006/06/06 16:12:59 aicmltec Exp $
+// $Id: pdUser.php,v 1.12 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -30,7 +30,7 @@ class pdUser {
      */
     function pdUser($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**
@@ -40,7 +40,7 @@ class pdUser {
         assert('is_object($db)');
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
-        $this->objLoad($q);
+        $this->load($q);
 
         if (!isset($this->login)) return;
 
@@ -115,7 +115,7 @@ class pdUser {
     /**
      * Loads publication data from the object passed in
      */
-    function objLoad($obj) {
+    function load($obj) {
         if ($obj == NULL) return;
 
         if (isset($obj->login))

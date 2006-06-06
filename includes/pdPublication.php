@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.8 2006/06/02 20:44:54 aicmltec Exp $
+// $Id: pdPublication.php,v 1.9 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -53,7 +53,7 @@ class pdPublication {
         $this->paper = 'No Paper';
 
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**
@@ -68,7 +68,7 @@ class pdPublication {
 
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
-        $this->objLoad($q);
+        $this->load($q);
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
             $q = $db->selectRow('pub_cat', '*', array('pub_id' => $id),
@@ -177,7 +177,7 @@ class pdPublication {
     /**
      * Loads publication data from the object passed in
      */
-    function objLoad(&$obj) {
+    function load(&$obj) {
         if ($obj == NULL) return;
 
         if (isset($obj->pub_id))

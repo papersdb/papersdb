@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.1 2006/05/25 16:44:55 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.2 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -24,7 +24,7 @@ class pdAuthInterests {
      */
     function pdAuthInterests($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**

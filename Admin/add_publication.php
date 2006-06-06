@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.13 2006/06/06 16:12:59 aicmltec Exp $
+// $Id: add_publication.php,v 1.14 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -802,6 +802,8 @@ foreach ($venue_list->list as $v) {
 }
 $form->addElement('select', 'venue_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
+$form->addElement('button', 'add_venue', 'Add Venue',
+                  'onClick="dataKeepPopup(\'add_venue.php\');"');
 
 
 // Category
@@ -815,6 +817,8 @@ foreach ($category_list->list as $cat) {
 }
 $form->addElement('select', 'category_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
+$form->addElement('button', 'add_category', 'Add Category',
+                  'onClick="dataKeepPopup(\'add_category.php\');"');
 
 if (isset($category) && is_object($category) && is_array($category->info)) {
     foreach ($category->info as $info_id => $name) {
@@ -837,7 +841,6 @@ else {
 }
 
 $form->addElement('hidden', 'num_authors', $num_authors);
-$form->addElement('submit', 'add_author', 'Add Author');
 $auth_list = new pdAuthorList();
 $auth_list->dbLoad($db);
 assert('is_array($auth_list->list)');
@@ -864,21 +867,23 @@ $authSelect->setButtonAttributes('moveup'  , array('class' => 'inputCommand'));
 $authSelect->setButtonAttributes('movedown', array('class' => 'inputCommand'));
 
 // template for a dual multi-select element shape
-$template = '
-<table{class}>
-<!-- BEGIN label_2 --><tr><th>{label_2}</th><!-- END label_2 -->
-<!-- BEGIN label_3 --><th>&nbsp;</th><th>{label_3}</th></tr><!-- END label_3 -->
-<tr>
-  <td>{selected}</td>
-  <td align="center">
-    {add}<br />{remove}<br /><br />{moveup}<br />{movedown}
-  </td>
-  <td>{unselected}</td>
-</tr>
-</table>
-{javascript}
-';
+$template =
+    '<table{class}>'
+    . '<!-- BEGIN label_2 --><tr><th>{label_2}</th><!-- END label_2 -->'
+    . '<!-- BEGIN label_3 --><th>&nbsp;</th><th>{label_3}</th></tr><!-- END label_3 -->'
+    . '<tr>'
+    . '  <td>{selected}</td>'
+    . '  <td align="center">'
+    . '    {add}<br />{remove}<br /><br />{moveup}<br />{movedown}'
+    . '  </td>'
+    . '  <td>{unselected}</td>'
+    . '</tr>'
+    . '</table>'
+    . '{javascript}';
 $authSelect->setElementTemplate($template);
+
+$form->addElement('button', 'add_author', 'Add Author',
+                  'onClick="dataKeepPopup(\'add_author.php?popup=true\');"');
 
 $form->addElement('textarea', 'abstract', null,
                   array('cols' => 60, 'rows' => 10));
@@ -888,6 +893,9 @@ if (isset($_GET['venue_id']) && ($_GET['venue_id'] == -2))
                       array('cols' => 60, 'rows' => 5));
 $form->addElement('textarea', 'extra_info', null,
                   array('cols' => 60, 'rows' => 5));
+$form->addElement('button', 'extra_info_select',
+                  'Select from a list of previously used information options',
+                  'onClick="dataKeepPopup(\'extra_info.php\');"');
 
 $form->addElement('hidden', 'ext', $ext);
 
@@ -980,13 +988,16 @@ $table->setAutoGrow(true);
 $table->addRow(array('<hr/>'), array('colspan' => 2));
 $table->addRow(array('Step 1:'));
 $table->addRow(array(helpTooltip('Publication Venue', 'venueHelp') . ':',
-                     $renderer->elementToHtml('venue_id')));
+                     $renderer->elementToHtml('venue_id')
+                     . ' ' . $renderer->elementToHtml('add_venue')));
 $table->addRow(array(helpTooltip('Category', 'categoryHelp') . ':',
-                                 $renderer->elementToHtml('category_id')));
+                     $renderer->elementToHtml('category_id')
+                     . ' ' . $renderer->elementToHtml('add_category')));
 $table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
                                  $renderer->elementToHtml('title')));
 $table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
-                     $renderer->elementToHtml('authors')));
+                     $renderer->elementToHtml('authors')
+                     . $renderer->elementToHtml('add_author')));
 $table->addRow(array(helpTooltip('Abstract', 'abstractHelp')
                      . ':<br/><div id="small">HTML Enabled</div>',
                      $renderer->elementToHtml('abstract')));
@@ -1028,7 +1039,8 @@ if (isset($_GET['venue_id']) && ($_GET['venue_id'] == -2)) {
 
 $table->addRow(array(helpTooltip('Extra Information', 'extraInfoHelp') . ':'
                      . '<br/><div id="small">optional</div>',
-                     $renderer->elementToHtml('extra_info')));
+                     $renderer->elementToHtml('extra_info')
+                     . $renderer->elementToHtml('extra_info_select')));
 
 // External Pointers
 if ($ext == 0) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.4 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.5 2006/06/06 21:11:12 aicmltec Exp $
 
 /**
  * \file
@@ -42,7 +42,7 @@ class pdAuthor {
      */
     function pdAuthor($obj = NULL) {
         if (!is_null($obj))
-            $this->objLoad($obj);
+            $this->load($obj);
     }
 
     /**
@@ -57,7 +57,7 @@ class pdAuthor {
 
         $q = $db->selectRow('author', '*', array('author_id' => $id),
                             "pdAuthor::dbLoad");
-        $this->objLoad($q);
+        $this->load($q);
 
         if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
             $this->interestsDbLoad($db);
@@ -121,7 +121,7 @@ class pdAuthor {
     /**
      * Loads author data from the object passed in
      */
-    function objLoad($obj) {
+    function load($obj) {
         assert('is_object($obj)');
 
         if (isset($obj->author_id))
