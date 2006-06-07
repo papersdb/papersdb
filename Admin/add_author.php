@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.9 2006/06/06 16:12:59 aicmltec Exp $
+// $Id: add_author.php,v 1.10 2006/06/07 02:19:36 aicmltec Exp $
 
 /**
  * \file
@@ -45,7 +45,7 @@ if (!$logged_in) {
 ?>
 
 <script language="JavaScript" type="text/JavaScript">
-    var authorPageHelp=
+    var addAuthorPageHelp=
     "This window is used to add an author to the database. In order to add "
     + "an author you need to input the author's first name, last name, "
     + "email address and organization. You must also select interet(s) that "
@@ -160,7 +160,7 @@ else {
     $newInterests = 0;
 }
 
-echo '<h3>' . helpTooltip('Add Author', 'authorPageHelp') . '</h3>';
+echo '<h3>' . helpTooltip('Add Author', 'addAuthorPageHelp') . '</h3>';
 
 $formAttr = array();
 if($_GET['popup'] != "false")

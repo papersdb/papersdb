@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.2 2006/06/06 23:12:31 aicmltec Exp $
+// $Id: add_category.php,v 1.3 2006/06/07 02:19:36 aicmltec Exp $
 
 /**
  * \file
@@ -36,11 +36,13 @@ $db =& dbCreate();
 
 $form = new HTML_QuickForm('catForm', 'post',
                            './add_publication.php?'.$_SERVER['QUERY_STRING'],
-                           'add_publication.php');
+                           'add_publication.php',
+                           array('onsubmit'
+                                 => 'setTimeout(\'self.close()\',0);'));
 $form->addElement('text', 'catname', null,
                   array('size' => 50, 'maxlength' => 250));
-$form->addRule('catname', 'category name cannot be empty',
-               'required', null, 'client');
+//$form->addRule('catname', 'category name cannot be empty',
+//               'required', null, 'client');
 
 // info list
 $info_list = new pdInfoList();
@@ -65,7 +67,8 @@ for ($i = 0; $i < $newFields; $i++) {
 
 $form->addElement('button', 'add_field', 'Add Field',
                   array('onClick' => 'dataKeep(' . ($newFields + 1) . ');'));
-$form->addElement('submit', 'Submit', 'Add Category');
+$form->addElement('submit', 'Submit', 'Add Category',
+                  array('onclick' => 'return verify();'));
 $form->addElement('reset', 'Reset', 'Reset');
 $form->addElement('submit', 'Cancel', 'Cancel',
                   array('onClick' => 'closewindow();'));
@@ -129,6 +132,12 @@ $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
     + "button to bring up additional fields where you can type in the name "
     + "of the related field you wish to add.";
 
+function verify() {
+	if (document.forms["catForm"].elements["catname"].value == "") {
+		alert("Please enter a name for the new category.");
+		return false;
+	}
+
     function dataKeep(num) {
 	var temp_qs = "";
 	var info_counter = 0;
@@ -168,6 +177,11 @@ function resetAll() {
 <?
 
 echo '<h3>' . helpTooltip('Add Category', 'addCategoryPageHelp') . '</h3>';
+
+if ($form->validate()) {
+    exit;
+}
+
 echo $renderer->toHtml(($table->toHtml()));
 echo '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
 echo "</body>\n</html>\n";

@@ -1,3 +1,36 @@
+<?php ;
+
+// $Id: extra_info.php,v 1.2 2006/06/07 02:19:36 aicmltec Exp $
+
+/**
+ * \file
+ *
+ * \brief
+ */
+
+ini_set("include_path", ini_get("include_path") . ":..");
+
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pageConfig.php';
+
+htmlHeader('add_venue', 'Add Category');
+
+if (!$logged_in) {
+    echo '<body>';
+    pageHeader();
+    echo "<div id='content'>\n";
+    loginErrorMessage();
+}
+
+$db =& dbCreate();
+
+$form = new HTML_QuickForm('extrainfoForm', 'post',
+                           './add_publication.php?'.$_SERVER['QUERY_STRING'],
+                           'add_publication.php');
+
+?>
+
 <html>
 <head>
 <title>Extra Information Options</title>
@@ -50,9 +83,9 @@ function add_to_array($entry, &$thearray){
 		for($a = 0; $a < count($temp_array2); $a++){
 			$temp_array2[$a] = trim($temp_array2[$a]);
 			if($temp_array2[$a] != "")
-				add_to_array($temp_array2[$a], $extra_info_array); 
+				add_to_array($temp_array2[$a], $extra_info_array);
 		}
-	}	
+	}
 	sort($extra_info_array);
 ?>
 
@@ -67,7 +100,7 @@ function dataKeep(num) {
 			if (info_counter > 0) {
 				temp_qs = temp_qs + "&";
 			}
-			
+
 			if (document.forms["extrainfoForm"].elements[i].type == 'checkbox') {
 				if (document.forms["extrainfoForm"].elements[i].checked != false) {
 					temp_qs = temp_qs + document.forms["extrainfoForm"].elements[i].name + "=" + document.forms["extrainfoForm"].elements[i].value;
@@ -76,11 +109,11 @@ function dataKeep(num) {
 			else {
 				temp_qs = temp_qs + document.forms["extrainfoForm"].elements[i].name + "=" + document.forms["extrainfoForm"].elements[i].value;
 			}
-			
+
 			info_counter++;
 		}
 	}
-	
+
 	temp_qs = temp_qs.replace(" ", "%20");
 	//location.reload("./add_category.php?<? echo $_SERVER['QUERY_STRING'] . "&newFields=" ?>" + num + "&" + temp_qs);
 	window.open("./extra_info.php?<? echo $_SERVER['QUERY_STRING'] ?>&" + temp_qs, "Add");
@@ -97,12 +130,12 @@ function resetAll() {
 <h3>Extra Information Options</h3>
 <? //echo $_SERVER['QUERY_STRING']
 ?>
-<form name="extrainfoForm" action="./add_publication.php?<? echo $_SERVER['QUERY_STRING'] ?>&#extra" method="POST" enctype="application/x-www-form-urlencoded" target="add_publication.php" onsubmit="setTimeout('self.close()',0);">
+<form name="extrainfoForm2" action="./add_publication.php?<? echo $_SERVER['QUERY_STRING'] ?>&#extra" method="POST" enctype="application/x-www-form-urlencoded" target="add_publication.php" onsubmit="setTimeout('self.close()',0);">
 	Select the extra information that fits your publication: <a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Add Category', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a>
 	<table border="0" cellspacing="0" cellpadding="6">
 	  <tr>
 		<td align="left">
-			<? 
+			<?
 				for($b = 0; $b < count($extra_info_array); $b++)  {
 					echo "<input name=\"extra[" . $b . "]\" type=\"checkbox\" value=\"" . str_replace("\"","'",$extra_info_array[$b]) . "\"";
 					echo ">" . $extra_info_array[$b] . "</input><br>";
@@ -120,7 +153,7 @@ function resetAll() {
 			<input type="hidden" name="extracount" value="<? echo count($extra_info_array); ?>">
 	</center>
 
-	
+
 </form>
 
 </body>
