@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.2 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: delete_venue.php,v 1.3 2006/06/07 23:15:47 aicmltec Exp $
 
 /**
  * \file
@@ -19,7 +19,7 @@ require_once 'includes/pdVenue.php';
 
 require_once 'HTML/QuickForm.php';
 
-htmlHeader('delete_venue', 'Add or Edit Venue');
+htmlHeader('delete_venue', 'Delete a Venue');
 pageHeader();
 navMenu('delete_venue');
 echo '<body>';
@@ -32,6 +32,7 @@ if (!$logged_in) {
 $db =& dbCreate();
 
 if (($_GET['confirm'] == 'yes') || ($_GET['confirm'] == 'check')) {
+    // get the venue id from POST or GET array
     if (isset($_POST['venue_id']) && ($_POST['venue_id'] != ''))
         $venue_id = intval($_POST['venue_id']);
     if (!isset($venue_id) && isset($_GET['venue_id'])

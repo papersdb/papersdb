@@ -1,38 +1,50 @@
-<?php
-	include 'header.php';
-?>
+<?php ;
 
-<html>
-<head>
-<title>Delete Author</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+// $Id: delete_author.php,v 1.2 2006/06/07 23:15:47 aicmltec Exp $
 
-<?	/* delete_author.php
-		This page first confirms that the user
-		would like to delete the specified author,
-		and then makes the actual deletion. Before
-		the author can removed though, it must not be 
-		in any publications. This is checked, and displays
-		the titles of all the publications the author is in.
+/**
+ * \file
+ *
+ * \brief Deletes an author from the database.
+ *
+ * This page first confirms that the user would like to delete the specified
+ * author, and then makes the actual deletion. Before the author can removed
+ * though, it must not be in any publications. This is checked, and displays
+ * the titles of all the publications the author is in.
+ */
 
-	*/
-	
-	
-	require('../functions.php');
-	echo "</head>";
-	/* Connecting, selecting database */
-	$link = connect_db();
+ini_set("include_path", ini_get("include_path") . ":..");
+
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pageConfig.php';
+require_once 'includes/pdVenueList.php';
+require_once 'includes/pdVenue.php';
+
+require_once 'HTML/QuickForm.php';
+
+htmlHeader('delete_author', 'Delete an Author');
+pageHeader();
+navMenu('delete_author');
+echo '<body>';
+echo "<div id='content'>\n";
+
+if (!$logged_in) {
+    loginErrorMessage();
+}
+
+$db =& dbCreate();
 
 	if (!isset($author_id) || author_id=="") {
 		die("Error: publication id not set.");
 	}
-	
+
 	/* Performing SQL query */
 	$author_query = "SELECT * FROM author WHERE author_id=$author_id";
 	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
 	$author_array = mysql_fetch_array($author_result, MYSQL_ASSOC);
 	$authorname = $author_array['name'];
-	
+
 	$author_query = "SELECT pub_id FROM pub_author WHERE author_id=$author_id";
 	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
 	$i = 0;
@@ -43,8 +55,8 @@
 		$pub_result = mysql_query($pub_query) or die("Query failed : " . mysql_error());
 		$pub_array = mysql_fetch_array($pub_result, MYSQL_ASSOC);
 		$titles[$i] = $pub_array['title'];
-		$i++;		
-	
+		$i++;
+
 	}
 	if($titles[0] != null)
 		{
@@ -74,10 +86,10 @@
 		exit();
 	}
 
-	
 
-	
-	
+
+
+
 ?>
 
 <body><h3>Delete Author</h3><br>
