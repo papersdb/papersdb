@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.16 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: index.php,v 1.17 2006/06/07 14:04:49 aicmltec Exp $
 
 /**
  * \file
@@ -23,7 +23,7 @@ $pub_query= $db->select('publication', '*', '', "index.php", array (
 
 $row= $db->fetchObject($pub_query);
 
-htmlHeader('Papers Database');
+htmlHeader('', 'Papers Database');
 echo "<body>\n";
 pageHeader();
 navMenu();

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.2 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdCategory.php,v 1.3 2006/06/07 14:04:49 aicmltec Exp $
 
 /**
  * \file
@@ -73,14 +73,23 @@ class pdCategory {
     /**
      * Loads publication data from the object passed in
      */
-    function load(&$obj) {
-        if ($obj == NULL) return;
-
-        if (isset($obj->cat_id))
-            $this->cat_id = $obj->cat_id;
-        if (isset($obj->category))
-            $this->category = $obj->category;
-
+    function load($mixed) {
+        if (is_object($mixed)) {
+            if (isset($mixed->cat_id))
+                $this->cat_id = $mixed->cat_id;
+            if (isset($mixed->category))
+                $this->category = $mixed->category;
+            if (isset($mixed->info))
+                $this->info = $mixed->info;
+        }
+        else if (is_array($mixed)) {
+            if (isset($mixed['cat_id']))
+                $this->cat_id = $mixed['cat_id'];
+            if (isset($mixed['category']))
+                $this->category = $mixed['category'];
+            if (isset($mixed['info']))
+                $this->info = $mixed['info'];
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.3 2006/06/07 02:19:36 aicmltec Exp $
+// $Id: add_category.php,v 1.4 2006/06/07 14:04:49 aicmltec Exp $
 
 /**
  * \file
@@ -22,15 +22,6 @@ require_once 'includes/pdInfoList.php';
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/Table.php';
-
-htmlHeader('add_venue', 'Add Category');
-
-if (!$logged_in) {
-    echo '<body>';
-    pageHeader();
-    echo "<div id='content'>\n";
-    loginErrorMessage();
-}
 
 $db =& dbCreate();
 
@@ -61,7 +52,7 @@ else
     $newFields = 0;
 
 for ($i = 0; $i < $newFields; $i++) {
-    $form->addElement('text', 'new_field' . $i, null,
+    $form->addElement('text', 'new_field[' . $i . ']', null,
                       array('size' => 50, 'maxlength' => 250));
 }
 
@@ -69,11 +60,11 @@ $form->addElement('button', 'add_field', 'Add Field',
                   array('onClick' => 'dataKeep(' . ($newFields + 1) . ');'));
 $form->addElement('submit', 'Submit', 'Add Category',
                   array('onclick' => 'return verify();'));
-$form->addElement('reset', 'Reset', 'Reset');
+$form->addElement('reset', 'Reset', 'Reset',
+                  array('onclick' => 'resetAll();'));
 $form->addElement('submit', 'Cancel', 'Cancel',
                   array('onClick' => 'closewindow();'));
 $form->addElement('hidden', 'newCatSubmitted', 'true');
-$form->addElement('hidden', 'numinfo', $counter + 1);
 
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
@@ -102,23 +93,34 @@ for ($i = 0; $i < $countDiv2; $i++) {
 
 for ($i = 0; $i < $newFields; $i++) {
     $table->addRow(array('Field Name:',
-                         $renderer->elementToHtml('new_field' . $i)));
+                         $renderer->elementToHtml('new_field[' . $i . ']')));
     $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                  array('colspan' => 2));
 }
 
 $table->addRow(array('',
                      $renderer->elementToHtml('Submit')
-                     . ' ' . $renderer->elementToHtml('Reset')
-                     . ' ' . $renderer->elementToHtml('Cancel')),
+                     . '&nbsp;' . $renderer->elementToHtml('Reset')
+                     . '&nbsp;' . $renderer->elementToHtml('Cancel')),
                array('', 'colspan' => 2));
 
 $table->updateCellAttributes($table->getRowCount() - 1, 1,
                              array('colspan' => 2));
 $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+$table->updateCellAttributes(1, 0, array('rowspan' => 2));
 
-?>
 
+if ($form->validate()) {
+    $form->freeze();
+    echo "<script language=\"JavaScript\">\n";
+    echo "setTimeout(\'self.close()\',0);\n\n";
+    echo "</script>\n";
+    exit;
+}
+
+htmlHeader('add_venue', 'Add Category');
+
+echo <<< JS_END
 <script language="JavaScript" type="text/JavaScript">
 
     var addCategoryPageHelp=
@@ -133,13 +135,14 @@ $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
     + "of the related field you wish to add.";
 
 function verify() {
-	if (document.forms["catForm"].elements["catname"].value == "") {
-		alert("Please enter a name for the new category.");
-		return false;
-	}
+    if (document.forms["catForm"].elements["catname"].value == "") {
+        alert("Please enter a name for the new category.");
+        return false;
+    }
+}
 
-    function dataKeep(num) {
-	var temp_qs = "";
+function dataKeep(num) {
+    var temp_qs = "";
 	var info_counter = 0;
 
 	for (i = 0; i < document.forms["catForm"].elements.length; i++) {
@@ -163,25 +166,25 @@ function verify() {
 	}
 
 	temp_qs = temp_qs.replace(" ", "%20");
-	window.open("./add_category.php?<? echo $_SERVER['QUERY_STRING'] ?>&newFields=" + num + "&" + temp_qs, "Add");
+	window.open("./add_category.php?{$_SERVER['QUERY_STRING']}&newFields="
+                + num + "&" + temp_qs, "Add");
 }
 function closewindow(){ window.close();}
 function resetAll() {
-	window.open("./add_category.php?<? echo $_SERVER['QUERY_STRING'] ?>&newFields=0", "Add");
+        window.open("./add_category.php?{$_SERVER['QUERY_STRING']}&newFields=0", "Add");
 }
 
 </script>
+JS_END;
+//$_SERVER['QUERY_STRING']&newFields="
 
-<body>
+echo '<body>';
 
-<?
-
-echo '<h3>' . helpTooltip('Add Category', 'addCategoryPageHelp') . '</h3>';
-
-if ($form->validate()) {
-    exit;
+if (!$logged_in) {
+    loginErrorMessage();
 }
 
+echo '<h3>' . helpTooltip('Add Category', 'addCategoryPageHelp') . '</h3>';
 echo $renderer->toHtml(($table->toHtml()));
 echo '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
 echo "</body>\n</html>\n";

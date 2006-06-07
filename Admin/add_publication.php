@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.15 2006/06/06 23:12:31 aicmltec Exp $
+// $Id: add_publication.php,v 1.16 2006/06/07 14:04:49 aicmltec Exp $
 
 /**
  * \file
@@ -209,11 +209,13 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
 }
 /////////////////////EDIT END///////////////////////////////////////
 
-while (!(strpos($category, "\\") === FALSE)) {
-    $category = stripslashes($category);
-}
+if (isset($_GET['category']))
+    while (!(strpos($_GET['category'], "\\") === FALSE)) {
+        $_GET['category'] = stripslashes($_GET['category']);
+    }
 
-while (!(strpos($title, "\\") === FALSE)) {
+if (isset($_GET['title']))
+while (!(strpos($_GET['title'], "\\") === FALSE)) {
     $title = stripslashes($title);
 }
 
@@ -361,8 +363,17 @@ if ($newAuthorSubmitted == "true") {
  this is here so that the newly added category can be
  instantly selected.
 */
-if ($newCatSubmitted == "true") {
-    /* Connecting, selecting database */
+print_r($_POST);
+
+if ($_POST['newCatSubmitted'] == "true") {
+    $category = new pdCategory();
+    $category->load(array('category' => $_POST['catname']));
+
+    if (isset($_POST['new_field']) && is_array($_POST['new_field'])) {
+        $category->load(array('info' => $_POST['new_field']));
+    }
+    print_r($category);
+
 
     /* Performing SQL query */
     $cat_query = "INSERT INTO category (cat_id, category) VALUES (NULL, \"$catname\")";
@@ -370,12 +381,12 @@ if ($newCatSubmitted == "true") {
 
     $unique_info_id_counter = 0;
 
-    for ($i = 0; $i < count($newField); $i++) {
-        if ($newField[$i] != "") {
-            $info_query = "INSERT INTO info (info_id, name) VALUES (NULL, \"$newField[$i]\")";
+    for ($i = 0; $i < count($new_field); $i++) {
+        if ($new_field[$i] != "") {
+            $info_query = "INSERT INTO info (info_id, name) VALUES (NULL, \"$new_field[$i]\")";
             $info_result = mysql_query($info_query) or die("Query failed : " . mysql_error());
 
-            $info_id_query = "SELECT info_id FROM info WHERE name=\"$newField[$i]\"";
+            $info_id_query = "SELECT info_id FROM info WHERE name=\"$new_field[$i]\"";
             $info_id_result = mysql_query($info_id_query) or die("Query failed: " . mysql_error());
             $info_id_temp_array =  mysql_fetch_array($info_id_result, MYSQL_ASSOC);
 
@@ -412,8 +423,8 @@ if ($newCatSubmitted == "true") {
         $cat_info_query = "INSERT INTO cat_info (cat_id, info_id) VALUES $temp";
         $cat_info_result = mysql_query($cat_info_query) or die("Query failed: " . mysql_error());
     }
-    $newCatSubmitted = "false";
-    $category = $catname;
+    $_POST['newCatSubmitted'] = "false";
+    $_GET['category'] = $catname;
 
     mysql_free_result($cat_id_result);
 
