@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.16 2006/06/07 14:04:49 aicmltec Exp $
+// $Id: add_publication.php,v 1.17 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -39,6 +39,11 @@ if (!$logged_in) {
     loginErrorMessage();
 }
 
+echo '<body>'
+. '<a name="Start"></a>';
+pageHeader();
+navMenu('add_publication');
+echo "<div id='content'>\n";
 
 //User's 10 most popular Authors
 function popularauthors(){
@@ -76,6 +81,7 @@ function popularauthors(){
 // to not be a boolean if we want to deal with more than 2 different
 // operations (save, new) on this page
 $edit = FALSE;
+
 //////////////////////EDIT START/////////////////////////////////
 // Check to see if we've been passed a publication ID
 if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
@@ -358,76 +364,31 @@ if ($newAuthorSubmitted == "true") {
 }
 
 /* Adding a new category
- This code takes input from add_category.php and
- adds the category to the database. Like the authors,
- this is here so that the newly added category can be
- instantly selected.
-*/
-print_r($_POST);
-
+ *
+ * This code takes input from add_category.php and adds the category to the
+ * database. Like the authors, this is here so that the newly added category
+ * can be instantly selected.
+ */
 if ($_POST['newCatSubmitted'] == "true") {
     $category = new pdCategory();
     $category->load(array('category' => $_POST['catname']));
 
+    if (isset($_POST['info']) && is_array($_POST['info'])) {
+        foreach ($_POST['info'] as $info_id => $name) {
+            if ($name != '')
+                $category->infoAdd($info_id, $name);
+        }
+    }
+
     if (isset($_POST['new_field']) && is_array($_POST['new_field'])) {
         $category->load(array('info' => $_POST['new_field']));
     }
-    print_r($category);
-
-
-    /* Performing SQL query */
-    $cat_query = "INSERT INTO category (cat_id, category) VALUES (NULL, \"$catname\")";
-    $cat_result = mysql_query($cat_query) or die("Query failed : " . mysql_error());
-
-    $unique_info_id_counter = 0;
-
-    for ($i = 0; $i < count($new_field); $i++) {
-        if ($new_field[$i] != "") {
-            $info_query = "INSERT INTO info (info_id, name) VALUES (NULL, \"$new_field[$i]\")";
-            $info_result = mysql_query($info_query) or die("Query failed : " . mysql_error());
-
-            $info_id_query = "SELECT info_id FROM info WHERE name=\"$new_field[$i]\"";
-            $info_id_result = mysql_query($info_id_query) or die("Query failed: " . mysql_error());
-            $info_id_temp_array =  mysql_fetch_array($info_id_result, MYSQL_ASSOC);
-
-            $info_id_array[$unique_info_id_counter] = $info_id_temp_array[info_id];
-            $unique_info_id_counter++;
-
-            mysql_free_result($info_id_result);
-        }
-    }
+    $category->dbSave($db);
 
     // update our information to sync with what we added to the db
-    $cat_id_query = "SELECT cat_id FROM category WHERE category=\"$catname\"";
-    $cat_id_result = mysql_query($cat_id_query) or die("Query failed: " . mysql_error());
+    $category->dbLoad($db, null, $_POST['catname']);
 
-    $cat_id_array = mysql_fetch_array($cat_id_result, MYSQL_ASSOC);
-    $cat_id = $cat_id_array[cat_id];
-
-    $temp = "";
-
-    //if there were additional fields associated with the category then add them to cat_info
-    if ($unique_info_id_counter!=0){
-
-        for ($i = 0; $i < $numInfo; $i++) {
-            if ($related[$i] != null) {
-                $temp .= " (" . $cat_id . "," . $related[$i] . "),";
-            }
-        }
-
-        for ($i = 0; $i < $unique_info_id_counter; $i++) {
-            $temp .= " (" . $cat_id . "," . $info_id_array[$i] . "),";
-        }
-
-        $temp = substr_replace($temp, "", (strlen($temp) - 1), strlen($temp));
-        $cat_info_query = "INSERT INTO cat_info (cat_id, info_id) VALUES $temp";
-        $cat_info_result = mysql_query($cat_info_query) or die("Query failed: " . mysql_error());
-    }
     $_POST['newCatSubmitted'] = "false";
-    $_GET['category'] = $catname;
-
-    mysql_free_result($cat_id_result);
-
 }
 
 if (!isset($_GET['ext']) || ($_GET['ext'] == ''))
@@ -662,6 +623,7 @@ function dataKeepPopup(page) {
     else {
         temp_url = "./" + page + "?" + temp_qs;
     }
+    temp_url += "&popup=true";
 	temp_url = temp_url.replace(" ", "%20");
 	temp_url = temp_url.replace("\"", "'");
 	if(page == "keywords.php")
@@ -771,11 +733,6 @@ if ($edit) {
 }
 
 // Venue
-if (isset($_GET['category_id']) && ($_GET['category_id'] != '')) {
-    $category = new pdCategory();
-    $category->dbLoad($db, $_GET['category_id']);
-}
-
 if (isset($_GET['venue_id']) && ($_GET['venue_id'] != "")
     && ($_GET['venue_id'] != -1) && ($_GET['venue_id'] != -2)) {
 
@@ -784,23 +741,18 @@ if (isset($_GET['venue_id']) && ($_GET['venue_id'] != "")
     $venue = new pdVenue();
     $venue->dbLoad($db, $venue_id);
 
-    if (($category->category == "")
-        || ($category->category == "In Conference")
-        || ($category->category == "In Workshop")
-        || ($category->category == "In Journal")) {
-        if ($venue->type == "Conference")
-            $category->category = "In Conference";
-        else if ($venue->type == "Workshop")
-            $category->category = "In Workshop";
-        else if ($venue->type == "Journal")
-            $category->category = "In Journal";
-    }
-
-    if(($venue->date != NULL) && ($venue->date != "")) {
-        $date = split("-", $venue->date);
-        $year = $date[0];
-        $month = $date[1];
-        $day = $date[2];
+    if (isset($category) && is_object($category)) {
+        if (($category->category == '')
+            || ($category->category == 'In Conference')
+            || ($category->category == 'In Workshop')
+            || ($category->category == 'In Journal')) {
+            if ($venue->type == 'conference')
+                $category->category = 'In Conference';
+            else if ($venue->type == 'workshop')
+                $category->category = 'In Workshop';
+            else if ($venue->type == 'journal')
+                $category->category = 'In Journal';
+        }
     }
 }
 
@@ -816,7 +768,7 @@ foreach ($venue_list->list as $v) {
 $form->addElement('select', 'venue_id', null, $options,
                   array('onChange' => "javascript:dataKeep('Start');"));
 $form->addElement('button', 'add_venue', 'Add Venue',
-                  'onClick="dataKeepPopup(\'add_venue.php?popup=true\');"');
+                  'onClick="dataKeepPopup(\'add_venue.php\');"');
 
 
 // Category
@@ -834,16 +786,15 @@ $form->addElement('button', 'add_category', 'Add Category',
                   'onClick="dataKeepPopup(\'add_category.php\');"');
 
 if (isset($category) && is_object($category) && is_array($category->info)) {
-    foreach ($category->info as $info_id => $name) {
-        $form->addElement('text', $name, null,
-                          array('size' => 70, 'maxlength' => 250));
+    foreach ($category->info as $info) {
+        $form->addElement('text', $info->name, null,
+                          array('size' => 50, 'maxlength' => 250));
     }
 }
 
 // title
 $form->addElement('text', 'title', null,
                   array('size' => 60, 'maxlength' => 250));
-
 
 // Authors
 if (!isset($_GET['num_authors'])) {
@@ -896,7 +847,7 @@ $template =
 $authSelect->setElementTemplate($template);
 
 $form->addElement('button', 'add_author', 'Add Author',
-                  'onClick="dataKeepPopup(\'add_author.php?popup=true\');"');
+                  'onClick="dataKeepPopup(\'add_author.php\');"');
 
 $form->addElement('textarea', 'abstract', null,
                   array('cols' => 60, 'rows' => 10));
@@ -964,9 +915,16 @@ $form->addElement('submit', 'Save', 'Add Publication');
 $form->addElement('reset', 'Clear', 'Clear');
 
 //
-//
+// Set form defaults
 //
 $form->setDefaults($_GET);
+
+if (isset($category) && is_object($category)) {
+    // using $form->setDefaults() does not work in this case
+    $element =& $form->getElement('category_id');
+    $element->setValue($category->cat_id);
+}
+
 if ($numMaterials > 0) {
     for ($i = 1; $i <= $numMaterials; $i++) {
         if (!isset($_GET['type' . $i]) || ($_GET['type' . $i] = '')) {
@@ -984,18 +942,17 @@ if ($ext > 0) {
             $defaults['extvalue'.$e] = "http://";
         if (!isset($_GET['extlink'.$e]) || $_GET['extlink'.$e] == '')
             $defaults['extlink'.$e] = "Title of link";
-        $form->setDefaults($defaults);
     }
+    $form->setDefaults($defaults);
 }
 
 $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
 $form->accept($renderer);
 
-$tableAttrs = array('width' => '100%',
-                    'border' => '0',
-                    'cellpadding' => '6',
-                    'cellspacing' => '0');
-$table = new HTML_Table($tableAttrs);
+$table = new HTML_Table(array('width' => '100%',
+                              'border' => '0',
+                              'cellpadding' => '6',
+                              'cellspacing' => '0'));
 $table->setAutoGrow(true);
 
 $table->addRow(array('<hr/>'), array('colspan' => 2));
@@ -1021,7 +978,7 @@ if (isset($venue) && is_object($venue)) {
     $cell2 = '';
 
     if ($venue->type != '')
-        $cell1 .= $venue->type;
+        $cell1 .= ucfirst($venue->type);
 
     if ($venue->url != '')
         $cell2 .= '<a href="' . $venue->url . '" target="_blank">';
@@ -1034,11 +991,11 @@ if (isset($venue) && is_object($venue)) {
 
     $table->addRow(array($cell1 . ':', $cell2));
 
-	if($venue->type == "Conference")
+	if($venue->type == 'conference')
 		$cell1 = 'Location:';
-	else if($venue->type == "Journal")
+	else if($venue->type == 'journal')
 		$cell1 = 'Publisher:';
-	else if($venue->type == "Workshop")
+	else if($venue->type == 'workshop')
 		$cell1 = 'Associated Conference:';
 
     $table->addRow(array($cell1, $venue->data));
@@ -1113,8 +1070,9 @@ $table->addRow(array(helpTooltip('Keywords', 'keywordsHelp') . ':',
 
 // Additional Information
 if (isset($category) && is_object($category) && is_array($category->info)) {
-    foreach ($category->info as $info_id => $name) {
-        $table->addRow(array($name . ':', $renderer->elementToHtml($name)));
+    foreach ($category->info as $info) {
+        $table->addRow(array($info->name . ':',
+                             $renderer->elementToHtml($info->name)));
     }
 }
 
@@ -1163,14 +1121,11 @@ $table->addRow(array('',
 $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
 // emphasize the 'step' cells
-$table->updateCellAttributes(1, 0, array('id' => 'emph_large'));
-$table->updateCellAttributes(13, 0, array('id' => 'emph_large'));
-
-echo '<body>'
-. '<a name="Start"></a>';
-pageHeader();
-navMenu('add_publication');
-echo "<div id='content'>\n";
+for ($i = 0 ; $i < $table->getRowCount(); $i++) {
+    if (($table->getCellContents($i, 0) == 'Step 1:')
+        || ($table->getCellContents($i, 0) == 'Step 2:'))
+        $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
+}
 
 echo '<h3>';
 if (isset($_GET['edit']))

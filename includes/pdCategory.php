@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.3 2006/06/07 14:04:49 aicmltec Exp $
+// $Id: pdCategory.php,v 1.4 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -39,12 +39,19 @@ class pdCategory {
      *
      * Use flags to load individual tables
      */
-    function dbLoad(&$db, $id, $flags = PD_CATEGORY_DB_LOAD_ALL) {
+    function dbLoad(&$db, $id, $name = null, $flags = PD_CATEGORY_DB_LOAD_ALL) {
         $this->dbLoadFlags = $flags;
 
-        $q = $db->select('category', '*', array('cat_id' => $id),
-                         "pdPublication::dbLoad");
-        $this->load($db->fetchObject($q));
+        if (isset($id)) {
+            $q = $db->select('category', '*', array('cat_id' => $id),
+                             "pdPublication::dbLoad");
+            $this->load($db->fetchObject($q));
+        }
+        else if (isset($name)) {
+            $q = $db->select('category', '*', array('category' => $name),
+                             "pdPublication::dbLoad");
+            $this->load($db->fetchObject($q));
+        }
 
         if (($flags & PD_CATEGORY_DB_LOAD_CATEGORY_INFO)
             && isset($this->cat_id)) {
@@ -56,6 +63,9 @@ class pdCategory {
     function dbLoadCategoryInfo(&$db) {
         assert ('isset($this->cat_id)');
 
+        // only load this once
+        if (count($this->info) > 0) return;
+
         $this->dbLoadFlags |= PD_CATEGORY_DB_LOAD_CATEGORY_INFO;
 
         $q = $db->select(array('info', 'cat_info'),
@@ -65,9 +75,54 @@ class pdCategory {
                          "pdCategory::dbLoadCategoryInfo");
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->info[$r->info_id] = $r->name;
+            $this->info[] = $r;
             $r = $db->fetchObject($q);
         }
+    }
+
+    /**
+     *
+     */
+    function dbSave(&$db) {
+        if (isset($this->cat_id)) {
+            $db->update('category', array('category' => $this->category),
+                        array('cat_id' => $this->cat_id), 'pdUser::dbSave');
+            dbSaveInfo($db);
+        }
+        else {
+            $db->query('INSERT INTO category (cat_id, category)'
+                       . 'VALUES (NULL, "' . $this->category . '")');
+            $this->dbSaveInfo($db);
+        }
+    }
+
+    function dbSaveInfo (&$db) {
+        if (!isset($this->info))  return;
+
+        foreach ($this->info as $info) {
+            if ($info->info_id = '') {
+                $db->query('INSERT INTO info (info_id, name)'
+                           . 'VALUES (NULL, "' . $info->name . '")');
+
+                $r = $db->selectRow('info', 'info_id',
+                                    array('name' => $info->name),
+                                    'pdPublication::dbSaveInfo');
+                $cat_info[] = '(' . $this->cat_id . ',' . $r->info_id . ')';
+            }
+        }
+
+        if (count($cat_info) > 0)
+            $db->query('INSERT INTO cat_info (cat_id, info_id)'
+                       . 'VALUES ' . implode(',', $cat_info));
+    }
+
+    function infoAdd($info_id, $name) {
+        assert('!is_null($info_id)');
+        assert('!is_null($name)');
+        $obj = new stdClass;
+        $obj->info_id = $info_id;
+        $obj->name = $name;
+        $this->info[] = $obj;
     }
 
     /**

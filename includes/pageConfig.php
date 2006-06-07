@@ -8,25 +8,28 @@
 
 require_once 'includes/check_login.php';
 
-$page_info = array(
-    'add_publication'
-    => array('Add Publication', 'Admin/add_publication.php', 2),
-    'add_author'
-    => array('Add Author', 'Admin/add_author.php', 2),
-    'add_venue'
-    => array('Add Venue', 'Admin/add_venue.php', 2),
-    'edit_user'
-    => array('Edit User', 'Admin/edit_user.php', 2),
-    'advanced_search'
-    => array('Advanced Search', 'advanced_search.php', 1),
-    'all_publications'
-    => array('All Publications', 'list_publication.php', 1),
-    'all_authors'
-    => array('All Authors', 'list_author.php', 1),
-    'logout'
-    => array('Logout', 'logout.php', 2),
-    'login'
-    => array('Login or Register', 'login.php', 0)
+$page_info = array('add_publication'
+                   => array('Add Publication', 'Admin/add_publication.php', 2),
+                   'add_author'
+                   => array('Add Author', 'Admin/add_author.php', 2),
+                   'add_venue'
+                   => array('Add Venue', 'Admin/add_venue.php', 2),
+                   'delete_venue'
+                   => array('Delete Venue', 'Admin/delete_venue.php', 2),
+                   'edit_user'
+                   => array('Edit User', 'Admin/edit_user.php', 2),
+                   'advanced_search'
+                   => array('Advanced Search', 'advanced_search.php', 1),
+                   'all_publications'
+                   => array('All Publications', 'list_publication.php', 1),
+                   'all_authors'
+                   => array('All Authors', 'list_author.php', 1),
+                   'all_venues'
+                   => array('All Venues', 'Admin/add_venue.php?status=view', 2),
+                   'logout'
+                   => array('Logout', 'logout.php', 2),
+                   'login'
+                   => array('Login or Register', 'login.php', 0)
     );
 
 function htmlHeader($page, $title, $redirect = '') {

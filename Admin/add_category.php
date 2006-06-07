@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.4 2006/06/07 14:04:49 aicmltec Exp $
+// $Id: add_category.php,v 1.5 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -39,11 +39,9 @@ $form->addElement('text', 'catname', null,
 $info_list = new pdInfoList();
 $info_list->dbLoad($db);
 assert('is_array($info_list->list)');
-$count = 0;
 foreach ($info_list->list as $info) {
-    $form->addElement('advcheckbox', 'related' . $count, null,
-                      $info->name);
-    $count++;
+    $form->addElement('advcheckbox', 'info[' . $info->info_id . ']', null,
+                      $info->name, null, array('', $info->name));
 }
 
 if (isset($_GET['newFields']) && ($_GET['newFields'] != ''))
@@ -79,15 +77,27 @@ $table->addRow(array('Category Name:', $renderer->elementToHtml('catname')));
 $table->updateCellAttributes($table->getRowCount() - 1, 1,
                              array('colspan' => 2));
 $countDiv2 = intval((count($info_list->list) + 1) /2);
+
+// assign info to the 2 columns
+$count = 0;
+foreach ($info_list->list as $info) {
+    if ($count < $countDiv2)
+        $col1[] = 'info[' . $info->info_id . ']';
+    else
+        $col2[] = 'info[' . $info->info_id . ']';
+    $count++;
+}
+
+// display info in table
 for ($i = 0; $i < $countDiv2; $i++) {
     $cell1 = '';
     if ($i == 0)
         $cell1 = 'Related Field(s):<br/>'
             . $renderer->elementToHtml('add_field');
-    $cell2 = $renderer->elementToHtml('related'.$i);
+    $cell2 = $renderer->elementToHtml($col1[$i]);
     $cell3 = '';
     if ($countDiv2 + $i < count($info_list->list))
-        $cell3 = $renderer->elementToHtml('related'.($countDiv2 + $i));
+        $cell3 = $renderer->elementToHtml($col2[$i]);
     $table->addRow(array($cell1, $cell2, $cell3));
 }
 
@@ -110,13 +120,13 @@ $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 $table->updateCellAttributes(1, 0, array('rowspan' => 2));
 
 
-if ($form->validate()) {
-    $form->freeze();
-    echo "<script language=\"JavaScript\">\n";
-    echo "setTimeout(\'self.close()\',0);\n\n";
-    echo "</script>\n";
-    exit;
-}
+//if ($form->validate()) {
+//    $form->freeze();
+//    echo "<script language=\"JavaScript\">\n";
+//    echo "setTimeout(\'self.close()\',0);\n\n";
+//    echo "</script>\n";
+//    exit;
+//}
 
 htmlHeader('add_venue', 'Add Category');
 

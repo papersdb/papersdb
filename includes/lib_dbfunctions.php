@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.3 2006/05/25 01:36:18 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.4 2006/06/07 23:08:37 aicmltec Exp $
 
   /**
    * \file
@@ -78,11 +78,17 @@ function wfProfileIn($str) {}
 function wfProfileOut($str) { echo $str . "<br/>\n"; }
 function wfLogDBError( $text ) {}
 function wfGetSiteNotice() {}
-function wfErrorExit() { die(); }
+function wfErrorExit() {
+    die();
+    print_r(debug_backtrace());
+}
 function wfSetBit( &$dest, $bit, $state = true ) {}
 function wfSuppressWarnings( $end = false ) {}
 function wfRestoreWarnings() {}
-function wfDebugDieBacktrace( $msg = '' ) { die($msg); }
+function wfDebugDieBacktrace( $msg = '' ) {
+    die($msg);
+    print_r(debug_backtrace());
+}
 function wfSetVar( &$dest, $source ) {}
 
 ?>

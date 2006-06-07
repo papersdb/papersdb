@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.9 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdPublication.php,v 1.10 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -74,7 +74,8 @@ class pdPublication {
             $q = $db->selectRow('pub_cat', '*', array('pub_id' => $id),
                              "pdPublication::dbLoad");
             $this->category = new pdCategory();
-            $this->category->dbLoad($db, $q->cat_id, PD_CATEGORY_DB_LOAD_BASIC);
+            $this->category->dbLoad($db, $q->cat_id, null,
+                                    PD_CATEGORY_DB_LOAD_BASIC);
         }
 
         // some categories are not defined
@@ -83,19 +84,15 @@ class pdPublication {
             $this->category->dbLoadCategoryInfo($db);
 
             if (is_array($this->category->info)) {
-                foreach ($this->category->info as $info_id => $name) {
-                    $q = $db->select('pub_cat_info',
-                                     'value',
-                                     array('info_id'
-                                           => quote_smart($info_id),
-                                           'pub_id'
-                                           => quote_smart($id),
-                                           'cat_id'
-                                           => quote_smart($this->category->cat_id)),
+                foreach ($this->category->info as $info) {
+                    $q = $db->select('pub_cat_info', array('value'),
+                                     array('pub_id' => $id,
+                                           'cat_id' => quote_smart($this->category->cat_id),
+                                           'info_id' => quote_smart($info->info_id)),
                                      "pdPublication::dbLoad");
                     $r = $db->fetchObject($q);
                     while ($r) {
-                        $this->info[$name] = $r->value;
+                        $this->info[$info->name] = $r->value;
                         $r = $db->fetchObject($q);
                     }
                 }

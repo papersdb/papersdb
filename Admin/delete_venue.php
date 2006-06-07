@@ -1,108 +1,92 @@
-<?php
-	include 'header.php';
-?>
+<?php ;
 
-<html>
-<head>
-<title>Delete Venue</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+// $Id: delete_venue.php,v 1.2 2006/06/07 23:08:37 aicmltec Exp $
 
-<?
-	/* delete_venue.php
-		This page confirms that the user would
-		like to delete the selected venue, and 
-		then removes it from the database.
-	*/
-	require('../functions.php');
-	echo "</head>";
-	/* Connecting, selecting database */
-	$link = connect_db();
-	if ($confirm == "yes"){
-	/* This is where the actual deletion happens. */
-	if ($venue != null) {
-		
-		$venue_query = "SELECT title FROM venue WHERE venue_id=$venue";
-		$venue_result = mysql_query($venue_query) or die("Query failed : " . mysql_error());
-		$venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC);
-		$title = $venue_line[title];
-		$query = "DELETE FROM venue WHERE venue_id=$venue";
-		query_db($query);
-		
-		echo "<body>You have successfully removed the following venue from the database: <b>$title </b>";
-		echo "<b><br><a href=\"delete_venue.php\">Delete another venue</a>";
-		echo "<br><a href=\"add_venue.php?status=view\">Back to Venues Page</a>";
-		echo "<br><a href=\"./\">Back to Admin Page</a>";
-		echo "<br><br></b></body></html>";
-		disconnect_db($link);
-		exit();
-	}
-	}
-	if($confirm == "check")
-	{
-		$venue_query = "SELECT title FROM venue WHERE venue_id=$venue";
-		$venue_result = mysql_query($venue_query) or die("Query failed : " . mysql_error());
-		$venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC);
-		$title = $venue_line[title];
-		echo "<BR><h3>Are you sure you want to delete the venue <B>".$title."</B>?</h3><BR>";
-		?>
-		<form name="delete" action="./delete_venue.php?confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-		<input type="hidden" name="venue" value="<? echo $venue; ?>">
-		<input type="SUBMIT" value="Yes" class="text">
-		<input type="button" value="No" onclick="javascript:backtoAdmin();">
-		</form>
-		<?
-		exit();
-	}
+/**
+ * \file
+ *
+ * \brief This page confirms that the user would like to delete the selected
+ * venue, and then removes it from the database.
+ */
 
-$venue_query = "SELECT * FROM venue";
-$venue_result = mysql_query($venue_query) or die("Query failed : " . mysql_error());
-?>
+ini_set("include_path", ini_get("include_path") . ":..");
 
-<SCRIPT LANGUAGE="JavaScript">
-function backtoAdmin(){
-location.href=("index.php");
+require_once 'includes/functions.php';
+require_once 'includes/check_login.php';
+require_once 'includes/pageConfig.php';
+require_once 'includes/pdVenueList.php';
+require_once 'includes/pdVenue.php';
+
+require_once 'HTML/QuickForm.php';
+
+htmlHeader('delete_venue', 'Add or Edit Venue');
+pageHeader();
+navMenu('delete_venue');
+echo '<body>';
+echo "<div id='content'>\n";
+
+if (!$logged_in) {
+    loginErrorMessage();
 }
-</SCRIPT>
 
+$db =& dbCreate();
 
+if (($_GET['confirm'] == 'yes') || ($_GET['confirm'] == 'check')) {
+    if (isset($_POST['venue_id']) && ($_POST['venue_id'] != ''))
+        $venue_id = intval($_POST['venue_id']);
+    if (!isset($venue_id) && isset($_GET['venue_id'])
+        && ($_GET['venue_id'] != ''))
+        $venue_id = intval($_GET['venue_id']);
 
-<body><h3>Delete Venue</h3><br>
-<form name="deleter" action="./delete_venue.php?confirm=check" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-	<table width="750" border="0" cellspacing="0" cellpadding="6">
-	<tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Select a venue to delete: </b></font></td>
-		<td width="75%">
-			<select name="venue" onChange="dataKeep();">
-				<option value="">--- Please Select a Venue ---</option>
-				<? 
-					while ($venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC)) {
-						echo "<option value=\"" . $venue_line[venue_id] . "\"";
+    if (!isset($venue_id))
+        errorMessage();
 
-						if (stripslashes($venue) == $venue_line[venue_id])
-							echo " selected";
+    $venue = new pdVenue();
+    $venue->dbLoad($db, $venue_id);
+}
 
-						echo ">" . $venue_line[title] . "</option>";
-				 	}
-				?>
-			</select>
-		</td>
-	  </tr>
-	  <tr>
-	  	  
-		<td width="100%" colspan="2">
-		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
-		  <input type="button" value="Cancel" onclick="javascript:backtoAdmin();">
-		 &nbsp; &nbsp; &nbsp;</td>
-	  </form>
-	  </tr>
-	</table>
-	<? back_button(); ?>
-</body>
-</html>
+if ($_GET['confirm'] == 'yes') {
+    $venue->dbDelete($db);
 
-<?
-	/* Free resultset */
+    echo 'You have successfully removed the following venue from the '
+        . 'database: <br/><b>' . $venue->title . '</b>';
+}
+else if ($_GET['confirm'] == 'check')	{
+    echo '<br/><h3>Are you sure you want to delete the venue titled:<br/>'
+        . '<b>' . $venue->title . "</b>?</h3><br/>";
 
-	/* Closing connection */
-	disconnect_db($link);
+    $form = new HTML_QuickForm('delete', 'post',
+                               './delete_venue.php?confirm=yes', '_self',
+                               'multipart/form-data');
+    $form->addElement('submit', 'Submit', 'Yes');
+    $form->addElement('submit', 'Cancel', 'Cancel',
+                      array('onClick' => 'history.back();'));
+    $form->addElement('hidden', 'venue_id', $venue->venue_id);
+    $form->display();
+}
+else {
+    $form = new HTML_QuickForm('deleter', 'post',
+                               './delete_venue.php?confirm=check', '_self',
+                               'multipart/form-data');
+
+    $venue_list = new pdVenueList();
+    $venue_list->dbLoad($db);
+    assert('is_array($venue_list->list)');
+    foreach ($venue_list->list as $v) {
+        $options[$v->venue_id] = $v->title;
+    }
+    $form->addElement('select', 'venue_id', 'Select a venue to delete:',
+                      $options, array('onChange' => "dataKeep();"));
+
+    $form->addElement('submit', 'Submit', 'Delete');
+    $form->addElement('submit', 'Cancel', 'Cancel',
+                      array('onClick' => 'history.back();'));
+
+    $form->display();
+}
+
+echo '</div>';
+pageFooter();
+$db->close();
+
 ?>

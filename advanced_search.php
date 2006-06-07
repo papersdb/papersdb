@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.20 2006/06/06 23:12:31 aicmltec Exp $
+// $Id: advanced_search.php,v 1.21 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -180,8 +180,8 @@ function createFormElements(&$form, &$db) {
                       array('size' => 60, 'maxlength' => 250));
 
     if (is_object($category) && is_array($category->info)) {
-        foreach ($category->info as $name) {
-            $form->addElement('text', strtolower($name), null,
+        foreach ($category->info as $info) {
+            $form->addElement('text', strtolower($info->name), null,
                               array('size' => 60, 'maxlength' => 250));
         }
     }
@@ -244,8 +244,8 @@ function setFormValues(&$form) {
     $defaultValues['datecheck']         = 'yes';
 
     if (is_object($category) && is_array($category->info)) {
-        foreach ($category->info as $name) {
-            $defaultValues[strtolower($name)] = $_GET[$name];
+        foreach ($category->info as $info) {
+            $defaultValues[strtolower($info->name)] = $_GET[$info->name];
         }
     }
 
@@ -311,9 +311,10 @@ function createTable(&$db, &$renderer) {
                          $renderer->elementToHtml('keywords')));
 
     if (is_object($category) && is_array($category->info)) {
-        foreach ($category->info as $name) {
-            $table->addRow(array($name . ':',
-                                 $renderer->elementToHtml(strtolower($name))));
+        foreach ($category->info as $info) {
+            $table->addRow(array($info->name . ':',
+                                 $renderer->elementToHtml(
+                                     strtolower($info->name))));
         }
     }
 

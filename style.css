@@ -148,6 +148,10 @@ div#nav li {
 div#content {
   margin-top:8px;
   margin-left:200px;
+  min-height: 240px;
+  margin-bottom: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
   width: 600px;
   background-color: #FFFFFF;
 }

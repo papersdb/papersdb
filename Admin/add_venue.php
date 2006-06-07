@@ -1,11 +1,11 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.3 2006/06/06 23:12:31 aicmltec Exp $
+// $Id: add_venue.php,v 1.4 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
  *
- * \brief This page, displays, edits and adds venues.
+ * \brief This page displays, edits and adds venues.
  *
  * Depending on a the varaible passed is what segment of the page is used.  If
  * $status == view then, it displays a list of all the venues and some
@@ -57,7 +57,7 @@ if ($_GET['submit'] == 'true') {
     $venue->title = str_replace("\"","'", $venue->title);
 
     if(!isset($venue->venue_id) || ($venue->venue_id == '')) {
-        $venue->dbSaveNew($db);
+        $venue->dbSave($db);
 
         echo '<body onLoad="window.opener.location.reload(); window.close();">';
 
@@ -164,7 +164,7 @@ if($_GET['status'] == 'view') {
     foreach ($venue_list->list as $v) {
         $venue->dbLoad($db, $v->venue_id);
         $cell1 = '<b>' . $venue->title . '</b><br/><b>'
-            . $venue->type . '</b>:&nbsp;';
+            . ucfirst($venue->type) . '</b>:&nbsp;';
         if ($venue->url != '')
             $cell1 .= '<a href="' . $venue->url . '" target="_blank">';
         $cell1 .= $venue->name;
@@ -172,11 +172,11 @@ if($_GET['status'] == 'view') {
             $cell1 .= '</a>';
         if ($venue->data != '') {
             $cell1 .= '<br/>';
-            if($venue->type == 'Conference')
+            if($venue->type == 'conference')
                 $cell1 .= '<b>Location:&nbsp;</b>';
-            else if($venue->type == 'Journal')
+            else if($venue->type == 'journal')
                 $cell1 .= '<b>Publisher:&nbsp;</b>';
-            else if($venue->type == 'Workshop')
+            else if($venue->type == 'workshop')
                 $cell1 .= '<b>Associated Conference:&nbsp;</b>';
             $cell1 .= $venue->data;
         }

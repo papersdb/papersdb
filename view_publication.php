@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.19 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: view_publication.php,v 1.20 2006/06/07 23:08:37 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ require_once 'includes/pdPublication.php';
 
 require_once 'HTML/Table.php';
 
-htmlHeader('View Publication');
+htmlHeader(null, 'View Publication');
 echo "<body>\n";
 pageHeader();
 navMenu();
@@ -223,9 +223,9 @@ function keywordsGet(&$pub) {
 
 function infoRowsAdd(&$pub, &$table) {
     if (!is_array($pub->info)) return;
-    foreach ($pub->info as $key => $value) {
-        if($key!= "") {
-            $table->addRow(array($key . ":", $value));
+    foreach ($pub->info as $name => $value) {
+        if($name != "") {
+            $table->addRow(array($name . ":", $value));
         }
     }
 }
