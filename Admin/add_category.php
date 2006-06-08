@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.5 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: add_category.php,v 1.6 2006/06/08 13:50:08 aicmltec Exp $
 
 /**
  * \file
@@ -119,14 +119,6 @@ $table->updateCellAttributes($table->getRowCount() - 1, 1,
 $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 $table->updateCellAttributes(1, 0, array('rowspan' => 2));
 
-
-//if ($form->validate()) {
-//    $form->freeze();
-//    echo "<script language=\"JavaScript\">\n";
-//    echo "setTimeout(\'self.close()\',0);\n\n";
-//    echo "</script>\n";
-//    exit;
-//}
 
 htmlHeader('add_venue', 'Add Category');
 
