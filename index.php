@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.18 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: index.php,v 1.19 2006/06/08 23:42:34 aicmltec Exp $
 
 /**
  * \file
@@ -14,10 +14,13 @@
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
 
+/**
+ * Renders the whole page.
+ */
 class indexPage extends pdHtmlPage {
     function indexPage() {
         parent::pdHtmlPage('index');
-        $this->db= & dbCreate();
+        $this->db =& dbCreate();
         $pub_list = new pdPubList($this->db, null, -1, true);
 
         $this->contentAdd('Recent Additions:<ul>');

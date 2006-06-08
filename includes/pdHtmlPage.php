@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.1 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.2 2006/06/08 23:42:34 aicmltec Exp $
 
 /**
  * \file
@@ -31,11 +31,13 @@ class pdHtmlPage {
     var $loginLevel;
     var $db;
     var $loginError;
+    var $pageError;
     var $table;
     var $form;
     var $renderer;
     var $js;
     var $content;
+    var $contentPost;
 
     /**
      * Constructor.
@@ -51,6 +53,11 @@ class pdHtmlPage {
         $this->form        = null;
         $this->renderer    = null;
         $this->loginError  = false;
+        $this->pageError   = false;
+    }
+
+    function contentAdd($content) {
+        $this->content .= $content;
     }
 
     function contentAdd($content) {
@@ -68,7 +75,10 @@ class pdHtmlPage {
         $result .= $this->navMenu($this->page_id);
         $result .= '<div id="content">';
         if ($this->loginError) {
-            $result .= loginErrorMessage();
+            $result .= $this->loginErrorMessage();
+        }
+        else if ($this->pageError) {
+            $result .= $this->errorMessage();
         }
         else {
             $result .= $this->content;
@@ -79,7 +89,7 @@ class pdHtmlPage {
             else {
                 assert ('($this->form == null)');
                 if ($this->table != null)
-                    $result .= $form->toHtml();
+                    $result .= $this->table->toHtml();
             }
         }
 
