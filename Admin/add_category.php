@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.6 2006/06/08 13:50:08 aicmltec Exp $
+// $Id: add_category.php,v 1.7 2006/06/08 22:44:42 aicmltec Exp $
 
 /**
  * \file
@@ -18,10 +18,6 @@ require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 require_once 'includes/pageConfig.php';
 require_once 'includes/pdInfoList.php';
-
-require_once 'HTML/QuickForm.php';
-require_once 'HTML/QuickForm/advmultiselect.php';
-require_once 'HTML/Table.php';
 
 $db =& dbCreate();
 

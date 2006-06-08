@@ -57,30 +57,6 @@ function quote_smart($value) {
 	return $value;
 }
 
-function loginErrorMessage(){
-	echo '<br/>'
-        . '<h4>You must be logged in to access this page.</h4>'
-        . '<br/>'
-        . '<br/>'
-        . '<br/>'
-        . '<br/>'
-        . '<br/>';
-    echo "</div>\n";
-    pageFooter();
-	exit;
-}
-
-function errorMessage(){
-	echo '<br/>'
-        . '<h4>There was a problem handling your request.'
-        . '<br/>Please go back and try again.</h4>'
-        . '<br/>';
-    back_button();
-    echo "</div>\n";
-    pageFooter();
-	exit;
-}
-
 // Handy back button usually used at the end of pages.
 function back_button()
 {
@@ -367,26 +343,6 @@ function get_venue_info($venue) {
 	return $output;
 }
 
-function pageHeader() {
-    echo <<<END
-<div id="titlebar">
-        <a href="http://www.uofaweb.ualberta.ca/science/">
-        <img src="http://www.cs.ualberta.ca/library/images/science.gif"
-        alt="Faculty of Science Home Page" width="525" height="20"
-        border="0"/></a>
-        <a href="http://www.ualberta.ca/">
-        <img src="http://www.cs.ualberta.ca/library/images/uofa_top.gif"
-        alt="University of Alberta Home Page" width="225" height="20"
-        border="0"/></a>
-    </div>
-
-<div id="header">
-        <h1>Papers Database</h1>
-    </div>
-
-END;
-}
-
 function quickSearchFormCreate() {
     $form = new HTML_QuickForm('quickPubForm', 'post',
                                'search_publication_db.php', '_self',
@@ -403,28 +359,6 @@ function quickSearchFormCreate() {
     $form->addElement('submit', 'Quick', 'Search');
 
     return $form;
-}
-
-function pageFooter() {
-    echo <<<END
-<div id="footer">
-
-For any questions/comments about the Papers Database please e-mail
-<a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
-        <div class="ualogo">
-		<a href="http://www.ualberta.ca">
-        <img src="http://www.cs.ualberta.ca/library/images/uofa_logo.gif"
-        width="162" height="36" alt="University of Alberta Logo" />
-        </a>
-        </div>
-        <div id="copyright">
-		<ul>
-		<li>Copyright &copy; 2002-2006</li>
-                                 </ul>
-                                 </div>
-                                 </div>
-
-END;
 }
 
 /**

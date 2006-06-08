@@ -76,6 +76,10 @@ td#emph {
   font-weight: bold;
 }
 
+td#emph a {
+  text-decoration: none;
+}
+
 td#emph_large {
   font-weight: bold;
   font-size:18px;

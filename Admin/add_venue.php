@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.4 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: add_venue.php,v 1.5 2006/06/08 22:44:42 aicmltec Exp $
 
 /**
  * \file
@@ -149,214 +149,146 @@ if (!isset($_GET['popup']) || ($_GET['popup'] != 'true')) {
     echo "<div id='content'>\n";
 }
 
-if($_GET['status'] == 'view') {
-    $venue_list = new pdVenueList();
-    $venue_list->dbLoad($db);
-    $venue = new pdVenue();
+$venue = new pdVenue();
+if (isset($_GET['type']))
+    $venue->type = $_GET['type'];
 
-    $tableAttrs = array('width' => '100%',
-                        'border' => '0',
-                        'cellpadding' => '6',
-                        'cellspacing' => '0');
-    $table = new HTML_Table($tableAttrs);
-    $table->setAutoGrow(true);
+if($_GET['status'] == "change")
+    $venue->dbLoad($db, $_GET['venue_id']);
 
-    foreach ($venue_list->list as $v) {
-        $venue->dbLoad($db, $v->venue_id);
-        $cell1 = '<b>' . $venue->title . '</b><br/><b>'
-            . ucfirst($venue->type) . '</b>:&nbsp;';
-        if ($venue->url != '')
-            $cell1 .= '<a href="' . $venue->url . '" target="_blank">';
-        $cell1 .= $venue->name;
-        if ($venue->url != '')
-            $cell1 .= '</a>';
-        if ($venue->data != '') {
-            $cell1 .= '<br/>';
-            if($venue->type == 'conference')
-                $cell1 .= '<b>Location:&nbsp;</b>';
-            else if($venue->type == 'journal')
-                $cell1 .= '<b>Publisher:&nbsp;</b>';
-            else if($venue->type == 'workshop')
-                $cell1 .= '<b>Associated Conference:&nbsp;</b>';
-            $cell1 .= $venue->data;
-        }
-        if ($venue->editor != '')
-            $cell1 .= "<br><b>Editor:&nbsp;</b>" . $venue->editor;
+$form = new HTML_QuickForm('venueForm', 'post',
+                           './add_venue.php?submit=true');
 
-        $cell2 = '<a href="add_venue.php?status=change&venue_id='
-            . $venue->venue_id . '">Edit</a><br/>'
-            . '<a href="delete_venue.php?confirm=check&venue_id='
-            . $venue->venue_id . '">Delete</a>';
+if (!isset($_GET['popup']) || ($_GET['popup'] != 'true'))
+    $value = 'false';
+else
+    $value = 'true';
+$form->addElement('hidden', 'popup', $value);
 
-        $table->addRow(array($cell1, $cell2));
-	}
-
-    /* now assign table attributes including highlighting for even and odd
-     * rows */
-    for ($i = 0; $i < $table->getRowCount(); $i++) {
-        $table->updateCellAttributes($i, 0, array('class' => 'standard'));
-
-        if ($i & 1) {
-            $table->updateRowAttributes($i, array('class' => 'even'), true);
-        }
-        else {
-            $table->updateRowAttributes($i, array('class' => 'odd'), true);
-        }
-
-        if ($logged_in) {
-            $table->updateCellAttributes($i, 1, array('id' => 'emph',
-                                                      'class' => 'small'));
-            $table->updateCellAttributes($i, 2, array('id' => 'emph',
-                                                      'class' => 'small'));
-        }
-    }
-
-    echo '<h2><b><u>Publication Venues</u></b></h2>';
-    echo $table->toHtml();
+if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
+    $form->addElement('hidden', 'editmode', 'true');
+    $form->addElement('hidden', 'venue_id', $_GET['venue_id']);
 }
 else {
-    $venue = new pdVenue();
-    if (isset($_GET['type']))
-        $venue->type = $_GET['type'];
-
-    if($_GET['status'] == "change")
-        $venue->dbLoad($db, $_GET['venue_id']);
-
-    $form = new HTML_QuickForm('venueForm', 'post',
-                               './add_venue.php?submit=true');
-
-    if (!isset($_GET['popup']) || ($_GET['popup'] != 'true'))
-        $value = 'false';
-    else
-        $value = 'true';
-    $form->addElement('hidden', 'popup', $value);
-
-    if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
-        $form->addElement('hidden', 'editmode', 'true');
-        $form->addElement('hidden', 'venue_id', $_GET['venue_id']);
-    }
-    else {
-        if($_GET['popup'] == 'false')
-            $form->addElement('hidden', 'popup', 'false');
-    }
-
-    $form->addElement('radio', 'type', null, 'Journal', 'journal',
-                      array('onClick' => 'javascript:dataKeep();'));
-    $form->addElement('radio', 'type', null, 'Conference', 'conference',
-                      array('onClick' => 'javascript:dataKeep();'));
-    $form->addElement('radio', 'type', null, 'Workshop', 'workshop',
-                      array('onClick' => 'javascript:dataKeep();'));
-    $form->addElement('text', 'title', null,
-                      array('size' => 50, 'maxlength' => 250));
-    $form->addRule('title', 'venue title cannot be empty',
-                   'required', null, 'client');
-    $form->addElement('text', 'name', null,
-                      array('size' => 50, 'maxlength' => 250));
-    $form->addRule('name', 'venue name cannot be empty',
-                   'required', null, 'client');
-    $form->addElement('text', 'url', null,
-                      array('size' => 50, 'maxlength' => 250));
-    if (isset($venue) && ($venue->type != '')) {
-        $form->addElement('text', 'data', null,
-                          array('size' => 50, 'maxlength' => 250));
-        if ($venue->type == 'workshop')
-            $form->addElement('text', 'editor', null,
-                              array('size' => 50, 'maxlength' => 250));
-        if (($venue->type == 'conference') || ($venue->type == 'workshop'))
-            $form->addElement('text', 'date', null,
-                              array('size' => 10, 'maxlength' => 10));
-    }
-
-    if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
-        $form->addElement('hidden', 'id', 'true');
-        $form->addElement('submit', 'Submit', 'Edit Venue');
-    }
-    else {
-        $form->addElement('submit', 'Submit', 'Add Venue');
-    }
-
-    $form->addElement('reset', 'Reset', 'Reset');
-
-
     if($_GET['popup'] == 'false')
-        $form->addElement('submit', 'Cancel', 'Cancel',
-                          array('onClick' => 'history.back();'));
-    else
-        $form->addElement('submit', 'Cancel', 'Cancel',
-                          array('onClick' => 'closewindow();'));
-
-    $form->setDefaults($_GET);
-    if (isset($venue) && ($venue->venue_id != '')) {
-        $defaults['venue_id'] = $venue->venue_id;
-        $defaults['title']    = $venue->title;
-        $defaults['name']     = $venue->name;
-        $defaults['url']      = $venue->url;
-        $defaults['type']     = $venue->type;
-        $defaults['data']     = $venue->data;
-        $defaults['editor']   = $venue->editor;
-        $defaults['date']     = $venue->date;
-        $form->setDefaults($defaults);
-    }
-    $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-    $form->accept($renderer);
-
-    $table = new HTML_Table(array('width' => '100%',
-                                  'border' => '0',
-                                  'cellpadding' => '6',
-                                  'cellspacing' => '0'));
-    $table->setAutoGrow(true);
-
-    $table->addRow(array('Type:',
-                         $renderer->elementToHtml('type', 'journal')));
-    $table->addRow(array('',
-                         $renderer->elementToHtml('type', 'conference')));
-    $table->addRow(array('',
-                         $renderer->elementToHtml('type', 'workshop')));
-    $table->addRow(array('Internal Title:',
-                         $renderer->elementToHtml('title')));
-    $table->addRow(array('Venue Name:',
-                         $renderer->elementToHtml('name')));
-    $table->addRow(array('Venue URL:',
-                         $renderer->elementToHtml('url')));
-
-    if (isset($venue) && ($venue->type != '')) {
-        if ($venue->type == 'conference')
-            $cell1 = 'Location';
-        else if ($venue->type == 'journal')
-            $cell1 = 'Publisher';
-        else if ($venue->type == 'workshop')
-            $cell1 = 'Associated Conference';
-        $table->addRow(array($cell1 . ':',
-                             $renderer->elementToHtml('data')));
-
-        if ($venue->type == 'workshop')
-            $table->addRow(array('Editor:',
-                                 $renderer->elementToHtml('editor')));
-
-
-        if (($venue->type == 'conference') || ($venue->type == 'workshop'))
-            $table->addRow(array('Date:',
-                                 $renderer->elementToHtml('date')
-                                 . '<a href="javascript:doNothing()" '
-                                 . 'onClick="setDateField('
-                                 . 'document.venueForm.date);'
-                                 . 'top.newWin=window.open(\'../calendar.html\','
-                                 . '\'cal\',\'dependent=yes,width=230,height=250,'
-                                 . 'screenX=200,screenY=300,titlebar=yes\')">'
-                                 . '<img src="../calendar.gif" border=0></a> '
-                                 . '(yyyy-mm-dd) '));
-    }
-
-    $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
-
-
-    if(($_GET['status'] == "change")||($_GET['editmode'] == "true"))
-        echo '<h3>Edit Venue</h3>';
-    else
-        echo '<h3>Add Venue</h3>';
-    echo $renderer->toHtml(($table->toHtml())) . '</div>';
-
+        $form->addElement('hidden', 'popup', 'false');
 }
+
+$form->addElement('radio', 'type', null, 'Journal', 'journal',
+                  array('onClick' => 'javascript:dataKeep();'));
+$form->addElement('radio', 'type', null, 'Conference', 'conference',
+                  array('onClick' => 'javascript:dataKeep();'));
+$form->addElement('radio', 'type', null, 'Workshop', 'workshop',
+                  array('onClick' => 'javascript:dataKeep();'));
+$form->addElement('text', 'title', null,
+                  array('size' => 50, 'maxlength' => 250));
+$form->addRule('title', 'venue title cannot be empty',
+               'required', null, 'client');
+$form->addElement('text', 'name', null,
+                  array('size' => 50, 'maxlength' => 250));
+$form->addRule('name', 'venue name cannot be empty',
+               'required', null, 'client');
+$form->addElement('text', 'url', null,
+                  array('size' => 50, 'maxlength' => 250));
+if (isset($venue) && ($venue->type != '')) {
+    $form->addElement('text', 'data', null,
+                      array('size' => 50, 'maxlength' => 250));
+    if ($venue->type == 'workshop')
+        $form->addElement('text', 'editor', null,
+                          array('size' => 50, 'maxlength' => 250));
+    if (($venue->type == 'conference') || ($venue->type == 'workshop'))
+        $form->addElement('text', 'date', null,
+                          array('size' => 10, 'maxlength' => 10));
+}
+
+if(($_GET['status'] == "change")||($_GET['editmode'] == "true")) {
+    $form->addElement('hidden', 'id', 'true');
+    $form->addElement('submit', 'Submit', 'Edit Venue');
+}
+else {
+    $form->addElement('submit', 'Submit', 'Add Venue');
+}
+
+$form->addElement('reset', 'Reset', 'Reset');
+
+
+if($_GET['popup'] == 'false')
+    $form->addElement('submit', 'Cancel', 'Cancel',
+                      array('onClick' => 'history.back();'));
+else
+    $form->addElement('submit', 'Cancel', 'Cancel',
+                      array('onClick' => 'closewindow();'));
+
+$form->setDefaults($_GET);
+if (isset($venue) && ($venue->venue_id != '')) {
+    $defaults['venue_id'] = $venue->venue_id;
+    $defaults['title']    = $venue->title;
+    $defaults['name']     = $venue->name;
+    $defaults['url']      = $venue->url;
+    $defaults['type']     = $venue->type;
+    $defaults['data']     = $venue->data;
+    $defaults['editor']   = $venue->editor;
+    $defaults['date']     = $venue->date;
+    $form->setDefaults($defaults);
+}
+$renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+$form->accept($renderer);
+
+$table = new HTML_Table(array('width' => '100%',
+                              'border' => '0',
+                              'cellpadding' => '6',
+                              'cellspacing' => '0'));
+$table->setAutoGrow(true);
+
+$table->addRow(array('Type:',
+                     $renderer->elementToHtml('type', 'journal')));
+$table->addRow(array('',
+                     $renderer->elementToHtml('type', 'conference')));
+$table->addRow(array('',
+                     $renderer->elementToHtml('type', 'workshop')));
+$table->addRow(array('Internal Title:',
+                     $renderer->elementToHtml('title')));
+$table->addRow(array('Venue Name:',
+                     $renderer->elementToHtml('name')));
+$table->addRow(array('Venue URL:',
+                     $renderer->elementToHtml('url')));
+
+if (isset($venue) && ($venue->type != '')) {
+    if ($venue->type == 'conference')
+        $cell1 = 'Location';
+    else if ($venue->type == 'journal')
+        $cell1 = 'Publisher';
+    else if ($venue->type == 'workshop')
+        $cell1 = 'Associated Conference';
+    $table->addRow(array($cell1 . ':',
+                         $renderer->elementToHtml('data')));
+
+    if ($venue->type == 'workshop')
+        $table->addRow(array('Editor:',
+                             $renderer->elementToHtml('editor')));
+
+
+    if (($venue->type == 'conference') || ($venue->type == 'workshop'))
+        $table->addRow(array('Date:',
+                             $renderer->elementToHtml('date')
+                             . '<a href="javascript:doNothing()" '
+                             . 'onClick="setDateField('
+                             . 'document.venueForm.date);'
+                             . 'top.newWin=window.open(\'../calendar.html\','
+                             . '\'cal\',\'dependent=yes,width=230,height=250,'
+                             . 'screenX=200,screenY=300,titlebar=yes\')">'
+                             . '<img src="../calendar.gif" border=0></a> '
+                             . '(yyyy-mm-dd) '));
+}
+
+$table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+
+
+if(($_GET['status'] == "change")||($_GET['editmode'] == "true"))
+    echo '<h3>Edit Venue</h3>';
+else
+    echo '<h3>Add Venue</h3>';
+echo $renderer->toHtml(($table->toHtml())) . '</div>';
 
 if (!isset($_GET['popup']) || ($_GET['popup'] != 'true')) {
     echo '</div>';

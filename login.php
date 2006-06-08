@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.9 2006/06/05 04:28:41 aicmltec Exp $
+// $Id: login.php,v 1.10 2006/06/08 22:44:42 aicmltec Exp $
 
 /**
  * \file
@@ -61,13 +61,13 @@ if (isset($_POST['login'])) {
     pageHeader();
     navMenu('login');
 
-    echo "<div id='content'>"
-        . "<h2>Logged in</h1>"
-        . "You have succesfully logged in as "
-        . $_SESSION['user']->login . ".\n"
-        . "<p/>Return to <a href='index.php'>main page</a>."
-        . "<br/><br/><br/><br/><br/><br/>"
-        . "</div>";
+    echo '<div id="content">'
+        . '<h2>Logged in</h1>'
+        . 'You have succesfully logged in as '
+        . $_SESSION['user']->login
+        . '<p/>Return to <a href="index.php">main page</a>.'
+        . '<br/><br/><br/><br/><br/><br/>'
+        . '</div>';
 
     pageFooter();
 }
@@ -150,7 +150,7 @@ else if (isset($_POST['newaccount'])) {
 }
 else {
 	// if form hasn't been submitted
-    htmlHeader('PapersDB Login');
+    htmlHeader('login', 'PapersDB Login');
 
     echo "<body>\n";
 

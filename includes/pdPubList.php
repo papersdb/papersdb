@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.2 2006/05/19 17:42:40 aicmltec Exp $
+// $Id: pdPubList.php,v 1.3 2006/06/08 22:44:42 aicmltec Exp $
 
 /**
  * \file
@@ -22,26 +22,32 @@ class pdPubList {
     /**
      * Constructor.
      */
-    function pdPubList(&$db, $author_id = '', $numToLoad = -1) {
+    function pdPubList(&$db, $author_id = null, $numToLoad = -1,
+                       $sortByUpdated = false) {
         assert('is_object($db)');
 
-        if ($author_id == '') {
-            $this->allPubsDbLoad($db);
+        if ($author_id == null) {
+            $this->allPubsDbLoad($db, $sortByUpdated);
         }
         else {
-            $this->authorPubsDbLoad($db, $author_id, $numToLoad);
+            $this->authorPubsDbLoad($db, $author_id, $numToLoad, $sortByDesc);
         }
     }
 
     /**
      * Retrieves all publications.
      */
-    function allPubsDbLoad(&$db) {
+    function allPubsDbLoad(&$db, $sortByDesc = false) {
         assert('is_object($db)');
+
+        if ($sortByDesc)
+            $order = 'updated DESC';
+        else
+            $order = 'title ASC';
 
         $q = $db->select(array('publication'), '*', '',
                          "pdPubList::allPubsDbLoad",
-                         array('ORDER BY' => 'title ASC'));
+                         array('ORDER BY' => $order));
         $r = $db->fetchObject($q);
         while ($r) {
             $pub = new pdPublication($r);

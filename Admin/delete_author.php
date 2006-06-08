@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.2 2006/06/07 23:15:47 aicmltec Exp $
+// $Id: delete_author.php,v 1.3 2006/06/08 22:44:42 aicmltec Exp $
 
 /**
  * \file
@@ -35,17 +35,16 @@ if (!$logged_in) {
 
 $db =& dbCreate();
 
-	if (!isset($author_id) || author_id=="") {
-		die("Error: publication id not set.");
-	}
+if (!isset($_GET['author_id']) || ($_GET['author_id'] == ''))
+    errorMessage();
 
 	/* Performing SQL query */
-	$author_query = "SELECT * FROM author WHERE author_id=$author_id";
+	$author_query = "SELECT * FROM author WHERE author_id=$_GET['author_id']";
 	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
 	$author_array = mysql_fetch_array($author_result, MYSQL_ASSOC);
 	$authorname = $author_array['name'];
 
-	$author_query = "SELECT pub_id FROM pub_author WHERE author_id=$author_id";
+	$author_query = "SELECT pub_id FROM pub_author WHERE author_id=$_GET['author_id']";
 	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
 	$i = 0;
 	while($author_array2 = mysql_fetch_array($author_result, MYSQL_ASSOC))
@@ -72,11 +71,11 @@ $db =& dbCreate();
 		}
 	/* This is where the actual deletion happens. */
 	if (isset($confirm) && $confirm == "yes") {
-		$query = "DELETE FROM author WHERE author_id = $author_id";
+		$query = "DELETE FROM author WHERE author_id = $_GET['author_id']";
 		query_db($query);
-		$query = "DELETE FROM author_interest WHERE author_id = $author_id";
+		$query = "DELETE FROM author_interest WHERE author_id = $_GET['author_id']";
 		query_db($query);
-		$query = "DELETE FROM pub_author WHERE author_id = $author_id";
+		$query = "DELETE FROM pub_author WHERE author_id = $_GET['author_id']";
 		query_db($query);
 		echo "<body>You have successfully removed the following category from the database: <b>$authorname</b>";
 		echo "<b><br><a href=\"../list_author.php?type=view&admin=true\">Back to Author Page</a>";
@@ -120,7 +119,7 @@ $db =& dbCreate();
 		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? if (isset($author_array['webpage']) && trim($author_array['webpage']) != "") echo "<a href=\"" . $author_array['webpage'] . "\">" . $author_array['webpage'] . "</a>"; else echo "none"; ?></font></td>
 	  </tr>
 	  <tr>
-	  	  <form name="deleter" action="./delete_author.php?author_id=<?php echo $author_id; ?>&confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
+	  	  <form name="deleter" action="./delete_author.php?author_id=<?php echo $_GET['author_id']; ?>&confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
 		<td width="100%" colspan="2">
 		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
 		  <input type="button" value="Cancel" onclick="history.back()">
