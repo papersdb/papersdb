@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.3 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.4 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -116,9 +116,11 @@ class pdHtmlPage {
             if (isset($this->contentPre))
                 $result .= $this->contentPre;
 
+            // debug
+            //$result .= '<pre>' . print_r($this->table, true) . '</pre>';
+
             if ($this->renderer != null) {
-                $result .=
-                    $this->renderer->toHtml(($this->table->toHtml())) . '</div>';
+                $result .= $this->renderer->toHtml(($this->table->toHtml()));
             }
             else {
                 assert ('($this->form == null)');
@@ -129,7 +131,7 @@ class pdHtmlPage {
             if (isset($this->contentPost))
                 $result .= $this->contentPost;
         }
-        $result .= $this->htmlPageFooter();
+        $result .= '</div>' . $this->htmlPageFooter();
 
         return $result;
     }
@@ -170,9 +172,6 @@ class pdHtmlPage {
                                     PD_HTML_PAGE_LOGIN_LEVEL_ALWAYS)
         );
 
-    /**
-     * Renders the page.
-     */
     function htmlHeader($page, $title, $redirect = '') {
         $result =
             '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
@@ -232,7 +231,7 @@ class pdHtmlPage {
             }
 
         $form = quickSearchFormCreate();
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+        $renderer = new HTML_QuickForm_Renderer_QuickHtml();
         $form->accept($renderer);
 
         $result .= "</ul>\n"

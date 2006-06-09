@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.11 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: login.php,v 1.12 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -156,13 +156,6 @@ class login extends pdHtmlPage {
             // if form hasn't been submitted
             $this->contentPre = '<h2>Create new account or log in</h2>';
 
-            $this->table = new HTML_Table(array('width' => '600',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table =& $this->table;
-            $table->setAutoGrow(true);
-
             $this->form = new HTML_QuickForm('quickPubForm', 'post',
                                        $_SERVER['PHP_SELF']);
             $form =& $this->form;
@@ -180,9 +173,16 @@ class login extends pdHtmlPage {
                               array('size' => 25, 'maxlength' => 80));
             $form->addElement('submit', 'newaccount', 'Create new account');
 
-            $this->renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-            $renderer = $this->renderer;
+            $this->renderer = new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $this->renderer;
             $form->accept($renderer);
+
+            $this->table = new HTML_Table(array('width' => '600',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
+            $table =& $this->table;
+            $table->setAutoGrow(true);
 
             $table->addRow(array('Login:', $renderer->elementToHtml('loginid')));
             $table->addRow(array('Password:', $renderer->elementToHtml('passwd'),

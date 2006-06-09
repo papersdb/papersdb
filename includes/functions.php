@@ -12,6 +12,7 @@
 require_once 'lib_dbfunctions.php';
 require_once 'HTML/QuickForm.php';
 require_once "HTML/QuickForm/Renderer/QuickHtml.php";
+require_once 'HTML/Table.php';
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
@@ -383,5 +384,19 @@ function helpTooltip($text, $varname) {
     return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
         . 'return escape(' . $varname . ')">' . $text . '</a>';
 }
+
+function tableHighlightRows(&$table) {
+    assert('is_object($table)');
+
+    for ($i = 0; $i < $table->getRowCount(); $i++) {
+        if ($i & 1) {
+            $table->updateRowAttributes($i, array('class' => 'even'), true);
+        }
+        else {
+            $table->updateRowAttributes($i, array('class' => 'odd'), true);
+        }
+    }
+}
+
 
 ?>

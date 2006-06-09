@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.22 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: view_publication.php,v 1.23 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -74,7 +74,7 @@ class view_publication extends pdHtmlPage {
         $this->extPointerRowsAdd($pub, $table);
         $this->intPointerRowsAdd($db, $pub, $table);
 
-        $table->addRow(array('Keywords:', $this->keywordsGet($pub)));
+        $table->addRow(array('Keywords:', $pub->keywordsGet()));
         $this->infoRowsAdd($pub, $table);
 
         $pubDate = $this->publishDateGet($pub);
@@ -201,17 +201,6 @@ class view_publication extends pdHtmlPage {
 
             $table->addRow(array('Connected with:', $intLinkStr));
         }
-    }
-
-    function keywordsGet(&$pub) {
-        $keywords = explode(";", $pub->keywords);
-
-        // remove all keywords of length 0
-        foreach ($keywords as $key => $value) {
-            if ($value == "")
-                unset($keywords[$key]);
-        }
-        return implode(",", $keywords);
     }
 
     function infoRowsAdd(&$pub, &$table) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.6 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: defines.php,v 1.7 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -11,8 +11,8 @@
  */
 
 /** The server hosting the database. */
-//define("DB_SERVER", "abee.cs.ualberta.ca:3306");
-define("DB_SERVER", "levante:3306");
+define("DB_SERVER", "abee.cs.ualberta.ca:3306");
+//define("DB_SERVER", "levante:3306");
 
 /** The user id accessing the database. */
 define("DB_USER", "papersdb");

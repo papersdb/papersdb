@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.10 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: pdPublication.php,v 1.11 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -169,6 +169,21 @@ class pdPublication {
         $this->venue_info = new pdVenue();
         $this->venue_info->dbload($db, $venue_id[1]);
         $this->venue = '';
+    }
+
+    /**
+     * remove all keywords of length 0
+     */
+    function keywordsGet() {
+        if (!isset($this->keywords)) return '';
+
+        $keywords = explode(";", $this->keywords);
+
+        foreach ($keywords as $key => $value) {
+            if ($value == "")
+                unset($keywords[$key]);
+        }
+        return implode(",", $keywords);
     }
 
     /**

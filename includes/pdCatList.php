@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.8 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdCatList.php,v 1.9 2006/06/09 22:08:58 aicmltec Exp $
 
 /**
  * \file
@@ -22,17 +22,7 @@ class pdCatList {
     /**
      * Constructor.
      */
-    function pdCatList($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
-    }
-
-    /**
-     * Loads a specific publication from the database.
-     *
-     * Use flags to load individual tables
-     */
-    function dbLoad(&$db, $flags = 0) {
+    function pdCatList(&$db) {
         $q = $db->select('category', array('cat_id', 'category'), '',
                          "pdCatList::dbLoad");
         $r = $db->fetchObject($q);

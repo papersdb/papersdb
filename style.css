@@ -18,14 +18,22 @@ table {
   vertical-align: top;
 }
 
-table#nomargins {
-  margin: 0 0;
-  border: 0;
-}
-
 table td, table th  {
   font-size:12px;
   padding: 3px;
+  text-align: left;
+  vertical-align: top;
+}
+
+table.nomargins {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  border: 1;
+}
+
+table.nomargins td, table th.nomargins  {
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
   text-align: left;
   vertical-align: top;
 }
@@ -41,9 +49,9 @@ table th {
 
 tr.odd {background-color: #fff;}
 tr.even {background-color:#eee;}
-td.large {font-size:16px;}
-td.standard {font-size:12px;}
-td.small {font-size:10px;}
+td#large {font-size:16px;}
+td#standard {font-size:12px;}
+td#small {font-size:10px;}
 
 a:link { color: #000099;}
 a:visited { color: #000099;}
@@ -195,7 +203,8 @@ div#footer a:link {
 #copyright ul {
 	list-style: none;
 	margin: 0;
-	padding: 0;}
+	padding: 0;
+}
 
 #copyright li {
 	list-style: none !important;
