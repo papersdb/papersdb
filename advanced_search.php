@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.22 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: advanced_search.php,v 1.23 2006/06/09 22:39:36 aicmltec Exp $
 
 /**
  * \file
@@ -170,22 +170,26 @@ END;
         $form->addElement('text', 'enddate', null,
                           array('size' => 10, 'maxlength' => 10));
 
+        unset($options);
+        $options = array('titlecheck'        => 'Title',
+                         'authorcheck'       => 'Author(s)',
+                         'categorycheck'     => 'Category',
+                         'extracheck'        => 'Category Related Information',
+                         'papercheck'        => 'Link to Paper',
+                         'additionalcheck'   => 'Link to Additional Material',
+                         'halfabstractcheck' => 'Short Abstract',
+                         'venuecheck'        => 'Publication Venue',
+                         'keywordscheck'     => 'Keywords',
+                         'datecheck'         => 'Date Published');
         if ($_GET['expand']) {
-            unset($options);
-            $options = array('titlecheck'        => 'Title',
-                             'authorcheck'       => 'Author(s)',
-                             'categorycheck'     => 'Category',
-                             'extracheck'        => 'Category Related Information',
-                             'papercheck'        => 'Link to Paper',
-                             'additionalcheck'   => 'Link to Additional Material',
-                             'halfabstractcheck' => 'Short Abstract',
-                             'venuecheck'        => 'Publication Venue',
-                             'keywordscheck'     => 'Keywords',
-                             'datecheck'         => 'Date Published');
-
             foreach ($options as $name => $text) {
                 $form->addElement('advcheckbox', $name, null, $text, null,
                                   array('no', 'yes'));
+            }
+        }
+        else {
+            foreach ($options as $name => $text) {
+                $form->addElement('hidden', $name, false);
             }
         }
 
