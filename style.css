@@ -28,7 +28,7 @@ table td, table th  {
 table.nomargins {
   margin: 0 0 0 0;
   padding: 0 0 0 0;
-  border: 1;
+  border: none;
 }
 
 table.nomargins td, table th.nomargins  {
