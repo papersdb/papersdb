@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.23 2006/06/09 22:39:36 aicmltec Exp $
+// $Id: advanced_search.php,v 1.24 2006/06/09 22:59:39 aicmltec Exp $
 
 /**
  * \file
@@ -61,12 +61,6 @@ class advanced_search extends pdHtmlPage {
         if($_GET['expand'] == "true") {
             $this->contentPost = $renderer->elementToHtml('expand');
         }
-        else {
-            $this->contentPost = $renderer->elementToHtml('titlecheck')
-                . $renderer->elementToHtml('authorcheck')
-                . $renderer->elementToHtml('halfabstractcheck')
-                . $renderer->elementToHtml('datecheck');
-        }
 
         $this->db->close();
     }
@@ -94,7 +88,7 @@ class advanced_search extends pdHtmlPage {
                 var element = document.forms["pubForm"].elements;
                 if ((element.value != "") && (element.value != null)) {
                     if (info_counter > 0) {
-                        temp_qs = temp_qs + "&";
+                        temp_qs += "&";
                     }
 
                     temp_qs += element.name + "=" + element.value;
@@ -198,12 +192,6 @@ END;
 
         if($_GET['expand'] == "true")
             $form->addElement('hidden', 'expand', 'true');
-        else {
-            $form->addElement('hidden', 'titlecheck', 'true');
-            $form->addElement('hidden', 'authorcheck', 'true');
-            $form->addElement('hidden', 'halfabstractcheck', 'true');
-            $form->addElement('hidden', 'datecheck', 'true');
-        }
 
         $this->form =& $form;
     }
@@ -212,19 +200,20 @@ END;
      * Assigns the form's values as per the HTTP GET string.
      */
     function setFormValues() {
-        $defaultValues['search']            = stripslashes($_GET['search']);
-        $defaultValues['cat_id']            = $_GET['cat_id'];
-        $defaultValues['title']             = $_GET['title'];
-        $defaultValues['authortyped']       = stripslashes($_GET['authortyped']);
-        $defaultValues['paper']             = $_GET['paper'];
-        $defaultValues['abstract']          = $_GET['abstract'];
-        $defaultValues['venue']             = $_GET['venue'];
-        $defaultValues['keywords']          = $_GET['keywords'];
-        $defaultValues['titlecheck']        = 'yes';
-        $defaultValues['authorcheck']       = 'yes';
-        $defaultValues['additionalcheck']   = 'yes';
-        $defaultValues['halfabstractcheck'] = 'yes';
-        $defaultValues['datecheck']         = 'yes';
+        $defaultValues = array(
+            'search'            => stripslashes($_GET['search']),
+            'cat_id'            => $_GET['cat_id'],
+            'title'             => $_GET['title'],
+            'authortyped'       => stripslashes($_GET['authortyped']),
+            'paper'             => $_GET['paper'],
+            'abstract'          => $_GET['abstract'],
+            'venue'             => $_GET['venue'],
+            'keywords'          => $_GET['keywords'],
+            'titlecheck'        => 'yes',
+            'authorcheck'       => 'yes',
+            'additionalcheck'   => 'yes',
+            'halfabstractcheck' => 'yes',
+            'datecheck'         => 'yes');
 
         if (is_object($this->category) && is_array($this->category->info)) {
             foreach ($this->category->info as $info) {

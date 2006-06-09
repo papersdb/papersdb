@@ -353,7 +353,7 @@ function quickSearchFormCreate() {
                      'datecheck');
 
     foreach ($options as $name) {
-        $form->addElement('hidden', $name, 'true');
+        $form->addElement('hidden', $name, 'yes');
     }
     $form->addElement('text', 'search', null,
                       array('size' => 12, 'maxlength' => 80));

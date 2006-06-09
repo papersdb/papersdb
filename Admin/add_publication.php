@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.19 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: add_publication.php,v 1.20 2006/06/09 22:59:39 aicmltec Exp $
 
 /**
  * \file
@@ -292,8 +292,7 @@ JS_END;
         unset($options);
         $options = array(''   => '--- Please Select a Category ---',
                          '-1' => '-- Add New Category --');
-        $category_list = new pdCatList();
-        $category_list->dbLoad($this->db);
+        $category_list = new pdCatList($this->db);
         assert('is_array($category_list->list)');
         foreach ($category_list->list as $cat) {
             $options[$cat->cat_id] = $cat->category;
@@ -314,8 +313,7 @@ JS_END;
                           array('size' => 60, 'maxlength' => 250));
 
         // Authors
-        $auth_list = new pdAuthorList();
-        $auth_list->dbLoad($this->db);
+        $auth_list = new pdAuthorList($this->db);
         assert('is_array($auth_list->list)');
         unset($options);
         foreach ($auth_list->list as $auth) {
@@ -666,25 +664,22 @@ JS_END;
                 || ($table->getCellContents($i, 0) == 'Step 2:'))
                 $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
         }
-        $this->db->close();
-    }
 
-    function toHtml() {
-        $result = '<h3>');
+        $this->contentPre .= '<h3>';
         if ($edit)
-            $resutl .= 'Edit';
+            $this->contentPre .= 'Edit';
         else
-            $result .= 'Add';
-        $result .= 'Publication</h3>';
+            $this->contentPre .= 'Add';
+        $this->contentPre .= 'Publication</h3>';
 
         if (!$edit) {
-            $result .= 'Adding a publication takes two steps:<br/>'
+            $this->contentPre .= 'Adding a publication takes two steps:<br/>'
                 . '1. Fill in the appropriate fields<br/>'
                 . '2. Upload the paper and any additional '
                 . 'materials';
         }
 
-        $result .= parent::toHtml();
+        $this->db->close();
     }
 }
 

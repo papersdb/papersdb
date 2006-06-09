@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.15 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.16 2006/06/09 22:59:39 aicmltec Exp $
 
 /**
  * \file
@@ -88,14 +88,11 @@ class search_publication_db extends pdHtmlPage {
             $search_url .= implode("&", $url_opt);
         }
 
-        // I would love to make this ridiculously long URL shorter remember to
-        // urlencode anything else that gets added as a term to the search
-
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
             $this->option_list->authorcheck = 'yes';
             $this->option_list->$halfabstractcheck = 'yes';
-            $this->contentPre .= "<h3> QUICK SEARCH </h3>";
+            $this->contentPre .= '<h3> QUICK SEARCH </h3>';
         }
         else {
             $this->advancedSearch();
