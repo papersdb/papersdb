@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.18 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: add_publication.php,v 1.19 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
@@ -610,7 +610,7 @@ JS_END;
                              $rend->elementToHtml('keywords')
                              . ' <div id="small">separate using semicolon (;)</div>'));
 
-// Additional Information
+        // Additional Information
         if (isset($category) && is_object($category) && is_array($category->info)) {
             foreach ($category->info as $info) {
                 $table->addRow(array($info->name . ':',
@@ -660,27 +660,31 @@ JS_END;
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-// emphasize the 'step' cells
+        // emphasize the 'step' cells
         for ($i = 0 ; $i < $table->getRowCount(); $i++) {
             if (($table->getCellContents($i, 0) == 'Step 1:')
                 || ($table->getCellContents($i, 0) == 'Step 2:'))
                 $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
         }
+        $this->db->close();
+    }
 
-        $this->contentAdd('<h3>');
+    function toHtml() {
+        $result = '<h3>');
         if ($edit)
-            $this->contentAdd('Edit');
+            $resutl .= 'Edit';
         else
-            $this->contentAdd('Add');
-        $this->contentAdd('Publication</h3>');
+            $result .= 'Add';
+        $result .= 'Publication</h3>';
 
         if (!$edit) {
-            $this->contentAdd('Adding a publication takes two steps:<br/>'
-                              . '1. Fill in the appropriate fields<br/>'
-                              . '2. Upload the paper and any additional '
-                              . 'materials');
+            $result .= 'Adding a publication takes two steps:<br/>'
+                . '1. Fill in the appropriate fields<br/>'
+                . '2. Upload the paper and any additional '
+                . 'materials';
         }
-        $this->db->close();
+
+        $result .= parent::toHtml();
     }
 }
 

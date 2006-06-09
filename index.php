@@ -1,11 +1,11 @@
 <?php ;
 
-// $Id: index.php,v 1.19 2006/06/08 23:42:34 aicmltec Exp $
+// $Id: index.php,v 1.20 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
  *
- * \brief Main page for application.
+ * \brief Main page for PapersDB.
  *
  * Main page for public access, provides a login, and a function that selects
  * the most recent publications added.
@@ -23,7 +23,8 @@ class indexPage extends pdHtmlPage {
         $this->db =& dbCreate();
         $pub_list = new pdPubList($this->db, null, -1, true);
 
-        $this->contentAdd('Recent Additions:<ul>');
+        $this->contentPre = 'Recent Additions:<ul>';
+        $stringlength = 0;
         foreach ($pub_list->list as $pub) {
             if ($stringlength > 300) break;
 
@@ -34,11 +35,11 @@ class indexPage extends pdHtmlPage {
             else if (strlen($pub->title) > 120)
                 $stringlength += 180;
 
-            $this->contentAdd('<li><a href="view_publication.php?pub_id='
-                              . $pub->pub_id . '">'
-                              . '<b>' . $pub->title . '</b></a></li>');
+            $this->contentPre .= '<li><a href="view_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<b>' . $pub->title . '</b></a></li>';
         }
-        $this->contentAdd('</ul>');
+        $this->contentPre .= '</ul>';
         $this->db->close();
     }
 }

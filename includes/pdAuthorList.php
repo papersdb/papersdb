@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.6 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.7 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
@@ -18,17 +18,9 @@ class pdAuthorList {
     /**
      * Constructor.
      */
-    function pdAuthorList($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
-    }
+    function pdAuthorList(&$db) {
+        assert('is_object($db)');
 
-    /**
-     * Loads all author names from the database in ascending order.
-     *
-     * Use flags to load individual tables
-     */
-    function dbLoad(&$db, $flags = 0) {
         $q = $db->select('author', array('author_id', 'name'), '',
                          "pdAuthorList::dbLoad",
                          array('ORDER BY' => 'name ASC'));

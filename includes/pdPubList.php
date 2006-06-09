@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.3 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: pdPubList.php,v 1.4 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
@@ -30,7 +30,7 @@ class pdPubList {
             $this->allPubsDbLoad($db, $sortByUpdated);
         }
         else {
-            $this->authorPubsDbLoad($db, $author_id, $numToLoad, $sortByDesc);
+            $this->authorPubsDbLoad($db, $author_id, $numToLoad);
         }
     }
 

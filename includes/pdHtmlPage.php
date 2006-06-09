@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.2 2006/06/08 23:42:34 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.3 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
@@ -36,17 +36,20 @@ class pdHtmlPage {
     var $form;
     var $renderer;
     var $js;
-    var $content;
+    var $contentPre;
     var $contentPost;
 
     /**
      * Constructor.
      */
     function pdHtmlPage($page_id, $redirectUrl = '') {
-        $this->page_id     = $page_id;
-        $this->title       = $this->page_info[$page_id][0];
-        $this->relativeUrl = $this->page_info[$page_id][1];
-        $this->loginLevel  = $this->page_info[$page_id][2];
+        if (($page_id != null) && ($page_id != '')
+            && (isset($this->page_info[$page_id]))) {
+            $this->page_id     = $page_id;
+            $this->title       = $this->page_info[$page_id][0];
+            $this->relativeUrl = $this->page_info[$page_id][1];
+            $this->loginLevel  = $this->page_info[$page_id][2];
+        }
         $this->redirectUrl = $redirectUrl;
         $this->db          = null;
         $this->table       = null;
@@ -56,32 +59,63 @@ class pdHtmlPage {
         $this->pageError   = false;
     }
 
-    function contentAdd($content) {
-        $this->content .= $content;
-    }
-
-    function contentAdd($content) {
-        $this->content .= $content;
-    }
-
-    /**
-     * Renders the page.
-     */
-    function toHtml() {
+    function htmlPageHeader() {
         $result = $this->htmlHeader($this->page_id, $this->title);
         $result .= $this->js;
         $result .= '<body>';
         $result .= $this->pageHeader();
         $result .= $this->navMenu($this->page_id);
         $result .= '<div id="content">';
+
+        return $result;
+    }
+
+    function htmlPageFooter() {
+        $result = '</div>';
+        $result .= $this->pageFooter();
+
+
+        if (strstr($this->relativeUrl, '/'))
+            $jsFile = '../wz_tooltip.js';
+        else
+            $jsFile = 'wz_tooltip.js';
+
+        $result .= '<script language="JavaScript" type="text/javascript" src="'
+            . $jsFile . '"></script>';
+
+        $result .= '</body></html>';
+
+        return $result;
+    }
+
+    /**
+     * Renders the page.
+     */
+    function toHtml() {
+        $result = $this->htmlPageHeader();
+
         if ($this->loginError) {
-            $result .= $this->loginErrorMessage();
+            if (isset($this->contentPre))
+                $result .= $this->contentPre;
+            else
+                $result .= $this->loginErrorMessage();
+
+            if (isset($this->contentPost))
+                $result .= $this->contentPost;
         }
         else if ($this->pageError) {
-            $result .= $this->errorMessage();
+            if (isset($this->contentPre))
+                $result .= $this->contentPre;
+            else
+                $result .= $this->errorMessage();
+
+            if (isset($this->contentPost))
+                $result .= $this->contentPost;
         }
         else {
-            $result .= $this->content;
+            if (isset($this->contentPre))
+                $result .= $this->contentPre;
+
             if ($this->renderer != null) {
                 $result .=
                     $this->renderer->toHtml(($this->table->toHtml())) . '</div>';
@@ -91,14 +125,12 @@ class pdHtmlPage {
                 if ($this->table != null)
                     $result .= $this->table->toHtml();
             }
+
+            if (isset($this->contentPost))
+                $result .= $this->contentPost;
         }
+        $result .= $this->htmlPageFooter();
 
-        $result .= '</div>';
-        $result .= $this->pageFooter();
-
-        $result .= '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
-
-        $result .= '</body></html>';
         return $result;
     }
 
@@ -150,10 +182,9 @@ class pdHtmlPage {
             . '<meta http-equiv="Content-Type" '
             . 'content="text/html; charset=iso-8859-1" />';
 
-        if ($this->redirect != '') {
-            $result
-                .= "<meta http-equiv='refresh' content='5;url=" . $redirectUrl
-                . "' />\n";
+        if ($this->redirectUrl != '') {
+            $result .= '<meta http-equiv="refresh" content="5;url='
+                . $this->redirectUrl . '" />';
         }
 
         if (strstr($this->relativeUrl, '/'))
@@ -169,27 +200,25 @@ class pdHtmlPage {
         global $logged_in;
 
         $url_prefix = '';
-        if (isset($this->page_info[$page])) {
-            if (strstr($this->page_info[$page][1], '/'))
-                $url_prefix = '../';
-        }
+        if (isset($this->page_id) && strstr($this->relativeUrl, '/'))
+            $url_prefix = '../';
 
         foreach ($this->page_info as $name => $info) {
             if (($logged_in && ($info[2] > 0))
                 || (!$logged_in
                     && ($info[2] < PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED))) {
-                if ($name == $page) {
+                if ($name == $this->page_id) {
                     $options[$info[0]] = '';
                 }
-                else if (($page != '')
-                         && (strstr($this->page_info[$page][1], '/')))
+                else if (($this->page_id != '')
+                         && (strstr($this->relativeUrl, '/')))
                     $options[$info[0]] = $url_prefix . $info[1];
                 else
                     $options[$info[0]] = $info[1];
             }
         }
 
-        $result .= '<div id="nav">'
+        $result = '<div id="nav">'
             . '<h2>navigation</h2>'
             . '<ul>';
 

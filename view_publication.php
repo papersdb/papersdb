@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.21 2006/06/08 23:42:34 aicmltec Exp $
+// $Id: view_publication.php,v 1.22 2006/06/09 06:30:54 aicmltec Exp $
 
 /**
  * \file
@@ -21,19 +21,24 @@ require_once 'includes/pdPublication.php';
  * Renders the whole page.
  */
 class view_publication extends pdHtmlPage {
+    var $pub_id;
+
     function view_publication() {
-        parent::pdHtmlPage('all_publications');
+        global $logged_in;
+
+        parent::pdHtmlPage('view_publications');
 
         if (!isset($_GET['pub_id'])) {
             $this->pageError = true;
+            return;
         }
 
         $db =& dbCreate();
-        $pub_id = intval($_GET['pub_id']);
-        isValid($pub_id);
+        $this->pub_id = intval($_GET['pub_id']);
+        isValid($this->pub_id);
 
         $pub = new pdPublication();
-        $pub->dbLoad($db, $pub_id);
+        $pub->dbLoad($db, $this->pub_id);
 
         $this->table = new HTML_Table(array('width' => '600',
                                             'border' => '0',
@@ -89,17 +94,13 @@ class view_publication extends pdHtmlPage {
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-        $pub_id = $_GET['pub_id'];
-        isValid($pub_id);
+        $this->contentPost = '<br><b><a href="Admin/add_publication.php?pub_id='
+            . quote_smart($this->pub_id)
+            . '">Edit this publication</a>&nbsp;&nbsp;&nbsp;'
+            . '<a href=\"Admin/delete_publication.php?pub_id='
+            . quote_smart($this->pub_id)
+            . '">Delete this publication</a></b>';
 
-        if ($logged_in) {
-            echo "<br><b><a href=\"Admin/add_publication.php?pub_id="
-                . quote_smart($pub_id)
-                . "\">Edit this publication</a>&nbsp;&nbsp;&nbsp;"
-                . "<a href=\"Admin/delete_publication.php?pub_id="
-                . quote_smart($pub_id)
-                . "\">Delete this publication</a></b><br><BR>";
-        }
         $db->close();
     }
 
@@ -128,6 +129,8 @@ class view_publication extends pdHtmlPage {
     }
 
     function author2Html(&$pub) {
+        global $logged_in;
+
         $authorsStr = "";
         if (is_array($pub->authors)) {
             foreach ($pub->authors as $author) {
