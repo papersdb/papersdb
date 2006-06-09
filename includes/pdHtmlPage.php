@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.4 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.5 2006/06/09 22:34:19 aicmltec Exp $
 
 /**
  * \file
@@ -38,11 +38,12 @@ class pdHtmlPage {
     var $js;
     var $contentPre;
     var $contentPost;
+    var $useStdLayout;
 
     /**
      * Constructor.
      */
-    function pdHtmlPage($page_id, $redirectUrl = '') {
+    function pdHtmlPage($page_id, $redirectUrl = null, $useStdLayout = true) {
         if (($page_id != null) && ($page_id != '')
             && (isset($this->page_info[$page_id]))) {
             $this->page_id     = $page_id;
@@ -57,23 +58,28 @@ class pdHtmlPage {
         $this->renderer    = null;
         $this->loginError  = false;
         $this->pageError   = false;
+        $this->useStdLayout = $useStdLayout;
     }
 
     function htmlPageHeader() {
         $result = $this->htmlHeader($this->page_id, $this->title);
         $result .= $this->js;
         $result .= '<body>';
-        $result .= $this->pageHeader();
-        $result .= $this->navMenu($this->page_id);
-        $result .= '<div id="content">';
+
+        if($this->useStdLayout) {
+            $result .= $this->pageHeader();
+            $result .= $this->navMenu($this->page_id);
+            $result .= '<div id="content">';
+        }
 
         return $result;
     }
 
     function htmlPageFooter() {
-        $result = '</div>';
-        $result .= $this->pageFooter();
-
+        if($this->useStdLayout) {
+            $result = '</div>';
+            $result .= $this->pageFooter();
+        }
 
         if (strstr($this->relativeUrl, '/'))
             $jsFile = '../wz_tooltip.js';
@@ -181,7 +187,7 @@ class pdHtmlPage {
             . '<meta http-equiv="Content-Type" '
             . 'content="text/html; charset=iso-8859-1" />';
 
-        if ($this->redirectUrl != '') {
+        if ($this->redirectUrl != null) {
             $result .= '<meta http-equiv="refresh" content="5;url='
                 . $this->redirectUrl . '" />';
         }

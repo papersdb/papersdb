@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.11 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: pdPublication.php,v 1.12 2006/06/09 22:34:19 aicmltec Exp $
 
 /**
  * \file
@@ -159,7 +159,7 @@ class pdPublication {
     function dbLoadVenue(&$db) {
         assert("($this->dbLoadFlags & PD_PUB_DB_LOAD_VENUE)");
 
-        if ($this->venue == '') return;
+        if (($this->venue == null) || ($this->venue == '')) return;
 
         if (preg_match("/venue_id:<([0-9]+)>/", $this->venue, $venue_id) == 0)
             return;
