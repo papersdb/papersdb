@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.11 2006/06/09 23:18:00 aicmltec Exp $
+// $Id: add_author.php,v 1.12 2006/06/10 19:00:21 aicmltec Exp $
 
 /**
  * \file
@@ -142,8 +142,12 @@ class add_author extends pdHtmlPage {
 
         for ($i = 0; $i < $newInterests; $i++) {
             $table->addRow(array('Interest Name:',
-                                 $renderer->elementToHtml('newInterest' . $i)));
+                                 $renderer->elementToHtml(
+                                     'newInterest' . $i)));
         }
+
+        $table->updateColAttributes(0, array('id' => 'emph',
+                                             'width' => '25%'));
 
         $this->form =& $form;
         $this->renderer =& $renderer;
