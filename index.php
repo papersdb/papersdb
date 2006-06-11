@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.20 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: index.php,v 1.21 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,8 @@ require_once 'includes/pdPubList.php';
  */
 class indexPage extends pdHtmlPage {
     function indexPage() {
+        global $logged_in;
+
         parent::pdHtmlPage('index');
         $this->db =& dbCreate();
         $pub_list = new pdPubList($this->db, null, -1, true);

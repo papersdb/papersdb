@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.5 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.6 2006/06/11 20:42:27 aicmltec Exp $
 
 /**
  * \file
@@ -116,6 +116,21 @@ class pdAuthor {
         if ($numToLoad > 0) {
             $this->pub_list = new pdPubList($db, $this->author_id, $numToLoad);
         }
+    }
+
+    /**
+     * Deletes an author from the database.
+     */
+    function dbDelete(&$db) {
+        assert('is_object($db)');
+        assert('isset($this->author_id)');
+
+        $db->delete('author', array('author_id' => $this->author_id),
+                    'pdAuthor::dbDelete');
+        $db->delete('author_interest', array('author_id' => $this->author_id),
+                    'pdAuthor::dbDelete');
+        $db->delete('pub_author', array('author_id' => $this->author_id),
+                    'pdAuthor::dbDelete');
     }
 
     /**

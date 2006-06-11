@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.7 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: add_category.php,v 1.8 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -182,7 +182,7 @@ if (!$logged_in) {
     loginErrorMessage();
 }
 
-echo '<h3>' . helpTooltip('Add Category', 'addCategoryPageHelp') . '</h3>';
+echo '<h3>' . $this->helpTooltip('Add Category', 'addCategoryPageHelp') . '</h3>';
 echo $renderer->toHtml(($table->toHtml()));
 echo '<script language="JavaScript" type="text/javascript" src="../wz_tooltip.js"></script>';
 echo "</body>\n</html>\n";

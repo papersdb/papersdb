@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.3 2006/06/08 22:44:42 aicmltec Exp $
+// $Id: delete_author.php,v 1.4 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -15,126 +15,98 @@
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
-require_once 'includes/functions.php';
-require_once 'includes/check_login.php';
-require_once 'includes/pageConfig.php';
-require_once 'includes/pdVenueList.php';
-require_once 'includes/pdVenue.php';
+require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdAuthor.php';
 
-require_once 'HTML/QuickForm.php';
+/**
+ * Renders the whole page.
+ */
+class delete_author extends pdHtmlPage {
+    var $author_id;
 
-htmlHeader('delete_author', 'Delete an Author');
-pageHeader();
-navMenu('delete_author');
-echo '<body>';
-echo "<div id='content'>\n";
+    function delete_author() {
+        global $logged_in;
 
-if (!$logged_in) {
-    loginErrorMessage();
+        parent::pdHtmlPage('delete_author');
+
+        if (!$logged_in) {
+            $this->loginError = true;
+            return;
+        }
+
+        if (!isset($_GET['author_id']) || ($_GET['author_id'] == '')) {
+            $this->contentPre .= 'No author id defined';
+            $this->pageError = true;
+            return;
+        }
+
+        $db =& dbCreate();
+        $this->author_id = intval($_GET['author_id']);
+        $author = new pdAuthor();
+        $author->dbLoad($db, $this->author_id);
+
+        if (isset($author->pub_list) && (count($author->pub_list) > 0)) {
+            $this->contentPre .= '<b>Deletion Failed</b><p/>'
+                . 'This author is listed as author for the following '
+                . 'publications:<p/>';
+
+            foreach ($author->pub_list->list as $pub)
+                $this->contentPre .= '<b>' . $pub->title . '</b><br/>';
+
+            $this->contentPre
+                .= '<p/>You must change or remove the author of the following '
+                . 'publication(s) in order to delete this author.';
+
+            $db->close();
+            return;
+        }
+
+        // This is where the actual deletion happens.
+        if (isset($confirm) && $confirm == "yes") {
+            $author->dbDelete($db);
+
+            $this->contentPre .= 'You have successfully removed the '
+                . 'following category from the database: <b>'
+                . $author->name . '</b>';
+
+            $db->close();
+            return;
+        }
+
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
+
+        $table->addRow(array('Delete the following author?'));
+        $table->addRow(array($author->name));
+
+        if (isset($author->title) && trim($author->title != ''))
+            $table->addRow(array('Title:', $author->title));
+
+        $table->addRow(array('Email:', $author->email));
+        $table->addRow(array('Organization:', $author->organization));
+        $cell = '';
+
+        if (isset($author->webpage) && trim($author->webpage != ""))
+            $cell = '<a href="' . $author->webpage . '">'
+                . $author->webpage . '</a>';
+        else
+            $cell = "none";
+
+        $table->addRow(array('Web page:', $cell));
+
+        $this->contentPre .= '<h3>Delete Author</h3>';
+
+        $this->table =& $table;
+        $form =& $this->confirmForm('deleter',
+                                    './delete_author.php?author_id='
+                                    . $author->author_id . 'confirm=yes');
+        $this->contentPost = $form->toHtml();
+    }
 }
 
-$db =& dbCreate();
+$page = new delete_author();
+echo $page->toHtml();
 
-if (!isset($_GET['author_id']) || ($_GET['author_id'] == ''))
-    errorMessage();
-
-	/* Performing SQL query */
-	$author_query = "SELECT * FROM author WHERE author_id=$_GET['author_id']";
-	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-	$author_array = mysql_fetch_array($author_result, MYSQL_ASSOC);
-	$authorname = $author_array['name'];
-
-	$author_query = "SELECT pub_id FROM pub_author WHERE author_id=$_GET['author_id']";
-	$author_result = mysql_query($author_query) or die("Query failed : " . mysql_error());
-	$i = 0;
-	while($author_array2 = mysql_fetch_array($author_result, MYSQL_ASSOC))
-	{
-		$pub_id = $author_array2['pub_id'];
-		$pub_query = "SELECT title FROM publication WHERE pub_id=$pub_id";
-		$pub_result = mysql_query($pub_query) or die("Query failed : " . mysql_error());
-		$pub_array = mysql_fetch_array($pub_result, MYSQL_ASSOC);
-		$titles[$i] = $pub_array['title'];
-		$i++;
-
-	}
-	if($titles[0] != null)
-		{
-			echo "<b>Deletion Failed</b><BR>";
-			echo "The following publications currently have this author:<BR>";
-			for($r=0; $r<$i; $r++)
-				echo "<b>".$titles[$r]."</b><BR>";
-			echo "You must change or remove the author of the following publication(s) in order to delete this author.";
-			echo "<BR><a href=\"./\">Back to Admin Page</a>";
-			$confirm = "no";
-			disconnect_db($link);
-			exit();
-		}
-	/* This is where the actual deletion happens. */
-	if (isset($confirm) && $confirm == "yes") {
-		$query = "DELETE FROM author WHERE author_id = $_GET['author_id']";
-		query_db($query);
-		$query = "DELETE FROM author_interest WHERE author_id = $_GET['author_id']";
-		query_db($query);
-		$query = "DELETE FROM pub_author WHERE author_id = $_GET['author_id']";
-		query_db($query);
-		echo "<body>You have successfully removed the following category from the database: <b>$authorname</b>";
-		echo "<b><br><a href=\"../list_author.php?type=view&admin=true\">Back to Author Page</a>";
-		echo "<br><a href=\"./\">Back to Administrator Page</a></b>";
-		echo "<br><br></body></html>";
-		disconnect_db($link);
-		exit();
-	}
-
-
-
-
-
-?>
-
-<body><h3>Delete Author</h3><br>
-	<table width="750" border="0" cellspacing="0" cellpadding="6">
-	<tr>
-		<td width="100%" colspan="2"><font face="Arial, Helvetica, sans-serif" size="2"><b>Delete the following author?</b></font></td>
-	  </tr>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Name: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><b><? echo $author_array['name'] ?></b></font></td>
-	  </tr>
-	  <?php if (isset($author_array['title']) && trim($author_array['title']) != "") {?>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Title: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $author_array['title'] ?></font></td>
-	  </tr>
-	  <?php } ?>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Email: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $author_array['email'] ?></font></td>
-	  </tr>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Organization: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $author_array['organization'] ?></font></td>
-	  </tr>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Webpage: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? if (isset($author_array['webpage']) && trim($author_array['webpage']) != "") echo "<a href=\"" . $author_array['webpage'] . "\">" . $author_array['webpage'] . "</a>"; else echo "none"; ?></font></td>
-	  </tr>
-	  <tr>
-	  	  <form name="deleter" action="./delete_author.php?author_id=<?php echo $_GET['author_id']; ?>&confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-		<td width="100%" colspan="2">
-		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
-		  <input type="button" value="Cancel" onclick="history.back()">
-		 &nbsp; &nbsp; &nbsp;</td>
-	  </form>
-	  </tr>
-	</table>
-	<? back_button(); ?>
-</body>
-</html>
-
-<?
-	/* Free resultset */
-	mysql_free_result($author_result);
-
-	/* Closing connection */
-	disconnect_db($link);
 ?>

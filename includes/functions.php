@@ -380,11 +380,6 @@ function arr2obj($arg_array) {
     return $tmp; // return the object!
 }
 
-function helpTooltip($text, $varname) {
-    return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
-        . 'return escape(' . $varname . ')">' . $text . '</a>';
-}
-
 function tableHighlightRows(&$table) {
     assert('is_object($table)');
 

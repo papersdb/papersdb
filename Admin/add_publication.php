@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.20 2006/06/09 22:59:39 aicmltec Exp $
+// $Id: add_publication.php,v 1.21 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -499,18 +499,18 @@ JS_END;
 
         $table->addRow(array('<hr/>'), array('colspan' => 2));
         $table->addRow(array('Step 1:'));
-        $table->addRow(array(helpTooltip('Publication Venue', 'venueHelp')
+        $table->addRow(array($this->helpTooltip('Publication Venue', 'venueHelp')
                              . ':',
                              $rend->elementToHtml('venue_id')));
-        $table->addRow(array(helpTooltip('Category', 'categoryHelp')
+        $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
                              . ':',
                              $rend->elementToHtml('category_id')));
-        $table->addRow(array(helpTooltip('Title', 'titleHelp') . ':',
+        $table->addRow(array($this->helpTooltip('Title', 'titleHelp') . ':',
                              $rend->elementToHtml('title')));
-        $table->addRow(array(helpTooltip('Author(s)', 'authorsHelp') . ':',
+        $table->addRow(array($this->helpTooltip('Author(s)', 'authorsHelp') . ':',
                              $rend->elementToHtml('authors')));
         $table->addRow(array('', $rend->elementToHtml('add_author')));
-        $table->addRow(array(helpTooltip('Abstract', 'abstractHelp')
+        $table->addRow(array($this->helpTooltip('Abstract', 'abstractHelp')
                              . ':<br/><div id="small">HTML Enabled</div>',
                              $rend->elementToHtml('abstract')));
 
@@ -551,14 +551,14 @@ JS_END;
                                  $rend->elementToHtml('venue_name')));
         }
 
-        $table ->addRow(array(helpTooltip('Extra Information', 'extraInfoHelp')
+        $table ->addRow(array($this->helpTooltip('Extra Information', 'extraInfoHelp')
                               . ':<br/><div id="small">optional</div>',
                               $rend->elementToHtml('extra_info')
                               . $rend->elementToHtml('extra_info_select')));
 
         // External Pointers
         if ($ext == 0) {
-            $table->addRow(array(helpTooltip('External Pointers',
+            $table->addRow(array($this->helpTooltip('External Pointers',
                                              'externalPtrHelp')
                                  . ':<br/><div id="small">optional</div>',
                                  $rend->elementToHtml('ext_ptr_add')));
@@ -584,7 +584,7 @@ JS_END;
 
         // Internal Pointers
         if ($intpoint == 0) {
-            $table->addRow(array(helpTooltip('Internal Pointers',
+            $table->addRow(array($this->helpTooltip('Internal Pointers',
                                              'internalPtrHelp')
                                  . ':<br/><div id="small">optional</div>',
                                  $rend->elementToHtml('int_ptr_add')));
@@ -593,7 +593,7 @@ JS_END;
             for ($e = 1; $e <= $intpoint; $e++) {
                 $cell = '';
                 if ($e == 1)
-                    $cell = helpTooltip('Internal Pointers', 'internalPtrHelp')
+                    $cell = $this->helpTooltip('Internal Pointers', 'internalPtrHelp')
                         . ':<br/><div id="small">optional</div>';
                 $table->addRow(array($cell,
                                      $rend->elementToHtml('intpointer' . $e)));
@@ -604,7 +604,7 @@ JS_END;
                                  $rend->elementToHtml('int_ptr_remove')));
         }
 
-        $table->addRow(array(helpTooltip('Keywords', 'keywordsHelp') . ':',
+        $table->addRow(array($this->helpTooltip('Keywords', 'keywordsHelp') . ':',
                              $rend->elementToHtml('keywords')
                              . ' <div id="small">separate using semicolon (;)</div>'));
 
@@ -616,7 +616,7 @@ JS_END;
             }
         }
 
-        $table->addRow(array(helpTooltip('Date Published', 'datePublishedHelp') . ':',
+        $table->addRow(array($this->helpTooltip('Date Published', 'datePublishedHelp') . ':',
                              $rend->elementToHtml('date_published')
                              . '<a href="javascript:doNothing()" '
                              . 'onClick="setDateField('

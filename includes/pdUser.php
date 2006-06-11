@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.12 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdUser.php,v 1.13 2006/06/11 20:42:27 aicmltec Exp $
 
 /**
  * \file
@@ -57,12 +57,12 @@ class pdUser {
                                   'email' => $this->email),
                     array('login' => $this->login),
                     'pdUser::dbSave');
-        if (is_array($this->collaborators)) {
-            $db->delete('user_author',
-                        array('login' => $this->login),
-                        'pdUser::dbSave');
-            $values = '';
-            foreach($this->collaborators as $collaborator) {
+
+        $db->delete('user_author', array('login' => $this->login),
+                    'pdUser::dbSave');
+
+        if (count($this->collaborators) > 0) {
+            foreach ($this->collaborators as $collaborator) {
                 $values[] .= '(' . quote_smart($this->login) . ','
                     . quote_smart($collaborator->author_id) . ')';
             }

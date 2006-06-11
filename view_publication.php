@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.23 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: view_publication.php,v 1.24 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -186,6 +186,8 @@ class view_publication extends pdHtmlPage {
     }
 
     function intPointerRowsAdd(&$db, &$pub, &$table) {
+        global $logged_in;
+
         if (!isset($pub->intPointer)) return;
 
         foreach ($pub->intPointer as $int) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.5 2006/06/09 22:34:19 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.6 2006/06/11 20:42:27 aicmltec Exp $
 
 /**
  * \file
@@ -15,9 +15,10 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/Table.php';
 
-define('PD_HTML_PAGE_LOGIN_LEVEL_ALWAYS',   0);
-define('PD_HTML_PAGE_LOGIN_LEVEL_NONE',     1);
-define('PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED', 2);
+define('PD_HTML_PAGE_NAV_MENU_NEVER',          0);
+define('PD_HTML_PAGE_NAV_MENU_ALWAYS',         1);
+define('PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ',  2);
+define('PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED', 3);
 
 
 /**
@@ -39,6 +40,7 @@ class pdHtmlPage {
     var $contentPre;
     var $contentPost;
     var $useStdLayout;
+    var $hasHelpTooltips;
 
     /**
      * Constructor.
@@ -59,6 +61,7 @@ class pdHtmlPage {
         $this->loginError  = false;
         $this->pageError   = false;
         $this->useStdLayout = $useStdLayout;
+        $this->hasHelpTooltips = false;
     }
 
     function htmlPageHeader() {
@@ -81,13 +84,16 @@ class pdHtmlPage {
             $result .= $this->pageFooter();
         }
 
-        if (strstr($this->relativeUrl, '/'))
-            $jsFile = '../wz_tooltip.js';
-        else
-            $jsFile = 'wz_tooltip.js';
+        if ($this->hasHelpTooltips) {
+            if (strstr($this->relativeUrl, '/'))
+                $jsFile = '../wz_tooltip.js';
+            else
+                $jsFile = 'wz_tooltip.js';
 
-        $result .= '<script language="JavaScript" type="text/javascript" src="'
-            . $jsFile . '"></script>';
+            $result
+                .= '<script language="JavaScript" type="text/javascript" src="'
+                . $jsFile . '"></script>';
+        }
 
         $result .= '</body></html>';
 
@@ -151,31 +157,31 @@ class pdHtmlPage {
     var $page_info = array(
         'add_publication'  => array('Add Publication',
                                     'Admin/add_publication.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'add_author'       => array('Add Author',
                                     'Admin/add_author.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'add_venue'        => array('Add Venue', 'Admin/add_venue.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'delete_author'    => array('Delete Author',
                                     'Admin/delete_author.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_NEVER),
         'delete_venue'     => array('Delete Venue', 'Admin/delete_venue.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_NEVER),
         'edit_user'        => array('Edit User', 'Admin/edit_user.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'advanced_search'  => array('Advanced Search', 'advanced_search.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_NONE),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'all_publications' => array('All Publications', 'list_publication.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_NONE),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'all_authors'      => array('All Authors', 'list_author.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_NONE),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'all_venues'       => array('All Venues', 'list_venues.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_NONE),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'logout'           => array('Logout', 'logout.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'login'            => array('Login or Register', 'login.php',
-                                    PD_HTML_PAGE_LOGIN_LEVEL_ALWAYS)
+                                    PD_HTML_PAGE_NAV_MENU_ALWAYS)
         );
 
     function htmlHeader($page, $title, $redirect = '') {
@@ -209,9 +215,11 @@ class pdHtmlPage {
             $url_prefix = '../';
 
         foreach ($this->page_info as $name => $info) {
-            if (($logged_in && ($info[2] > 0))
+            if ($info[2] <= 0) continue;
+
+            if (($logged_in && ($info[2] > 1))
                 || (!$logged_in
-                    && ($info[2] < PD_HTML_PAGE_LOGIN_LEVEL_REQUIRED))) {
+                    && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
                 if ($name == $this->page_id) {
                     $options[$info[0]] = '';
                 }
@@ -299,6 +307,21 @@ END;
                                      </div>
 
 END;
+    }
+
+    function helpTooltip($text, $varname) {
+        $this->hasHelpTooltips = true;
+        return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
+            . 'return escape(' . $varname . ')">' . $text . '</a>';
+    }
+
+    function confirmForm($name, $action) {
+        $form = new HTML_QuickForm($name, 'post', $action, '_self',
+                                   'multipart/form-data');
+
+        $form->addElement('submit', 'Submit', 'Delete');
+        $form->addElement('submit', 'Cancel', 'Cancel');
+        return $form;
     }
 }
 

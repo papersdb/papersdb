@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.12 2006/06/10 19:00:21 aicmltec Exp $
+// $Id: add_author.php,v 1.13 2006/06/11 20:42:26 aicmltec Exp $
 
 /**
  * \file
@@ -45,23 +45,18 @@ class add_author extends pdHtmlPage {
         $db =& dbCreate();
 
         if (isset($_GET['newInterests'])) {
-            $newInterests =  $_GET['newInterests'] + 1;
+            $newInterests =  $_GET['newInterests'];
         }
         else {
             $newInterests = 0;
         }
         $this->contentPre
-            .= '<h3>' . helpTooltip('Add Author', 'addAuthorPageHelp') . '</h3>';
+            .= '<h3>' . $this->helpTooltip('Add Author', 'addAuthorPageHelp')
+            . '</h3>';
 
         $formAttr = array();
-        if($_GET['popup'] != "false")
-            $formAttr = array('onsubmit' => "setTimeout('self.close()',0);");
 
-        $form = new HTML_QuickForm('authorForm', 'post',
-                                   "./add_publication.php?"
-                                   . $_SERVER['QUERY_STRING'],
-                                   "add_publication.php",
-                                   $formAttr);
+        $form = new HTML_QuickForm('authorForm', 'post');
 
         $form->addElement('text', 'firstname', null,
                           array('size' => 50, 'maxlength' => 250));
@@ -92,18 +87,7 @@ class add_author extends pdHtmlPage {
                           array('class' => 'text',
                                 'onClick' => 'resetAll();'));
 
-        if ($_GET['popup'])
-            $form->addElement('reset', 'Cancel', 'Cancel',
-                              array('class' => 'text',
-                                    'onClick' => 'closeWindow();'));
-        else
-            $form->addElement('reset', 'Cancel', 'Cancel',
-                              array('class' => 'text',
-                                    'onClick' => 'history.back();'));
-
-        $form->addElement('hidden', 'newAuthorSubmitted', 'true');
-        $form->addElement('hidden', 'numInterests', $counter + 1);
-        $form->addElement('hidden', 'fromauthorspage', 'true');
+        $form->addElement('hidden', 'newInterests', $newInterests + 1);
 
         for ($i = 0; $i < $newInterests; $i++) {
             $form->addElement('text', 'newInterest' . $i, null,
@@ -115,19 +99,17 @@ class add_author extends pdHtmlPage {
         $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
         $form->accept($renderer);
 
-
-        $tableAttrs = array('width' => '100%',
-                            'border' => '0',
-                            'cellpadding' => '6',
-                            'cellspacing' => '0');
-        $table = new HTML_Table($tableAttrs);
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
         $table->setAutoGrow(true);
 
         $table->addRow(array('First Name:',
                              $renderer->elementToHtml('firstname')));
         $table->addRow(array('Last Name:',
                              $renderer->elementToHtml('lastname')));
-        $table->addRow(array(helpTooltip('Title', 'authTitleHelp') . ':',
+        $table->addRow(array($this->helpTooltip('Title', 'authTitleHelp') . ':',
                              $renderer->elementToHtml('auth_title')));
         $table->addRow(array('Email:', $renderer->elementToHtml('email')));
         $table->addRow(array('Organization:',
@@ -135,15 +117,14 @@ class add_author extends pdHtmlPage {
         $table->addRow(array('Webpage:', $renderer->elementToHtml('webpage')));
 
         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
-            . $newInterests .')">[Add Interest]</a></div>';
+            . ($newInterests+1) .')">[Add Interest]</a></div>';
 
         $table->addRow(array('Interests:' . $ref,
                              $renderer->elementToHtml('interests')));
 
         for ($i = 0; $i < $newInterests; $i++) {
             $table->addRow(array('Interest Name:',
-                                 $renderer->elementToHtml(
-                                     'newInterest' . $i)));
+                                 $renderer->elementToHtml('newInterest'.$i)));
         }
 
         $table->updateColAttributes(0, array('id' => 'emph',
@@ -161,8 +142,7 @@ class add_author extends pdHtmlPage {
 
             <script language="JavaScript" type="text/JavaScript">
             var addAuthorPageHelp=
-            "This window is used to add an author to the database. In order "
-            + "to add an author you need to input the author's first name, "
+            "To add an author you need to input the author's first name, "
             + "last name, email address and organization. You must also "
             + "select interet(s) that the author has. To do this you can "
             + "select interest(s) allready in the database by selecting "
@@ -205,16 +185,18 @@ class add_author extends pdHtmlPage {
             var temp_qs = "";
             var info_counter = 0;
 
-            var form = document.forms["authorForm"];
-            for (i = 0; i < form.elements.length; i++) {
-                if ((form.elements[i].value != "")
-                    && (form.elements[i].value != null)) {
+            for (i = 0; i < document.forms["authorForm"].elements.length; i++) {
+                var element = document.forms["authorForm"].elements[i];
+
+                if ((element.type != "submit") && (element.type != "reset")
+                    && (element.value != "") && (element.value != null)) {
+
                     if (info_counter > 0) {
                         temp_qs = temp_qs + "&";
                     }
 
-                    if (form.elements[i].name == "interests[]") {
-                        interest_array = form.elements['interests[]'];
+                    if (element.name == "interests[]") {
+                        interest_array = element;
                         var interest_list = "";
                         var interest_count = 0;
 
@@ -229,11 +211,13 @@ class add_author extends pdHtmlPage {
                             }
                         }
 
-                        temp_qs = temp_qs + interest_list;
+                        temp_qs += interest_list;
+                    }
+                    else if (element.name == "newInterests") {
+                        temp_qs += element.name + "=" + num;
                     }
                     else {
-                        temp_qs += form.elements[i].name + "="
-                            + form.elements[i].value;
+                        temp_qs += element.name + "=" + element.value;
                     }
 
                     info_counter++;
@@ -242,7 +226,9 @@ class add_author extends pdHtmlPage {
 
             temp_qs.replace(" ", "%20");
             temp_qs.replace("\"", "?");
-            location.replace("./add_author.php?{$_SERVER['QUERY_STRING']}&newInterests=" + num + "&" + temp_qs);
+            location.href
+                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
+                + temp_qs;
         }
         function closewindow() {window.close();}
 
