@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.14 2006/06/12 19:12:05 aicmltec Exp $
+// $Id: add_author.php,v 1.15 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -45,37 +45,45 @@ class add_author extends pdHtmlPage {
         // Connecting, selecting database
         $db =& dbCreate();
 
-        if (isset($_GET['newInterests'])) {
-            $newInterests =  $_GET['newInterests'];
+        if (isset($_GET['numNewInterests'])
+            && ($_GET['numNewInterests'] != '')) {
+            $newInterests =  intval($_GET['numNewInterests']);
+        }
+        else if (isset($_POST['numNewInterests'])
+            && ($_POST['numNewInterests'] != '')) {
+            $newInterests =  intval($_POST['numNewInterests']);
         }
         else {
             $newInterests = 0;
         }
-        $this->contentPre
-            .= '<h3>' . $this->helpTooltip('Add Author', 'addAuthorPageHelp')
-            . '</h3>';
-
-        $formAttr = array();
 
         $form = new HTML_QuickForm('authorForm');
 
         $form->addElement('text', 'firstname', null,
                           array('size' => 50, 'maxlength' => 250));
+        $form->addRule('firstname', 'a first name is required', 'required',
+                       null, 'client');
+        $form->addRule('firstname',
+                       'the first name cannot contain punctuation',
+                       'lettersonly', null, 'client');
         $form->addElement('text', 'lastname', null,
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('lastnamex', 'a name is required', 'required');
+        $form->addRule('lastname', 'a last name is required', 'required', null,
+                       'client');
+        $form->addRule('firstname', 'the lst name cannot contain punctuation',
+                       'lettersonly', null, 'client');
         $form->addElement('text', 'title', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('text', 'email', null,
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('email', 'invalid email address', 'email');
+        $form->addRule('email', 'invalid email address', 'email', null,
+                       'client');
         $form->addElement('text', 'organization', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('text', 'webpage', null,
                           array('size' => 50, 'maxlength' => 250));
 
-        $interests = new pdAuthInterests();
-        $interests->dbLoad($db);
+        $interests = new pdAuthInterests($db);
         assert('is_array($interests->list)');
         foreach($interests->list as $intr) {
             $options[$intr->interest] = $intr->interest;
@@ -84,77 +92,87 @@ class add_author extends pdHtmlPage {
         $form->addElement('select', 'interests', null, $options,
                           array('multiple' => 'multiple', 'size' => 4));
 
-        $form->addElement('submit', 'submit', 'Add Author');
-        $form->addElement('reset', 'reset', 'Reset');
-
-        $form->addElement('hidden', 'newInterests', $newInterests);
-
         for ($i = 0; $i < $newInterests; $i++) {
-            $form->addElement('text', 'newInterest' . $i, null,
+            $form->addElement('text', 'newInterests['.$i.']', null,
                               array('size' => 50, 'maxlength' => 250));
         }
 
-        $form->setDefaults($_GET);
+        $form->addElement('submit', 'submit', 'Add Author');
+        $form->addElement('reset', 'reset', 'Reset');
 
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
-
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '6',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
-
-        $table->addRow(array('First Name:',
-                             $renderer->elementToHtml('firstname')));
-        $table->addRow(array('Last Name:',
-                             $renderer->elementToHtml('lastname')));
-        $table->addRow(array($this->helpTooltip('Title', 'authTitleHelp') . ':',
-                             $renderer->elementToHtml('title')));
-        $table->addRow(array('Email:', $renderer->elementToHtml('email')));
-        $table->addRow(array('Organization:',
-                             $renderer->elementToHtml('organization')));
-        $table->addRow(array('Webpage:', $renderer->elementToHtml('webpage')));
-
-        $ref = '<br/><div id="small"><a href="javascript:dataKeep('
-            . ($newInterests+1) .')">[Add Interest]</a></div>';
-
-        $table->addRow(array('Interests:' . $ref,
-                             $renderer->elementToHtml('interests')));
-
-        for ($i = 0; $i < $newInterests; $i++) {
-            $table->addRow(array('Interest Name:',
-                                 $renderer->elementToHtml('newInterest'.$i)));
-        }
-
-        $table->updateColAttributes(0, array('id' => 'emph',
-                                             'width' => '25%'));
-
-        $this->form =& $form;
-        $this->renderer =& $renderer;
-        $this->table =& $table;
-        $this->javascript();
-        $db->close();
+        $form->addElement('hidden', 'numNewInterests', $newInterests);
 
         if ($form->validate()) {
+            $values = $form->exportValues();
+
             $author = new pdAuthor();
-            $author->name = $_POST['lastname'] . ', ' . $_POST['firstname'];
-            $author->title = $_POST['title'];
-            $author->email = $_POST['email'];
-            $author->organization = $_POST['organization'];
-            $author->webpage = $_POST['webpage'];
+            $author->name = $values['lastname'] . ', ' . $values['firstname'];
+            $author->title = $values['title'];
+            $author->email = $values['email'];
+            $author->organization = $values['organization'];
+            $author->webpage = $values['webpage'];
+            $author->interests = array_merge($values['interests'],
+                                             $values['newInterests']);
 
-            foreach ($_POST['interests'] as $interest) {
-                $author->interests[] = $interest;
-            }
-
-            $this->contentPre .= '<pre>' . print_r($_POST, true) . '</pre>';
             $this->contentPre .= '<pre>' . print_r($author, true) . '</pre>';
 
-            //$author->dbSave($db);
-            $db->close();
-            return;
+            $this->contentPre .= 'Author "' . $values['firstname'] . ' '
+                . $values['lastname'] . '" succesfully added to the database.'
+                . '<p/>'
+                . '<a href="' . $_SERVER['PHP_SELF'] . '">'
+                . 'Add another new author</a>';
+
+            $author->dbSave($db);
         }
+        else {
+            $this->contentPre .= '<h3>'
+                . $this->helpTooltip('Add Author', 'addAuthorPageHelp')
+                . '</h3>';
+
+            $form->setDefaults($_GET);
+
+            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $form->accept($renderer);
+
+            $table = new HTML_Table(array('width' => '100%',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
+            $table->setAutoGrow(true);
+
+            $table->addRow(array('First Name:',
+                                 $renderer->elementToHtml('firstname')));
+            $table->addRow(array('Last Name:',
+                                 $renderer->elementToHtml('lastname')));
+            $table->addRow(array($this->helpTooltip('Title', 'authTitleHelp') . ':',
+                                 $renderer->elementToHtml('title')));
+            $table->addRow(array('Email:', $renderer->elementToHtml('email')));
+            $table->addRow(array('Organization:',
+                                 $renderer->elementToHtml('organization')));
+            $table->addRow(array('Webpage:', $renderer->elementToHtml('webpage')));
+
+            $ref = '<br/><div id="small"><a href="javascript:dataKeep('
+                . ($newInterests+1) .')">[Add Interest]</a></div>';
+
+            $table->addRow(array('Interests:' . $ref,
+                                 $renderer->elementToHtml('interests')));
+
+            for ($i = 0; $i < $newInterests; $i++) {
+                $table->addRow(array('Interest Name:',
+                                     $renderer->elementToHtml(
+                                         'newInterests['.$i.']')));
+            }
+
+
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '25%'));
+
+            $this->form =& $form;
+            $this->renderer =& $renderer;
+            $this->table =& $table;
+            $this->javascript();
+        }
+        $db->close();
     }
 
     function javascript() {
@@ -177,27 +195,6 @@ class add_author extends pdHtmlPage {
         var authTitleHelp=
             "The title of an author. Will take the form of one of: "
             + "{Prof, PostDoc, PhD student, MSc student, Colleague, etc...}.";
-
-//         function verify() {
-//             var form = document.forms["authorForm"];
-//             if (form.elements["firstname"].value == "") {
-//                 alert("Please enter a complete name for the new author.");
-//                 return false;
-//             }
-//             if (form.elements["lastname"].value == "") {
-//                 alert("Please enter a complete name for the new author.");
-//                 return false;
-//             }
-//             if ((form.elements["firstname"].value).search(",") !=-1){
-//                 alert("Please do not use commas in author's first name");
-//                 return false;
-//             }
-//             if ((form.elements["lastname"].value).search(",") !=-1){
-//                 alert("Please do not use commas in author's last name");
-//                 return false;
-//             }
-//             return true;
-//         }
 
         function dataKeep(num) {
             var temp_qs = "";
@@ -231,7 +228,7 @@ class add_author extends pdHtmlPage {
 
                         temp_qs += interest_list;
                     }
-                    else if (element.name == "newInterests") {
+                    else if (element.name == "numNewInterests") {
                         temp_qs += element.name + "=" + num;
                     }
                     else {

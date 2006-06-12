@@ -379,6 +379,7 @@ class Database {
 			wfProfileIn( $queryProf );
 		}
 
+        //echo print_r($sql, true) . '<br/>';
 		$this->mLastQuery = $sql;
 
 		# Add a comment for easy SHOW PROCESSLIST interpretation
@@ -803,7 +804,7 @@ class Database {
 			$sql = "SELECT $vars $from $useIndex $tailOpts";
 		}
 
-        #print_r($sql); echo "<br/>\n";
+        //echo print_r($sql, true) . '<br/>';
 
 		return $this->query( $sql, $fname );
 	}

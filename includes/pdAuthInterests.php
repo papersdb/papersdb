@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.2 2006/06/06 21:11:12 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.3 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -18,27 +18,24 @@
  */
 class pdAuthInterests {
     var $list;
+    var $names;
 
     /**
      * Constructor.
      */
-    function pdAuthInterests($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
-    }
-
-    /**
-     * Loads a specific publication from the database.
-     *
-     * Use flags to load individual tables
-     */
-    function dbLoad(&$db) {
+    function pdAuthInterests(&$db) {
         $q = $db->select('interest', '*', '', "pdAuthInterests::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {
             $this->list[] = $r;
+            $this->interests[] = $r->interest;
             $r = $db->fetchObject($q);
         }
+    }
+
+    function interestExists($interest) {
+        assert('isset($this->interests)');
+        return in_array($interest, $this->interests);
     }
 }
 

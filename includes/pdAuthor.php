@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.8 2006/06/12 19:12:05 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.9 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -11,6 +11,7 @@
  */
 
 require_once 'pdPubList.php';
+require_once 'pdAuthInterests.php';
 
 define('PD_AUTHOR_DB_LOAD_BASIC',     0);
 define('PD_AUTHOR_DB_LOAD_INTERESTS', 1);
@@ -56,6 +57,7 @@ class pdAuthor {
 
         $q = $db->selectRow('author', '*', array('author_id' => $id),
                             "pdAuthor::dbLoad");
+        assert('($q !== false)');
         $this->load($q);
 
         if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
@@ -81,6 +83,7 @@ class pdAuthor {
                          "pdAuthor::interestsDbLoad");
 
         $r = $db->fetchObject($q);
+        assert('($r !== false)');
         while ($r) {
             $this->interests[] = $r->interest;
             $r = $db->fetchObject($q);
@@ -144,36 +147,52 @@ class pdAuthor {
                                     'organization' => $this->organization,
                                     'webpage' => $this->webpage),
                     'pdAuthor::dbSave');
+
+        $q = $db->selectRow('author', 'author_id',
+                            array('name' => $this->name,
+                                  'title' => $this->title,
+                                  'email' => $this->email,
+                                  'organization' => $this->organization,
+                                  'webpage' => $this->webpage),
+                            "pdAuthor::dbLoad");
+        assert('($q !== false)');
+        $this->load($q);
+
         $this->dbSaveInterests($db);
     }
 
     function dbSaveInterests(&$db) {
-        $db->delete('author_interest',
-                    array('author_id' => $this->author_id),
-                    'pdUser::dbSave');
+        if (isset($this->author_id)) {
+            $db->delete('author_interest',
+                        array('author_id' => $this->author_id),
+                        'pdUser::dbSave');
+        }
 
         if (isset($this->interests) && (count($this->interests) > 0)) {
+            $db_interests = new pdAuthInterests($db);
+
             // first add the interests
             $arr = array();
-            foreach ($this->interest as $i) {
-                array_push($arr, array('interest_id' => 'NULL',
-                                       'interest' => $i));
+            foreach ($this->interests as $i) {
+                if (!$db_interests->interestExists($i)) {
+                    array_push($arr, array('interest_id' => 'NULL',
+                                           'interest' => $i));
+                }
             }
-            $db->insert('interest', $arr, 'pdAuthor::dbSave');
+
+            if (count($arr) > 0)
+                $db->insert('interest', $arr, 'pdAuthor::dbSave');
 
             // link the interest to this author
             $arr = array();
-            foreach ($this->interest as $i) {
-                $db->select('interest', 'interest_id',
-                            'interest=' . $i, 'pdAuthor::dbSave');
-
-                $r = $db->fetchObject($q);
-                while ($r) {
-                    array_push($arr,
-                               array('author_id' => $this->author_id,
-                                     'interest_id' => $r->interest_id));
-                    $r = $db->fetchObject($q);
-                }
+            foreach ($this->interests as $i) {
+                $q = $db->selectRow('interest', 'interest_id',
+                                    array('interest' => $i),
+                                    'pdAuthor::dbSaveInterests');
+                assert('($q !== false)');
+                array_push($arr,
+                           array('author_id' => $this->author_id,
+                                 'interest_id' => $q->interest_id));
             }
             $db->insert('author_interest', $arr, 'pdAuthor::dbSave');
         }

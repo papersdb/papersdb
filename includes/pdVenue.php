@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.3 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: pdVenue.php,v 1.4 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -66,13 +66,14 @@ class pdVenue {
         else {
             $db->query('INSERT INTO venue '
                        . '(venue_id, title, name, url, type, data, editor, date)'
-                       . 'VALUES (NULL, "' . $this->title .'", '
-                       . '"' . $this->name . '", '
-                       . '"' . $this->url . '", '
-                       . '"' . $this->type . '", '
-                       . '"' . $this->data . '", '
-                       . '"' . $this->editor . '", '
-                       . '"' . $this->date . '")');
+                       . 'VALUES (NULL, '
+                       . quote_smart($this->title) .  ', '
+                       . quote_smart($this->name) .   ', '
+                       . quote_smart($this->url) .    ', '
+                       . quote_smart($this->type) .   ', '
+                       . quote_smart($this->data) .   ', '
+                       . quote_smart($this->editor) . ', '
+                       . quote_smart($this->date) .   ')');
             return true;
         }
     }

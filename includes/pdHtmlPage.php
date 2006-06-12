@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.6 2006/06/11 20:42:27 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.7 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -160,6 +160,8 @@ class pdHtmlPage {
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'add_author'       => array('Add Author',
                                     'Admin/add_author.php',
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'add_category'     => array('Add Category', 'Admin/add_category.php',
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'add_venue'        => array('Add Venue', 'Admin/add_venue.php',
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),

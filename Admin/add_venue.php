@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.6 2006/06/11 20:42:26 aicmltec Exp $
+// $Id: add_venue.php,v 1.7 2006/06/12 23:34:38 aicmltec Exp $
 
 /**
  * \file
@@ -55,34 +55,6 @@ class add_venue extends pdHtmlPage {
 
         $db =& dbCreate();
 
-        if (isset($_POST['submit']) && ($_POST['submit'] == 'true')) {
-            $venue = new pdVenue();
-            $venue->load($_POST);
-
-            //add http:// to webpage address if needed
-            if (strpos($venue->url, 'http') === false) {
-                $venue->url = "http://" . $venue->url;
-            }
-            $venue->title = str_replace("\"","'", $venue->title);
-
-            if (!isset($venue->venue_id) || ($venue->venue_id == '')) {
-                $venue->dbSave($db);
-
-                $this->contentPre .= 'You have successfully added the venue "'
-                    .  $venue->title . '".'
-                    . '<br><a href="./add_venue.php">Add another venue</a>';
-            }
-            else {
-                $venue->dbSave($db);
-
-                $this->contentPre .= 'You have successfully edited the venue "'
-                    . $venue->title . '".'
-                    . '<br><a href="./add_venue.php?status=edit">Edit another'
-                    . 'venue</a>';
-            }
-            return;
-        }
-
         $venue = new pdVenue();
         if ($this->change) {
             if (!isset($_GET['venue_id']) || ($_GET['venue_id'] == '')) {
@@ -93,8 +65,10 @@ class add_venue extends pdHtmlPage {
             $venue->dbLoad($db, $venue_id);
         }
 
-        if (isset($_GET['type']))
+        if (isset($_GET['type']) && ($_GET['type'] != ''))
             $venue->type = $_GET['type'];
+        else if (isset($_POST['type']) && ($_POST['type'] != ''))
+            $venue->type = $_POST['type'];
 
         $form = new HTML_QuickForm('venueForm', 'post',
                                    './add_venue.php?submit=true');
@@ -117,10 +91,12 @@ class add_venue extends pdHtmlPage {
                           array('onClick' => 'dataKeep();'));
         $form->addElement('text', 'title', null,
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('title', 'venue title cannot be empty',
-                       'required', null, 'client');
+        $form->addRule('title', 'a venue title is required', 'required',
+                       null, 'client');
         $form->addElement('text', 'name', null,
                           array('size' => 50, 'maxlength' => 250));
+        $form->addRule('name', 'a venue name is required', 'required',
+                       null, 'client');
         $form->addRule('name', 'venue name cannot be empty',
                        'required', null, 'client');
         $form->addElement('text', 'url', null,
@@ -139,81 +115,109 @@ class add_venue extends pdHtmlPage {
 
         $form->addElement('reset', 'Reset', 'Reset');
 
-        $form->setDefaults($_GET);
-        if ($venue->venue_id != '') {
-            $form->setDefaults(array('venue_id' => $venue->venue_id,
-                                     'title'    => $venue->title,
-                                     'name'     => $venue->name,
-                                     'url'      => $venue->url,
-                                     'type'     => $venue->type,
-                                     'data'     => $venue->data,
-                                     'editor'   => $venue->editor,
-                                     'date'     => $venue->date));
+        if ($form->validate()) {
+            $values = $form->exportValues();
+
+            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
+
+            $venue->load($values);
+
+            //add http:// to webpage address if needed
+            if (strpos($venue->url, 'http') === false) {
+                $venue->url = "http://" . $venue->url;
+            }
+            $venue->title = str_replace("\"","'", $venue->title);
+            $venue->dbSave($db);
+
+            if (!isset($venue->venue_id) || ($venue->venue_id == '')) {
+                $this->contentPre .= 'You have successfully added the venue "'
+                    .  $venue->title . '".'
+                    . '<br><a href="./add_venue.php">Add another venue</a>';
+            }
+            else {
+                $this->contentPre .= 'You have successfully edited the venue "'
+                    . $venue->title . '".'
+                    . '<br><a href="./add_venue.php?status=edit">Edit another'
+                    . 'venue</a>';
+            }
         }
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
+        else {
+            $form->setDefaults($_GET);
+            if ($venue->venue_id != '') {
+                $form->setDefaults(array('venue_id' => $venue->venue_id,
+                                         'title'    => $venue->title,
+                                         'name'     => $venue->name,
+                                         'url'      => $venue->url,
+                                         'type'     => $venue->type,
+                                         'data'     => $venue->data,
+                                         'editor'   => $venue->editor,
+                                         'date'     => $venue->date));
+            }
+            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $form->accept($renderer);
 
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '6',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
+            $table = new HTML_Table(array('width' => '100%',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
+            $table->setAutoGrow(true);
 
-        $table->addRow(array('Type:',
-                             $renderer->elementToHtml('type', 'journal')));
-        $table->addRow(array('',
-                             $renderer->elementToHtml('type', 'conference')));
-        $table->addRow(array('',
-                             $renderer->elementToHtml('type', 'workshop')));
-        $table->addRow(array('Internal Title:',
-                             $renderer->elementToHtml('title')));
-        $table->addRow(array('Venue Name:',
-                             $renderer->elementToHtml('name')));
-        $table->addRow(array('Venue URL:',
-                             $renderer->elementToHtml('url')));
+            $table->addRow(array('Type:',
+                                 $renderer->elementToHtml('type', 'journal')));
+            $table->addRow(array('',
+                                 $renderer->elementToHtml('type', 'conference')));
+            $table->addRow(array('',
+                                 $renderer->elementToHtml('type', 'workshop')));
+            $table->addRow(array('Internal Title:',
+                                 $renderer->elementToHtml('title')));
+            $table->addRow(array('Venue Name:',
+                                 $renderer->elementToHtml('name')));
+            $table->addRow(array('Venue URL:',
+                                 $renderer->elementToHtml('url')));
 
-        if ($venue->type != '') {
-            if ($venue->type == 'conference')
-                $cell1 = 'Location';
-            else if ($venue->type == 'journal')
-                $cell1 = 'Publisher';
-            else if ($venue->type == 'workshop')
-                $cell1 = 'Associated Conference';
-            $table->addRow(array($cell1 . ':',
-                                 $renderer->elementToHtml('data')));
+            if ($venue->type != '') {
+                if ($venue->type == 'conference')
+                    $cell1 = 'Location';
+                else if ($venue->type == 'journal')
+                    $cell1 = 'Publisher';
+                else if ($venue->type == 'workshop')
+                    $cell1 = 'Associated Conference';
+                $table->addRow(array($cell1 . ':',
+                                     $renderer->elementToHtml('data')));
 
-            if ($venue->type == 'workshop')
-                $table->addRow(array('Editor:',
-                                     $renderer->elementToHtml('editor')));
+                if ($venue->type == 'workshop')
+                    $table->addRow(array('Editor:',
+                                         $renderer->elementToHtml('editor')));
 
 
-            if (($venue->type == 'conference') || ($venue->type == 'workshop'))
-                $table->addRow(array('Date:',
-                                     $renderer->elementToHtml('date')
-                                     . '<a href="doNothing()" '
-                                     . 'onClick="setDateField('
-                                     . 'document.venueForm.date);'
-                                     . 'top.newWin=window.open('
-                                     . '\'../calendar.html\','
-                                     . '\'cal\',\'dependent=yes,width=230,'
-                                     . 'height=250,screenX=200,screenY=300,'
-                                     . 'titlebar=yes\')">'
-                                     . '<img src="../calendar.gif" '
-                                     . 'border=0></a> '
-                                     . '(yyyy-mm-dd) '));
+                if (($venue->type == 'conference') || ($venue->type == 'workshop'))
+                    $table->addRow(array('Date:',
+                                         $renderer->elementToHtml('date')
+                                         . '<a href="doNothing()" '
+                                         . 'onClick="setDateField('
+                                         . 'document.venueForm.date);'
+                                         . 'top.newWin=window.open('
+                                         . '\'../calendar.html\','
+                                         . '\'cal\',\'dependent=yes,width=230,'
+                                         . 'height=250,screenX=200,screenY=300,'
+                                         . 'titlebar=yes\')">'
+                                         . '<img src="../calendar.gif" '
+                                         . 'border=0></a> '
+                                         . '(yyyy-mm-dd) '));
+            }
+
+            $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+
+            if ($this->change || $this->editmode)
+                $this->contentPre .= '<h3>Edit Venue</h3>';
+            else
+                $this->contentPre .= '<h3>Add Venue</h3>';
+
+            $this->form =& $form;
+            $this->renderer =& $renderer;
+            $this->table =& $table;
+            $this->javascript();
         }
-
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
-
-        if ($this->change || $this->editmode)
-            $this->contentPre .= '<h3>Edit Venue</h3>';
-        else
-            $this->contentPre .= '<h3>Add Venue</h3>';
-
-        $this->form =& $form;
-        $this->renderer =& $renderer;
-        $this->table =& $table;
-        $this->javascript();
         $db->close();
     }
 
