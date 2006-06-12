@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.2 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: list_venues.php,v 1.3 2006/06/12 19:12:05 aicmltec Exp $
 
 /**
  * \file
@@ -17,7 +17,7 @@ require_once 'includes/pdVenue.php';
  */
 class list_venues extends pdHtmlPage {
     function list_venues() {
-        parent::pdHtmlPage('all_venues', 'Add or Edit Venue');
+        parent::pdHtmlPage('all_venues');
         $db =& dbCreate();
 
         $venue_list = new pdVenueList();

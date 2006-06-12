@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.7 2006/06/12 04:32:15 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.8 2006/06/12 19:12:05 aicmltec Exp $
 
 /**
  * \file
@@ -29,8 +29,6 @@ class pdAuthor {
     var $title;
     var $webpage;
     var $name;
-    var $firstname;
-    var $lastname;
     var $email;
     var $organization;
     var $interests;
@@ -136,10 +134,6 @@ class pdAuthor {
                                         'webpage' => $this->webpage),
                         array('author_id' => $this->author_id),
                         'pdAuthor::dbSave');
-
-            $db->delete('author_interest',
-                        array('author_id' => $this->author_id),
-                        'pdUser::dbSave');
             $this->dbSaveInterests($db);
             return;
         }
@@ -154,6 +148,10 @@ class pdAuthor {
     }
 
     function dbSaveInterests(&$db) {
+        $db->delete('author_interest',
+                    array('author_id' => $this->author_id),
+                    'pdUser::dbSave');
+
         if (isset($this->interests) && (count($this->interests) > 0)) {
             // first add the interests
             $arr = array();

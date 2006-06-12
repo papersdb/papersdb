@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.13 2006/06/11 20:42:26 aicmltec Exp $
+// $Id: add_author.php,v 1.14 2006/06/12 19:12:05 aicmltec Exp $
 
 /**
  * \file
@@ -26,6 +26,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
+require_once 'includes/pdAuthor.php';
 
 /**
  * Renders the whole page.
@@ -56,16 +57,18 @@ class add_author extends pdHtmlPage {
 
         $formAttr = array();
 
-        $form = new HTML_QuickForm('authorForm', 'post');
+        $form = new HTML_QuickForm('authorForm');
 
         $form->addElement('text', 'firstname', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('text', 'lastname', null,
                           array('size' => 50, 'maxlength' => 250));
-        $form->addElement('text', 'auth_title', null,
+        $form->addRule('lastnamex', 'a name is required', 'required');
+        $form->addElement('text', 'title', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('text', 'email', null,
                           array('size' => 50, 'maxlength' => 250));
+        $form->addRule('email', 'invalid email address', 'email');
         $form->addElement('text', 'organization', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('text', 'webpage', null,
@@ -75,19 +78,16 @@ class add_author extends pdHtmlPage {
         $interests->dbLoad($db);
         assert('is_array($interests->list)');
         foreach($interests->list as $intr) {
-            $options[$intr->interest_id] = $intr->interest;
+            $options[$intr->interest] = $intr->interest;
         }
 
         $form->addElement('select', 'interests', null, $options,
                           array('multiple' => 'multiple', 'size' => 4));
 
-        $form->addElement('submit', 'Submit', 'Add Author',
-                          array('onClick' => 'return verify();'));
-        $form->addElement('reset', 'Reset', 'Reset',
-                          array('class' => 'text',
-                                'onClick' => 'resetAll();'));
+        $form->addElement('submit', 'submit', 'Add Author');
+        $form->addElement('reset', 'reset', 'Reset');
 
-        $form->addElement('hidden', 'newInterests', $newInterests + 1);
+        $form->addElement('hidden', 'newInterests', $newInterests);
 
         for ($i = 0; $i < $newInterests; $i++) {
             $form->addElement('text', 'newInterest' . $i, null,
@@ -110,7 +110,7 @@ class add_author extends pdHtmlPage {
         $table->addRow(array('Last Name:',
                              $renderer->elementToHtml('lastname')));
         $table->addRow(array($this->helpTooltip('Title', 'authTitleHelp') . ':',
-                             $renderer->elementToHtml('auth_title')));
+                             $renderer->elementToHtml('title')));
         $table->addRow(array('Email:', $renderer->elementToHtml('email')));
         $table->addRow(array('Organization:',
                              $renderer->elementToHtml('organization')));
@@ -135,6 +135,26 @@ class add_author extends pdHtmlPage {
         $this->table =& $table;
         $this->javascript();
         $db->close();
+
+        if ($form->validate()) {
+            $author = new pdAuthor();
+            $author->name = $_POST['lastname'] . ', ' . $_POST['firstname'];
+            $author->title = $_POST['title'];
+            $author->email = $_POST['email'];
+            $author->organization = $_POST['organization'];
+            $author->webpage = $_POST['webpage'];
+
+            foreach ($_POST['interests'] as $interest) {
+                $author->interests[] = $interest;
+            }
+
+            $this->contentPre .= '<pre>' . print_r($_POST, true) . '</pre>';
+            $this->contentPre .= '<pre>' . print_r($author, true) . '</pre>';
+
+            //$author->dbSave($db);
+            $db->close();
+            return;
+        }
     }
 
     function javascript() {
@@ -158,28 +178,26 @@ class add_author extends pdHtmlPage {
             "The title of an author. Will take the form of one of: "
             + "{Prof, PostDoc, PhD student, MSc student, Colleague, etc...}.";
 
-        function verify() {
-            var form = document.forms["authorForm"];
-            if (form.elements["firstname"].value == "") {
-                alert("Please enter a complete name for the new author.");
-                return false;
-            }
-            if (form.elements["lastname"].value == "") {
-                alert("Please enter a complete name for the new author.");
-                return false;
-            }
-            if ((form.elements["firstname"].value).search(",")
-                !=-1){
-                alert("Please do not use commas in author's first name");
-                return false;
-            }
-            if ((form.elements["lastname"].value).search(",")
-                !=-1){
-                alert("Please do not use commas in author's last name");
-                return false;
-            }
-            return true;
-        }
+//         function verify() {
+//             var form = document.forms["authorForm"];
+//             if (form.elements["firstname"].value == "") {
+//                 alert("Please enter a complete name for the new author.");
+//                 return false;
+//             }
+//             if (form.elements["lastname"].value == "") {
+//                 alert("Please enter a complete name for the new author.");
+//                 return false;
+//             }
+//             if ((form.elements["firstname"].value).search(",") !=-1){
+//                 alert("Please do not use commas in author's first name");
+//                 return false;
+//             }
+//             if ((form.elements["lastname"].value).search(",") !=-1){
+//                 alert("Please do not use commas in author's last name");
+//                 return false;
+//             }
+//             return true;
+//         }
 
         function dataKeep(num) {
             var temp_qs = "";
@@ -230,17 +248,7 @@ class add_author extends pdHtmlPage {
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
                 + temp_qs;
         }
-        function closewindow() {window.close();}
-
-        function gotoAuthors() {
-            location.replace("../list_author.php?type=view&admin=true&newauthor=true");
-        }
-
-        function resetAll() {
-            location.replace("./add_author.php?z{$_SERVER['QUERY_STRING']}&newInterests=0");
-        }
         </script>
-
 JS_END;
     }
 }
