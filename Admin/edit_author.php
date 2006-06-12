@@ -11,182 +11,157 @@
 
 ini_set("include_path", ini_get("include_path") . ":.:..");
 
-require_once 'includes/functions.php';
-require_once 'includes/check_login.php';
+require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthor.php';
 
-htmlHeader('Edit Author');
-pageHeader();
-navMenu();
-echo "<body>\n<div id='content'>\n";
+/**
+ * Renders the whole page.
+ */
+class edit_author extends pdHtmlPage {
+    function edit_author() {
+        global $logged_in;
 
-if (!isset($_GET['author_id'])) {
-    errorMessage();
-}
+        parent::pdHtmlPage('edit_author');
 
-if ($_GET['editAuthorSubmitted'] == "true"){
-	echo "<script language='javascript'>setTimeout(\"top.location.href = './'\",5000)</script>";
-}
-
-$db =& dbCreate();
-
-/* Are we editing data in the db? */
-if ($_GET['editAuthorSubmitted'] == "true") {
-    $author_id = $_POST['author_id'];
-    $authorname = $_POST['lastname'] . ", " . $_POST['firstname'];
-    $auth_title = $_POST['auth_title'];
-    $email = $_POST['email'];
-    $organization = $_POST['organization'];
-    $webpage = $_POST['webpage'];
-    $interests = $_POST['interests'];
-    $newInterests = $_POST['newInterests'];
-
-    $author_query = "UPDATE author SET name=\"$authorname\", title=\"$auth_title\", email=\"$email\", organization=\"$organization\", webpage=\"$webpage\" WHERE author_id=$author_id";
-    query_db($author_query);
-
-    $interest_query = "DELETE FROM author_interest WHERE author_id = $author_id";
-    query_db($interest_query);
-
-    // add new interests
-    while (count($newInterest) > 0) {
-        $int = trim(array_pop($newInterest));
-        if (isset($int) && $int != "") {
-            $interest_query = "INSERT INTO interest (interest_id, interest) VALUES (NULL, \"$int\")";
-            query_db($interest_query);
-
-            $interest_query = "SELECT interest_id FROM interest WHERE interest=\"$int\"";
-            $interest_result = query_db($interest_query);
-            $interest_array =  mysql_fetch_array($interest_result, MYSQL_ASSOC);
-            $interest_id = $interest_array['interest_id'];
-
-            $interest_query = "INSERT INTO author_interest (author_id, interest_id) VALUES ($author_id, $interest_id)";
-            query_db($interest_query);
+        if (!$logged_in) {
+            $this->loginError = true;
+            return;
         }
+
+        if ($_GET['editAuthorSubmitted'] == 'true') {
+            echo "<script language='javascript'>setTimeout(\"top.location.href = './'\",5000)</script>";
+        }
+
+        $db =& dbCreate();
+        $author = new pdAuthor();
+
+        // Are we editing data in the db?
+        if ($_GET['editAuthorSubmitted'] == "true") {
+            $author->author_id = $_POST['author_id'];
+            $author->name = $_POST['lastname'] . ", " . $_POST['firstname'];
+            $author->title = $_POST['auth_title'];
+            $author->email = $_POST['email'];
+            $author->organization = $_POST['organization'];
+            $author->webpage = $_POST['webpage'];
+
+            foreach ($_POST['interests'] as $interest) {
+                $author->interest[] = $interest;
+            }
+            $author->dbSave($db);
+
+            $this->contentPre
+                .= '<body>You have successfully made changes to the author'
+                . $author->name. '.';
+            $db->close;
+            return;
+        }
+
+        if (!isset($_GET['author_id']) || ($_GET['author_id'] == '')) {
+            $this->contentPre .= 'No author id defined';
+            $this->pageError = true;
+            return;
+        }
+
+        $author->dbLoad($db, $_GET['author_id']);
     }
 
-    // add selected old interests
-    while (count($interests) > 0) {
-        $interest_id = array_pop($interests);
-        $interest_query = "INSERT INTO author_interest (author_id, interest_id) VALUES ($author_id, $interest_id)";
-        query_db($interest_query);
+    function javascript() {
+        $this->js = <<<JS_END
+            <script language="JavaScript" type="text/JavaScript">
+
+            function verify() {
+            var elements = document.forms["authorForm"].elements;
+            if (elements["firstname"].value == "") {
+                alert("Please enter a complete name for the new author.");
+                return false;
+            }
+            if (elements["lastname"].value == "") {
+                alert("Please enter a complete name for the new author.");
+                return false;
+            }
+            if ((elements["firstname"].value).search(",")!=-1) {
+                alert("Please do not use commas in the author's first name");
+                return false;
+            }
+            if ((elements["lastname"].value).search(",")!=-1) {
+                alert("Please do not use commas in the author's last name");
+                return false;
+            }
+            return true;
+        }
+
+        function dataKeep(num) {
+            var temp_qs = "";
+            var info_counter = 0;
+
+            for (i = 0; i < document.forms["authorForm"].elements.length; i++) {
+                var element = document.forms["authorForm"].elements;
+                if ((element[i].value != "") && (element[i].value != null)) {
+                    if (info_counter > 0) {
+                        temp_qs += "&";
+                    }
+
+                    if (element[i].name == "interests[]") {
+                        var interest_array = element;
+                        var interest_list = "";
+                        var interest_count = 0;
+
+                        for (j = 0; j < interest_array.length; j++) {
+                            if (interest_array[j].selected == 1) {
+                                if (interest_count > 0) {
+                                    interest_list = interest_list + "&";
+                                }
+                                interest_list = interest_list + "interests[" + j + "]=" + interest_array[j].value;
+                                interest_count++;
+                            }
+                        }
+
+                        temp_qs += interest_list;
+                    }
+                    else {
+                        temp_qs += element[i].name + "=" + element[i].value;
+                    }
+
+                    info_counter++;
+                }
+            }
+
+            temp_qs = temp_qs.replace(" ", "%20");
+            location.replace("./edit_author.php?{$_SERVER['QUERY_STRING']}&newInterests=" + num + "&" + temp_qs);
+        }
+
+        function resetAll() {
+            location.replace("./edit_author.php?<? echo $_SERVER['QUERY_STRING'] . "&newInterests=0" ?>");
+        }
+        </script>
+JS_END;
     }
 
-    //echo "<script language='javascript'>alert('Author successfully edited.');document.write(location.href='/.)</script>";
-    //the above line doesn't seem to work, I don't know why --Jeff
-    echo "<body>You have successfully made changes to the author $authorname.";
-    echo "<br><br>You will be transported to the main page in 5 seconds.</body></html>";
-    disconnect_db($link);
-    //echo "<script language='javascript'>alert('Author successfully edited.');</script>";
+    function formCreate() {
+        $form = new HTML_QuickForm('authorForm', 'post',
+                                   '/edit_author.php?editAuthorSubmitted=true',
+                                   '_self');
 
-    exit();
-}
+        $form->addElement('text', 'firstname', null,
+                  array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'lastname', null,
+                              array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'auth_title', null,
+                              array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'email', null,
+                              array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'organization', null,
+                              array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'webpage', null,
+                              array('size' => '50', 'maxlength' => '250'));
+        $form->addElement('text', 'newInterest[<? echo $i ?>]', null,
+                              array('size' => '50', 'maxlength' => '250'));
 
-$auth = new pdAuthor();
-$auth->dbLoad($db, $_GET['author_id']);
-
-/* Performing SQL query */
-$author_query = "SELECT * FROM author WHERE author_id=$author_id";
-$author_result = query_db($author_query);
-$author_array = mysql_fetch_array($author_result, MYSQL_ASSOC);
-
-//author's listed interests
-$int_query = "SELECT interest_id FROM author_interest WHERE author_id=$author_id";
-$int_result = query_db($int_query);
-
-//interests to choose from
-$interest_query = "SELECT * FROM interest";
-$interest_result = query_db($interest_query);
-$num_rows = mysql_num_rows($interest_result);
-
-//data to set in the window
-$author_array[name] = str_replace("\n", "", $author_array[name]);
-if (!isset($firstname))
-    $firstname = trim(substr($author_array['name'],1+strpos($author_array['name'],',')));
-if (!isset($lastname))
-    $lastname = substr($author_array['name'],0,strpos($author_array['name'],','));
-if (!isset($auth_title))
-    $auth_title = $author_array['title'];
-if (!isset($email))
-    $email = $author_array['email'];
-if (!isset($organization))
-    $organization = $author_array['organization'];
-if (!isset($webpage))
-    $webpage = $author_array['webpage'];
-if (!isset($interests)) {
-    while ($int_line = mysql_fetch_array($int_result, MYSQL_ASSOC)) {
-        $interests[$int_line['interest_id']-1] = $int_line['interest_id'];
+$form->addElement('RESET', 'Reset" value="Reset" class="text" onClick="resetAll();">
+$form->addElement('hidden', 'author_id" value="<?php echo $author_id ?>">
+$form->addElement('hidden', 'numInterests" value="<? echo ($counter + 1) ?>">
     }
 }
-
-?>
-
-<script language="JavaScript" type="text/JavaScript">
-
-    function verify() {
-	if (document.forms["authorForm"].elements["firstname"].value == "") {
-		alert("Please enter a complete name for the new author.");
-		return false;
-	}
-	if (document.forms["authorForm"].elements["lastname"].value == "") {
-		alert("Please enter a complete name for the new author.");
-		return false;
-	}
-	if ((document.forms["authorForm"].elements["firstname"].value).search(",")!=-1) {
-		alert("Please do not use commas in the author's first name");
-		return false;
-	}
-	if ((document.forms["authorForm"].elements["lastname"].value).search(",")!=-1) {
-		alert("Please do not use commas in the author's last name");
-		return false;
-	}
-	return true;
-}
-
-function dataKeep(num) {
-	var temp_qs = "";
-	var info_counter = 0;
-
-	for (i = 0; i < document.forms["authorForm"].elements.length; i++) {
-		if ((document.forms["authorForm"].elements[i].value != "") && (document.forms["authorForm"].elements[i].value != null)) {
-			if (info_counter > 0) {
-				temp_qs = temp_qs + "&";
-			}
-
-			if (document.forms["authorForm"].elements[i].name == "interests[]") {
-				interest_array = document.forms["authorForm"].elements['interests[]'];
-				var interest_list = "";
-				var interest_count = 0;
-
-				for (j = 0; j < interest_array.length; j++) {
-					if (interest_array[j].selected == 1) {
-						if (interest_count > 0) {
-							interest_list = interest_list + "&";
-						}
-						interest_list = interest_list + "interests[" + j + "]=" + interest_array[j].value;
-						interest_count++;
-					}
-				}
-
-				temp_qs = temp_qs + interest_list;
-			}
-			else {
-				temp_qs = temp_qs + document.forms["authorForm"].elements[i].name + "=" + document.forms["authorForm"].elements[i].value;
-			}
-
-			info_counter++;
-		}
-	}
-
-	temp_qs = temp_qs.replace(" ", "%20");
-	location.replace("./edit_author.php?<? echo $_SERVER['QUERY_STRING'] ?>&newInterests=" + num + "&" + temp_qs);
-	//window.open("./edit_author.php?<? echo $_SERVER['QUERY_STRING'] ?>&newInterests=" + num + "&" + temp_qs, "Add");
-}
-
-function resetAll() {
-	location.replace("./edit_author.php?<? echo $_SERVER['QUERY_STRING'] . "&newInterests=0" ?>");
-	//window.open("./edit_author.php?<? echo $_SERVER['QUERY_STRING'] ?>&newInterests=0", "Add");
-}
-</script>
 
 <form name="authorForm" action="./edit_author.php?editAuthorSubmitted=true" method="POST" enctype="application/x-www-form-urlencoded" onsubmit="setTimeout('self.close()',0);">
 	<table width="600" border="0" cellspacing="0" cellpadding="6">
@@ -200,7 +175,7 @@ function resetAll() {
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Title: </b></font><a href="../help.php" target="_blank" onClick="window.open('../help.php?helpcat=Author Title', 'Help', 'width=400,height=400'); return false"><img src="./question_mark_sm.JPG" border="0" alt="help"></a></td>
-<td colspan="2" width="75%"><input type="text" name="auth_title" size="50" maxlength="250" value="<? echo stripslashes($auth_title); ?>"></td>
+<td colspan="2" width="75%"><input type="text" name="auth_title" size="50" maxlength="250" value="<? echo stripslashes($author_title); ?>"></td>
 </tr>
 <tr>
 <td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Email: </b></font></td>

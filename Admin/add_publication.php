@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.21 2006/06/11 20:42:26 aicmltec Exp $
+// $Id: add_publication.php,v 1.22 2006/06/12 04:32:15 aicmltec Exp $
 
 /**
  * \file
@@ -32,221 +32,10 @@ class add_publication extends pdHtmlPage {
         $this->venue = null;
         $this->category = null;
 
-        $ext_next = $ext + 1;
-        $ext_prev = $ext - 1;
-        $intpoint_next = $intpoint + 1;
-        $intpoint_prev = $intpoint - 1;
-        $numMaterials_next = $numMaterials + 1;
-        $numMaterials_prev = $numMaterials - 1;
-
-        $this->js = <<<JS_END
-            <script language="JavaScript" src="../calendar.js"></script>
-            <script language="JavaScript" type="text/JavaScript">
-
-            window.name="add_publication.php";
-        var venueHelp=
-            "Where the paper was published -- specific journal, conference, "
-            + "workshop, etc. If many of the database papers are in the same "
-            + "venue, you can create a single &quot;label&quot; for that "
-            + "venue, to specify name of the venue, location, date, editors "
-            + "and other common information. You will then be able to use "
-            "and re-use that information.";
-
-        var categoryHelp=
-            "Category describes the type of document that you are submitting "
-            + "to the site. For examplethis could be a journal entry, a book "
-            + "chapter, etc.<br/><br/>"
-            + "Please use the drop down menu to select an appropriate "
-            + "category to classify your paper. If you cannot find an "
-            + "appropriate category you can select 'Add New Category' from "
-            + "the drop down menu and you will be asked for the new category "
-            + "information on a subsequent page.<br/><br/>";
-
-        var titleHelp=
-            "Title should contain the title given to your document.<br/><br/>"
-            +  "Please enter the title of your document in the field provided.";
-
-        var authorsHelp=
-            "This field is to store the author(s) of your document in the database."
-            + "<br/><br/>"
-            + "To use this field select the author(s) of your document from the "
-            + "listbox. You can select multiple authors by holding down the control "
-            + "key and clicking. If you do not see the name of the author(s) of the "
-            + "document listed in the listbox then you must add them with the Add "
-            + "Author button.";
-
-        var abstractHelp=
-            "Abstract is an area for you to provide an abstract of the document you "
-            + "are submitting.<br/><br/>"
-            + "To do this enter a plain text abstract for your paper in the field "
-            + "provided. HTML tags can be used.";
-
-        var extraInfoHelp=
-            "Specify auxiliary information, to help classify this publication. "
-            + "Eg, &quot;with student&quot; or &quot;best paper&quot;, etc. Note "
-            + "that, by default, this information will NOT be shown when this "
-            + "document is presented. Separate using semicolons(;). You can see "
-            + "previously enterred entries by clicking the &quot;Select from a list "
-            + "of previously used information options&quot;, and just check off "
-            + "those that apply to the current publication.";
-
-        var externalPtrHelp=
-            "These can be used to connect this publication to an outside source "
-            + "such as a website or a publication that is not in the current "
-            + "database."
-            + "<ul>"
-            + "<li>The &quot;Pointer Type&quot; is the kind of object you are linking "
-            + "with. eg website or publication,</li>"
-            + "<li>The &quot;Title of link&quot; would be the name of the website, or "
-            + "the nameof the publication</li>"
-            + "<li>The &quot;http://&quot; would be where you would enter the url."
-            + "</li>"
-            + "</ul>";
-
-        var internalPtrHelp=
-            "These can be used to connect this publication with another publication "
-            + "inside the database.";
-
-
-        var keywordsHelp=
-            "Keywords is a field where you can enter keywords that will be used to "
-            + "possibly locate your paper by others searching the database. You may "
-            + "want to enter multiple terms that are associated with your document. "
-            + "Examples may include words like: medical imaging; robotics; data "
-            + "mining.<br/><br/>"
-            + "Please enter keywords used to describe your paper, each keyword should "
-            + "be seperated by a semicolon.";
-
-        var datePublishedHelp=
-            "Specifies the date that this document was published. If you have "
-            + "specified a publication_venue that include a date, then this date "
-            + "field will already be enterred.";
-
-        function dataKeep(tab) {
-            var temp_qs = "";
-            var info_counter = 0;
-
-            for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-                var element = document.forms["pubForm"].elements[i];
-                if ((element.type != "submit") && (element.type != "reset")
-                    && (element.type != "button")
-                    && (element.value != "") && (element.value != null)
-                    && (element.name != "")) {
-                    if (info_counter > 0) {
-                        temp_qs += "&";
-                    }
-
-                    if (element.name == "authors[]") {
-                        var author_list = "";
-                        var author_count = 0;
-
-                        for (j = 0; j < element.length; j++) {
-                            if (element[j].selected) {
-                                if (author_count > 0) {
-                                    author_list = author_list + "&";
-                                }
-                                author_list = author_list + "authors["
-                                    + author_count + "]=" + element[j].value;
-                                author_count++;
-                            }
-                        }
-
-                        temp_qs += author_list;
-                    }
-                    else if(element.name == "comments")
-                        temp_qs += element.name + "="
-                            + element.value.replace("\"","'");
-
-                    else if ((element.name == "nopaper") && (element.checked)) {
-                        temp_qs += element.name + "=" + element.value;
-                    }
-                    else if(element.name == "ext"){
-                        if(tab == "addext")
-                            temp_qs += element.name + "={$ext_next}";
-                        else if(tab == "remext")
-                            temp_qs += element.name + "={$ext_prev}";
-                        else
-                            temp_qs += element.name + "={$ext}";
-                    }
-                    else if(element.name == "intpoint"){
-                        if(tab == "addint")
-                            temp_qs += element.name + "={$intpoint_next}";
-                        else if(tab == "remint")
-                            temp_qs += element.name + "={$intpoint_prev}";
-                        else
-                            temp_qs += element.name + "={$intpoint}";
-                    }
-                    else if(element.name == "numMaterials"){
-                        if(tab == "addnum")
-                            temp_qs += element.name + "={$numMaterials_next}";
-                        else if(tab == "remnum")
-                            temp_qs += element.name + "={$numMaterials_prev}";
-                    }
-                    else
-                        temp_qs += element.name + "=" + element.value;
-
-                    info_counter++;
-                }
-            }
-            if ((tab == "addnum") || (tab == "remnum"))
-                temp_qs += "&#" + "STEP2";
-            if (((tab == "addext") || (tab == "remext"))
-                || ((tab == "addint") || (tab == "remint")))
-                temp_qs += "&#" + "pointers";
-            else if(tab != "none")
-                temp_qs += "&#" + tab;
-
-            temp_qs.replace("\"", "?");
-            temp_qs.replace(" ", "%20");
-            location.href
-                = "http://" + "{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + temp_qs;
-        }
-
-        function verify(num) {
-            var pubform = document.forms["pubForm"];
-            if (pubform.elements["category"].value == "") {
-                alert("Please select a category for the publication.");
-                return false;
-            }
-            else if (pubform.elements["title"].value == "") {
-                alert("Please enter a title for the publication.");
-                return false;
-            }
-            else if ((pubform.elements["nopaper"].value == "false")
-                     && (pubform.elements["uploadpaper"].value == "")) {
-                alert("Please choose a paper to upload or select \"No Paper\".");
-                return false;
-            }
-            else if (pubform.elements["selected_authors"].value == "") {
-                alert("Please select the author(s) of this publication.");
-                return false;
-            }
-            else if (pubform.elements["abstract"].value == "") {
-                alert("Please enter the abstract for this publication.");
-                return false;
-            }
-            else if (pubform.elements["keywords"].value == "") {
-                alert("Please enter the keywords for this publication.");
-                return false;
-            }
-
-            return true;
-        }
-
-        function resetAll() {
-            location.href="./add_publication.php";
-        }
-        function refresher() { window.location.reload(true);}
-
-        </script>
-JS_END;
-
         $this->db =& dbCreate();
-        $this->form = new HTML_QuickForm('pubForm', 'post',
-                                         "./add_publication.php?",
-                                         "add_publication.php");
-        $form =& $this->form;
+        $form = new HTML_QuickForm('pubForm', 'post',
+                                   "./add_publication.php?",
+                                   "add_publication.php");
 
         if ($edit) {
             $form->addElement('hidden', 'pub_id', $_GET['pub_id']);
@@ -486,14 +275,13 @@ JS_END;
             $form->setDefaults($defaults);
         }
 
-        $this->renderer = new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($this->renderer);
-        $rend =& $this->renderer;
+        $rend = new HTML_QuickForm_Renderer_QuickHtml();
+        $form->accept($renderer);
 
-        $this->table = new HTML_Table(array('width' => '100%',
-                                            'border' => '0',
-                                            'cellpadding' => '6',
-                                            'cellspacing' => '0'));
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
         $table =& $this->table;
         $table->setAutoGrow(true);
 
@@ -551,7 +339,8 @@ JS_END;
                                  $rend->elementToHtml('venue_name')));
         }
 
-        $table ->addRow(array($this->helpTooltip('Extra Information', 'extraInfoHelp')
+        $table ->addRow(array($this->helpTooltip('Extra Information',
+                                                 'extraInfoHelp')
                               . ':<br/><div id="small">optional</div>',
                               $rend->elementToHtml('extra_info')
                               . $rend->elementToHtml('extra_info_select')));
@@ -679,7 +468,225 @@ JS_END;
                 . 'materials';
         }
 
+        $this->form = $form;
+        $this->renderer = $rend;
+        $this->table = $table;
+
+        $this->javascript($ext, $intpoint, $numMaterials);
+
         $this->db->close();
+    }
+
+    function javascript($ext, $intpoint, $numMaterials) {
+        $ext_next = $ext + 1;
+        $ext_prev = $ext - 1;
+        $intpoint_next = $intpoint + 1;
+        $intpoint_prev = $intpoint - 1;
+        $numMaterials_next = $numMaterials + 1;
+        $numMaterials_prev = $numMaterials - 1;
+
+        $this->js = <<<JS_END
+            <script language="JavaScript" src="../calendar.js"></script>
+            <script language="JavaScript" type="text/JavaScript">
+
+            window.name="add_publication.php";
+        var venueHelp=
+            "Where the paper was published -- specific journal, conference, "
+            + "workshop, etc. If many of the database papers are in the same "
+            + "venue, you can create a single &quot;label&quot; for that "
+            + "venue, to specify name of the venue, location, date, editors "
+            + "and other common information. You will then be able to use "
+            "and re-use that information.";
+
+        var categoryHelp=
+            "Category describes the type of document that you are submitting "
+            + "to the site. For examplethis could be a journal entry, a book "
+            + "chapter, etc.<br/><br/>"
+            + "Please use the drop down menu to select an appropriate "
+            + "category to classify your paper. If you cannot find an "
+            + "appropriate category you can select 'Add New Category' from "
+            + "the drop down menu and you will be asked for the new category "
+            + "information on a subsequent page.<br/><br/>";
+
+        var titleHelp=
+            "Title should contain the title given to your document.<br/><br/>"
+            +  "Please enter the title of your document in the field provided.";
+
+        var authorsHelp=
+            "This field is to store the author(s) of your document in the database."
+            + "<br/><br/>"
+            + "To use this field select the author(s) of your document from the "
+            + "listbox. You can select multiple authors by holding down the control "
+            + "key and clicking. If you do not see the name of the author(s) of the "
+            + "document listed in the listbox then you must add them with the Add "
+            + "Author button.";
+
+        var abstractHelp=
+            "Abstract is an area for you to provide an abstract of the document you "
+            + "are submitting.<br/><br/>"
+            + "To do this enter a plain text abstract for your paper in the field "
+            + "provided. HTML tags can be used.";
+
+        var extraInfoHelp=
+            "Specify auxiliary information, to help classify this publication. "
+            + "Eg, &quot;with student&quot; or &quot;best paper&quot;, etc. Note "
+            + "that, by default, this information will NOT be shown when this "
+            + "document is presented. Separate using semicolons(;). You can see "
+            + "previously enterred entries by clicking the &quot;Select from a list "
+            + "of previously used information options&quot;, and just check off "
+            + "those that apply to the current publication.";
+
+        var externalPtrHelp=
+            "These can be used to connect this publication to an outside source "
+            + "such as a website or a publication that is not in the current "
+            + "database."
+            + "<ul>"
+            + "<li>The &quot;Pointer Type&quot; is the kind of object you are linking "
+            + "with. eg website or publication,</li>"
+            + "<li>The &quot;Title of link&quot; would be the name of the website, or "
+            + "the nameof the publication</li>"
+            + "<li>The &quot;http://&quot; would be where you would enter the url."
+            + "</li>"
+            + "</ul>";
+
+        var internalPtrHelp=
+            "These can be used to connect this publication with another publication "
+            + "inside the database.";
+
+
+        var keywordsHelp=
+            "Keywords is a field where you can enter keywords that will be used to "
+            + "possibly locate your paper by others searching the database. You may "
+            + "want to enter multiple terms that are associated with your document. "
+            + "Examples may include words like: medical imaging; robotics; data "
+            + "mining.<br/><br/>"
+            + "Please enter keywords used to describe your paper, each keyword should "
+            + "be seperated by a semicolon.";
+
+        var datePublishedHelp=
+            "Specifies the date that this document was published. If you have "
+            + "specified a publication_venue that include a date, then this date "
+            + "field will already be enterred.";
+
+        function dataKeep(tab) {
+            var temp_qs = "";
+            var info_counter = 0;
+
+            for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
+                var element = document.forms["pubForm"].elements[i];
+                if ((element.type != "submit") && (element.type != "reset")
+                    && (element.type != "button")
+                    && (element.value != "") && (element.value != null)
+                    && (element.name != "")) {
+                    if (info_counter > 0) {
+                        temp_qs += "&";
+                    }
+
+                    if (element.name == "authors[]") {
+                        var author_list = "";
+                        var author_count = 0;
+
+                        for (j = 0; j < element.length; j++) {
+                            if (element[j].selected) {
+                                if (author_count > 0) {
+                                    author_list = author_list + "&";
+                                }
+                                author_list = author_list + "authors["
+                                    + author_count + "]=" + element[j].value;
+                                author_count++;
+                            }
+                        }
+
+                        temp_qs += author_list;
+                    }
+                    else if(element.name == "comments")
+                        temp_qs += element.name + "="
+                            + element.value.replace("\"","'");
+
+                    else if ((element.name == "nopaper") && (element.checked)) {
+                        temp_qs += element.name + "=" + element.value;
+                    }
+                    else if(element.name == "ext"){
+                        if(tab == "addext")
+                            temp_qs += element.name + "={$ext_next}";
+                        else if(tab == "remext")
+                            temp_qs += element.name + "={$ext_prev}";
+                        else
+                            temp_qs += element.name + "={$ext}";
+                    }
+                    else if(element.name == "intpoint"){
+                        if(tab == "addint")
+                            temp_qs += element.name + "={$intpoint_next}";
+                        else if(tab == "remint")
+                            temp_qs += element.name + "={$intpoint_prev}";
+                        else
+                            temp_qs += element.name + "={$intpoint}";
+                    }
+                    else if(element.name == "numMaterials"){
+                        if(tab == "addnum")
+                            temp_qs += element.name + "={$numMaterials_next}";
+                        else if(tab == "remnum")
+                            temp_qs += element.name + "={$numMaterials_prev}";
+                    }
+                    else
+                        temp_qs += element.name + "=" + element.value;
+
+                    info_counter++;
+                }
+            }
+            if ((tab == "addnum") || (tab == "remnum"))
+                temp_qs += "&#" + "STEP2";
+            if (((tab == "addext") || (tab == "remext"))
+                || ((tab == "addint") || (tab == "remint")))
+                temp_qs += "&#" + "pointers";
+            else if(tab != "none")
+                temp_qs += "&#" + tab;
+
+            temp_qs.replace("\"", "?");
+            temp_qs.replace(" ", "%20");
+            location.href
+                = "http://" + "{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
+                + temp_qs;
+        }
+
+        function verify(num) {
+            var pubform = document.forms["pubForm"];
+            if (pubform.elements["category"].value == "") {
+                alert("Please select a category for the publication.");
+                return false;
+            }
+            else if (pubform.elements["title"].value == "") {
+                alert("Please enter a title for the publication.");
+                return false;
+            }
+            else if ((pubform.elements["nopaper"].value == "false")
+                     && (pubform.elements["uploadpaper"].value == "")) {
+                alert("Please choose a paper to upload or select \"No Paper\".");
+                return false;
+            }
+            else if (pubform.elements["selected_authors"].value == "") {
+                alert("Please select the author(s) of this publication.");
+                return false;
+            }
+            else if (pubform.elements["abstract"].value == "") {
+                alert("Please enter the abstract for this publication.");
+                return false;
+            }
+            else if (pubform.elements["keywords"].value == "") {
+                alert("Please enter the keywords for this publication.");
+                return false;
+            }
+
+            return true;
+        }
+
+        function resetAll() {
+            location.href="./add_publication.php";
+        }
+        function refresher() { window.location.reload(true);}
+
+        </script>
+JS_END;
     }
 }
 

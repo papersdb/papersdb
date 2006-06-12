@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.4 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: pdPubList.php,v 1.5 2006/06/12 04:32:15 aicmltec Exp $
 
 /**
  * \file
@@ -22,15 +22,18 @@ class pdPubList {
     /**
      * Constructor.
      */
-    function pdPubList(&$db, $author_id = null, $numToLoad = -1,
+    function pdPubList(&$db, $author_id = null, $cat_id = null, $numToLoad = -1,
                        $sortByUpdated = false) {
         assert('is_object($db)');
 
-        if ($author_id == null) {
-            $this->allPubsDbLoad($db, $sortByUpdated);
+        if ($author_id != null) {
+            $this->authorPubsDbLoad($db, $author_id, $numToLoad);
+        }
+        else if ($cat_id != null) {
+            $this->categoryPubsDbLoad($db, $cat_id, $numToLoad);
         }
         else {
-            $this->authorPubsDbLoad($db, $author_id, $numToLoad);
+            $this->allPubsDbLoad($db, $sortByUpdated);
         }
     }
 
@@ -89,6 +92,36 @@ class pdPubList {
             $numToLoad--;
         }
     }
+
+    /**
+     * Retrieves publications for a given category.
+     */
+    function categoryPubsDbLoad(&$db, $cat_id, $numToLoad) {
+        assert('is_object($db)');
+        assert('$cat_id != ""');
+
+        if ($numToLoad == 0) return;
+
+        $q = $db->select(array('publication', 'pub_cat'),
+                         'publication.pub_id',
+                         array('pub_cat.pub_id=publication.pub_id',
+                               'pub_cat.cat_id' => $cat_id),
+                         "pdPubList::categoryPubsDbLoad");
+
+        if ($db->numRows($q) == 0) return;
+
+        // if $numToLoad is -1 then we load all publications
+        if ($numToLoad == -1)
+            $numToLoad = $db->numRows($q);
+
+        $r = $db->fetchObject($q);
+        while ($r && ($numToLoad > 0)) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+            $numToLoad--;
+        }
+    }
+
 
     /**
      *

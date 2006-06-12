@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.2 2006/06/11 20:42:27 aicmltec Exp $
+// $Id: edit_user.php,v 1.3 2006/06/12 04:32:15 aicmltec Exp $
 
 /**
  * \file
@@ -44,7 +44,7 @@ class edit_user extends pdHtmlPage {
             $user->email = $_POST['email'];
 
             unset($user->collaborators);
-            if (count($_POST['authors']) > 0) {
+            if (isset($_POST['authors']) && count($_POST['authors']) > 0) {
                 $auth_list = new pdAuthorList($db);
 
                 foreach ($_POST['authors'] as $author_id) {
@@ -54,7 +54,6 @@ class edit_user extends pdHtmlPage {
             $user->dbSave($db);
             $db->close();
             $this->contentPre .= 'Change to user information submitted.';
-            $this->contentPre .= '<pre>' . print_r($user, true) . '</pre>';
             return;
         }
 

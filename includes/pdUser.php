@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.13 2006/06/11 20:42:27 aicmltec Exp $
+// $Id: pdUser.php,v 1.14 2006/06/12 04:32:15 aicmltec Exp $
 
 /**
  * \file
@@ -61,13 +61,14 @@ class pdUser {
         $db->delete('user_author', array('login' => $this->login),
                     'pdUser::dbSave');
 
-        if (count($this->collaborators) > 0) {
-            foreach ($this->collaborators as $collaborator) {
-                $values[] .= '(' . quote_smart($this->login) . ','
-                    . quote_smart($collaborator->author_id) . ')';
+        if (isset($this->collaborators) && count($this->collaborators) > 0) {
+            // first add the interests
+            $arr = array();
+            foreach ($this->collaborators as $c) {
+                array_push($arr, array('login' => $this->login,
+                                       'author_id' => $c->author_id));
             }
-            $db->query('INSERT INTO user_author (login, author_id) VALUES'
-                       . implode(', ', $values));
+            $db->insert('user_author', $arr, 'pdUser::dbSave');
         }
     }
 

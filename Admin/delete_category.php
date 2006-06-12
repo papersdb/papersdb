@@ -1,117 +1,115 @@
-<?php
-	include 'header.php';
-?>
+<?php ;
 
-<html>
-<head>
-<title>Delete Category</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+// $Id: delete_category.php,v 1.2 2006/06/12 04:32:15 aicmltec Exp $
 
-<?  /* delete_category.php
-		Much like delete_author.php, this page
-		confirms that the user would like to 
-		delete the category. Then makes sure no
-		current publications are using that 
-		category, if some are, it lists them. If
-		no publications are using that category, then it
-		is removed from the database.
-	*/
-	require('../functions.php');
-	echo "</head>";
-	/* Connecting, selecting database */
-	$link = connect_db();
-	if ($confirm == "yes"){
-	/* Performing SQL query */
-	$cat_query = "SELECT cat_id FROM category WHERE category=\"$category\"";
-	$cat_result = mysql_query($cat_query) or die("Query failed : " . mysql_error());
-	$cat_array = mysql_fetch_array($cat_result, MYSQL_ASSOC);
-	$cat_id = $cat_array[cat_id];
-	
-	$cat_query = "SELECT pub_id FROM pub_cat WHERE cat_id=$cat_id";
-	$cat_result = mysql_query($cat_query) or die("Query failed : " . mysql_error());
-	$i = 0;
-	while($cat_array = mysql_fetch_array($cat_result, MYSQL_ASSOC))
-	{
-		$pub_id = $cat_array['pub_id'];
-		$pub_query = "SELECT title FROM publication WHERE pub_id=$pub_id";
-		$pub_result = mysql_query($pub_query) or die("Query failed : " . mysql_error());
-		$pub_array = mysql_fetch_array($pub_result, MYSQL_ASSOC);
-		$titles[$i] = $pub_array['title'];
-		$i++;		
-	
-	}
-	if($titles[0] != null)
-		{
-			echo "<b>Deletion Failed</b><BR>";
-			echo "The following publications are currently using this category:<BR>";
-			for($r=0; $r<$i; $r++)
-				echo "<b>".$titles[$r]."</b><BR>";
-			echo "You must change the category of the following publication(s) in order to delete this category.";
-			echo "<BR><a href=\"./\">Back to Admin Page</a>";
-			$cat_id = null;
-			disconnect_db($link);
-			exit();
-		}
-	/* This is where the actual deletion happens. */
-	if ($cat_id != null) {
-		$query = "DELETE FROM cat_info WHERE cat_id = $cat_id";
-		query_db($query);
-		$query = "DELETE FROM category WHERE cat_id = $cat_id";
-		query_db($query);
-		echo "<body>You have successfully removed the following category from the database: <b>$category</b>";
-		echo "<br><a href=\"delete_category.php\">Delete another category</a>";
-		echo "<br><a href=\"./\">Back to Admin Page</a>";
-		echo "<br><br></body></html>";
-		disconnect_db($link);
-		exit();
-	}
-	}
+/**
+ * \file
+ *
+ * \brief Deletes a category from the database.
+ *
+ * Much like delete_author.php, this page confirms that the user would like to
+ * delete the category. Then makes sure no current publications are using that
+ * category, if some are, it lists them. If no publications are using that
+ * category, then it is removed from the database.
+ */
 
-$cat_query = "SELECT category FROM category";
-$cat_result = mysql_query($cat_query) or die("Query failed : " . mysql_error());
+ini_set("include_path", ini_get("include_path") . ":..");
 
-	
-	
-?>
+require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdCategory.php';
+require_once 'includes/pdPubList.php';
 
+/**
+ * Renders the whole page.
+ */
+class delete_category extends pdHtmlPage {
+    var $cat_id;
 
-<body><h3>Delete Category</h3><br>
-<form name="deleter" action="./delete_category.php?confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-	<table width="750" border="0" cellspacing="0" cellpadding="6">
-	<tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Select a category to delete: </b></font></td>
-		<td width="75%">
-			<select name="category" onChange="dataKeep();">
-				<option value="">--- Please Select a Category ---</option>
-				<? 
-					while ($cat_line = mysql_fetch_array($cat_result, MYSQL_ASSOC)) {
-						echo "<option value=\"" . $cat_line[category] . "\"";
+    function delete_category() {
+        global $logged_in;
 
-						if (stripslashes($category) == $cat_line[category])
-							echo " selected";
+        parent::pdHtmlPage('delete_category');
 
-						echo ">" . $cat_line[category] . "</option>";
-				 	}
-				?>
-			</select>
-		</td>
-	  </tr>
-	  <tr>
-	  	  
-		<td width="100%" colspan="2">
-		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
-		  <input type="button" value="Cancel" onclick="history.back()">
-		 &nbsp; &nbsp; &nbsp;</td>
-	  </form>
-	  </tr>
-	</table>
-	<? back_button(); ?>
-</body>
-</html>
+        if (!$logged_in) {
+            $this->loginError = true;
+            return;
+        }
 
-<?
-	/* Free resultset */
+        if (!isset($_GET['cat_id']) || ($_GET['cat_id'] == '')) {
+            $this->contentPre .= 'No category id defined';
+            $this->pageError = true;
+            return;
+        }
 
-	/* Closing connection */
-	disconnect_db($link);
+        $db =& dbCreate();
+        $this->cat_id = intval($_GET['cat_id']);
+
+        $pub_list = new pdPubList($db, null, $this->cat_id);
+
+        if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
+            $this->contentPre .= '<b>Deletion Failed</b><p/>'
+                . 'This category is used by the following publications:<p/>';
+
+            foreach ($pub_list->list as $pub)
+                $this->contentPre .= '<b>' . $pub->title . '</b><br/>';
+
+            $this->contentPre
+                .= '<p/>To remove this category these publication(s) '
+                . 'must be changed.';
+
+            $db->close();
+            return;
+        }
+
+        $category = new pdCategory();
+        $category->dbLoad($db, $this->cat_id);
+
+        // This is where the actual deletion happens.
+        if (isset($confirm) && ($confirm == 'yes')) {
+            $category->dbDelete($db);
+
+            $this->contentPre .= 'You have successfully removed the '
+                . 'following category from the database: <b>'
+                . $category->name . '</b>';
+
+            $db->close();
+            return;
+        }
+
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
+
+        $table->addRow(array('Delete the following category?'));
+        $table->addRow(array($category->category));
+
+        if (isset($category->title) && trim($category->title != ''))
+            $table->addRow(array('Title:', $category->title));
+
+        $table->addRow(array('Email:', $category->email));
+        $table->addRow(array('Organization:', $category->organization));
+        $cell = '';
+
+        if (isset($category->webpage) && trim($category->webpage != ""))
+            $cell = '<a href="' . $category->webpage . '">'
+                . $category->webpage . '</a>';
+        else
+            $cell = "none";
+
+        $table->addRow(array('Web page:', $cell));
+
+        $this->contentPre .= '<h3>Delete Author</h3>';
+
+        $this->table =& $table;
+        $form =& $this->confirmForm('deleter',
+                                    './delete_category.php?cat_id='
+                                    . $category->cat_id . 'confirm=yes');
+        $this->contentPost = $form->toHtml();
+    }
+}
+
+$page = new delete_category();
+echo $page->toHtml();
+
 ?>

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.6 2006/06/11 20:42:27 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.7 2006/06/12 04:32:15 aicmltec Exp $
 
 /**
  * \file
@@ -33,6 +33,7 @@ class pdAuthor {
     var $lastname;
     var $email;
     var $organization;
+    var $interests;
     var $dbLoadFlags;
     var $pub_list;
     var $totalPublications;
@@ -66,8 +67,6 @@ class pdAuthor {
                       | PD_AUTHOR_DB_LOAD_PUBS_ALL)) {
             $this->publicationsDbLoad($db);
         }
-
-        //print_r($this);
     }
 
     /**
@@ -85,7 +84,7 @@ class pdAuthor {
 
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->interest[] = $r->interest;
+            $this->interests[] = $r->interest;
             $r = $db->fetchObject($q);
         }
     }
@@ -115,6 +114,70 @@ class pdAuthor {
 
         if ($numToLoad > 0) {
             $this->pub_list = new pdPubList($db, $this->author_id, $numToLoad);
+        }
+    }
+
+    /**
+     * Adds or modifies an author in the database.
+     */
+    function dbSave(&$db) {
+        assert('is_object($db)');
+
+	    // add http:// to webpage address if needed
+	    if(strpos($webpage, 'http') === false) {
+		    $this->webpage = "http://" . $this->webpage;
+        }
+
+        if (isset($this->author_id)) {
+            $db->update('author', array('name' => $this->name,
+                                        'title' => $this->title,
+                                        'email' => $this->email,
+                                        'organization' => $this->organization,
+                                        'webpage' => $this->webpage),
+                        array('author_id' => $this->author_id),
+                        'pdAuthor::dbSave');
+
+            $db->delete('author_interest',
+                        array('author_id' => $this->author_id),
+                        'pdUser::dbSave');
+            $this->dbSaveInterests($db);
+            return;
+        }
+
+        $db->insert('author', array('name' => $this->name,
+                                    'title' => $this->title,
+                                    'email' => $this->email,
+                                    'organization' => $this->organization,
+                                    'webpage' => $this->webpage),
+                    'pdAuthor::dbSave');
+        $this->dbSaveInterests($db);
+    }
+
+    function dbSaveInterests(&$db) {
+        if (isset($this->interests) && (count($this->interests) > 0)) {
+            // first add the interests
+            $arr = array();
+            foreach ($this->interest as $i) {
+                array_push($arr, array('interest_id' => 'NULL',
+                                       'interest' => $i));
+            }
+            $db->insert('interest', $arr, 'pdAuthor::dbSave');
+
+            // link the interest to this author
+            $arr = array();
+            foreach ($this->interest as $i) {
+                $db->select('interest', 'interest_id',
+                            'interest=' . $i, 'pdAuthor::dbSave');
+
+                $r = $db->fetchObject($q);
+                while ($r) {
+                    array_push($arr,
+                               array('author_id' => $this->author_id,
+                                     'interest_id' => $r->interest_id));
+                    $r = $db->fetchObject($q);
+                }
+            }
+            $db->insert('author_interest', $arr, 'pdAuthor::dbSave');
         }
     }
 
