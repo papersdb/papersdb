@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.5 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -35,6 +35,36 @@ class pdAuthInterests {
     function interestExists($interest) {
         assert('isset($this->interests)');
         return in_array($interest, $this->list);
+    }
+
+    /**
+     * \param $interest_id mixed.
+     */
+    function dbDelete(&$db, $interest_id) {
+        assert('is_array($this->list)');
+
+        if ($interest_id == null)
+            return;
+        if (is_array($interest_id)) {
+            foreach ($interest_id as $id) {
+                $db->delete('interest', array('interest_id' => $id),
+                            'pdAuthInterests::dbDelete');
+                $db->delete('author_interest', array('interest_id' => $id),
+                            'pdAuthInterests::dbDelete');
+                unset($this->list[$id]);
+            }
+        }
+        else if (is_string($interest_id)) {
+            $db->delete('interest', array('interest_id' => $interest_id),
+                        'pdAuthInterests::dbDelete');
+            $db->delete('author_interest', array('interest_id' => $interest_id),
+                        'pdAuthInterests::dbDelete');
+            unset($this->list[$interest_id]);
+        }
+        else {
+            assert('false'); // invalid type
+        }
+
     }
 }
 

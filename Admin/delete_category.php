@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: delete_category.php,v 1.5 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -35,8 +35,6 @@ class delete_category extends pdHtmlPage {
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != ''))
             $cat_id = intval($_GET['cat_id']);
-        else if (isset($_POST['cat_id']) && ($_POST['cat_id'] != ''))
-            $cat_id = intval($_POST['cat_id']);
         else {
             $this->contentPre .= 'No category id defined';
             $this->pageError = true;
@@ -44,15 +42,6 @@ class delete_category extends pdHtmlPage {
         }
 
         $db =& dbCreate();
-
-        $category = new pdCategory();
-        $result = $category->dbLoad($db, $cat_id);
-        if (!$result) {
-            $this->pageError = true;
-            $db->close();
-            return;
-        }
-
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'cat_id', $cat_id);
 
@@ -60,6 +49,16 @@ class delete_category extends pdHtmlPage {
         $form->accept($renderer);
 
         if ($form->validate()) {
+            $values = $form->exportValues();
+
+            $category = new pdCategory();
+            $result = $category->dbLoad($db, $values['cat_id']);
+            if (!$result) {
+                $this->pageError = true;
+                $db->close();
+                return;
+            }
+
             $pub_list = new pdPubList($db, null, $this->cat_id);
 
             if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
@@ -82,6 +81,13 @@ class delete_category extends pdHtmlPage {
             }
         }
         else {
+            $category = new pdCategory();
+            $result = $category->dbLoad($db, $cat_id);
+            if (!$result) {
+                $this->pageError = true;
+                $db->close();
+                return;
+            }
 
             $this->contentPre .= '<h3>Confirm</h3>'
                 . 'Delete category <b>' . $category->category . '</b>?<p/>';

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.2 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: delete_interest.php,v 1.3 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -16,7 +16,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdAuthInterest.php';
+require_once 'includes/pdAuthInterests.php';
 
 /**
  * Renders the whole page.
@@ -33,78 +33,56 @@ class delete_interest extends pdHtmlPage {
         }
 
         $db =& dbCreate();
-        $interest_list = new pdAuthInterest();
-        $interest_list->dbLoad($db);
 
         $form =& $this->confirmForm('deleter');
-        $form->addElement('select', 'interests', null,
-                          $interest_list->asArray(),
+        $interest_list = new pdAuthInterests($db);
+        $form->addElement('select', 'interests', null, $interest_list->list,
                           array('multiple' => 'multiple', 'size' => 4));
 
 
-	/* Connecting, selecting database */
-	$link = connect_db();
-	if ($confirm == "yes"){
-	  $interest_query = "SELECT interest FROM interest where interest_id = $interest";
-	  $interest_result = mysql_query($interest_query) or die("Query failed : " . mysql_error());
-	  $interest_line = mysql_fetch_array($interest_result, MYSQL_ASSOC);
-	  $interest_line = $interest_line[interest];
-	  /* This is where the actual deletion happens. */
-	  if ($interest != null){
-		$query = "DELETE FROM interest WHERE interest_id =$interest";
-		query_db($query);
-		$query = "DELETE FROM author_interest WHERE interest_id = $interest";
-		query_db($query);
-		echo "<body>You have successfully removed the following interest from the database: <b>$interest_line</b>";
-		echo "<br><a href=\"delete_interest.php\">Delete another interest</a>";
-		echo "<br><a href=\"./\">Back to Admin Page</a>";
-		echo "<br><br></body></html>";
-		disconnect_db($link);
-		exit();
-	  }
-	}
-$interest_query = "SELECT * FROM interest";
-$interest_result = mysql_query($interest_query) or die("Query failed : " . mysql_error());
-$interest_line = mysql_fetch_array($interest_result, MYSQL_ASSOC);
+        if ($form->validate()) {
+            $values = $form->exportValues();
 
-?>
+            foreach ($values['interests'] as $interest_id)
+                $names[] = $interest_list->list[$interest_id];
 
+            $interest_list->dbDelete($db, $values['interests']);
 
-<body><h3>Delete Interest </h3><br>
-<form name="deleter" action="./delete_interest.php?confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-	<table width="750" border="0" cellspacing="0" cellpadding="6">
-	<tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Select an interest to delete: </b></font></td>
-		<td width="75%">
-			<select name="interest" onChange="dataKeep();">
-				<option value="">--- Please Select a Interest ---</option>
-				<?
+            $this->contentPre .= 'You have successfully removed the '
+                . 'following interest from the database: <br/><b>'
+                . implode(', ', $names) . '</b></p>'
+                . '<br><a href="' . $_SERVER['PHP_SELF']
+                . '">Delete another interest</a>';
+        }
+        else {
+            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $form->accept($renderer);
 
-					while ($interest_line = mysql_fetch_array($interest_result, MYSQL_ASSOC)) {
-						echo "<option value=\"" . $interest_line[interest_id] . "\"" . "";
-						echo ">" . $interest_line[interest] . "</option>";
-				 	}
+            $this->contentPre .= '<h3>Delete Interest </h3><br/>';
 
-				?>
-			</select>
-		</td>
-	  </tr>
-	  <tr>
+            $table = new HTML_Table(array('width' => '100%',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
 
-		<td width="100%" colspan="2">
-		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
-		  <input type="button" value="Cancel" onclick="history.back()">
-		 &nbsp; &nbsp; &nbsp;</td>
-	  </form>
-	  </tr>
-	</table>
-	<? back_button(); ?>
-</body>
-</html>
+            $table->addRow(array('Select an interest to delete:',
+                                 $renderer->elementToHtml('interests')));
+            $table->addRow(array('', $renderer->elementToHtml('submit')
+                                 . '&nbsp;'
+                                 . $renderer->elementToHtml('cancel')));
 
-<?
-	/* Free resultset */
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '25%'));
+            $this->form =& $form;
+            $this->renderer =& $renderer;
+            $this->table =& $table;
+        }
 
-	/* Closing connection */
-	disconnect_db($link);
+        $db->close();
+    }
+}
+
+$page = new delete_interest();
+echo $page->toHtml();
+
 ?>

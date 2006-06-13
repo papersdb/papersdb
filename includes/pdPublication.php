@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.13 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdPublication.php,v 1.14 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -54,6 +54,26 @@ class pdPublication {
 
         if (isset($obj))
             $this->load($obj);
+    }
+
+    function makeNull() {
+        $this->pub_id = null;
+        $this->title = null;
+        $this->paper = null;
+        $this->abstract = null;
+        $this->keywords = null;
+        $this->published = null;
+        $this->venue = null;
+        $this->venue_info = null;
+        $this->authors = null;
+        $this->extra_info = null;
+        $this->submit = null;
+        $this->updated = null;
+        $this->info = null;
+        $this->category = null;
+        $this->intPointer = null;
+        $this->extPointer = null;
+        $this->dbLoadFlags = null;
     }
 
     /**
@@ -172,6 +192,9 @@ class pdPublication {
         $this->venue = '';
     }
 
+    function authorsGet() {
+    }
+
     /**
      * remove all keywords of length 0
      */
@@ -185,6 +208,18 @@ class pdPublication {
                 unset($keywords[$key]);
         }
         return implode(",", $keywords);
+    }
+
+    function dbDelete(&$db) {
+        assert('is_object($db)');
+        assert('isset($this->pub_id)');
+
+        $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication');
+        foreach($tables as $table) {
+            $db->delete($table, array('pub_id' => $this->pub_id),
+                        'pdPublication::dbDelete');
+        }
+        $this->makeNull();
     }
 
     /**

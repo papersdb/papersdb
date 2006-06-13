@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.5 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: delete_author.php,v 1.6 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -34,19 +34,8 @@ class delete_author extends pdHtmlPage {
 
         if (isset($_GET['author_id']) && ($_GET['author_id'] != ''))
             $author_id = intval($_GET['author_id']);
-        else if (isset($_POST['author_id']) && ($_POST['author_id'] != ''))
-            $author_id = intval($_POST['author_id']);
         else {
             $this->contentPre .= 'No author id defined';
-            $this->pageError = true;
-            return;
-        }
-
-        $db =& dbCreate();
-        $author = new pdAuthor();
-        $result = $author->dbLoad($db, $author_id);
-        if (!$result) {
-            $db->close();
             $this->pageError = true;
             return;
         }
@@ -54,10 +43,18 @@ class delete_author extends pdHtmlPage {
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'author_id', $author_id);
 
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
-
         if ($form->validate()) {
+            $values = $form->exportValues();
+
+            $db =& dbCreate();
+            $author = new pdAuthor();
+            $result = $author->dbLoad($db, $values['author_id']);
+            if (!$result) {
+                $db->close();
+                $this->pageError = true;
+                return;
+            }
+
             if (isset($author->pub_list) && (count($author->pub_list) > 0)) {
                 $this->contentPre .= '<b>Deletion Failed</b><p/>'
                     . 'This author is listed as author for the following '
@@ -67,8 +64,8 @@ class delete_author extends pdHtmlPage {
                     $this->contentPre .= '<b>' . $pub->title . '</b><br/>';
 
                 $this->contentPre
-                    .= '<p/>You must change or remove the author of the following '
-                    . 'publication(s) in order to delete this author.';
+                    .= '<p/>You must change or remove the author of the '
+                    . 'following publication(s) in order to delete this author.';
             }
             else {
                 // This is where the actual deletion happens.
@@ -80,6 +77,18 @@ class delete_author extends pdHtmlPage {
             }
         }
         else {
+            $db =& dbCreate();
+            $author = new pdAuthor();
+            $result = $author->dbLoad($db, $author_id);
+            if (!$result) {
+                $db->close();
+                $this->pageError = true;
+                return;
+            }
+
+            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $form->accept($renderer);
+
             $table = new HTML_Table(array('width' => '100%',
                                           'border' => '0',
                                           'cellpadding' => '6',

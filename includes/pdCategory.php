@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.7 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: pdCategory.php,v 1.8 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -89,7 +89,9 @@ class pdCategory {
      */
     function dbSave(&$db) {
         if (isset($this->cat_id)) {
-            $db->update('category', array('category' => $this->category),
+
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '25%'));            $db->update('category', array('category' => $this->category),
                         array('cat_id' => $this->cat_id), 'pdUser::dbSave');
         }
         else {

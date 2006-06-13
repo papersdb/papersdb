@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.10 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.11 2006/06/13 23:56:04 aicmltec Exp $
 
 /**
  * \file
@@ -43,6 +43,19 @@ class pdAuthor {
     function pdAuthor($obj = NULL) {
         if (!is_null($obj))
             $this->load($obj);
+    }
+
+    function makeNull() {
+        $this->author_id = null;
+        $this->title = null;
+        $this->webpage = null;
+        $this->name = null;
+        $this->email = null;
+        $this->organization = null;
+        $this->interests = null;
+        $this->dbLoadFlags = null;
+        $this->pub_list = null;
+        $this->totalPublications = null;
     }
 
     /**
@@ -214,6 +227,7 @@ class pdAuthor {
                     'pdAuthor::dbDelete');
         $db->delete('author', array('author_id' => $this->author_id),
                     'pdAuthor::dbDelete');
+        $this->makeNull();
     }
 
     function asArray() {
