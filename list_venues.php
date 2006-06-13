@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.3 2006/06/12 19:12:05 aicmltec Exp $
+// $Id: list_venues.php,v 1.4 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -17,11 +17,12 @@ require_once 'includes/pdVenue.php';
  */
 class list_venues extends pdHtmlPage {
     function list_venues() {
+        global $logged_in;
+
         parent::pdHtmlPage('all_venues');
         $db =& dbCreate();
 
-        $venue_list = new pdVenueList();
-        $venue_list->dbLoad($db);
+        $venue_list = new pdVenueList($db);
         $venue = new pdVenue();
 
         $this->table = new HTML_Table(array('width' => '100%',
@@ -54,9 +55,9 @@ class list_venues extends pdHtmlPage {
                 $cell1 .= "<br><b>Editor:&nbsp;</b>" . $venue->editor;
 
             if ($logged_in) {
-                $cell2 = '<a href="add_venue.php?status=change&venue_id='
+                $cell2 = '<a href="Admin/add_venue.php?venue_id='
                     . $venue->venue_id . '">Edit</a><br/>'
-                    . '<a href="delete_venue.php?confirm=check&venue_id='
+                    . '<a href="Admin/delete_venue.php?confirm=check&venue_id='
                     . $venue->venue_id . '">Delete</a>';
             }
             else {

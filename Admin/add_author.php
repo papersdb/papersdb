@@ -1,25 +1,11 @@
 <?php ;
 
-// $Id: add_author.php,v 1.16 2006/06/13 05:30:28 aicmltec Exp $
+// $Id: add_author.php,v 1.17 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
  *
- * \brief This is the form portion for adding an author.
- *
- * The changes in the database actually are made in add_publication.php. This
- * is so when the author is added to the database the publication a user is
- * working in is then updated with that author available to them.
- *
- * If the user chooses the "add author to database" link while editing/adding
- * a publication, then it will be a pop-up and when submitted will return to
- * add_publication page with the fields restored and author added to the list.
- *
- * If the user chooses "add new publication" from the list_authors.php
- * page. Then the information will be sent to add_publication and the author
- * will be added to the database, the user will be given confirmation and the
- * option to return to the authors page or go the admin menu(index.php).
- *
+ * \brief This is the form portion for adding or editing author information.
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
@@ -42,8 +28,19 @@ class add_author extends pdHtmlPage {
             return;
         }
 
-        // Connecting, selecting database
         $db =& dbCreate();
+        $author = new pdAuthor();
+
+        if (isset($_GET['author_id']) && ($_GET['author_id'] != '')) {
+            $this->author_id = intval($_GET['author_id']);
+            $result = $author->dbLoad($db, $this->author_id);
+
+            if (!$result) {
+                $db->close();
+                $this->pageError = true;
+                return;
+            }
+        }
 
         if (isset($_GET['numNewInterests'])
             && ($_GET['numNewInterests'] != '')) {
@@ -128,6 +125,8 @@ class add_author extends pdHtmlPage {
                 . '</h3>';
 
             $form->setDefaults($_GET);
+            if ($author->author_id != '')
+                $form->setDefaults($author->asArray());
 
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
@@ -196,53 +195,46 @@ class add_author extends pdHtmlPage {
             + "{Prof, PostDoc, PhD student, MSc student, Colleague, etc...}.";
 
         function dataKeep(num) {
-            var temp_qs = "";
-            var info_counter = 0;
+            var qsArray = new Array();
+            var qsString = "";
 
             for (i = 0; i < document.forms["authorForm"].elements.length; i++) {
                 var element = document.forms["authorForm"].elements[i];
 
                 if ((element.type != "submit") && (element.type != "reset")
+                    && (element.type != "button")
                     && (element.value != "") && (element.value != null)) {
 
-                    if (info_counter > 0) {
-                        temp_qs = temp_qs + "&";
-                    }
-
                     if (element.name == "interests[]") {
-                        interest_array = element;
-                        var interest_list = "";
                         var interest_count = 0;
 
-                        for (j = 0; j < interest_array.length; j++) {
-                            if (interest_array[j].selected == 1) {
-                                if (interest_count > 0) {
-                                    interest_list += "&";
-                                }
-                                interest_list += "interests[" + j + "]="
-                                    + interest_array[j].value;
+                        for (j = 0; j < element.length; j++) {
+                            if (element[j].selected == 1) {
+                                qsArray.push("interests["
+                                             + interest_count + "]="
+                                             + element[j].value);
                                 interest_count++;
                             }
                         }
-
-                        temp_qs += interest_list;
                     }
                     else if (element.name == "numNewInterests") {
-                        temp_qs += element.name + "=" + num;
+                        qsArray.push(element.name + "=" + num);
                     }
                     else {
-                        temp_qs += element.name + "=" + element.value;
+                        qsArray.push(element.name + "=" + element.value);
                     }
-
-                    info_counter++;
                 }
             }
 
-            temp_qs.replace(" ", "%20");
-            temp_qs.replace("\"", "?");
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace(" ", "%20");
+                qsString.replace("\"", "?");
+            }
+
             location.href
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + temp_qs;
+                + qsString;
         }
         </script>
 JS_END;

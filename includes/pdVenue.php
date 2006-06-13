@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.4 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: pdVenue.php,v 1.5 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -41,7 +41,9 @@ class pdVenue {
     function dbLoad(&$db, $id, $flags = 0) {
         $q = $db->selectRow('venue', '*', array('venue_id' => $id),
                          "pdPublication::dbLoadVenue");
+        if ($q === false) return false;
         $this->load($q);
+        return true;
     }
 
     /**

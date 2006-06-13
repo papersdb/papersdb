@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.3 2006/06/12 04:32:15 aicmltec Exp $
+// $Id: edit_user.php,v 1.4 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -67,9 +67,7 @@ class edit_user extends pdHtmlPage {
         $this->contentPre .= '<h2><b><u>Login Information</u></b></h2>';
 
         if (isset($status) && ($status == 'edit')) {
-            $form = new HTML_QuickForm('pubForm', 'post',
-                                       './edit_user.php?status=change',
-                                       '_self');
+            $form = new HTML_QuickForm('pubForm');
 
             $form->addElement('hidden', 'login', $_SESSION['user']->login);
             $form->addElement('text', 'name', null,

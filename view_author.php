@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.13 2006/06/09 06:30:54 aicmltec Exp $
+// $Id: view_author.php,v 1.14 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -53,7 +53,7 @@ class view_author extends pdHtmlPage {
 
         if ($logged_in) {
             $this->contentPost
-                = '<br/><b><a href="Admin/edit_author.php?author_id='
+                = '<br/><b><a href="Admin/add_author.php?author_id='
                 . $auth->author_id . '">Edit this author</a>&nbsp;&nbsp;&nbsp;'
                 . '<a href="Admin/delete_author.php?author_id='
                 . $auth->author_id . '">Delete this author</a></b><br/><br/>';

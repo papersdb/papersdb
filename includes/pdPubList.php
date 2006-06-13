@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.5 2006/06/12 04:32:15 aicmltec Exp $
+// $Id: pdPubList.php,v 1.6 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -52,6 +52,7 @@ class pdPubList {
                          "pdPubList::allPubsDbLoad",
                          array('ORDER BY' => $order));
         $r = $db->fetchObject($q);
+        assert('($r !== false)');
         while ($r) {
             $pub = new pdPublication($r);
             $this->list[] = $pub;

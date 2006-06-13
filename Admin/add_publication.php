@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.22 2006/06/12 04:32:15 aicmltec Exp $
+// $Id: add_publication.php,v 1.23 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -276,17 +276,16 @@ class add_publication extends pdHtmlPage {
         }
 
         $rend = new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
+        $form->accept($rend);
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
                                       'cellpadding' => '6',
                                       'cellspacing' => '0'));
-        $table =& $this->table;
         $table->setAutoGrow(true);
 
         $table->addRow(array('<hr/>'), array('colspan' => 2));
-        $table->addRow(array('Step 1:'));
+        $table->addRow(array('<a name="step1"></a>Step 1:'));
         $table->addRow(array($this->helpTooltip('Publication Venue', 'venueHelp')
                              . ':',
                              $rend->elementToHtml('venue_id')));
@@ -347,7 +346,8 @@ class add_publication extends pdHtmlPage {
 
         // External Pointers
         if ($ext == 0) {
-            $table->addRow(array($this->helpTooltip('External Pointers',
+            $table->addRow(array('<a name="pointers"></a>'
+                                 . $this->helpTooltip('External Pointers',
                                              'externalPtrHelp')
                                  . ':<br/><div id="small">optional</div>',
                                  $rend->elementToHtml('ext_ptr_add')));
@@ -356,7 +356,10 @@ class add_publication extends pdHtmlPage {
             for ($e = 1; $e <= $ext; $e++) {
                 $cell = '';
                 if ($e == 1) {
-                    $cell = 'External Pointers:<br/><div id="small">optional</div>';
+                    $cell = '<a name="pointers"></a>'
+                        . $this->helpTooltip('External Pointers',
+                                             'externalPtrHelp')
+                        . '<br/><div id="small">optional</div>';
                 }
 
                 $table->addRow(array($cell,
@@ -418,7 +421,7 @@ class add_publication extends pdHtmlPage {
                            ));
 
         $table->addRow(array('<hr/>'), array('colspan' => 2));
-        $table->addRow(array('Step 2:'));
+        $table->addRow(array('<a name="step2"></a>Step 2:'));
         $table->addRow(array('Paper:',
                              $rend->elementToHtml('nopaper', 'false')
                              . ' ' . $rend->elementToHtml('uploadpaper')));
@@ -449,8 +452,8 @@ class add_publication extends pdHtmlPage {
 
         // emphasize the 'step' cells
         for ($i = 0 ; $i < $table->getRowCount(); $i++) {
-            if (($table->getCellContents($i, 0) == 'Step 1:')
-                || ($table->getCellContents($i, 0) == 'Step 2:'))
+            if ((strpos($table->getCellContents($i, 0), 'Step 1:') !== false)
+                || (strpos($table->getCellContents($i, 0), 'Step 2:') !== false))
                 $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
         }
 
@@ -569,8 +572,8 @@ class add_publication extends pdHtmlPage {
             + "field will already be enterred.";
 
         function dataKeep(tab) {
-            var temp_qs = "";
-            var info_counter = 0;
+            var qsArray = new Array();
+            var qsString = "";
 
             for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
                 var element = document.forms["pubForm"].elements[i];
@@ -578,75 +581,72 @@ class add_publication extends pdHtmlPage {
                     && (element.type != "button")
                     && (element.value != "") && (element.value != null)
                     && (element.name != "")) {
-                    if (info_counter > 0) {
-                        temp_qs += "&";
-                    }
 
                     if (element.name == "authors[]") {
-                        var author_list = "";
                         var author_count = 0;
 
                         for (j = 0; j < element.length; j++) {
                             if (element[j].selected) {
-                                if (author_count > 0) {
-                                    author_list = author_list + "&";
-                                }
-                                author_list = author_list + "authors["
-                                    + author_count + "]=" + element[j].value;
+                                qsArray.push("authors[" + author_count
+                                             + "]=" + element[j].value);
                                 author_count++;
                             }
                         }
-
-                        temp_qs += author_list;
                     }
                     else if(element.name == "comments")
-                        temp_qs += element.name + "="
-                            + element.value.replace("\"","'");
+                        qsArray.push(element.name + "="
+                                     + element.value.replace("\"","'"));
 
-                    else if ((element.name == "nopaper") && (element.checked)) {
-                        temp_qs += element.name + "=" + element.value;
+                    else if (element.name == "nopaper") {
+                        if (element.checked)
+                            qsArray.push(element.name + "=" + element.value);
                     }
                     else if(element.name == "ext"){
                         if(tab == "addext")
-                            temp_qs += element.name + "={$ext_next}";
+                            qsArray.push(element.name + "={$ext_next}");
                         else if(tab == "remext")
-                            temp_qs += element.name + "={$ext_prev}";
+                            qsArray.push(element.name + "={$ext_prev}");
                         else
-                            temp_qs += element.name + "={$ext}";
+                            qsArray.push(element.name + "={$ext}");
                     }
                     else if(element.name == "intpoint"){
                         if(tab == "addint")
-                            temp_qs += element.name + "={$intpoint_next}";
+                            qsArray.push(element.name + "={$intpoint_next}");
                         else if(tab == "remint")
-                            temp_qs += element.name + "={$intpoint_prev}";
+                            qsArray.push(element.name + "={$intpoint_prev}");
                         else
-                            temp_qs += element.name + "={$intpoint}";
+                            qsArray.push(element.name + "={$intpoint}");
                     }
                     else if(element.name == "numMaterials"){
                         if(tab == "addnum")
-                            temp_qs += element.name + "={$numMaterials_next}";
+                            qsArray.push(element.name
+                                         + "={$numMaterials_next}");
                         else if(tab == "remnum")
-                            temp_qs += element.name + "={$numMaterials_prev}";
+                            qsArray.push(element.name
+                                         + "={$numMaterials_prev}");
                     }
                     else
-                        temp_qs += element.name + "=" + element.value;
-
-                    info_counter++;
+                        qsArray.push(element.name + "=" + element.value);
                 }
             }
-            if ((tab == "addnum") || (tab == "remnum"))
-                temp_qs += "&#" + "STEP2";
-            if (((tab == "addext") || (tab == "remext"))
-                || ((tab == "addint") || (tab == "remint")))
-                temp_qs += "&#" + "pointers";
-            else if(tab != "none")
-                temp_qs += "&#" + tab;
 
-            temp_qs.replace("\"", "?");
-            temp_qs.replace(" ", "%20");
+            if ((tab == "addnum") || (tab == "remnum"))
+                qsArray.push("#step2");
+            else if (((tab == "addext") || (tab == "remext"))
+                || ((tab == "addint") || (tab == "remint")))
+                qsArray.push("#pointers");
+            else if(tab != "none")
+                qsArray.push("&#" + tab);
+
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace("\"", "?");
+                qsString.replace(" ", "%20");
+            }
+
             location.href
                 = "http://" + "{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + temp_qs;
+                + qsString;
         }
 
         function verify(num) {

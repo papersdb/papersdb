@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.12 2006/06/09 22:34:19 aicmltec Exp $
+// $Id: pdPublication.php,v 1.13 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -52,7 +52,7 @@ class pdPublication {
     function pdPublication($obj = NULL) {
         $this->paper = 'No Paper';
 
-        if (!is_null($obj))
+        if (isset($obj))
             $this->load($obj);
     }
 
@@ -68,6 +68,7 @@ class pdPublication {
 
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
+        if ($q === false) return false;
         $this->load($q);
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
@@ -153,7 +154,7 @@ class pdPublication {
             $this->dbLoadVenue($db);
         }
 
-        //print_r($this);
+        return true;
     }
 
     function dbLoadVenue(&$db) {

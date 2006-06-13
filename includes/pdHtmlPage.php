@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.7 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.8 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -132,7 +132,10 @@ class pdHtmlPage {
             //$result .= '<pre>' . print_r($this->table, true) . '</pre>';
 
             if ($this->renderer != null) {
-                $result .= $this->renderer->toHtml(($this->table->toHtml()));
+                if ($this->table != null)
+                    $result .= $this->renderer->toHtml($this->table->toHtml());
+                else
+                    $result .= $this->renderer->toHtml();
             }
             else {
                 assert ('($this->form == null)');
@@ -168,6 +171,9 @@ class pdHtmlPage {
         'delete_author'    => array('Delete Author',
                                     'Admin/delete_author.php',
                                     PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_category'  => array('Delete Category',
+                                    'Admin/delete_category.php',
+                                    PD_HTML_PAGE_NAV_MENU_NEVER),
         'delete_venue'     => array('Delete Venue', 'Admin/delete_venue.php',
                                     PD_HTML_PAGE_NAV_MENU_NEVER),
         'edit_user'        => array('Edit User', 'Admin/edit_user.php',
@@ -178,8 +184,10 @@ class pdHtmlPage {
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'all_authors'      => array('All Authors', 'list_author.php',
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'all_categories'   => array('All Categories', 'list_categories.php',
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'all_venues'       => array('All Venues', 'list_venues.php',
-                                    PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+                                    PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'logout'           => array('Logout', 'logout.php',
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'login'            => array('Login or Register', 'login.php',
@@ -317,12 +325,13 @@ END;
             . 'return escape(' . $varname . ')">' . $text . '</a>';
     }
 
-    function confirmForm($name, $action) {
+    function confirmForm($name, $action = null) {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
 
-        $form->addElement('submit', 'Submit', 'Delete');
-        $form->addElement('submit', 'Cancel', 'Cancel');
+        $form->addElement('submit', 'submit', 'Delete');
+        $form->addElement('button', 'cancel', 'Cancel',
+                          array('onclick' => 'history.back()'));
         return $form;
     }
 }

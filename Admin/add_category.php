@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.10 2006/06/13 05:30:28 aicmltec Exp $
+// $Id: add_category.php,v 1.11 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -33,6 +33,18 @@ class add_category extends pdHtmlPage {
         }
 
         $db =& dbCreate();
+        $category = new pdCategory();
+
+        if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
+            $this->cat_id = intval($_GET['cat_id']);
+            $result = $category->dbLoad($db, $this->cat_id);
+
+            if (!$result) {
+                $db->close();
+                $this->pageError = true;
+                return;
+            }
+        }
 
         $form = new HTML_QuickForm('catForm');
 
@@ -72,7 +84,6 @@ class add_category extends pdHtmlPage {
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $category = new pdCategory();
             $category->category = $values['catname'];
 
             foreach (array_merge($values['info'], $values['new_fields'])
@@ -92,6 +103,13 @@ class add_category extends pdHtmlPage {
                 . 'Add another new category</a>';
         }
         else {
+            $defaults['catname'] = $category->category;
+
+            foreach ($category->info as $info) {
+                $defaults['info['.$info->info_id.']'] = $info->name;
+            }
+            $form->setDefaults($defaults);
+
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
 
@@ -206,6 +224,7 @@ class add_category extends pdHtmlPage {
                 qsString = qsArray.join("&");
                 qsString.replace(" ", "%20");
             }
+
             location.href
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
                 + qsString;

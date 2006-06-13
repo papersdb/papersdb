@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.9 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.10 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -57,7 +57,7 @@ class pdAuthor {
 
         $q = $db->selectRow('author', '*', array('author_id' => $id),
                             "pdAuthor::dbLoad");
-        assert('($q !== false)');
+        if ($q === false) return false;
         $this->load($q);
 
         if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
@@ -67,6 +67,8 @@ class pdAuthor {
                       | PD_AUTHOR_DB_LOAD_PUBS_ALL)) {
             $this->publicationsDbLoad($db);
         }
+
+        return true;
     }
 
     /**
@@ -82,8 +84,9 @@ class pdAuthor {
                                'author_interest.author_id' => $this->author_id),
                          "pdAuthor::interestsDbLoad");
 
+        // its possible that the author has no interests in the database
+        // no need to assert
         $r = $db->fetchObject($q);
-        assert('($r !== false)');
         while ($r) {
             $this->interests[] = $r->interest;
             $r = $db->fetchObject($q);
@@ -205,12 +208,16 @@ class pdAuthor {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
-        $db->delete('author', array('author_id' => $this->author_id),
-                    'pdAuthor::dbDelete');
         $db->delete('author_interest', array('author_id' => $this->author_id),
                     'pdAuthor::dbDelete');
         $db->delete('pub_author', array('author_id' => $this->author_id),
                     'pdAuthor::dbDelete');
+        $db->delete('author', array('author_id' => $this->author_id),
+                    'pdAuthor::dbDelete');
+    }
+
+    function asArray() {
+        return get_object_vars($this);
     }
 
     /**

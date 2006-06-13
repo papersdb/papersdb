@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.24 2006/06/11 20:42:26 aicmltec Exp $
+// $Id: view_publication.php,v 1.25 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -68,7 +68,8 @@ class view_publication extends pdHtmlPage {
 
         $table->addRow(array('Author(s):', $this->author2Html($pub)));
 
-        $table->addRow(array('Abstract:', stripslashes($pub->abstract)));
+        $table->addRow(array('Abstract:',
+                             stripslashes(nl2br($pub->abstract))));
 
         $this->venueRowsAdd($pub, $table);
         $this->extPointerRowsAdd($pub, $table);

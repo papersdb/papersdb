@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.5 2006/06/13 05:30:28 aicmltec Exp $
+// $Id: pdCategory.php,v 1.6 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -45,20 +45,21 @@ class pdCategory {
         if (isset($id)) {
             $r = $db->selectRow('category', '*', array('cat_id' => $id),
                                 "pdPublication::dbLoad");
-            assert('($q !== false)');
-            $this->load($db->fetchObject($r));
+            if ($r === false) return false;
+            $this->load($r);
         }
         else if (isset($name)) {
             $r = $db->selectRow('category', '*', array('category' => $name),
                                 "pdPublication::dbLoad");
-            assert('($r !== false)');
-            $this->load($db->fetchObject($r));
+            if ($r === false) return false;
+            $this->load($r);
         }
 
         if (($flags & PD_CATEGORY_DB_LOAD_CATEGORY_INFO)
             && isset($this->cat_id)) {
             $this->dbLoadCategoryInfo($db);
         }
+        return true;
     }
 
 
@@ -135,6 +136,13 @@ class pdCategory {
             $db->insert('cat_info', $arr, 'pdCategory::dbSaveInfo');
     }
 
+    function dbDelete(&$db) {
+        $db->delete('cat_info', array('cat_id' => $this->cat_id),
+                    'pdCategory::dbDelete');
+        $db->delete('category', array('cat_id' => $this->cat_id),
+                    'pdCategory::dbDelete');
+    }
+
     function infoAdd($info_id, $name) {
         assert('!is_null($info_id)');
         assert('!is_null($name)');
@@ -142,6 +150,10 @@ class pdCategory {
         $obj->info_id = $info_id;
         $obj->name = $name;
         $this->info[] = $obj;
+    }
+
+    function asArray() {
+        return get_object_vars($this);
     }
 
     /**

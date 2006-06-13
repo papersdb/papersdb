@@ -42,7 +42,7 @@ class list_author extends pdHtmlPage {
                     . $auth->author_id . "'>" . $auth->name . "</a>";
                 $attr[] = '';
                 if ($logged_in) {
-                    $cells[] = "<a href='Admin/edit_author.php?author_id="
+                    $cells[] = "<a href='Admin/add_author.php?author_id="
                         . $auth->author_id . "'>Edit</a>";
                     $cells[] = "<a href='Admin/delete_author.php?author_id="
                         . $auth->author_id . "'>Delete</a>";

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.14 2006/06/12 04:32:15 aicmltec Exp $
+// $Id: pdUser.php,v 1.15 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -40,11 +40,13 @@ class pdUser {
         assert('is_object($db)');
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
+        if ($q === false) return false;
         $this->load($q);
 
         if (!isset($this->login)) return;
 
         $this->collaboratorsDbLoad($db);
+        return true;
     }
 
     /**

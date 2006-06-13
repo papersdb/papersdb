@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.7 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: add_venue.php,v 1.8 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -33,8 +33,6 @@ require_once 'includes/pdVenue.php';
  * Renders the whole page.
  */
 class add_venue extends pdHtmlPage {
-    var $change = false;
-    var $editmode = false;
     var $venue_id = null;
 
     function add_venue() {
@@ -47,22 +45,13 @@ class add_venue extends pdHtmlPage {
             return;
         }
 
-        if (isset($_GET['status']) && ($_GET['status'] == 'change'))
-            $this->change = true;
-
-        if (isset($_GET['editmode']) && ($_GET['editmode'] == 'true'))
-            $this->editmode = true;
-
         $db =& dbCreate();
 
         $venue = new pdVenue();
-        if ($this->change) {
-            if (!isset($_GET['venue_id']) || ($_GET['venue_id'] == '')) {
-                $this->pageError = true;
-                return;
-            }
+
+        if (isset($_GET['venue_id']) && ($_GET['venue_id'] != '')) {
             $this->venue_id = intval($_GET['venue_id']);
-            $venue->dbLoad($db, $venue_id);
+            $venue->dbLoad($db, $this->venue_id);
         }
 
         if (isset($_GET['type']) && ($_GET['type'] != ''))
@@ -73,8 +62,7 @@ class add_venue extends pdHtmlPage {
         $form = new HTML_QuickForm('venueForm', 'post',
                                    './add_venue.php?submit=true');
 
-        if ($this->change || $this->editmode) {
-            $form->addElement('hidden', 'editmode', 'true');
+        if ($venue->venue_id != '') {
             $form->addElement('hidden', 'venue_id', $this->venue_id);
             $form->addElement('hidden', 'id', 'true');
             $form->addElement('submit', 'Submit', 'Edit Venue');
@@ -83,11 +71,11 @@ class add_venue extends pdHtmlPage {
             $form->addElement('submit', 'Submit', 'Add Venue');
         }
 
-        $form->addElement('radio', 'type', null, 'Journal', 'journal',
+        $form->addElement('radio', 'type', null, 'Journal', 'Journal',
                           array('onClick' => 'dataKeep();'));
-        $form->addElement('radio', 'type', null, 'Conference', 'conference',
+        $form->addElement('radio', 'type', null, 'Conference', 'Conference',
                           array('onClick' => 'dataKeep();'));
-        $form->addElement('radio', 'type', null, 'Workshop', 'workshop',
+        $form->addElement('radio', 'type', null, 'Workshop', 'Workshop',
                           array('onClick' => 'dataKeep();'));
         $form->addElement('text', 'title', null,
                           array('size' => 50, 'maxlength' => 250));
@@ -105,10 +93,10 @@ class add_venue extends pdHtmlPage {
         if ($venue->type != '') {
             $form->addElement('text', 'data', null,
                               array('size' => 50, 'maxlength' => 250));
-            if ($venue->type == 'workshop')
+            if ($venue->type == 'Workshop')
                 $form->addElement('text', 'editor', null,
                                   array('size' => 50, 'maxlength' => 250));
-            if (($venue->type == 'conference') || ($venue->type == 'workshop'))
+            if (($venue->type == 'Conference') || ($venue->type == 'Workshop'))
                 $form->addElement('text', 'date', null,
                                   array('size' => 10, 'maxlength' => 10));
         }
@@ -117,8 +105,6 @@ class add_venue extends pdHtmlPage {
 
         if ($form->validate()) {
             $values = $form->exportValues();
-
-            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
 
             $venue->load($values);
 
@@ -136,9 +122,7 @@ class add_venue extends pdHtmlPage {
             }
             else {
                 $this->contentPre .= 'You have successfully edited the venue "'
-                    . $venue->title . '".'
-                    . '<br><a href="./add_venue.php?status=edit">Edit another'
-                    . 'venue</a>';
+                    . $venue->title . '".';
             }
         }
         else {
@@ -163,11 +147,11 @@ class add_venue extends pdHtmlPage {
             $table->setAutoGrow(true);
 
             $table->addRow(array('Type:',
-                                 $renderer->elementToHtml('type', 'journal')));
+                                 $renderer->elementToHtml('type', 'Journal')));
             $table->addRow(array('',
-                                 $renderer->elementToHtml('type', 'conference')));
+                                 $renderer->elementToHtml('type', 'Conference')));
             $table->addRow(array('',
-                                 $renderer->elementToHtml('type', 'workshop')));
+                                 $renderer->elementToHtml('type', 'Workshop')));
             $table->addRow(array('Internal Title:',
                                  $renderer->elementToHtml('title')));
             $table->addRow(array('Venue Name:',
@@ -176,21 +160,22 @@ class add_venue extends pdHtmlPage {
                                  $renderer->elementToHtml('url')));
 
             if ($venue->type != '') {
-                if ($venue->type == 'conference')
+                if ($venue->type == 'Conference')
                     $cell1 = 'Location';
-                else if ($venue->type == 'journal')
+                else if ($venue->type == 'Journal')
                     $cell1 = 'Publisher';
-                else if ($venue->type == 'workshop')
+                else if ($venue->type == 'Workshop')
                     $cell1 = 'Associated Conference';
                 $table->addRow(array($cell1 . ':',
                                      $renderer->elementToHtml('data')));
 
-                if ($venue->type == 'workshop')
+                if ($venue->type == 'Workshop')
                     $table->addRow(array('Editor:',
                                          $renderer->elementToHtml('editor')));
 
 
-                if (($venue->type == 'conference') || ($venue->type == 'workshop'))
+                if (($venue->type == 'Conference')
+                    || ($venue->type == 'Workshop'))
                     $table->addRow(array('Date:',
                                          $renderer->elementToHtml('date')
                                          . '<a href="doNothing()" '
@@ -206,9 +191,10 @@ class add_venue extends pdHtmlPage {
                                          . '(yyyy-mm-dd) '));
             }
 
-            $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '25%'));
 
-            if ($this->change || $this->editmode)
+            if ($venue->venue_id != '')
                 $this->contentPre .= '<h3>Edit Venue</h3>';
             else
                 $this->contentPre .= '<h3>Add Venue</h3>';
@@ -230,45 +216,39 @@ class add_venue extends pdHtmlPage {
             window.close();
         }
         function dataKeep() {
-            var temp_qs = "";
-            var info_counter = 0;
-            var is_edit = 0;
+            var qsArray = new Array();
+            var qsString = "";
 
             for (i = 0; i < document.forms["venueForm"].elements.length; i++) {
                 var element = document.forms["venueForm"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
                     && (element.value != "") && (element.value != null)) {
 
-                    if (element.name == "venue_id")
-                        is_edit = 1;
-
-                    if (element.name == "type"){
+                    if (element.name == "venue_id") {
+                        qsArray.push(element.name + "=" + element.value);
+                        qsArray.push("status=change");
+                    }
+                    else if (element.name == "type") {
                         if (element.checked) {
-                            if (info_counter > 0) {
-                                temp_qs += "&";
-                            }
-                            temp_qs += element.name + "="
-                                + element.value.replace("\"","'");
-                            info_counter++;
+                            qsArray.push(element.name + "="
+                                         + element.value.replace("\"","'"));
                         }
                     }
                     else {
-                        if (info_counter > 0) {
-                            temp_qs += "&";
-                        }
-                        temp_qs += element.name + "=" + element.value;
-                        info_counter++;
+                        qsArray.push(element.name + "=" + element.value);
                     }
                 }
             }
 
-            temp_qs.replace("\"", "?");
-            temp_qs.replace(" ", "%20");
-            if (is_edit == 1)
-                temp_qs += "&status=change";
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace("\"", "?");
+                qsString.replace(" ", "%20");
+            }
+
             location.href
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + temp_qs;
+                + qsString;
         }
         </script>
 JS_END;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.24 2006/06/09 22:59:39 aicmltec Exp $
+// $Id: advanced_search.php,v 1.25 2006/06/13 19:00:22 aicmltec Exp $
 
 /**
  * \file
@@ -75,36 +75,28 @@ class advanced_search extends pdHtmlPage {
 
             <script language="JavaScript" type="text/JavaScript">
             window.name="search_publication.php";
-        function resetAll() {
-            location.href="advanced_search.php";
-        }
-        function refresher() { window.location.reload(true);}
 
         function dataKeep(num) {
-            var temp_qs = "";
-            var info_counter = 0;
+            var qsArray = new Array();
+            var qsString = "";
 
             for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
                 var element = document.forms["pubForm"].elements;
                 if ((element.value != "") && (element.value != null)) {
-                    if (info_counter > 0) {
-                        temp_qs += "&";
-                    }
-
                     temp_qs += element.name + "=" + element.value;
-                    info_counter++;
+                        qsArray.push(element.name + "=" + element.value);
                 }
             }
-            if(num == 1) {
-                if (info_counter > 0)
-                    temp_qs += "&";
-                temp_qs += "expand=true";
+            if (num == 1) {
+                qsArray.push("expand=true");
             }
-            temp_qs.replace("\"", "?");
-            temp_qs.replace(" ", "%20");
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace(" ", "%20");
+            }
             location.href
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + temp_qs;
+                + qsString;
         }
         </script>
 END;
