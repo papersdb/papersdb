@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.4 2006/06/07 23:08:37 aicmltec Exp $
+// $Id: pdCategory.php,v 1.5 2006/06/13 05:30:28 aicmltec Exp $
 
 /**
  * \file
@@ -43,14 +43,16 @@ class pdCategory {
         $this->dbLoadFlags = $flags;
 
         if (isset($id)) {
-            $q = $db->select('category', '*', array('cat_id' => $id),
-                             "pdPublication::dbLoad");
-            $this->load($db->fetchObject($q));
+            $r = $db->selectRow('category', '*', array('cat_id' => $id),
+                                "pdPublication::dbLoad");
+            assert('($q !== false)');
+            $this->load($db->fetchObject($r));
         }
         else if (isset($name)) {
-            $q = $db->select('category', '*', array('category' => $name),
-                             "pdPublication::dbLoad");
-            $this->load($db->fetchObject($q));
+            $r = $db->selectRow('category', '*', array('category' => $name),
+                                "pdPublication::dbLoad");
+            assert('($r !== false)');
+            $this->load($db->fetchObject($r));
         }
 
         if (($flags & PD_CATEGORY_DB_LOAD_CATEGORY_INFO)
@@ -73,6 +75,7 @@ class pdCategory {
                          array('info.info_id=cat_info.info_id',
                                'cat_info.cat_id' => $this->cat_id),
                          "pdCategory::dbLoadCategoryInfo");
+        assert('($q !== false)');
         $r = $db->fetchObject($q);
         while ($r) {
             $this->info[] = $r;
@@ -87,33 +90,49 @@ class pdCategory {
         if (isset($this->cat_id)) {
             $db->update('category', array('category' => $this->category),
                         array('cat_id' => $this->cat_id), 'pdUser::dbSave');
-            dbSaveInfo($db);
         }
         else {
-            $db->query('INSERT INTO category (cat_id, category)'
-                       . 'VALUES (NULL, "' . $this->category . '")');
-            $this->dbSaveInfo($db);
+            $db->insert('category', array('category' => $this->category),
+                        'pdUser::dbSave');
+
+            // get the cat_id now
+            $r = $db->selectRow('category', 'cat_id',
+                                array('category' => $this->category),
+                                'pdUser::dbSave');
+            assert('($r !== false)');
+            $this->cat_id = $r->cat_id;
         }
+        $this->dbSaveInfo($db);
     }
 
     function dbSaveInfo (&$db) {
         if (!isset($this->info))  return;
 
-        foreach ($this->info as $info) {
-            if ($info->info_id = '') {
-                $db->query('INSERT INTO info (info_id, name)'
-                           . 'VALUES (NULL, "' . $info->name . '")');
+        $info_list = new pdInfoList($db);
 
-                $r = $db->selectRow('info', 'info_id',
-                                    array('name' => $info->name),
-                                    'pdPublication::dbSaveInfo');
-                $cat_info[] = '(' . $this->cat_id . ',' . $r->info_id . ')';
+        $arr = array();
+        foreach ($this->info as $info) {
+            if (!$info_list->infoExists($info->name)) {
+                $db->insert('info', array('name' =>$info->name),
+                            'pdCategory::dbSaveInfo');
             }
+
+            $r = $db->selectRow('info', 'info_id',
+                                array('name' => $info->name),
+                                'pdPublication::dbSaveInfo');
+            assert('($r !== false)');
+            array_push($arr, array('cat_id' => $this->cat_id,
+                                   'info_id' => $r->info_id));
+            $info->info_id = $r->info_id;
         }
 
-        if (count($cat_info) > 0)
-            $db->query('INSERT INTO cat_info (cat_id, info_id)'
-                       . 'VALUES ' . implode(',', $cat_info));
+        if (isset($this->cat_id)) {
+            $db->delete('cat_info', array('cat_id' => $this->cat_id),
+                        'pdUser::dbSave');
+        }
+
+        if (count($arr) > 0)
+            $db->insert('cat_info', $arr, 'pdCategory::dbSaveInfo');
     }
 
     function infoAdd($info_id, $name) {

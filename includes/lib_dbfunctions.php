@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.5 2006/06/12 23:34:38 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.6 2006/06/13 05:30:28 aicmltec Exp $
 
   /**
    * \file
@@ -76,7 +76,7 @@ $wgProfiling = 0;
 
 function wfProfileIn($str) {}
 function wfProfileOut($str) { echo $str . "<br/>\n"; }
-function wfLogDBError( $text ) { echo $str . "<br/>\n"; }
+function wfLogDBError( $text ) { echo $text . "<br/>\n"; }
 function wfGetSiteNotice() {}
 function wfErrorExit() {
     die();

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.9 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: add_category.php,v 1.10 2006/06/13 05:30:28 aicmltec Exp $
 
 /**
  * \file
@@ -16,6 +16,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdInfoList.php';
+require_once 'includes/pdCategory.php';
 
 /**
  * Renders the whole page.
@@ -41,36 +42,54 @@ class add_category extends pdHtmlPage {
                        'required', null, 'client');
 
         // info list
-        $info_list = new pdInfoList();
-        $info_list->dbLoad($db);
+        $info_list = new pdInfoList($db);
         assert('is_array($info_list->list)');
         foreach ($info_list->list as $info) {
             $form->addElement('advcheckbox', 'info[' . $info->info_id . ']',
                               null, $info->name, null, array('', $info->name));
         }
 
-        if (isset($_GET['newFields']) && ($_GET['newFields'] != ''))
-            $newFields = intval($_GET['newFields']);
+        if (isset($_GET['numNewFields']) && ($_GET['numNewFields'] != ''))
+            $newFields = intval($_GET['numNewFields']);
+        else if (isset($_POST['numNewFields'])
+                 && ($_POST['numNewFields'] != ''))
+            $newFields = intval($_POST['numNewFields']);
         else
             $newFields = 0;
 
         for ($i = 0; $i < $newFields; $i++) {
-            $form->addElement('text', 'new_field[' . $i . ']', null,
+            $form->addElement('text', 'new_fields[' . $i . ']', null,
                               array('size' => 50, 'maxlength' => 250));
         }
 
         $form->addElement('button', 'add_field', 'Add Field',
                           array('onClick' => 'dataKeep('
                                 . ($newFields + 1) . ');'));
-        $form->addElement('submit', 'Submit', 'Add Category',
-                          array('onclick' => 'return verify();'));
-        $form->addElement('reset', 'Reset', 'Reset',
-                          array('onclick' => 'resetAll();'));
-        $form->addElement('submit', 'Cancel', 'Cancel',
-                          array('onClick' => 'closewindow();'));
-        $form->addElement('hidden', 'newCatSubmitted', 'true');
+        $form->addElement('hidden', 'numNewFields', $newFields);
+        $form->addElement('submit', 'submit', 'Add Category');
+        $form->addElement('reset', 'reset', 'Reset');
 
         if ($form->validate()) {
+            $values = $form->exportValues();
+
+            $category = new pdCategory();
+            $category->category = $values['catname'];
+
+            foreach (array_merge($values['info'], $values['new_fields'])
+                     as $infoname) {
+                if ($infoname == '') continue;
+
+                $obj = new stdClass;
+                $obj->name = $infoname;
+                $category->info[] = $obj;
+            }
+            $category->dbSave($db);
+
+            $this->contentPre .= 'Category "' . $category->category
+                . '" succesfully added to the database.'
+                . '<p/>'
+                . '<a href="' . $_SERVER['PHP_SELF'] . '">'
+                . 'Add another new category</a>';
         }
         else {
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
@@ -113,15 +132,15 @@ class add_category extends pdHtmlPage {
 
             for ($i = 0; $i < $newFields; $i++) {
                 $table->addRow(array('Field Name:',
-                                     $renderer->elementToHtml('new_field['.$i.']')));
+                                     $renderer->elementToHtml(
+                                         'new_fields['.$i.']')));
                 $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                              array('colspan' => 2));
             }
 
             $table->addRow(array('',
-                                 $renderer->elementToHtml('Submit')
-                                 . '&nbsp;' . $renderer->elementToHtml('Reset')
-                                 . '&nbsp;' . $renderer->elementToHtml('Cancel')),
+                                 $renderer->elementToHtml('submit')
+                                 . '&nbsp;'.$renderer->elementToHtml('reset')),
                            array('', 'colspan' => 2));
 
             $table->updateCellAttributes($table->getRowCount() - 1, 1,
@@ -147,7 +166,7 @@ class add_category extends pdHtmlPage {
         $this->js = <<< JS_END
             <script language="JavaScript" type="text/JavaScript">
 
-            var addCategoryPageHelp=
+            var addCategoryPageHelp =
             "This window is used to add a new category of papers to the "
             + "database. The category should be used to describe the type of "
             + "paper being submitted. Examples of paper types include: "
@@ -159,32 +178,37 @@ class add_category extends pdHtmlPage {
             + "you can type in the name of the related field you wish to add.";
 
         function dataKeep(num) {
-            var temp_qs = "";
-            var info_counter = 0;
+            var qsArray = new Array();
+            var qsString = "";
 
             for (i = 0; i < document.forms["catForm"].elements.length; i++) {
                 var element = document.forms["catForm"].elements[i];
-                if ((element.value != "") && (element.value != null)) {
-                    if (info_counter > 0) {
-                        temp_qs += "&";
-                    }
+
+                if ((element.type != "submit") && (element.type != "reset")
+                    && (element.type != "button") && (element.name != "")
+                    && (element.value != "") && (element.value != null)) {
 
                     if (element.type == 'checkbox') {
-                        if (element.checked != false) {
-                            temp_qs += element.name + "=" + element.value;
+                        if (element.checked) {
+                            qsArray.push(element.name + "=" + element.value);
                         }
                     }
-                    else {
-                        temp_qs += element.name + "=" + element.value;
+                    else if (element.name == 'numNewFields') {
+                        qsArray.push(element.name + "=" + num);
                     }
-
-                    info_counter++;
+                    else {
+                        qsArray.push(element.name + "=" + element.value);
+                    }
                 }
             }
 
-            temp_qs.replace(" ", "%20");
-            window.open("./add_category.php?{$_SERVER['QUERY_STRING']}&newFields="
-                        + num + "&" + temp_qs, "Add");
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace(" ", "%20");
+            }
+            location.href
+                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
+                + qsString;
         }
 
         </script>

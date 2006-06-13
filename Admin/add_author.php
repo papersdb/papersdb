@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.15 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: add_author.php,v 1.16 2006/06/13 05:30:28 aicmltec Exp $
 
 /**
  * \file
@@ -114,15 +114,13 @@ class add_author extends pdHtmlPage {
             $author->interests = array_merge($values['interests'],
                                              $values['newInterests']);
 
-            $this->contentPre .= '<pre>' . print_r($author, true) . '</pre>';
+            $author->dbSave($db);
 
             $this->contentPre .= 'Author "' . $values['firstname'] . ' '
                 . $values['lastname'] . '" succesfully added to the database.'
                 . '<p/>'
                 . '<a href="' . $_SERVER['PHP_SELF'] . '">'
                 . 'Add another new author</a>';
-
-            $author->dbSave($db);
         }
         else {
             $this->contentPre .= '<h3>'
@@ -144,7 +142,8 @@ class add_author extends pdHtmlPage {
                                  $renderer->elementToHtml('firstname')));
             $table->addRow(array('Last Name:',
                                  $renderer->elementToHtml('lastname')));
-            $table->addRow(array($this->helpTooltip('Title', 'authTitleHelp') . ':',
+            $table->addRow(array($this->helpTooltip('Title',
+                                                    'authTitleHelp') . ':',
                                  $renderer->elementToHtml('title')));
             $table->addRow(array('Email:', $renderer->elementToHtml('email')));
             $table->addRow(array('Organization:',
