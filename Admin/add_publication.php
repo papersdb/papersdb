@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.23 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: add_publication.php,v 1.24 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -70,11 +70,7 @@ class add_publication extends pdHtmlPage {
                          '-3' => 'Unique Venue');
         $venue_list = new pdVenueList();
         $venue_list->dbLoad($this->db);
-        assert('is_array($venue_list->list)');
-        foreach ($venue_list->list as $v) {
-            $options[$v->venue_id] = $v->title;
-        }
-        $form->addElement('select', 'venue_id', null, $options,
+        $form->addElement('select', 'venue_id', null, $venue_list->list,
                           array('onChange' => 'dataKeep(\'Start\');'));
 
         // Category
@@ -82,11 +78,8 @@ class add_publication extends pdHtmlPage {
         $options = array(''   => '--- Please Select a Category ---',
                          '-1' => '-- Add New Category --');
         $category_list = new pdCatList($this->db);
-        assert('is_array($category_list->list)');
-        foreach ($category_list->list as $cat) {
-            $options[$cat->cat_id] = $cat->category;
-        }
-        $form->addElement('select', 'category_id', null, $options,
+        $form->addElement('select', 'category_id', null,
+                          $category_list->list,
                           array('onChange' => 'dataKeep(\'Start\');'));
 
         if (isset($category) && is_object($category)
