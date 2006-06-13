@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.3 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -24,9 +24,10 @@ class pdVenueList {
         if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[] = $r;
+            $this->list[$r->venue_id] = $r->title;
             $r = $db->fetchObject($q);
         }
+        assert('is_array($this->list)');
     }
 }
 

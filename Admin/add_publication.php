@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.24 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: add_publication.php,v 1.25 2006/06/13 20:07:37 aicmltec Exp $
 
 /**
  * \file
@@ -32,7 +32,7 @@ class add_publication extends pdHtmlPage {
         $this->venue = null;
         $this->category = null;
 
-        $this->db =& dbCreate();
+        $db =& dbCreate();
         $form = new HTML_QuickForm('pubForm', 'post',
                                    "./add_publication.php?",
                                    "add_publication.php");
@@ -44,7 +44,7 @@ class add_publication extends pdHtmlPage {
         // Venue
         if ($venue_id != null) {
             $this->venue = new pdVenue();
-            $this->venue->dbLoad($this->db, $venue_id);
+            $this->venue->dbLoad($db, $venue_id);
 
             if (!isset($category))
                 $category = new pdCategory();
@@ -68,8 +68,7 @@ class add_publication extends pdHtmlPage {
                          '-1' => '-- Add New Venue --',
                          '-2' => 'No Venue',
                          '-3' => 'Unique Venue');
-        $venue_list = new pdVenueList();
-        $venue_list->dbLoad($this->db);
+        $venue_list = new pdVenueList($db);
         $form->addElement('select', 'venue_id', null, $venue_list->list,
                           array('onChange' => 'dataKeep(\'Start\');'));
 
@@ -77,7 +76,7 @@ class add_publication extends pdHtmlPage {
         unset($options);
         $options = array(''   => '--- Please Select a Category ---',
                          '-1' => '-- Add New Category --');
-        $category_list = new pdCatList($this->db);
+        $category_list = new pdCatList($db);
         $form->addElement('select', 'category_id', null,
                           $category_list->list,
                           array('onChange' => 'dataKeep(\'Start\');'));
@@ -95,7 +94,7 @@ class add_publication extends pdHtmlPage {
                           array('size' => 60, 'maxlength' => 250));
 
         // Authors
-        $auth_list = new pdAuthorList($this->db);
+        $auth_list = new pdAuthorList($db);
         assert('is_array($auth_list->list)');
         unset($options);
         foreach ($auth_list->list as $auth) {
@@ -190,7 +189,7 @@ class add_publication extends pdHtmlPage {
                               'Remove the above Pointer',
                               'onClick="dataKeep(\'remint\');"');
 
-            $pub_list = new pdPubList($this->db);
+            $pub_list = new pdPubList($db);
             unset($options);
             $options[''] = '--- Link to a publication --';
             foreach ($pub_list->list as $pub) {
@@ -470,7 +469,7 @@ class add_publication extends pdHtmlPage {
 
         $this->javascript($ext, $intpoint, $numMaterials);
 
-        $this->db->close();
+        $db->close();
     }
 
     function javascript($ext, $intpoint, $numMaterials) {

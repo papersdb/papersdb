@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.3 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: delete_category.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -89,6 +89,8 @@ class delete_category extends pdHtmlPage {
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
+
+        $db->close();
     }
 }
 

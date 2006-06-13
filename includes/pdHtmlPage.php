@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.8 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.9 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -175,6 +175,9 @@ class pdHtmlPage {
                                     'Admin/delete_category.php',
                                     PD_HTML_PAGE_NAV_MENU_NEVER),
         'delete_venue'     => array('Delete Venue', 'Admin/delete_venue.php',
+                                    PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_interest'  => array('Delete Interest',
+                                    'Admin/delete_interest.php',
                                     PD_HTML_PAGE_NAV_MENU_NEVER),
         'edit_user'        => array('Edit User', 'Admin/edit_user.php',
                                     PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),

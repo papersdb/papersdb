@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.1 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: list_categories.php,v 1.2 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -30,18 +30,18 @@ class list_venues extends pdHtmlPage {
                                             'cellspacing' => '0'));
         $table->setAutoGrow(true);
 
-        foreach ($cat_list->list as $c) {
+        foreach (array_keys($cat_list->list) as $cat_id) {
             unset($fields);
 
             $category = new pdCategory();
-            $result = $category->dbLoad($db, $c->cat_id);
+            $result = $category->dbLoad($db, $cat_id);
             assert('$result');
 
             $cell1 = '<b>' . $category->category . '</b><br/>';
 
             if (count($category->info) > 0) {
-                foreach ($category->info as $info) {
-                    $fields[] = $info->name;
+                foreach ($category->info as $info_id => $name) {
+                    $fields[] = $name;
                 }
                 $cell1 .= 'Fields: ' . implode(', ', $fields);
             }

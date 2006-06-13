@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.25 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: advanced_search.php,v 1.26 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -116,24 +116,14 @@ END;
         $form->addElement('text', 'search', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('submit', 'Quick', 'Search');
-
-        $options[''] = 'All Categories';
-        foreach ($this->cat_list->list as $cat) {
-            $options[$cat->cat_id] = $cat->category;
-        }
-        $form->addElement('select', 'cat_id', null, $options,
+        $form->addElement('select', 'cat_id', null, ($this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
         $form->addElement('text', 'title', null,
                           array('size' => 60, 'maxlength' => 250));
         $form->addElement('text', 'authortyped', null,
                           array('size' => 20, 'maxlength' => 250));
-
-        unset($options);
-        $options = array('' => 'All Authors');
-        foreach($this->auth_list->list as $auth) {
-            $options[$auth->author_id] = $auth->name;
-        }
-        $form->addElement('select', 'authorselect', null, $options,
+        $form->addElement('select', 'authorselect', null,
+                          $this->auth_list->list,
                           array('multiple' => 'multiple', 'size' => 4));
         $form->addElement('text', 'paper', null,
                           array('size' => 60, 'maxlength' => 250));

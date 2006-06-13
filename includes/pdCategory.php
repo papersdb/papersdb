@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.6 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdCategory.php,v 1.7 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -79,7 +79,7 @@ class pdCategory {
         assert('($q !== false)');
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->info[] = $r;
+            $this->info[$r->info_id] = $r->name;
             $r = $db->fetchObject($q);
         }
     }

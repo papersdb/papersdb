@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.9 2006/06/09 22:08:58 aicmltec Exp $
+// $Id: pdCatList.php,v 1.10 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -27,9 +27,10 @@ class pdCatList {
                          "pdCatList::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[] = $r;
+            $this->list[$r->cat_id] = $r->category;
             $r = $db->fetchObject($q);
         }
+        assert('is_array($this->list)');
     }
 }
 

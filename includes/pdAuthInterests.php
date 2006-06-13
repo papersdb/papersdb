@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.3 2006/06/12 23:34:38 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -18,7 +18,6 @@
  */
 class pdAuthInterests {
     var $list;
-    var $names;
 
     /**
      * Constructor.
@@ -27,15 +26,15 @@ class pdAuthInterests {
         $q = $db->select('interest', '*', '', "pdAuthInterests::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[] = $r;
-            $this->interests[] = $r->interest;
+            $this->list[$r->interest_id] = $r->interest;
             $r = $db->fetchObject($q);
         }
+        assert('is_array($this->list)');
     }
 
     function interestExists($interest) {
         assert('isset($this->interests)');
-        return in_array($interest, $this->interests);
+        return in_array($interest, $this->list);
     }
 }
 

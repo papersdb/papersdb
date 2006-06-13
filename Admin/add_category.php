@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.11 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: add_category.php,v 1.12 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -55,10 +55,9 @@ class add_category extends pdHtmlPage {
 
         // info list
         $info_list = new pdInfoList($db);
-        assert('is_array($info_list->list)');
-        foreach ($info_list->list as $info) {
-            $form->addElement('advcheckbox', 'info[' . $info->info_id . ']',
-                              null, $info->name, null, array('', $info->name));
+        foreach ($info_list->list as $info_id => $name) {
+            $form->addElement('advcheckbox', 'info[' . $info_id . ']',
+                              null, $name, null, array('', $name));
         }
 
         if (isset($_GET['numNewFields']) && ($_GET['numNewFields'] != ''))
@@ -103,12 +102,15 @@ class add_category extends pdHtmlPage {
                 . 'Add another new category</a>';
         }
         else {
+            $form->setDefaults($_GET);
             $defaults['catname'] = $category->category;
 
-            foreach ($category->info as $info) {
-                $defaults['info['.$info->info_id.']'] = $info->name;
+            if (isset($category->info) && (count($category->info) > 0)) {
+                foreach ($category->info as $info_id => $name) {
+                    $defaults['info['.$info_id.']'] = $name;
+                }
+                $form->setDefaults($defaults);
             }
-            $form->setDefaults($defaults);
 
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
@@ -127,11 +129,11 @@ class add_category extends pdHtmlPage {
 
             // assign info to the 2 columns
             $count = 0;
-            foreach ($info_list->list as $info) {
+            foreach ($info_list->list as $info_id => $name) {
                 if ($count < $countDiv2)
-                    $col1[] = 'info[' . $info->info_id . ']';
+                    $col1[] = 'info[' . $info_id . ']';
                 else
-                    $col2[] = 'info[' . $info->info_id . ']';
+                    $col2[] = 'info[' . $info_id . ']';
                 $count++;
             }
 

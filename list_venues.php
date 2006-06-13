@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.4 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: list_venues.php,v 1.5 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -32,8 +32,8 @@ class list_venues extends pdHtmlPage {
         $table =& $this->table;
         $table->setAutoGrow(true);
 
-        foreach ($venue_list->list as $v) {
-            $venue->dbLoad($db, $v->venue_id);
+        foreach (array_keys($venue_list->list) as $venue_id) {
+            $venue->dbLoad($db, $venue_id);
             $cell1 = '<b>' . $venue->title . '</b><br/><b>'
                 . ucfirst($venue->type) . '</b>:&nbsp;';
             if ($venue->url != '')

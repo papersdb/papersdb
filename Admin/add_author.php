@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.17 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: add_author.php,v 1.18 2006/06/13 20:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -81,12 +81,7 @@ class add_author extends pdHtmlPage {
                           array('size' => 50, 'maxlength' => 250));
 
         $interests = new pdAuthInterests($db);
-        assert('is_array($interests->list)');
-        foreach($interests->list as $intr) {
-            $options[$intr->interest] = $intr->interest;
-        }
-
-        $form->addElement('select', 'interests', null, $options,
+        $form->addElement('select', 'interests', null, $interests->list,
                           array('multiple' => 'multiple', 'size' => 4));
 
         for ($i = 0; $i < $newInterests; $i++) {
