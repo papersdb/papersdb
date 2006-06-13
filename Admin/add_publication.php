@@ -1,15 +1,11 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.25 2006/06/13 20:07:37 aicmltec Exp $
+// $Id: add_publication.php,v 1.26 2006/06/13 21:54:42 aicmltec Exp $
 
 /**
  * \file
  *
  * \brief This page is the form for adding/editing a publication.
- *
- * It has many side functions that are needed for the form to work
- * smoothly. It takes the input from the user, and then sends that input to
- * add_publication_db.php.
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
@@ -22,69 +18,95 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 
 class add_publication extends pdHtmlPage {
-    var $venue;
-    var $category;
-
-    function add_publication($edit = false, $venue_id = null, $ext = 0,
-                             $intpoint = 0, $numMaterials = 0) {
+    function add_publication() {
         parent::pdHtmlPage('add_publication');
-
-        $this->venue = null;
-        $this->category = null;
-
         $db =& dbCreate();
-        $form = new HTML_QuickForm('pubForm', 'post',
-                                   "./add_publication.php?",
-                                   "add_publication.php");
+
+        if (isset($_GET['venue_id']) && ($_GET['venue_id'] != '')) {
+            $venue_id = intval($_GET['venue_id']);
+            $venue = new pdVenue();
+            $venue->dbLoad($db, $venue_id);
+        }
+        else
+            $venue_id = null;
+
+        if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
+            $cat_id = intval($_GET['cat_id']);
+            if ($cat_id > 0) {
+                $category = new pdCategory();
+                $result = $category->dbLoad($db, $cat_id);
+                assert('$result');
+            }
+        }
+        else
+            $cat_id = null;
+
+        if (isset($_GET['ext']) && ($_GET['ext'] != ''))
+            $ext = intval($_GET['ext']);
+        else
+            $ext = 0;
+
+        if (isset($_GET['intpoint']) && ($_GET['intpoint'] != ''))
+            $intpoint = intval($_GET['intpoint']);
+        else
+            $intpoint = 0;
+
+        if (isset($_GET['numMaterials']) && $_GET['numMaterials'] != '')
+            $numMaterials = intval($_GET['numMaterials']);
+        else
+            $numMaterials = 0;
+
+        $form = new HTML_QuickForm('pubForm');
 
         if ($edit) {
             $form->addElement('hidden', 'pub_id', $_GET['pub_id']);
         }
 
         // Venue
-        if ($venue_id != null) {
-            $this->venue = new pdVenue();
-            $this->venue->dbLoad($db, $venue_id);
+        if (($venue_id > 0) && ($cat_id == null)) {
+            $category = new pdCategory();
 
-            if (!isset($category))
-                $category = new pdCategory();
-
-            if (isset($category) && is_object($category)) {
-                if (($category->category == '')
-                    || ($category->category == 'In Conference')
-                    || ($category->category == 'In Workshop')
-                    || ($category->category == 'In Journal')) {
-                    if ($this->venue->type == 'conference')
-                        $category->dbLoad($db, null,'In Conference');
-                    else if ($this->venue->type == 'workshop')
-                        $category->dbLoad($db, null,'In Workshop');
-                    else if ($this->venue->type == 'journal')
-                        $category->dbLoad($db, null,'In Journal');
+            if (($category->category == '')
+                || ($category->category == 'In Conference')
+                || ($category->category == 'In Workshop')
+                || ($category->category == 'In Journal')) {
+                if ($venue->type == 'Conference') {
+                    $result = $category->dbLoad($db, null,'In Conference');
+                    assert('$result');
+                }
+                else if ($venue->type == 'Workshop') {
+                    $result = $category->dbLoad($db, null,'In Workshop');
+                    assert('$result');
+                }
+                else if ($venue->type == 'Journal') {
+                    $result = $category->dbLoad($db, null,'In Journal');
+                    assert('$result');
                 }
             }
         }
 
-        $options = array(''   => '--- Select a Venue ---',
-                         '-1' => '-- Add New Venue --',
-                         '-2' => 'No Venue',
-                         '-3' => 'Unique Venue');
         $venue_list = new pdVenueList($db);
-        $form->addElement('select', 'venue_id', null, $venue_list->list,
-                          array('onChange' => 'dataKeep(\'Start\');'));
+        $options = array(''   => '--- Select a Venue ---',
+                         -1 => '-- Add New Venue to Database--',
+                         -2 => 'No Venue',
+                         -3 => 'Unique Venue');
+        $options += $venue_list->list;
+        $form->addElement('select', 'venue_id', null, $options,
+                          array('onChange' => 'dataKeep(\'none\');'));
 
         // Category
         unset($options);
-        $options = array(''   => '--- Please Select a Category ---',
-                         '-1' => '-- Add New Category --');
         $category_list = new pdCatList($db);
-        $form->addElement('select', 'category_id', null,
-                          $category_list->list,
-                          array('onChange' => 'dataKeep(\'Start\');'));
+        $options = array('' => '--- Please Select a Category ---',
+                         -1 => '-- Add New Category to Database--');
+        $options += $category_list->list;
+        $form->addElement('select', 'cat_id', null, $options,
+                          array('onChange' => 'dataKeep(\'none\');'));
 
         if (isset($category) && is_object($category)
             && is_array($category->info)) {
-            foreach ($category->info as $info) {
-                $form->addElement('text', $info->name, null,
+            foreach (array_values($category->info) as $name) {
+                $form->addElement('text', $name, null,
                                   array('size' => 50, 'maxlength' => 250));
             }
         }
@@ -95,14 +117,8 @@ class add_publication extends pdHtmlPage {
 
         // Authors
         $auth_list = new pdAuthorList($db);
-        assert('is_array($auth_list->list)');
-        unset($options);
-        foreach ($auth_list->list as $auth) {
-            $options[$auth->author_id] = $auth->name;
-        }
-
         $authSelect =& $form->addElement('advmultiselect', 'authors',
-                                         null, $options,
+                                         null, $auth_list->list,
                                          array('class' => 'pool',
                                                'style' => 'width:150px;'),
                                          SORT_ASC);
@@ -135,7 +151,8 @@ class add_publication extends pdHtmlPage {
         $authSelect->setElementTemplate($template);
 
         $form->addElement('advcheckbox', 'add_author', null,
-                          'Add new author(s)', null, array('yes', 'no'));
+                          'Add new author(s) to database and this publication',
+                          null, array('no', 'yes'));
 
         $form->addElement('textarea', 'abstract', null,
                           array('cols' => 60, 'rows' => 10));
@@ -241,9 +258,7 @@ class add_publication extends pdHtmlPage {
         $form->setDefaults($_GET);
 
         if (isset($category) && is_object($category)) {
-            // using $form->setDefaults() does not work in this case
-            $element =& $form->getElement('category_id');
-            $element->setValue($category->cat_id);
+            $form->setDefaults(array('cat_id' => $category->cat_id));
         }
 
         if ($numMaterials > 0) {
@@ -281,9 +296,15 @@ class add_publication extends pdHtmlPage {
         $table->addRow(array($this->helpTooltip('Publication Venue', 'venueHelp')
                              . ':',
                              $rend->elementToHtml('venue_id')));
+
+        if ($venue_id == -3) {
+            $table->addRow(array('Unique Venue:'
+                                 . '<br/><div id="small">HTML Enabled</div>',
+                                 $rend->elementToHtml('venue_name')));
+        }
         $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
                              . ':',
-                             $rend->elementToHtml('category_id')));
+                             $rend->elementToHtml('cat_id')));
         $table->addRow(array($this->helpTooltip('Title', 'titleHelp') . ':',
                              $rend->elementToHtml('title')));
         $table->addRow(array($this->helpTooltip('Author(s)', 'authorsHelp') . ':',
@@ -294,40 +315,35 @@ class add_publication extends pdHtmlPage {
                              $rend->elementToHtml('abstract')));
 
         // Show venue info
-        if (isset($this->venue) && is_object($this->venue)) {
+        if ($venue_id > 0) {
+            assert('is_object($venue)');
             $cell1 = '';
             $cell2 = '';
 
-            if ($this->venue->type != '')
-                $cell1 .= ucfirst($this->venue->type);
+            if ($venue->type != '')
+                $cell1 .= $venue->type;
 
-            if ($this->venue->url != '')
-                $cell2 .= '<a href="' . $this->venue->url
+            if ($venue->url != '')
+                $cell2 .= '<a href="' . $venue->url
                     . '" target="_blank">';
 
-            if ($this->venue->name != '')
-                $cell2 .= $this->venue->name;
+            if ($venue->name != '')
+                $cell2 .= $venue->name;
 
-            if ($this->venue->url != '')
+            if ($venue->url != '')
                 $cell2 .= '</a>';
 
             $table->addRow(array($cell1 . ':', $cell2));
 
             $cell1 = '';
-            if($this->venue->type == 'Conference')
+            if ($venue->type == 'Conference')
                 $cell1 = 'Location:';
-            else if($this->venue->type == 'Journal')
+            else if ($venue->type == 'Journal')
                 $cell1 = 'Publisher:';
-            else if($this->venue->type == 'Workshop')
+            else if ($venue->type == 'Workshop')
                 $cell1 = 'Associated Conference:';
 
-            $table->addRow(array($cell1, $this->venue->data));
-        }
-
-        if ($venue_id == -3) {
-            $table->addRow(array('Unique Venue:'
-                                 . '<br/><div id="small">HTML Enabled</div>',
-                                 $rend->elementToHtml('venue_name')));
+            $table->addRow(array($cell1, $venue->data));
         }
 
         $table ->addRow(array($this->helpTooltip('Extra Information',
@@ -340,7 +356,7 @@ class add_publication extends pdHtmlPage {
         if ($ext == 0) {
             $table->addRow(array('<a name="pointers"></a>'
                                  . $this->helpTooltip('External Pointers',
-                                             'externalPtrHelp')
+                                                      'externalPtrHelp')
                                  . ':<br/><div id="small">optional</div>',
                                  $rend->elementToHtml('ext_ptr_add')));
         }
@@ -369,7 +385,7 @@ class add_publication extends pdHtmlPage {
         // Internal Pointers
         if ($intpoint == 0) {
             $table->addRow(array($this->helpTooltip('Internal Pointers',
-                                             'internalPtrHelp')
+                                                    'internalPtrHelp')
                                  . ':<br/><div id="small">optional</div>',
                                  $rend->elementToHtml('int_ptr_add')));
         }
@@ -393,10 +409,10 @@ class add_publication extends pdHtmlPage {
                              . ' <div id="small">separate using semicolon (;)</div>'));
 
         // Additional Information
-        if (isset($category) && is_object($category) && is_array($category->info)) {
-            foreach ($category->info as $info) {
-                $table->addRow(array($info->name . ':',
-                                     $rend->elementToHtml($info->name)));
+        if (isset($category) && is_object($category)
+            && is_array($category->info)) {
+            foreach (array_values($category->info) as $name) {
+                $table->addRow(array($name . ':', $rend->elementToHtml($name)));
             }
         }
 
@@ -449,12 +465,12 @@ class add_publication extends pdHtmlPage {
                 $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
         }
 
-        $this->contentPre .= '<h3>';
+        $this->contentPre .= '<a name="start"></a><h3>';
         if ($edit)
             $this->contentPre .= 'Edit';
         else
             $this->contentPre .= 'Add';
-        $this->contentPre .= 'Publication</h3>';
+        $this->contentPre .= ' Publication</h3>';
 
         if (!$edit) {
             $this->contentPre .= 'Adding a publication takes two steps:<br/>'
@@ -571,8 +587,8 @@ class add_publication extends pdHtmlPage {
                 var element = document.forms["pubForm"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
                     && (element.type != "button")
-                    && (element.value != "") && (element.value != null)
-                    && (element.name != "")) {
+                    && (element.type != "checkbox")
+                    && (element.value != "") && (element.value != null)) {
 
                     if (element.name == "authors[]") {
                         var author_count = 0;
@@ -585,7 +601,7 @@ class add_publication extends pdHtmlPage {
                             }
                         }
                     }
-                    else if(element.name == "comments")
+                    else if (element.name == "comments")
                         qsArray.push(element.name + "="
                                      + element.value.replace("\"","'"));
 
@@ -593,27 +609,27 @@ class add_publication extends pdHtmlPage {
                         if (element.checked)
                             qsArray.push(element.name + "=" + element.value);
                     }
-                    else if(element.name == "ext"){
-                        if(tab == "addext")
+                    else if (element.name == "ext"){
+                        if (tab == "addext")
                             qsArray.push(element.name + "={$ext_next}");
-                        else if(tab == "remext")
+                        else if (tab == "remext")
                             qsArray.push(element.name + "={$ext_prev}");
                         else
                             qsArray.push(element.name + "={$ext}");
                     }
-                    else if(element.name == "intpoint"){
-                        if(tab == "addint")
+                    else if (element.name == "intpoint"){
+                        if (tab == "addint")
                             qsArray.push(element.name + "={$intpoint_next}");
-                        else if(tab == "remint")
+                        else if (tab == "remint")
                             qsArray.push(element.name + "={$intpoint_prev}");
                         else
                             qsArray.push(element.name + "={$intpoint}");
                     }
-                    else if(element.name == "numMaterials"){
-                        if(tab == "addnum")
+                    else if (element.name == "numMaterials"){
+                        if (tab == "addnum")
                             qsArray.push(element.name
                                          + "={$numMaterials_next}");
-                        else if(tab == "remnum")
+                        else if (tab == "remnum")
                             qsArray.push(element.name
                                          + "={$numMaterials_prev}");
                     }
@@ -625,10 +641,10 @@ class add_publication extends pdHtmlPage {
             if ((tab == "addnum") || (tab == "remnum"))
                 qsArray.push("#step2");
             else if (((tab == "addext") || (tab == "remext"))
-                || ((tab == "addint") || (tab == "remint")))
+                     || ((tab == "addint") || (tab == "remint")))
                 qsArray.push("#pointers");
-            else if(tab != "none")
-                qsArray.push("&#" + tab);
+            else if (tab != "none")
+                qsArray.push("#" + tab);
 
             if (qsArray.length > 0) {
                 qsString = qsArray.join("&");
@@ -699,12 +715,12 @@ function popularauthors(){
 		$popular_users[$user_array['author_id']]++;
 		$listofauthors[$userauthorcount++] = $user_array['author_id'];
     }
-    if($userauthorcount < 10) $length = $userauthorcount; else $length = 10;
+    if ($userauthorcount < 10) $length = $userauthorcount; else $length = 10;
     for($count = 0; $count < $length; $count++){
         $largest = "";
         $largestvalue = 0;
         for($index = 0; $index< $userauthorcount; $index++)
-            if($popular_users[$listofauthors[$index]] > $largestvalue){
+            if ($popular_users[$listofauthors[$index]] > $largestvalue){
                 $largestvalue = $popular_users[$listofauthors[$index]];
                 $largest = $listofauthors[$index];
             }
@@ -741,18 +757,18 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
         $db->close();
 		exit;
 	}
-    if(($intpoint == "")&&($ext == "")){
+    if (($intpoint == "")&&($ext == "")){
         $point_query = "SELECT type, name, value FROM pointer WHERE pub_id="
             . $_GET['pub_id'];
         $point_result = query_db($point_query);
         $intpoint = 0;
         $ext = 0;
         while($point_line = mysql_fetch_array($point_result, MYSQL_ASSOC)){
-            if($point_line[type] == "int"){
+            if ($point_line[type] == "int"){
                 $internal = "intpointer".($intpoint++);
                 $$internal = $point_line[value];
             }
-            else if($point_line[type] == "ext"){
+            else if ($point_line[type] == "ext"){
                 $externalname = "extname".$ext;
                 $$externalname = $point_line[name];
 
@@ -852,197 +868,6 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
 	$authors_from_db = get_authors($_GET['pub_id']);
 }
 /////////////////////EDIT END///////////////////////////////////////
-
-if (isset($_GET['category']))
-    while (!(strpos($_GET['category'], "\\") === FALSE)) {
-        $_GET['category'] = stripslashes($_GET['category']);
-    }
-
-if (isset($_GET['title']))
-while (!(strpos($_GET['title'], "\\") === FALSE)) {
-    $title = stripslashes($title);
-}
-
-
-/* Adding a new author
-
-This takes input from add_author.php and then adds it to the
-database. This code is on this page because it allows the author
-to be instantly added to the list to choose from.
-
-*/
-if ($newAuthorSubmitted == "true") {
-    $authorname = trim($lastname) . ", " .trim($firstname);
-    $check_query = "SELECT author_id FROM author WHERE name=\"$authorname\"";
-    $check_result = mysql_query($check_query);
-    $check_array =  mysql_fetch_array($check_result, MYSQL_ASSOC);
-    if ($check_array[author_id] != "") {
-        echo "<script language=\"Javascript\">"
-            . "alert (\"Author already exists.\")"
-            . "</script>";
-    }
-    else {
-	    //add http:// to webpage address if needed
-	    if(strpos($webpage, "http") === FALSE)
-        {
-		    $webpage = "http://".$webpage;
-        }
-
-		/* Performing SQL query */
-		$author_query = "INSERT INTO author "
-            . "(author_id, name, title, email, organization, webpage) "
-            . "VALUES (NULL, \"$authorname\", \"$auth_title\", \"$email\", "
-            . "\"$organization\", \"$webpage\")";
-		$author_result = mysql_query($author_query)
-            or die("Query failed : " . mysql_error());
-
-		$unique_interest_id_counter = 0;
-
-		for ($i = 0; $i < count($newInterest); $i++) {
-			if ($newInterest[$i] != "") {
-				$interest_query = "INSERT INTO interest "
-                    . "(interest_id, interest) "
-                    . "VALUES (NULL, \"$newInterest[$i]\")";
-				$interest_result = mysql_query($interest_query)
-                    or die("Query failed : " . mysql_error());
-
-				$interest_id_query = "SELECT interest_id FROM interest "
-                    . "WHERE interest=\"$newInterest[$i]\"";
-				$interest_id_result = mysql_query($interest_id_query)
-                    or die("Query failed: " . mysql_error());
-				$interest_id_temp_array
-                    =  mysql_fetch_array($interest_id_result, MYSQL_ASSOC);
-
-				$interest_id_array[$unique_interest_id_counter]
-                    = $interest_id_temp_array[interest_id];
-				$unique_interest_id_counter++;
-
-				mysql_free_result($interest_id_result);
-			}
-		}
-
-		$author_id_query
-            = "SELECT author_id FROM author WHERE name=\"$authorname\"";
-		$author_id_result = mysql_query($author_id_query)
-            or die("Query failed: " . mysql_error());
-
-		$author_id_array = mysql_fetch_array($author_id_result, MYSQL_ASSOC);
-		$author_id = $author_id_array['author_id'];
-
-		$temp = "";
-
-		for ($i = 0; $i < $numInterests; $i++) {
-			if ($interests[$i] != null) {
-				$temp .= " (" . $author_id . "," . $interests[$i] . "),";
-			}
-		}
-
-		for ($i = 0; $i < $unique_interest_id_counter; $i++) {
-			$temp .= " (" . $author_id . "," . $interest_id_array[$i] . "),";
-		}
-
-		$temp = substr_replace($temp, "", (strlen($temp) - 1), strlen($temp));
-
-		if ($temp != "") {
-			$author_interest_query
-                = "INSERT INTO author_interest (author_id, interest_id) VALUES $temp";
-			$author_interest_result = mysql_query($author_interest_query) or die("Query failed: " . mysql_error());
-		}
-
-		$newAuthorSubmitted == "false";
-
-		// This is to preserve the selections the user has already made
-		$all_author_query = "SELECT name FROM author";
-		$all_author_result = mysql_query($all_author_query) or die("Query failed: " . mysql_error());
-		$position = -1;
-		$author_counter = 0;
-
-		while ($all_author_line = mysql_fetch_array($all_author_result, MYSQL_ASSOC)) {
-			if (strcmp($all_author_line['name'], $authorname) == 0) {
-				$position = $author_counter;
-			}
-			$author_counter++;
-		}
-
-		$push_counter = 0;
-
-		for ($i = 0; $i < $author_counter; $i++) {
-			if ($i >= $position) {
-				if ($authors[$i] != "") {
-					$push_array[$push_counter] = $i + 1;
-					$push_counter++;
-				}
-			}
-		}
-
-		for ($i = 0; $i < ($author_counter + 1); $i++) {
-			if ($i > $position) {
-				$authors[$i] = "";
-			}
-			if (in_array($i, (array)$push_array)) {
-				$authors[$i] = $i . "selected";
-			}
-		}
-
-		$authors[$position] = $position . "selected";
-
-		mysql_free_result($author_id_result);
-		mysql_free_result($all_author_result);
-
-	}
-
-	if($fromauthorspage == "true")
-	{
-		echo "<h3>Author added.</h3>";
-		echo "<a href=\"../list_author.php?admin=true\">Back to Authors</a>";
-		echo "<br/><a href=\"./\">Administrator Page</a>";
-		exit;
-
-	}
-}
-
-/* Adding a new category
- *
- * This code takes input from add_category.php and adds the category to the
- * database. Like the authors, this is here so that the newly added category
- * can be instantly selected.
- */
-if ($_POST['newCatSubmitted'] == "true") {
-    $category = new pdCategory();
-    $category->load(array('category' => $_POST['catname']));
-
-    if (isset($_POST['info']) && is_array($_POST['info'])) {
-        foreach ($_POST['info'] as $info_id => $name) {
-            if ($name != '')
-                $category->infoAdd($info_id, $name);
-        }
-    }
-
-    if (isset($_POST['new_field']) && is_array($_POST['new_field'])) {
-        $category->load(array('info' => $_POST['new_field']));
-    }
-    $category->dbSave($db);
-
-    // update our information to sync with what we added to the db
-    $category->dbLoad($db, null, $_POST['catname']);
-
-    $_POST['newCatSubmitted'] = "false";
-}
-
-if (!isset($_GET['ext']) || ($_GET['ext'] == ''))
-    $ext = 0;
-else
-    $ext = intval($_GET['ext']);
-
-if (!isset($_GET['intpoint']) || ($_GET['intpoint'] == ''))
-    $intpoint = 0;
-else
-    $intpoint = intval($_GET['intpoint']);
-
-if (isset($_GET['numMaterials']))
-    $numMaterials = intval($_GET['numMaterials']);
-else
-    $numMaterials = 0;
 
 $page = new add_publication($_GET['edit'], $_GET['venue_id'], $ext,
                             $intpoint, $numMaterials);
