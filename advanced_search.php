@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.26 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: advanced_search.php,v 1.27 2006/06/14 17:47:17 aicmltec Exp $
 
 /**
  * \file
@@ -116,7 +116,7 @@ END;
         $form->addElement('text', 'search', null,
                           array('size' => 50, 'maxlength' => 250));
         $form->addElement('submit', 'Quick', 'Search');
-        $form->addElement('select', 'cat_id', null, ($this->cat_list->list,
+        $form->addElement('select', 'cat_id', null, $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
         $form->addElement('text', 'title', null,
                           array('size' => 60, 'maxlength' => 250));

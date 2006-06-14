@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.10 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.11 2006/06/14 17:47:17 aicmltec Exp $
 
 /**
  * \file
@@ -29,6 +29,7 @@ class pdHtmlPage {
     var $title;
     var $relativeUrl;
     var $redirectUrl;
+    var $redirectTimeout;
     var $loginLevel;
     var $db;
     var $loginError;
@@ -53,14 +54,15 @@ class pdHtmlPage {
             $this->relativeUrl = $this->page_info[$page_id][1];
             $this->loginLevel  = $this->page_info[$page_id][2];
         }
-        $this->redirectUrl = $redirectUrl;
-        $this->db          = null;
-        $this->table       = null;
-        $this->form        = null;
-        $this->renderer    = null;
-        $this->loginError  = false;
-        $this->pageError   = false;
-        $this->useStdLayout = $useStdLayout;
+        $this->redirectUrl     = $redirectUrl;
+        $this->redirectTimeout = 0;
+        $this->db              = null;
+        $this->table           = null;
+        $this->form            = null;
+        $this->renderer        = null;
+        $this->loginError      = false;
+        $this->pageError       = false;
+        $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
     }
 
@@ -104,6 +106,11 @@ class pdHtmlPage {
      * Renders the page.
      */
     function toHtml() {
+        if (isset($this->redirectUrl) && ($this->redirectTimeout == 0)) {
+            header('Location: ' . $this->redirectUrl);
+            return;
+        }
+
         $result = $this->htmlPageHeader();
 
         if ($this->loginError) {
@@ -231,12 +238,17 @@ class pdHtmlPage {
             $url_prefix = '../';
 
         foreach ($this->page_info as $name => $info) {
-            if ($info[2] <= 0) continue;
+            if ($info[2] <= PD_HTML_PAGE_NAV_MENU_NEVER) continue;
 
-            if (($logged_in && ($info[2] > 1))
+            if (($logged_in && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS))
                 || (!$logged_in
                     && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
-                if ($name == $this->page_id) {
+                if ($name == 'login') {
+                    $options[$info[0]] = $info[1]
+                        . '?redirect=' . $_SERVER['PHP_SELF']
+                        . '?' . $_SERVER['QUERY_STRING'];
+                }
+                else if ($name == $this->page_id) {
                     $options[$info[0]] = '';
                 }
                 else if (($this->page_id != '')

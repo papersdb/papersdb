@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.15 2006/06/14 05:10:25 aicmltec Exp $
+// $Id: pdPublication.php,v 1.16 2006/06/14 17:47:17 aicmltec Exp $
 
 /**
  * \file
@@ -192,16 +192,19 @@ class pdPublication {
         $this->venue = '';
     }
 
-    function authorsToHtml() {
+    function authorsToHtml($urlPrefix = null) {
         if (!isset($this->authors)) return null;
 
-       $authorsStr = '';
-       foreach ($this->authors as $author) {
-           $authorsStr .= '<a href="../view_author.php?author_id='
-               . $author->author_id . '" target="_self">'
-               . $author->name . "</a><br/>";
-       }
-       return $authorsStr;
+        if ($urlPrefix == null) $urlPrefix = '.';
+
+        $authorsStr = '';
+        foreach ($this->authors as $author) {
+            $authorsStr .= '<a href="' . $urlPrefix
+                . '/view_author.php?author_id='
+                . $author->author_id . '" target="_self">'
+                . $author->name . "</a><br/>";
+        }
+        return $authorsStr;
     }
 
     /**

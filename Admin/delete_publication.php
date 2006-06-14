@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.3 2006/06/14 05:10:25 aicmltec Exp $
+// $Id: delete_publication.php,v 1.4 2006/06/14 17:47:17 aicmltec Exp $
 
 /**
  * \file
@@ -87,7 +87,7 @@ class delete_publication extends pdHtmlPage {
             $table->addRow(array('Title:', $pub->title));
             $table->addRow(array('Category:', $pub->category->category));
             $table->addRow(array('Paper:', $pub->paper));
-            $table->addRow(array('Authors:', $pub->authorsToHtml()));
+            $table->addRow(array('Authors:', $pub->authorsToHtml('..')));
             $table->addRow(array('Date Published:', $pub->published));
             $table->addRow(array('', $renderer->elementToHtml('submit')
                                  . '&nbsp;'
