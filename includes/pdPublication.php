@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.14 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: pdPublication.php,v 1.15 2006/06/14 05:10:25 aicmltec Exp $
 
 /**
  * \file
@@ -105,15 +105,15 @@ class pdPublication {
             $this->category->dbLoadCategoryInfo($db);
 
             if (is_array($this->category->info)) {
-                foreach ($this->category->info as $info) {
+                foreach ($this->category->info as $info_id => $name) {
                     $q = $db->select('pub_cat_info', array('value'),
                                      array('pub_id' => $id,
                                            'cat_id' => quote_smart($this->category->cat_id),
-                                           'info_id' => quote_smart($info->info_id)),
+                                           'info_id' => quote_smart($info_id)),
                                      "pdPublication::dbLoad");
                     $r = $db->fetchObject($q);
                     while ($r) {
-                        $this->info[$info->name] = $r->value;
+                        $this->info[$name] = $r->value;
                         $r = $db->fetchObject($q);
                     }
                 }
@@ -192,7 +192,16 @@ class pdPublication {
         $this->venue = '';
     }
 
-    function authorsGet() {
+    function authorsToHtml() {
+        if (!isset($this->authors)) return null;
+
+       $authorsStr = '';
+       foreach ($this->authors as $author) {
+           $authorsStr .= '<a href="../view_author.php?author_id='
+               . $author->author_id . '" target="_self">'
+               . $author->name . "</a><br/>";
+       }
+       return $authorsStr;
     }
 
     /**

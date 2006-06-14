@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.2 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: delete_publication.php,v 1.3 2006/06/14 05:10:25 aicmltec Exp $
 
 /**
  * \file
@@ -15,6 +15,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
@@ -30,13 +31,9 @@ class delete_publication extends pdHtmlPage {
             return;
         }
 
+        $pub_id = null;
         if (isset($_GET['pub_id']) && ($_GET['pub_id'] != ''))
             $pub_id = intval($_GET['pub_id']);
-        else {
-            $this->contentPre .= 'No pub id defined';
-            $this->pageError = true;
-            return;
-        }
 
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'pub_id', $pub_id);
@@ -46,10 +43,10 @@ class delete_publication extends pdHtmlPage {
 
             $db =& dbCreate();
             $pub = new pdPublication();
-            $pub->dbLoad($db, $values['pub_id']);
+            $result = $pub->dbLoad($db, $values['pub_id']);
             if (!$result) {
-                $db->close();
                 $this->pageError = true;
+                $db->close();
                 return;
             }
 
@@ -57,15 +54,22 @@ class delete_publication extends pdHtmlPage {
             $pub->dbDelete($db);
 
             $this->contentPre .= 'You have successfully removed the following '
-                . 'from the database: <p/><b>' . $title . '</b>';
+                . 'publication from the database: <p/><b>' . $title . '</b>';
         }
         else {
+            if ($pub_id == null) {
+                $this->contentPre .= 'No pub id defined';
+                $this->pageError = true;
+                return;
+            }
+
             $db =& dbCreate();
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id);
             if (!$result) {
                 $db->close();
                 $this->pageError = true;
+                $db->close();
                 return;
             }
 
@@ -81,43 +85,27 @@ class delete_publication extends pdHtmlPage {
                 . 'Delete the following paper?';
 
             $table->addRow(array('Title:', $pub->title));
-            $table->addRow(array('Category:', $pub->category));
+            $table->addRow(array('Category:', $pub->category->category));
             $table->addRow(array('Paper:', $pub->paper));
-            $table->addRow(array('Authors:', $cell));
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2">
-			<?
-				while ($author_line = mysql_fetch_array($author_result, MYSQL_ASSOC)) {
-					echo "<a href=\"./view_author.php?popup=true&author_id=$author_line[author_id]\" target=\"_blank\" onClick=\"window.open('./view_author.php?popup=true&author_id=$author_line[author_id]', 'Help', 'width=500,height=250,scrollbars=yes,resizable=yes'); return false\">";
-					echo $author_line[name];
-					echo "</a><br>";
-				}
-			?>
-			</font>
-		</td>
-	  </tr>
-	  <tr>
-		<td width="25%"><font face="Arial, Helvetica, sans-serif" size="2"><b>Date Published: </b></font></td>
-		<td width="75%"><font face="Arial, Helvetica, sans-serif" size="2"><? echo $pub_array[published] ?></font></td>
-	  </tr>
-	  <tr>
-	  <form name="deleter" action="./delete_publication.php?pub_id=<?php echo $pub_id; ?>&confirm=yes" method="POST" enctype="application/x-www-form-urlencoded" target="_self">
-		<td width="100%" colspan="2">
-		  <input type="SUBMIT" name="Confirm" value="Delete" class="text">
-		  <input type="button" value="Cancel" onclick="history.back()">
-		 &nbsp; &nbsp; &nbsp;</td>
-	  </form>
-	  </tr>
-	</table>
-	<? back_button(); ?>
-</body>
-</html>
+            $table->addRow(array('Authors:', $pub->authorsToHtml()));
+            $table->addRow(array('Date Published:', $pub->published));
+            $table->addRow(array('', $renderer->elementToHtml('submit')
+                                 . '&nbsp;'
+                                 . $renderer->elementToHtml('cancel')));
 
-<?
-	/* Free resultset */
-	mysql_free_result($pub_result);
-	mysql_free_result($cat_result);
-	mysql_free_result($author_result);
 
-	/* Closing connection */
-	disconnect_db($link);
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '25%'));
+
+            $this->form =& $form;
+            $this->renderer =& $renderer;
+            $this->table =& $table;
+        }
+        $db->close();
+    }
+}
+
+$page = new delete_publication();
+echo $page->toHtml();
+
 ?>

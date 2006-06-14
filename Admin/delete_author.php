@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.6 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: delete_author.php,v 1.7 2006/06/14 05:10:25 aicmltec Exp $
 
 /**
  * \file
@@ -34,11 +34,6 @@ class delete_author extends pdHtmlPage {
 
         if (isset($_GET['author_id']) && ($_GET['author_id'] != ''))
             $author_id = intval($_GET['author_id']);
-        else {
-            $this->contentPre .= 'No author id defined';
-            $this->pageError = true;
-            return;
-        }
 
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'author_id', $author_id);
@@ -77,6 +72,12 @@ class delete_author extends pdHtmlPage {
             }
         }
         else {
+            if ($author_id == null) {
+                $this->contentPre .= 'No author id defined';
+                $this->pageError = true;
+                return;
+            }
+
             $db =& dbCreate();
             $author = new pdAuthor();
             $result = $author->dbLoad($db, $author_id);

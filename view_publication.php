@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.25 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: view_publication.php,v 1.26 2006/06/14 05:10:25 aicmltec Exp $
 
 /**
  * \file
@@ -66,7 +66,7 @@ class view_publication extends pdHtmlPage {
                                  $this->additional2Html($pub)));
         }
 
-        $table->addRow(array('Author(s):', $this->author2Html($pub)));
+        $table->addRow(array('Author(s):', $pub->authorsToHtml()));
 
         $table->addRow(array('Abstract:',
                              stripslashes(nl2br($pub->abstract))));
@@ -127,24 +127,6 @@ class view_publication extends pdHtmlPage {
             $add_count++;
         }
         return $additionalMaterials;
-    }
-
-    function author2Html(&$pub) {
-        global $logged_in;
-
-        $authorsStr = "";
-        if (is_array($pub->authors)) {
-            foreach ($pub->authors as $author) {
-                $authorsStr .= "<a href=\"./view_author.php?";
-                if($logged_in)
-                    $authorsStr .= "admin=true&";
-                $authorsStr .= "author_id=" . $author->author_id
-                    . "\" target=\"_self\"  'Help', "
-                    . "'width=500,height=250,scrollbars=yes,resizable=yes'); "
-                    . "return false\">" . $author->name . "</a><br>";
-            }
-        }
-        return $authorsStr;
     }
 
     function venueRowsAdd(&$pub, &$table) {
@@ -209,9 +191,7 @@ class view_publication extends pdHtmlPage {
     function infoRowsAdd(&$pub, &$table) {
         if (!is_array($pub->info)) return;
         foreach ($pub->info as $name => $value) {
-            if($name != "") {
-                $table->addRow(array($name . ":", $value));
-            }
+            $table->addRow(array($name . ":", $value));
         }
     }
 

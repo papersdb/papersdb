@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <?php
 
- // $Id: add_publication_db.php,v 1.2 2006/05/11 00:00:56 aicmltec Exp $
+ // $Id: add_publication_db.php,v 1.3 2006/06/14 05:10:25 aicmltec Exp $
 
  /**
   * \file
@@ -9,12 +9,12 @@
   * \brief This takes add_publication.php as the input, and adds the
   * publication to the database.
   *
-  * It takes the * file(s) that need to be uploaded, and copies them to * a
-  * designated directory, inside a folder where the * folders name is the
+  * It takes the * file(s) that need to be uploaded, and copies them to a
+  * designated directory, inside a folder where the  folders name is the
   * publication id.
   *
-  * It displays a confirmation that the publication has been * added, and then
-  * provides links to where the user would * like to go next.
+  * It displays a confirmation that the publication has been added, and then
+  * provides links to where the user would like to go next.
   */
 
 ?>
