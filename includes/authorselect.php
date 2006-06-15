@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.1 2006/06/15 00:00:47 aicmltec Exp $
+// $Id: authorselect.php,v 1.2 2006/06/15 22:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -27,25 +27,18 @@ class authorselect extends HTML_QuickForm_advmultiselect {
                 as $list) {
             if (isset($options[$list])) {
                 $this->$list = $options[$list];
-                $all_authors += $options[$list];
+                foreach ($options[$list] as $key => $value)
+                    $all_authors[$list . ':' . $key]= $value;
             }
         }
-
-        if ($this->author_list != null)
-
-        if ($this->favorite_authors != null)
-            $all_authors += $this->favorite_authors;
-
-        if ($this->most_used_authors != null)
-            $all_authors += $this->most_used_authors;
 
         parent::HTML_QuickForm_advmultiselect($elementName, $elementLabel,
                                               $all_authors, $attributes);
 
         $this->setLabel(array('Authors:', 'Selected', 'Available'));
-        $this->setButtonAttributes('add', array('value' => '<<',
+        $this->setButtonAttributes('add', array('value' => 'Add',
                                                 'class' => 'inputCommand'));
-        $this->setButtonAttributes('remove', array('value' => '>>',
+        $this->setButtonAttributes('remove', array('value' => 'Remove',
                                                    'class' => 'inputCommand'));
         $this->setButtonAttributes('moveup', array('class' => 'inputCommand'));
         $this->setButtonAttributes('movedown',
@@ -54,15 +47,41 @@ class authorselect extends HTML_QuickForm_advmultiselect {
        $this->_elementTemplate = <<<JS_END
 {javascript}
 <table{class}>
-<!-- BEGIN label_2 --><tr><th>{label_2}</th><!-- END label_2 -->
-<!-- BEGIN label_3 --><th>&nbsp;</th><th>{label_3}</th></tr><!-- END label_3 -->
 <tr>
+  <th>&nbsp;</th>
+  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
+  <th>&nbsp;</th>
+  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
+</tr>
+<tr>
+  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
   <td valign="top">{selected}</td>
-  <td align="center">{add}<br/>{remove}<br/>{moveup}<br/>{movedown}</td>
+  <td valign="middle">{add}</td>
   <td valign="top">{unselected}</td>
+</tr>
+<tr>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>
+    <input name="which_list" value="author_list" type="radio" id="author_list"
+           onclick="buildSelect('author_list')" checked>
+      <label for="author_list">All Authors</label><br/>
+    <input name="which_list" value="favorite_authors" type="radio"
+           onclick="buildSelect('favorite_authors')">
+      <label for="favorite_authors">Favourite Authors</label><br/>
+    <input name="which_list" value="most_used_authors" type="radio"
+           onclick="buildSelect('most_used_authors')">
+      <label for="most_used_authors">Most Used Authors</label><br/>
+  </td>
 </tr>
 </table>
 JS_END;
+    }
+
+    function load(&$options, $param1=null, $param2=null, $param3=null,
+                  $param4=null) {
+
     }
 
     function toHtml() {
@@ -70,14 +89,12 @@ JS_END;
             return $this->getFrozenHtml();
         }
         $selectName = $this->getName() . '[]';
+        $jsfuncName = $this->_jsPrefix . $this->_jsPostfix;
 
         // set name of Select From Box
         $this->_attributesUnselected = array(
             'name' => '__'.$selectName,
-            'ondblclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "add")');
+            'ondblclick' => $jsfuncName . '(\'add\')');
         $this->_attributesUnselected
             = array_merge($this->_attributes,
                           $this->_attributesUnselected);
@@ -87,10 +104,7 @@ JS_END;
         // set name of Select To Box
         $this->_attributesSelected = array(
             'name' => '_'.$selectName,
-            'ondblclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "remove")');
+            'ondblclick' => $jsfuncName . '(\'remove\')');
         $this->_attributesSelected
             = array_merge($this->_attributes, $this->_attributesSelected);
         $attrSelected = $this->_getAttrString($this->_attributesSelected);
@@ -117,14 +131,14 @@ JS_END;
             $arrHtmlHidden = array_fill(0, $options, ' ');
 
             foreach ($this->_options as $option) {
-                if (is_array($this->_values) &&
-                    in_array((string)$option['attr']['value'],
-                             $this->_values)) {
+                if (is_array($this->_values)
+                    && (in_array((string)$option['attr']['value'],
+                                 $this->_values))) {
                     // Get the post order
                     $key = array_search($option['attr']['value'],
                                         $this->_values);
 
-                    // The items is *selected* so we want to put it in the
+                    // The item is *selected* so we want to put it in the
                     // 'selected' multi-select
                     $arrHtmlSelected[$key] = $option;
                     // Add it to the 'hidden' multi-select and set it as
@@ -146,119 +160,98 @@ JS_END;
         }
 
         // The 'unselected' multi-select which appears on the left
-        $strHtmlUnselected = "<select$attrUnselected>";
+        $strHtmlUnselected = "<select$attrUnselected>\n";
         if (count($arrHtmlUnselected) > 0) {
             foreach ($arrHtmlUnselected as $data) {
                 $strHtmlUnselected .= $tabs . $tab
                     . '<option' . $this->_getAttrString($data['attr']) . '>'
-                    . $data['text'] . '</option>' ;
+                    . $data['text'] . '</option>' . "\n";
             }
         }
         $strHtmlUnselected .= '</select>';
 
         // The 'selected' multi-select which appears on the right
-        $strHtmlSelected = "<select$attrSelected>";
+        $strHtmlSelected = "<select$attrSelected>\n";
         if (count($arrHtmlSelected) > 0) {
             foreach ($arrHtmlSelected as $data) {
                 $strHtmlSelected .= $tabs . $tab
                     . '<option' . $this->_getAttrString($data['attr']) . '>'
-                    . $data['text'] . '</option>' ;
+                    . $data['text'] . '</option>' . "\n";
             }
         }
         $strHtmlSelected .= '</select>';
 
         // The 'hidden' multi-select
-        $strHtmlHidden = "<select$attrHidden>";
+        $strHtmlHidden = "<select$attrHidden>\n";
         if (count($arrHtmlHidden) > 0) {
             foreach ($arrHtmlHidden as $data) {
                 $strHtmlHidden .= $tabs . $tab
                     . '<option' . $this->_getAttrString($data['attr']) . '>'
-                    . $data['text'] . '</option>' ;
+                    . $data['text'] . '</option>' . "\n";
             }
         }
         $strHtmlHidden .= '</select>';
 
         // build the remove button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "remove"); '
+            'onclick' => $jsfuncName . '(\'remove\'); '
             . 'return false;');
         $this->_removeButtonAttributes
             = array_merge($this->_removeButtonAttributes, $attributes);
         $attrStrRemove = $this->_getAttrString($this->_removeButtonAttributes);
-        $strHtmlRemove = "<input$attrStrRemove />";
+        $strHtmlRemove = "<input$attrStrRemove />\n";
 
         // build the add button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "add"); '
+            'onclick' => $jsfuncName . '(\'add\'); '
             . 'return false;');
         $this->_addButtonAttributes
             = array_merge($this->_addButtonAttributes, $attributes);
         $attrStrAdd = $this->_getAttrString($this->_addButtonAttributes);
-        $strHtmlAdd = "<input$attrStrAdd />";
+        $strHtmlAdd = "<input$attrStrAdd />\n";
 
         // build the select all button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "all"); '
+            'onclick' => $jsfuncName . '(\'all\'); '
             . 'return false;');
         $this->_allButtonAttributes
             = array_merge($this->_allButtonAttributes, $attributes);
         $attrStrAll = $this->_getAttrString($this->_allButtonAttributes);
-        $strHtmlAll = "<input$attrStrAll />";
+        $strHtmlAll = "<input$attrStrAll />\n";
 
         // build the select none button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "none"); '
+            'onclick' => $jsfuncName . '(\'none\'); '
             . 'return false;');
         $this->_noneButtonAttributes
             = array_merge($this->_noneButtonAttributes, $attributes);
         $attrStrNone = $this->_getAttrString($this->_noneButtonAttributes);
-        $strHtmlNone = "<input$attrStrNone />";
+        $strHtmlNone = "<input$attrStrNone />\n";
 
         // build the toggle button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . $this->_jsPostfix
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"], "toggle"); '
+            'onclick' => $jsfuncName . '(\'toggle\'); '
             . 'return false;');
         $this->_toggleButtonAttributes
             = array_merge($this->_toggleButtonAttributes, $attributes);
         $attrStrToggle = $this->_getAttrString($this->_toggleButtonAttributes);
-        $strHtmlToggle = "<input$attrStrToggle />";
+        $strHtmlToggle = "<input$attrStrToggle />\n";
 
         // build the move up button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . 'moveUp'
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"]); return false;');
+            'onclick' => $this->_jsPrefix . 'moveUp(); return false;');
         $this->_upButtonAttributes
             = array_merge($this->_upButtonAttributes, $attributes);
         $attrStrUp = $this->_getAttrString($this->_upButtonAttributes);
-        $strHtmlMoveUp = "<input$attrStrUp />";
+        $strHtmlMoveUp = "<input$attrStrUp />\n";
 
         // build the move down button with all its attributes
         $attributes = array(
-            'onclick' => $this->_jsPrefix . 'moveDown'
-            . '(this.form.elements["__' . $selectName . '"], '
-            . 'this.form.elements["_' . $selectName . '"], '
-            . 'this.form.elements["' . $selectName . '"]); return false;');
+            'onclick' => $this->_jsPrefix . 'moveDown(); return false;');
         $this->_downButtonAttributes
             = array_merge($this->_downButtonAttributes, $attributes);
         $attrStrDown = $this->_getAttrString($this->_downButtonAttributes);
-        $strHtmlMoveDown = "<input$attrStrDown />";
+        $strHtmlMoveDown = "<input$attrStrDown />\n";
 
         // render all part of the multi select component with the template
         $strHtml = $this->_elementTemplate;
@@ -307,21 +300,61 @@ JS_END;
     function getElementJs($raw = true) {
         $js = '';
         $jsfuncName = $this->_jsPrefix . $this->_jsPostfix;
-        if (defined('HTML_QUICKFORM_ADVMULTISELECT_'.$jsfuncName.'_EXISTS'))
+        if (defined('AUTHORSELECT_'.$jsfuncName.'_EXISTS'))
             return;
 
         // We only want to include the javascript code once per form
-        define('HTML_QUICKFORM_ADVMULTISELECT_'.$jsfuncName.'_EXISTS', true);
+        define('AUTHORSELECT_'.$jsfuncName.'_EXISTS', true);
+
+        $selectName = $this->getName() . '[]';
 
         $js .= <<<JS_END
             /* begin javascript for authorselect */
-            function {$jsfuncName}(selectLeft, selectRight, selectHidden, action) {
+            function buildSelect(list) {
+            var availAuthors
+            = document.forms["pubForm"].elements["__{$selectName}"];
+
+            var selectedAuthors
+            = document.forms["pubForm"].elements["_{$selectName}"];
+
+            var allAuthors
+            = document.forms["pubForm"].elements["{$selectName}"];
+
+            var re = new RegExp(list, "g");
+
+            var isSelected;
+
+            availAuthors.options.length = 0;
+            for (i=0; i < allAuthors.length; i++) {
+                if (allAuthors.options[i].value.match(re)) {
+                    // do not add those already selected
+                    isSelected = false;
+                    for (j=0; j < selectedAuthors.length; j++) {
+                        if (allAuthors.options[i].text
+                            == selectedAuthors.options[j].text) {
+                            isSelected = true;
+                        }
+                    }
+                    if (!isSelected)
+                        availAuthors.options[availAuthors.length]
+                            = new Option(allAuthors.options[i].text,
+                                         allAuthors.options[i].value);
+                }
+            }
+        }
+
+        function {$jsfuncName}(action) {
+            var menuFrom;
+            var menuTo;
+
             if (action == 'add' || action == 'all' || action == 'toggle') {
-                menuFrom = selectLeft;
-                menuTo = selectRight;
+                menuFrom
+                    = document.forms["pubForm"].elements["__{$selectName}"];
+                menuTo = document.forms["pubForm"].elements["_{$selectName}"];
             } else {
-                menuFrom = selectRight;
-                menuTo = selectLeft;
+                menuFrom
+                    = document.forms["pubForm"].elements["_{$selectName}"];
+                menuTo = document.forms["pubForm"].elements["__{$selectName}"];
             }
 
             // Don't do anything if nothing selected. Otherwise we throw
@@ -337,16 +370,9 @@ JS_END;
             for (i=0; i < menuFrom.length; i++) {
                 if ((action == 'all') || (action == 'none')
                     || (action == 'toggle') || menuFrom.options[i].selected) {
-                    var optionName = menuFrom.options[i].text;
-                    if (optionName.match(/\d+\./g)) {
-                        optionName.replace(/\d+\./g, "");
-                    }
-                    else {
-                        var optionNum = menuTo.length + 1;
-                        optionName =  optionNum + ". " + optionName;
-                    }
                     menuTo.options[menuTo.length]
-                        = new Option(optionName, menuFrom.options[i].value);
+                        = new Option(menuFrom.options[i].text,
+                                     menuFrom.options[i].value);
                 }
             }
 
@@ -362,7 +388,8 @@ JS_END;
             if (action == 'toggle') {
                 for (i=0; i < maxTo; i++) {
                     menuFrom.options[menuFrom.length]
-                        = new Option(menuTo.options[i].text, menuTo.options[i].value);
+                        = new Option(menuTo.options[i].text,
+                                     menuTo.options[i].value);
                 }
                 for (i=(maxTo - 1); i>=0; i--) {
                     menuTo.options[i] = null;
@@ -370,11 +397,15 @@ JS_END;
             }
 
             // Sort list if required
-            {$this->_jsPrefix}sortList(menuTo, {$this->_jsPrefix}compareText);
+            if (menuTo
+                == document.forms["pubForm"].elements["__{$selectName}"]) {
+                {$this->_jsPrefix}sortList(menuTo,
+                                           {$this->_jsPrefix}compareText);
+            }
 
             // Set the appropriate items as 'selected in the hidden select.
             // These are the values that will actually be posted with the form.
-            {$this->_jsPrefix}updateHidden(selectHidden, selectRight);
+            {$this->_jsPrefix}updateHidden(document.forms["pubForm"].elements["_{$selectName}"]);
         }
 
         function {$this->_jsPrefix}sortList(list, compareFunction) {
@@ -402,48 +433,61 @@ JS_END;
             return option1.text < option2.text ? -1 : 1;
         }
 
-        function {$this->_jsPrefix}updateHidden(h,r) {
-            for (i=0; i < h.length; i++) {
-                h.options[i].selected = false;
+        function {$this->_jsPrefix}updateHidden(select) {
+            var allAuthors
+                = document.forms["pubForm"].elements["{$selectName}"];
+
+            for (i=0; i < allAuthors.length; i++) {
+                allAuthors.options[i].selected = false;
             }
 
-            for (i=0; i < r.length; i++) {
-                h.options[h.length] = new Option(r.options[i].text, r.options[i].value);
-                h.options[h.length-1].selected = true;
+            for (i=0; i < select.length; i++) {
+                allAuthors.options[allAuthors.length]
+                    = new Option(select.options[i].text,
+                                 select.options[i].value);
+                allAuthors.options[allAuthors.length-1].selected = true;
             }
         }
 
-        function {$this->_jsPrefix}moveUp(l,h) {
-            var indice = l.selectedIndex;
-            if (indice < 0) {
-                return;
-            }
-            if (indice > 0) {
-                {$this->_jsPrefix}moveSwap(l, indice, indice-1);
-                {$this->_jsPrefix}updateHidden(h, l);
+        function {$this->_jsPrefix}moveUp() {
+            var selectedAuthors
+                = document.forms["pubForm"].elements["_{$selectName}"];
+            var index = selectedAuthors.selectedIndex;
+
+            if (index < 0) return;
+
+            if (index > 0) {
+                {$this->_jsPrefix}moveSwap(index, index-1);
+                {$this->_jsPrefix}updateHidden(selectedAuthors);
             }
         }
 
-        function {$this->_jsPrefix}moveDown(l,h) {
-            var indice = l.selectedIndex;
-            if (indice < 0) {
-                return;
-            }
-            if (indice < l.options.length-1) {
-                {$this->_jsPrefix}moveSwap(l, indice, indice+1);
-                {$this->_jsPrefix}updateHidden(h, l);
+        function {$this->_jsPrefix}moveDown() {
+            var selectedAuthors
+                = document.forms["pubForm"].elements["_{$selectName}"];
+            var index = selectedAuthors.selectedIndex;
+
+            if (index < 0) return;
+
+            if (index < selectedAuthors.options.length-1) {
+                {$this->_jsPrefix}moveSwap(index, index+1);
+                {$this->_jsPrefix}updateHidden(selectedAuthors);
             }
         }
 
-        function {$this->_jsPrefix}moveSwap(l,i,j) {
-            var valeur = l.options[i].value;
-            var texte = l.options[i].text;
-            l.options[i].value = l.options[j].value;
-            l.options[i].text = l.options[j].text;
-            l.options[j].value = valeur;
-            l.options[j].text = texte;
-            l.selectedIndex = j
-                }
+        function {$this->_jsPrefix}moveSwap(i,j) {
+            var selectedAuthors
+                = document.forms["pubForm"].elements["_{$selectName}"];
+            var value = selectedAuthors.options[i].value;
+            var text = selectedAuthors.options[i].text;
+            selectedAuthors.options[i].value
+                = selectedAuthors.options[j].value;
+            selectedAuthors.options[i].text
+                = selectedAuthors.options[j].text;
+            selectedAuthors.options[j].value = value;
+            selectedAuthors.options[j].text = text;
+            selectedAuthors.selectedIndex = j;
+        }
 
         /* end javascript for authorselect */
 JS_END;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.27 2006/06/15 00:00:47 aicmltec Exp $
+// $Id: add_publication.php,v 1.28 2006/06/15 22:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -117,11 +117,30 @@ class add_publication extends pdHtmlPage {
                           array('size' => 60, 'maxlength' => 250));
 
         // Authors
+        $user = $_SESSION['user'];
+        $user->popularAuthorsDbLoad($db);
         $auth_list = new pdAuthorList($db);
+        $all_authors = $auth_list->list;
+
+        echo '<pre>' . print_r($user->author_rank, true) . '</pre>';
+
+        foreach (array_keys($user->collaborators) as $author_id) {
+            unset($all_authors[$author_id]);
+        }
+
+        if (count($user->author_rank) > 0) {
+            $most_used_authors
+                = array_reverse(array_slice($user->author_rank, -10));
+            foreach (array_keys($most_used_authors) as $author_id) {
+                $most_used_authors[$author_id] = $all_authors[$author_id];
+                unset($all_authors[$author_id]);
+            }
+        }
+
         $form->addElement('authorselect', 'authors', null,
-                          array('author_list' => $auth_list->list,
-                                'favorite_authors' => null,
-                                'most_used_authors' => null),
+                          array('author_list' => $all_authors,
+                                'favorite_authors' => $user->collaborators,
+                                'most_used_authors' => $most_used_authors),
                           array('class' => 'pool',
                                 'style' => 'width:150px;'));
 
@@ -227,238 +246,248 @@ class add_publication extends pdHtmlPage {
         $form->addElement('submit', 'Save', 'Add Publication');
         $form->addElement('reset', 'Clear', 'Clear');
 
-        //
-        // Set form defaults
-        //
-        $form->setDefaults($_GET);
-
-        if (isset($category) && is_object($category)) {
-            $form->setDefaults(array('cat_id' => $category->cat_id));
+        if ($form->validate()) {
+            $values = $form->exportValues();
+            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
         }
+        else {
+            //
+            // Set form defaults
+            //
+            $form->setDefaults($_GET);
 
-        if ($numMaterials > 0) {
-            for ($i = 1; $i <= $numMaterials; $i++) {
-                if (!isset($_GET['type' . $i]) || ($_GET['type' . $i] = '')) {
-                    $materials['type' . $i] = 'Additional Material ' . $i;
+            if (isset($category) && is_object($category)) {
+                $form->setDefaults(array('cat_id' => $category->cat_id));
+            }
+
+            if ($numMaterials > 0) {
+                for ($i = 1; $i <= $numMaterials; $i++) {
+                    if (!isset($_GET['type' . $i])
+                        || ($_GET['type' . $i] = '')) {
+                        $materials['type' . $i] = 'Additional Material ' . $i;
+                    }
+                }
+                $form->setDefaults($materials);
+            }
+
+            if ($ext > 0) {
+                for ($e = 1; $e <= $ext; $e++) {
+                    if (!isset($_GET['extname'.$e])
+                        || $_GET['extname'.$e] == '')
+                        $defaults['extname'.$e] = "Pointer Type";
+                    if (!isset($_GET['extvalue'.$e])
+                        || $_GET['extvalue'.$e] == '')
+                        $defaults['extvalue'.$e] = "http://";
+                    if (!isset($_GET['extlink'.$e])
+                        || $_GET['extlink'.$e] == '')
+                        $defaults['extlink'.$e] = "Title of link";
+                }
+                $form->setDefaults($defaults);
+            }
+
+            $rend = new HTML_QuickForm_Renderer_QuickHtml();
+            $form->accept($rend);
+
+            $table = new HTML_Table(array('width' => '100%',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
+            $table->setAutoGrow(true);
+
+            $table->addRow(array('<hr/>'), array('colspan' => 2));
+            $table->addRow(array('<a name="step1"></a>Step 1:'));
+            $table->addRow(array($this->helpTooltip('Publication Venue',
+                                                    'venueHelp') . ':',
+                                 $rend->elementToHtml('venue_id')));
+
+            if ($venue_id == -3) {
+                $table->addRow(array('Unique Venue:'
+                                     . '<br/><div id="small">HTML Enabled</div>',
+                                     $rend->elementToHtml('venue_name')));
+            }
+            $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
+                                 . ':',
+                                 $rend->elementToHtml('cat_id')));
+            $table->addRow(array($this->helpTooltip('Title', 'titleHelp') . ':',
+                                 $rend->elementToHtml('title')));
+            $table->addRow(array($this->helpTooltip('Author(s)', 'authorsHelp') . ':',
+                                 $rend->elementToHtml('authors')));
+            $table->addRow(array('', $rend->elementToHtml('add_author')));
+            $table->addRow(array($this->helpTooltip('Abstract', 'abstractHelp')
+                                 . ':<br/><div id="small">HTML Enabled</div>',
+                                 $rend->elementToHtml('abstract')));
+
+            // Show venue info
+            if ($venue_id > 0) {
+                assert('is_object($venue)');
+                $cell1 = '';
+                $cell2 = '';
+
+                if ($venue->type != '')
+                    $cell1 .= $venue->type;
+
+                if ($venue->url != '')
+                    $cell2 .= '<a href="' . $venue->url
+                        . '" target="_blank">';
+
+                if ($venue->name != '')
+                    $cell2 .= $venue->name;
+
+                if ($venue->url != '')
+                    $cell2 .= '</a>';
+
+                $table->addRow(array($cell1 . ':', $cell2));
+
+                $cell1 = '';
+                if ($venue->type == 'Conference')
+                    $cell1 = 'Location:';
+                else if ($venue->type == 'Journal')
+                    $cell1 = 'Publisher:';
+                else if ($venue->type == 'Workshop')
+                    $cell1 = 'Associated Conference:';
+
+                $table->addRow(array($cell1, $venue->data));
+            }
+
+            $table ->addRow(array($this->helpTooltip('Extra Information',
+                                                     'extraInfoHelp')
+                                  . ':<br/><div id="small">optional</div>',
+                                  $rend->elementToHtml('extra_info')
+                                  . $rend->elementToHtml('extra_info_select')));
+
+            // External Pointers
+            if ($ext == 0) {
+                $table->addRow(array('<a name="pointers"></a>'
+                                     . $this->helpTooltip('External Pointers',
+                                                          'externalPtrHelp')
+                                     . ':<br/><div id="small">optional</div>',
+                                     $rend->elementToHtml('ext_ptr_add')));
+            }
+            else {
+                for ($e = 1; $e <= $ext; $e++) {
+                    $cell = '';
+                    if ($e == 1) {
+                        $cell = '<a name="pointers"></a>'
+                            . $this->helpTooltip('External Pointers',
+                                                 'externalPtrHelp')
+                            . '<br/><div id="small">optional</div>';
+                    }
+
+                    $table->addRow(array($cell,
+                                         $rend->elementToHtml('extname'.$e)
+                                         . ' ' . $rend->elementToHtml('extvalue'.$e)
+                                         . ' ' . $rend->elementToHtml('extlink'.$e)));
+
+                }
+                $table->addRow(array('',
+                                     $rend->elementToHtml('ext_ptr_add')
+                                     . '&nbsp;' .
+                                     $rend->elementToHtml('ext_ptr_remove')));
+            }
+
+            // Internal Pointers
+            if ($intpoint == 0) {
+                $table->addRow(array($this->helpTooltip('Internal Pointers',
+                                                        'internalPtrHelp')
+                                     . ':<br/><div id="small">optional</div>',
+                                     $rend->elementToHtml('int_ptr_add')));
+            }
+            else {
+                for ($e = 1; $e <= $intpoint; $e++) {
+                    $cell = '';
+                    if ($e == 1)
+                        $cell = $this->helpTooltip('Internal Pointers', 'internalPtrHelp')
+                            . ':<br/><div id="small">optional</div>';
+                    $table->addRow(array($cell,
+                                         $rend->elementToHtml('intpointer' . $e)));
+                }
+                $table->addRow(array('',
+                                     $rend->elementToHtml('int_ptr_add')
+                                     . '&nbsp;' .
+                                     $rend->elementToHtml('int_ptr_remove')));
+            }
+
+            $table->addRow(array($this->helpTooltip('Keywords', 'keywordsHelp') . ':',
+                                 $rend->elementToHtml('keywords')
+                                 . ' <div id="small">separate using semicolon (;)</div>'));
+
+            // Additional Information
+            if (isset($category) && is_object($category)
+                && is_array($category->info)) {
+                foreach (array_values($category->info) as $name) {
+                    $table->addRow(array($name . ':', $rend->elementToHtml($name)));
                 }
             }
-            $form->setDefaults($materials);
-        }
 
-        if ($ext > 0) {
-            for ($e = 1; $e <= $ext; $e++) {
-                if (!isset($_GET['extname'.$e]) || $_GET['extname'.$e] == '')
-                    $defaults['extname'.$e] = "Pointer Type";
-                if (!isset($_GET['extvalue'.$e]) || $_GET['extvalue'.$e] == '')
-                    $defaults['extvalue'.$e] = "http://";
-                if (!isset($_GET['extlink'.$e]) || $_GET['extlink'.$e] == '')
-                    $defaults['extlink'.$e] = "Title of link";
-            }
-            $form->setDefaults($defaults);
-        }
+            $table->addRow(array($this->helpTooltip('Date Published', 'datePublishedHelp') . ':',
+                                 $rend->elementToHtml('date_published')
+                                 . '<a href="javascript:doNothing()" '
+                                 . 'onClick="setDateField('
+                                 . 'document.pubForm.date_published);'
+                                 . 'top.newWin=window.open(\'../calendar.html\','
+                                 . '\'cal\',\'dependent=yes,width=230,height=250,'
+                                 . 'screenX=200,screenY=300,titlebar=yes\')">'
+                                 . '<img src="../calendar.gif" border=0></a> '
+                                 . '(yyyy-mm-dd) '
+                               ));
 
-        $rend = new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($rend);
+            $table->addRow(array('<hr/>'), array('colspan' => 2));
+            $table->addRow(array('<a name="step2"></a>Step 2:'));
+            $table->addRow(array('Paper:',
+                                 $rend->elementToHtml('nopaper', 'false')
+                                 . ' ' . $rend->elementToHtml('uploadpaper')));
+            $table->addRow(array('', $rend->elementToHtml('nopaper', 'true')));
+            if ($numMaterials > 0) {
+                $table->addRow(array('Additional Materials:'));
 
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '6',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
-
-        $table->addRow(array('<hr/>'), array('colspan' => 2));
-        $table->addRow(array('<a name="step1"></a>Step 1:'));
-        $table->addRow(array($this->helpTooltip('Publication Venue', 'venueHelp')
-                             . ':',
-                             $rend->elementToHtml('venue_id')));
-
-        if ($venue_id == -3) {
-            $table->addRow(array('Unique Venue:'
-                                 . '<br/><div id="small">HTML Enabled</div>',
-                                 $rend->elementToHtml('venue_name')));
-        }
-        $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
-                             . ':',
-                             $rend->elementToHtml('cat_id')));
-        $table->addRow(array($this->helpTooltip('Title', 'titleHelp') . ':',
-                             $rend->elementToHtml('title')));
-        $table->addRow(array($this->helpTooltip('Author(s)', 'authorsHelp') . ':',
-                             $rend->elementToHtml('authors')));
-        $table->addRow(array('', $rend->elementToHtml('add_author')));
-        $table->addRow(array($this->helpTooltip('Abstract', 'abstractHelp')
-                             . ':<br/><div id="small">HTML Enabled</div>',
-                             $rend->elementToHtml('abstract')));
-
-        // Show venue info
-        if ($venue_id > 0) {
-            assert('is_object($venue)');
-            $cell1 = '';
-            $cell2 = '';
-
-            if ($venue->type != '')
-                $cell1 .= $venue->type;
-
-            if ($venue->url != '')
-                $cell2 .= '<a href="' . $venue->url
-                    . '" target="_blank">';
-
-            if ($venue->name != '')
-                $cell2 .= $venue->name;
-
-            if ($venue->url != '')
-                $cell2 .= '</a>';
-
-            $table->addRow(array($cell1 . ':', $cell2));
-
-            $cell1 = '';
-            if ($venue->type == 'Conference')
-                $cell1 = 'Location:';
-            else if ($venue->type == 'Journal')
-                $cell1 = 'Publisher:';
-            else if ($venue->type == 'Workshop')
-                $cell1 = 'Associated Conference:';
-
-            $table->addRow(array($cell1, $venue->data));
-        }
-
-        $table ->addRow(array($this->helpTooltip('Extra Information',
-                                                 'extraInfoHelp')
-                              . ':<br/><div id="small">optional</div>',
-                              $rend->elementToHtml('extra_info')
-                              . $rend->elementToHtml('extra_info_select')));
-
-        // External Pointers
-        if ($ext == 0) {
-            $table->addRow(array('<a name="pointers"></a>'
-                                 . $this->helpTooltip('External Pointers',
-                                                      'externalPtrHelp')
-                                 . ':<br/><div id="small">optional</div>',
-                                 $rend->elementToHtml('ext_ptr_add')));
-        }
-        else {
-            for ($e = 1; $e <= $ext; $e++) {
-                $cell = '';
-                if ($e == 1) {
-                    $cell = '<a name="pointers"></a>'
-                        . $this->helpTooltip('External Pointers',
-                                             'externalPtrHelp')
-                        . '<br/><div id="small">optional</div>';
+                for ($i = 1; $i <= $numMaterials; $i++) {
+                    $table->addRow(array($rend->elementToHtml('type' . $i),
+                                         ':' . $rend->elementToHtml('uploadadditional' . $i)));
                 }
-
-                $table->addRow(array($cell,
-                                     $rend->elementToHtml('extname'.$e)
-                                     . ' ' . $rend->elementToHtml('extvalue'.$e)
-                                     . ' ' . $rend->elementToHtml('extlink'.$e)));
-
+                $table->addRow(array('',
+                                     $rend->elementToHtml('materials_add')
+                                     . '&nbsp;'
+                                     . $rend->elementToHtml('materials_remove')));
             }
-            $table->addRow(array('',
-                                 $rend->elementToHtml('ext_ptr_add')
-                                 . '&nbsp;' .
-                                 $rend->elementToHtml('ext_ptr_remove')));
-        }
-
-        // Internal Pointers
-        if ($intpoint == 0) {
-            $table->addRow(array($this->helpTooltip('Internal Pointers',
-                                                    'internalPtrHelp')
-                                 . ':<br/><div id="small">optional</div>',
-                                 $rend->elementToHtml('int_ptr_add')));
-        }
-        else {
-            for ($e = 1; $e <= $intpoint; $e++) {
-                $cell = '';
-                if ($e == 1)
-                    $cell = $this->helpTooltip('Internal Pointers', 'internalPtrHelp')
-                        . ':<br/><div id="small">optional</div>';
-                $table->addRow(array($cell,
-                                     $rend->elementToHtml('intpointer' . $e)));
+            else {
+                $table->addRow(array('',
+                                     $rend->elementToHtml('materials_add')));
             }
+
+            $table->addRow(array('<hr/>'), array('colspan' => 2));
             $table->addRow(array('',
-                                 $rend->elementToHtml('int_ptr_add')
-                                 . '&nbsp;' .
-                                 $rend->elementToHtml('int_ptr_remove')));
-        }
+                                 $rend->elementToHtml('Save')
+                                 . ' ' . $rend->elementToHtml('Clear')));
 
-        $table->addRow(array($this->helpTooltip('Keywords', 'keywordsHelp') . ':',
-                             $rend->elementToHtml('keywords')
-                             . ' <div id="small">separate using semicolon (;)</div>'));
+            $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-        // Additional Information
-        if (isset($category) && is_object($category)
-            && is_array($category->info)) {
-            foreach (array_values($category->info) as $name) {
-                $table->addRow(array($name . ':', $rend->elementToHtml($name)));
+            // emphasize the 'step' cells
+            for ($i = 0 ; $i < $table->getRowCount(); $i++) {
+                if ((strpos($table->getCellContents($i, 0), 'Step 1:') !== false)
+                    || (strpos($table->getCellContents($i, 0), 'Step 2:') !== false))
+                    $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
             }
-        }
 
-        $table->addRow(array($this->helpTooltip('Date Published', 'datePublishedHelp') . ':',
-                             $rend->elementToHtml('date_published')
-                             . '<a href="javascript:doNothing()" '
-                             . 'onClick="setDateField('
-                             . 'document.pubForm.date_published);'
-                             . 'top.newWin=window.open(\'../calendar.html\','
-                             . '\'cal\',\'dependent=yes,width=230,height=250,'
-                             . 'screenX=200,screenY=300,titlebar=yes\')">'
-                             . '<img src="../calendar.gif" border=0></a> '
-                             . '(yyyy-mm-dd) '
-                           ));
+            $this->contentPre .= '<a name="start"></a><h3>';
+            if ($edit)
+                $this->contentPre .= 'Edit';
+            else
+                $this->contentPre .= 'Add';
+            $this->contentPre .= ' Publication</h3>';
 
-        $table->addRow(array('<hr/>'), array('colspan' => 2));
-        $table->addRow(array('<a name="step2"></a>Step 2:'));
-        $table->addRow(array('Paper:',
-                             $rend->elementToHtml('nopaper', 'false')
-                             . ' ' . $rend->elementToHtml('uploadpaper')));
-        $table->addRow(array('', $rend->elementToHtml('nopaper', 'true')));
-        if ($numMaterials > 0) {
-            $table->addRow(array('Additional Materials:'));
-
-            for ($i = 1; $i <= $numMaterials; $i++) {
-                $table->addRow(array($rend->elementToHtml('type' . $i),
-                                     ':' . $rend->elementToHtml('uploadadditional' . $i)));
+            if (!$edit) {
+                $this->contentPre .= 'Adding a publication takes two steps:<br/>'
+                    . '1. Fill in the appropriate fields<br/>'
+                    . '2. Upload the paper and any additional '
+                    . 'materials';
             }
-            $table->addRow(array('',
-                                 $rend->elementToHtml('materials_add')
-                                 . '&nbsp;'
-                                 . $rend->elementToHtml('materials_remove')));
+
+            $this->form = $form;
+            $this->renderer = $rend;
+            $this->table = $table;
+
+            $this->javascript($ext, $intpoint, $numMaterials);
         }
-        else {
-            $table->addRow(array('',
-                                 $rend->elementToHtml('materials_add')));
-        }
-
-        $table->addRow(array('<hr/>'), array('colspan' => 2));
-        $table->addRow(array('',
-                             $rend->elementToHtml('Save')
-                             . ' ' . $rend->elementToHtml('Clear')));
-
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
-
-        // emphasize the 'step' cells
-        for ($i = 0 ; $i < $table->getRowCount(); $i++) {
-            if ((strpos($table->getCellContents($i, 0), 'Step 1:') !== false)
-                || (strpos($table->getCellContents($i, 0), 'Step 2:') !== false))
-                $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
-        }
-
-        $this->contentPre .= '<a name="start"></a><h3>';
-        if ($edit)
-            $this->contentPre .= 'Edit';
-        else
-            $this->contentPre .= 'Add';
-        $this->contentPre .= ' Publication</h3>';
-
-        if (!$edit) {
-            $this->contentPre .= 'Adding a publication takes two steps:<br/>'
-                . '1. Fill in the appropriate fields<br/>'
-                . '2. Upload the paper and any additional '
-                . 'materials';
-        }
-
-        $this->form = $form;
-        $this->renderer = $rend;
-        $this->table = $table;
-
-        $this->javascript($ext, $intpoint, $numMaterials);
 
         $db->close();
     }

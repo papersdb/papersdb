@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.15 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdUser.php,v 1.16 2006/06/15 22:04:37 aicmltec Exp $
 
 /**
  * \file
@@ -88,7 +88,7 @@ class pdUser {
                          "pdUser::collaboratorsDbLoad");
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->collaborators[] = $r;
+            $this->collaborators[$r->author_id] = $r->name;
             $r = $db->fetchObject($q);
         }
     }
@@ -101,7 +101,10 @@ class pdUser {
         assert('is_object($db)');
         assert('isset($this->login)');
 
-        $q = $db->select(array('pub_author', 'user'),
+        if (isset($this->author_rank) && (count($this->author_rank) > 0))
+            return;
+
+        $q = $db->select(array('publication', 'pub_author', 'user'),
                          'pub_author.author_id',
                          array('publication.submit=user.name',
                                'publication.pub_id=pub_author.pub_id',
@@ -112,7 +115,8 @@ class pdUser {
             $this->author_rank[$r->author_id]++;
             $r = $db->fetchObject($q);
         }
-        asort($this->author_rank);
+        if (count($this->author_rank) > 0)
+            asort($this->author_rank);
     }
 
     /**
