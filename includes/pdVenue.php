@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.5 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdVenue.php,v 1.6 2006/06/15 14:17:01 aicmltec Exp $
 
 /**
  * \file
@@ -52,30 +52,21 @@ class pdVenue {
     function dbSave(&$db) {
         assert('is_object($db)');
 
+        $values = array('title'    => $this->title,
+                        'name'     => $this->name,
+                        'url'      => $this->url,
+                        'type'     => $this->type,
+                        'data'     => $this->data,
+                        'editor'   => $this->editor,
+                        'date'     => $this->date);
+
         if (isset($this->venue_id)) {
-            $db->update('venue',
-                        array('title' => $this->title,
-                              'name' => $this->name,
-                              'url' => $this->url,
-                              'type' => $this->type,
-                              'data' => $this->data,
-                              'editor' => $this->editor,
-                              'date' => $this->date),
-                        array('venue_id' => $this->venue_id),
+            $db->update('venue', $values, array('venue_id' => $this->venue_id),
                         'pdUser::dbSave');
             return $db->affectedRows();
         }
         else {
-            $db->query('INSERT INTO venue '
-                       . '(venue_id, title, name, url, type, data, editor, date)'
-                       . 'VALUES (NULL, '
-                       . quote_smart($this->title) .  ', '
-                       . quote_smart($this->name) .   ', '
-                       . quote_smart($this->url) .    ', '
-                       . quote_smart($this->type) .   ', '
-                       . quote_smart($this->data) .   ', '
-                       . quote_smart($this->editor) . ', '
-                       . quote_smart($this->date) .   ')');
+            $db->insert('venue ', $values, 'pdUser::dbSave');
             return true;
         }
     }
