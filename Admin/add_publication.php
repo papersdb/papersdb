@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.26 2006/06/13 21:54:42 aicmltec Exp $
+// $Id: add_publication.php,v 1.27 2006/06/15 00:00:47 aicmltec Exp $
 
 /**
  * \file
@@ -16,6 +16,7 @@ require_once 'includes/pdCatList.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
+require_once 'includes/authorselect.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication() {
@@ -117,38 +118,12 @@ class add_publication extends pdHtmlPage {
 
         // Authors
         $auth_list = new pdAuthorList($db);
-        $authSelect =& $form->addElement('advmultiselect', 'authors',
-                                         null, $auth_list->list,
-                                         array('class' => 'pool',
-                                               'style' => 'width:150px;'),
-                                         SORT_ASC);
-        $authSelect->setLabel(array('Authors:', 'Selected', 'Available'));
-        $authSelect->setButtonAttributes('add',
-                                         array('value' => '<<',
-                                               'class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('remove',
-                                         array('value' => '>>',
-                                               'class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('moveup',
-                                         array('class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('movedown',
-                                         array('class' => 'inputCommand'));
-
-        // template for a dual multi-select element shape
-        $template =
-            '<table{class}>'
-            . '<!-- BEGIN label_2 --><tr><th>{label_2}</th><!-- END label_2 -->'
-            . '<!-- BEGIN label_3 --><th>&nbsp;</th><th>{label_3}</th></tr><!-- END label_3 -->'
-            . '<tr>'
-            . '  <td>{selected}</td>'
-            . '  <td align="center">'
-            . '    {add}<br />{remove}<br /><br />{moveup}<br />{movedown}'
-            . '  </td>'
-            . '  <td>{unselected}</td>'
-            . '</tr>'
-            . '</table>'
-            . '{javascript}';
-        $authSelect->setElementTemplate($template);
+        $form->addElement('authorselect', 'authors', null,
+                          array('author_list' => $auth_list->list,
+                                'favorite_authors' => null,
+                                'most_used_authors' => null),
+                          array('class' => 'pool',
+                                'style' => 'width:150px;'));
 
         $form->addElement('advcheckbox', 'add_author', null,
                           'Add new author(s) to database and this publication',
