@@ -28,24 +28,22 @@ class list_author extends pdHtmlPage {
 
         $this->contentPre .= "<h2><u>Authors<h2>";
 
-        $this->table = new HTML_Table(array('width' => '100%',
+        $table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
                                             'cellpadding' => '6',
                                             'cellspacing' => '0'));
-        $table =& $this->table;
         $table->setAutoGrow(true);
 
         if (count($auth_list->list) > 0) {
-            foreach ($auth_list->list as $auth) {
+            foreach ($auth_list->list as $author_id => $name) {
                 unset($cells);
-                $cells[] = "<a href='view_author.php?author_id="
-                    . $auth->author_id . "'>" . $auth->name . "</a>";
-                $attr[] = '';
+                $cells[] = '<a href="view_author.php?author_id='
+                    . $author_id . '">' . $name . '</a>';
                 if ($logged_in) {
-                    $cells[] = "<a href='Admin/add_author.php?author_id="
-                        . $auth->author_id . "'>Edit</a>";
-                    $cells[] = "<a href='Admin/delete_author.php?author_id="
-                        . $auth->author_id . "'>Delete</a>";
+                    $cells[] = '<a href="Admin/add_author.php?author_id='
+                        . $author_id . '">Edit</a>';
+                    $cells[] = '<a href="Admin/delete_author.php?author_id='
+                        . $author_id . '">Delete</a>';
                 }
 
                 $table->addRow($cells);
@@ -75,6 +73,7 @@ class list_author extends pdHtmlPage {
             }
         }
 
+        $this->table =& $table;
         $this->db->close();
     }
 }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.3 2006/06/16 16:00:04 aicmltec Exp $
+// $Id: authorselect.php,v 1.4 2006/06/16 23:38:59 aicmltec Exp $
 
 /**
  * \file
@@ -374,7 +374,6 @@ JS_END;
             // Add items to the 'TO' list.
             var selectedListRadio
                 = document.forms["pubForm"].elements["which_list"];
-            var selectedList;
 
             for (i=0; i < selectedListRadio.length; i++) {
                 if (selectedListRadio[i].checked)
@@ -385,28 +384,34 @@ JS_END;
             for (i=0; i < menuFrom.length; i++) {
                 if ((action == 'all') || (action == 'none')
                     || (action == 'toggle') || menuFrom.options[i].selected) {
-
                     var option = menuFrom.options[i];
-                    var addToList = false;
 
-                    // only add if author belongs to the author list
-                    if ((options.value.indexOf("author_list") >= 0)
-                        && (selectedListRadiovalue = "author_list"))
-                        addToList = true;
+                    if (menuTo == availAuthors) {
+                        var addToList = false;
 
-                    // only add if author belongs to the author list
-                    if ((options.value.indexOf("favorite_authors") >= 0)
-                        && (selectedListRadiovalue = "favorite_authors"))
-                        addToList = true;
+                        // only add if author belongs to the author list
+                        if ((option.value.indexOf("author_list") >= 0)
+                            && (selectedListRadiovalue == "author_list"))
+                            addToList = true;
 
-                    // only add if author belongs to the author list
-                    if ((options.value.indexOf("most_used_authors") >= 0)
-                        && (selectedListRadiovalue = "most_used_authors"))
-                        addToList = true;
+                        // only add if author belongs to the author list
+                        if ((option.value.indexOf("favorite_authors") >= 0)
+                            && (selectedListRadiovalue == "favorite_authors"))
+                            addToList = true;
 
-                    if (addToList)
-                        addTo.options[menuTo.length]
+                        // only add if author belongs to the author list
+                        if ((option.value.indexOf("most_used_authors") >= 0)
+                            && (selectedListRadiovalue == "most_used_authors"))
+                            addToList = true;
+
+                        if (addToList)
+                            menuTo.options[menuTo.length]
+                                = new Option(option.text, option.value);
+                    }
+                    else {
+                        menuTo.options[menuTo.length]
                             = new Option(option.text, option.value);
+                    }
                 }
             }
 
