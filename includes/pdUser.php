@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.16 2006/06/15 22:04:37 aicmltec Exp $
+// $Id: pdUser.php,v 1.17 2006/06/16 16:00:05 aicmltec Exp $
 
 /**
  * \file
@@ -9,6 +9,8 @@
  *
  *
  */
+
+require_once 'pdAuthorList.php';
 
 /**
  *
@@ -115,8 +117,19 @@ class pdUser {
             $this->author_rank[$r->author_id]++;
             $r = $db->fetchObject($q);
         }
-        if (count($this->author_rank) > 0)
-            asort($this->author_rank);
+
+        if (count($this->author_rank) > 0) {
+            arsort($this->author_rank, SORT_NUMERIC);
+
+            // now remove the author ids that are invalid
+            $valid_authors = new pdAuthorList($db);
+
+            $ranked_author_ids = array_keys($this->author_rank);
+            foreach ($ranked_author_ids as $id) {
+                if (!isset($valid_authors->list[$id]))
+                    unset($this->author_rank[$id]);
+            }
+        }
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.2 2006/06/15 22:04:37 aicmltec Exp $
+// $Id: authorselect.php,v 1.3 2006/06/16 16:00:04 aicmltec Exp $
 
 /**
  * \file
@@ -79,11 +79,6 @@ class authorselect extends HTML_QuickForm_advmultiselect {
 JS_END;
     }
 
-    function load(&$options, $param1=null, $param2=null, $param3=null,
-                  $param4=null) {
-
-    }
-
     function toHtml() {
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
@@ -146,9 +141,12 @@ JS_END;
                     $option['attr']['selected'] = 'selected';
                     $arrHtmlHidden[$key] = $option;
                 } else {
-                    // The item is *unselected* so we want to put it in the
-                    // 'unselected' multi-select
-                    $arrHtmlUnselected[] = $option;
+                    if (strpos($option['attr']['value'], 'author_list')
+                        !== false) {
+                        // The item is *unselected* so we want to put it in the
+                        // 'unselected' multi-select
+                        $arrHtmlUnselected[] = $option;
+                    }
                     // Add it to the hidden multi-select as 'unselected'
                     $arrHtmlHidden[$append] = $option;
                     $append++;
@@ -344,17 +342,24 @@ JS_END;
         }
 
         function {$jsfuncName}(action) {
+            var availAuthors
+            = document.forms["pubForm"].elements["__{$selectName}"];
+
+            var selectedAuthors
+            = document.forms["pubForm"].elements["_{$selectName}"];
+
+            var allAuthors
+            = document.forms["pubForm"].elements["{$selectName}"];
+
             var menuFrom;
             var menuTo;
 
             if (action == 'add' || action == 'all' || action == 'toggle') {
-                menuFrom
-                    = document.forms["pubForm"].elements["__{$selectName}"];
-                menuTo = document.forms["pubForm"].elements["_{$selectName}"];
+                menuFrom = availAuthors;
+                menuTo = selectedAuthors;
             } else {
-                menuFrom
-                    = document.forms["pubForm"].elements["_{$selectName}"];
-                menuTo = document.forms["pubForm"].elements["__{$selectName}"];
+                menuFrom = selectedAuthors;
+                menuTo = availAuthors;
             }
 
             // Don't do anything if nothing selected. Otherwise we throw
@@ -367,12 +372,41 @@ JS_END;
             maxTo = menuTo.length;
 
             // Add items to the 'TO' list.
+            var selectedListRadio
+                = document.forms["pubForm"].elements["which_list"];
+            var selectedList;
+
+            for (i=0; i < selectedListRadio.length; i++) {
+                if (selectedListRadio[i].checked)
+                    selectedListRadiovalue = selectedListRadio[i].value;
+            }
+
+
             for (i=0; i < menuFrom.length; i++) {
                 if ((action == 'all') || (action == 'none')
                     || (action == 'toggle') || menuFrom.options[i].selected) {
-                    menuTo.options[menuTo.length]
-                        = new Option(menuFrom.options[i].text,
-                                     menuFrom.options[i].value);
+
+                    var option = menuFrom.options[i];
+                    var addToList = false;
+
+                    // only add if author belongs to the author list
+                    if ((options.value.indexOf("author_list") >= 0)
+                        && (selectedListRadiovalue = "author_list"))
+                        addToList = true;
+
+                    // only add if author belongs to the author list
+                    if ((options.value.indexOf("favorite_authors") >= 0)
+                        && (selectedListRadiovalue = "favorite_authors"))
+                        addToList = true;
+
+                    // only add if author belongs to the author list
+                    if ((options.value.indexOf("most_used_authors") >= 0)
+                        && (selectedListRadiovalue = "most_used_authors"))
+                        addToList = true;
+
+                    if (addToList)
+                        addTo.options[menuTo.length]
+                            = new Option(option.text, option.value);
                 }
             }
 
@@ -427,10 +461,10 @@ JS_END;
         }
 
         function {$this->_jsPrefix}compareText(option1, option2) {
-            if (option1.text == option2.text) {
-                return 0;
-            }
-            return option1.text < option2.text ? -1 : 1;
+            if (option1.text == option2.text) return 0;
+
+            return (option1.text.toLowerCase()
+                    < option2.text.toLowerCase() ? -1 : 1);
         }
 
         function {$this->_jsPrefix}updateHidden(select) {

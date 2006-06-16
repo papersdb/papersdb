@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.26 2006/06/14 05:10:25 aicmltec Exp $
+// $Id: view_publication.php,v 1.27 2006/06/16 16:00:04 aicmltec Exp $
 
 /**
  * \file
@@ -95,12 +95,14 @@ class view_publication extends pdHtmlPage {
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-        $this->contentPost = '<br><b><a href="Admin/add_publication.php?pub_id='
-            . quote_smart($this->pub_id)
-            . '">Edit this publication</a>&nbsp;&nbsp;&nbsp;'
-            . '<a href=\"Admin/delete_publication.php?pub_id='
-            . quote_smart($this->pub_id)
-            . '">Delete this publication</a></b>';
+        if ($logged_in) {
+            $this->contentPost = '<br><b><a href="Admin/add_publication.php?pub_id='
+                . quote_smart($this->pub_id)
+                . '">Edit this publication</a>&nbsp;&nbsp;&nbsp;'
+                . '<a href=\"Admin/delete_publication.php?pub_id='
+                . quote_smart($this->pub_id)
+                . '">Delete this publication</a></b>';
+        }
 
         $db->close();
     }

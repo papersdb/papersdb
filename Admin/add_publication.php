@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.28 2006/06/15 22:04:37 aicmltec Exp $
+// $Id: add_publication.php,v 1.29 2006/06/16 16:00:04 aicmltec Exp $
 
 /**
  * \file
@@ -20,7 +20,15 @@ require_once 'includes/authorselect.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication() {
+        global $logged_in;
+
         parent::pdHtmlPage('add_publication');
+
+        if (!$logged_in) {
+            $this->loginError = true;
+            return;
+        }
+
         $db =& dbCreate();
 
         if (isset($_GET['venue_id']) && ($_GET['venue_id'] != '')) {
@@ -118,20 +126,21 @@ class add_publication extends pdHtmlPage {
 
         // Authors
         $user = $_SESSION['user'];
-        $user->popularAuthorsDbLoad($db);
         $auth_list = new pdAuthorList($db);
         $all_authors = $auth_list->list;
-
-        echo '<pre>' . print_r($user->author_rank, true) . '</pre>';
 
         foreach (array_keys($user->collaborators) as $author_id) {
             unset($all_authors[$author_id]);
         }
 
+        // get the first 10 popular authors used by this user
+        $user->popularAuthorsDbLoad($db);
+
         if (count($user->author_rank) > 0) {
-            $most_used_authors
-                = array_reverse(array_slice($user->author_rank, -10));
-            foreach (array_keys($most_used_authors) as $author_id) {
+            $most_used_author_ids
+                = array_slice(array_keys($user->author_rank), 0, 10);
+
+            foreach($most_used_author_ids as $author_id) {
                 $most_used_authors[$author_id] = $all_authors[$author_id];
                 unset($all_authors[$author_id]);
             }
