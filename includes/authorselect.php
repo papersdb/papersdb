@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.4 2006/06/16 23:38:59 aicmltec Exp $
+// $Id: authorselect.php,v 1.5 2006/06/19 14:39:16 aicmltec Exp $
 
 /**
  * \file
@@ -44,7 +44,7 @@ class authorselect extends HTML_QuickForm_advmultiselect {
         $this->setButtonAttributes('movedown',
                                    array('class' => 'inputCommand'));
 
-       $this->_elementTemplate = <<<JS_END
+       $this->_elementTemplate = <<<END
 {javascript}
 <table{class}>
 <tr>
@@ -76,7 +76,7 @@ class authorselect extends HTML_QuickForm_advmultiselect {
   </td>
 </tr>
 </table>
-JS_END;
+END;
     }
 
     function toHtml() {
