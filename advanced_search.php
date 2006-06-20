@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.27 2006/06/14 17:47:17 aicmltec Exp $
+// $Id: advanced_search.php,v 1.28 2006/06/20 14:21:58 aicmltec Exp $
 
 /**
  * \file
@@ -30,12 +30,31 @@ class advanced_search extends pdHtmlPage {
     var $cat_list;
     var $category;
     var $auth_list;
+    var $expand;
+    var $search;
+    var $cat_id;
+    var $title;
+    var $authortyped;
+    var $paper;
+    var $abstract;
+    var $venue;
+    var $keywords;
 
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
 
-        $cat_id = intval($_GET['cat_id']);
-        isValid($cat_id);
+        if(isset($_GET['expand']) && ($_GET['expand'] == 'true')) {
+            $this->expand = true;
+        }
+
+        if(isset($_GET['search']) && ($_GET['search'] != ''))
+            $this->search = stripslashes($_GET['search']);
+
+        $options = array('search', 'cat_id', 'title', 'authortyped',
+                         'paper', 'abstract', 'venue', 'keywords');
+        foreach ($options as $opt)
+            if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
+                $this->$opt = stripslashes($_GET[$opt]);
 
         $this->db =& dbCreate();
 
@@ -43,7 +62,7 @@ class advanced_search extends pdHtmlPage {
         $this->auth_list = new pdAuthorList($this->db);
 
         $this->category = new pdCategory();
-        $this->category->dbLoad($this->db, $cat_id);
+        $this->category->dbLoad($this->db, $this->cat_id);
 
         $this->createForm();
         $this->setFormValues();
@@ -56,11 +75,8 @@ class advanced_search extends pdHtmlPage {
         $this->createTable($renderer);
         $this->javascript();
 
-        $this->contentPre = '<h2><b><u>Search</u></b></h2>';
-
-        if($_GET['expand'] == "true") {
-            $this->contentPost = $renderer->elementToHtml('expand');
-        }
+        $this->contentPre .= '<h2><b><u>Search</u></b></h2>';
+        $this->contentPost .= $renderer->elementToHtml('expand');
 
         $this->db->close();
     }
@@ -157,7 +173,7 @@ END;
                          'venuecheck'        => 'Publication Venue',
                          'keywordscheck'     => 'Keywords',
                          'datecheck'         => 'Date Published');
-        if ($_GET['expand']) {
+        if ($this->expand) {
             foreach ($options as $name => $text) {
                 $form->addElement('advcheckbox', $name, null, $text, null,
                                   array('no', 'yes'));
@@ -172,7 +188,7 @@ END;
         $form->addElement('submit', 'Submit', 'Search');
         $form->addElement('submit', 'Clear', 'Clear');
 
-        if($_GET['expand'] == "true")
+        if($this->expand)
             $form->addElement('hidden', 'expand', 'true');
 
         $this->form =& $form;
@@ -183,14 +199,14 @@ END;
      */
     function setFormValues() {
         $defaultValues = array(
-            'search'            => stripslashes($_GET['search']),
-            'cat_id'            => $_GET['cat_id'],
-            'title'             => $_GET['title'],
-            'authortyped'       => stripslashes($_GET['authortyped']),
-            'paper'             => $_GET['paper'],
-            'abstract'          => $_GET['abstract'],
-            'venue'             => $_GET['venue'],
-            'keywords'          => $_GET['keywords'],
+            'search'            => $this->search,
+            'cat_id'            => $this->cat_id,
+            'title'             => $this->title,
+            'authortyped'       => $this->authortyped,
+            'paper'             => $this->paper,
+            'abstract'          => $this->abstract,
+            'venue'             => $this->venue,
+            'keywords'          => $this->keywords,
             'titlecheck'        => 'yes',
             'authorcheck'       => 'yes',
             'additionalcheck'   => 'yes',
@@ -227,21 +243,12 @@ END;
         $table->addRow(array('<h4>Search within:</h4>'), array('colspan' => '2'));
 
         // Category
-        $options = array('' => 'All Categories');
-        foreach ($this->cat_list->list as $cat) {
-            $options[$cat->cat_id] = $cat->category;
-        }
         $table->addRow(array('Category:', $renderer->elementToHtml('cat_id')));
 
         // Title
         $table->addRow(array('Title:', $renderer->elementToHtml('title')));
 
         // Authors
-        unset($options);
-        $options = array('' => 'All Authors');
-        foreach($this->auth_list->list as $auth) {
-            $options[$auth->author_id] = $auth->name;
-        }
         $table->addRow(array('Authors:',
                              $renderer->elementToHtml('authortyped')
                              . ' or select from list '
@@ -284,7 +291,7 @@ END;
                              . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) '
                            ));
 
-        if ($_GET['expand']) {
+        if ($this->expand) {
             $table->addRow(array('<hr/>'), array('colspan' => '2'));
 
             $prefsTable = new HTML_Table();
@@ -326,7 +333,9 @@ END;
                              $renderer->elementToHtml('Submit')
                              . ' ' . $renderer->elementToHtml('Clear')));
 
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+        $table->updateColAttributes(0, array('id' => 'emph',
+                                             'width' => '25%'));
+        $table->updateColAttributes(1, array('valign' => 'top'));
 
         $this->table =& $table;
     }

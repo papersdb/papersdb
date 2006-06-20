@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.6 2006/06/19 14:39:16 aicmltec Exp $
+// $Id: edit_user.php,v 1.7 2006/06/20 14:21:58 aicmltec Exp $
 
 /**
  * \file
@@ -30,7 +30,8 @@ class edit_user extends pdHtmlPage {
             return;
         }
 
-        if (isset($_GET['status']) && ($_GET['status'] == 'edit'))
+        if ((isset($_GET['status']) && ($_GET['status'] == 'edit'))
+            || (isset($_POST['status']) && ($_POST['status'] == 'edit')))
             $this->editUser();
         else
             $this->showUser();
@@ -40,10 +41,12 @@ class edit_user extends pdHtmlPage {
     function editUser() {
         $db =& dbCreate();
         $user =& $_SESSION['user'];
+        $user->collaboratorsDbLoad($db);
 
         $form = new HTML_QuickForm('pubForm');
 
         $form->addElement('hidden', 'login', $user->login);
+        $form->addElement('hidden', 'status', 'edit');
         $form->addElement('text', 'name', null,
                           array('size' => 50, 'maxlength' => 100));
         $form->addElement('text', 'email', null,
@@ -51,13 +54,9 @@ class edit_user extends pdHtmlPage {
 
         $auth_list = new pdAuthorList($db);
         assert('is_array($auth_list->list)');
-        unset($options);
-        foreach ($auth_list->list as $author_id => $name) {
-            $options[$author_id] = $name;
-        }
 
         $authSelect =& $form->addElement('advmultiselect', 'authors', null,
-                                         $options,
+                                         $auth_list->list,
                                          array('class' => 'pool',
                                                'style' => 'width:150px;'),
                                          SORT_ASC);
@@ -101,8 +100,6 @@ END;
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
-
             assert('$values["login"]==$user->login');
 
             $user->name = $values['name'];
@@ -113,10 +110,12 @@ END;
                 $auth_list = new pdAuthorList($db);
 
                 foreach ($values['authors'] as $author_id) {
-                    $user->collaborators[] = $auth_list->list[$author_id];
+                    $user->collaborators[$author_id]
+                        = $auth_list->list[$author_id];
                 }
             }
-            //$user->dbSave($db);
+
+            $user->dbSave($db);
             $this->contentPre .= 'Change to user information submitted.';
         }
         else {
@@ -128,15 +127,11 @@ END;
 
             $this->contentPre .= '<h2><b><u>Login Information</u></b></h2>';
 
-
-            $defaults['name'] = $user->name;
-            $defaults['email'] = $user->email;
-            if (is_array($user->collaborators)) {
-                foreach ($user->collaborators as $collaborator) {
-                    $defaults['authors'][] = $collaborator->author_id;
-                }
-            }
+            $defaults = array('name' => $user->name,
+                              'email' => $user->email,
+                              'authors' => array_keys($user->collaborators));
             $form->setDefaults($defaults);
+
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
 
@@ -150,7 +145,8 @@ END;
             $table->addRow(array($renderer->elementToHtml('Submit')),
                            array('colspan' => 2));
 
-            $table->updateColAttributes(0, array('id' => 'emph', 'width' => '30%'));
+            $table->updateColAttributes(0, array('id' => 'emph',
+                                                 'width' => '30%'));
 
             $this->table =& $table;
             $this->form =& $form;
@@ -162,6 +158,7 @@ END;
     function showUser() {
         $db =& dbCreate();
         $user =& $_SESSION['user'];
+        $user->collaboratorsDbLoad($db);
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
@@ -173,14 +170,15 @@ END;
         $table->addRow(array('Name:', $user->name));
         $table->addRow(array('E-mail:', $user->email));
 
-        if (is_array($user->collaborators)) {
+        if (is_array($user->collaborators)
+            && (count($user->collaborators) > 0)) {
             $rowcount = 0;
             foreach ($user->collaborators as $collaborator) {
                 if ($rowcount == 0)
                     $cell1 = 'Favorite Collaborators:';
                 else
                     $cell1 = '';
-                $table->addRow(array($cell1, $collaborator->name));
+                $table->addRow(array($cell1, $collaborator));
                 $rowcount++;
             }
         }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.13 2006/06/14 17:47:17 aicmltec Exp $
+// $Id: login.php,v 1.14 2006/06/20 14:21:58 aicmltec Exp $
 
 /**
  * \file
@@ -30,6 +30,11 @@ class login extends pdHtmlPage {
             return;
         }
 
+        if (isset($_GET['redirect']) && ($_GET['redirect'] != ''))
+            $redirect = $_GET['redirect'];
+        else
+            $redirect = '';
+
         $form = new HTML_QuickForm('quickPubForm');
 
         $form->addElement('text', 'loginid', null,
@@ -51,7 +56,7 @@ class login extends pdHtmlPage {
                           array('size' => 25, 'maxlength' => 80));
         $form->addElement('submit', 'newaccount', 'Create new account');
 
-        $form->addElement('hidden', 'redirect', $_GET['redirect']);
+        $form->addElement('hidden', 'redirect', $redirect);
 
         if ($form->validate()) {
             $values = $form->exportValues();

@@ -18,6 +18,10 @@ table {
   vertical-align: top;
 }
 
+table tr {
+  vertical-align: top;
+}
+
 table td, table th  {
   font-size:12px;
   padding: 3px;

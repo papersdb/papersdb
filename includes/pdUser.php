@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.17 2006/06/16 16:00:05 aicmltec Exp $
+// $Id: pdUser.php,v 1.18 2006/06/20 14:21:58 aicmltec Exp $
 
 /**
  * \file
@@ -68,9 +68,9 @@ class pdUser {
         if (isset($this->collaborators) && count($this->collaborators) > 0) {
             // first add the interests
             $arr = array();
-            foreach ($this->collaborators as $c) {
+            foreach (array_keys($this->collaborators) as $author_id) {
                 array_push($arr, array('login' => $this->login,
-                                       'author_id' => $c->author_id));
+                                       'author_id' => $author_id));
             }
             $db->insert('user_author', $arr, 'pdUser::dbSave');
         }
@@ -82,6 +82,9 @@ class pdUser {
     function collaboratorsDbLoad(&$db) {
         assert('is_object($db)');
         assert('isset($this->login)');
+
+        if (isset($this->collaborators) && (count($this->collaborators) > 0))
+            return;
 
         $q = $db->select(array('user_author', 'author'),
                          array('author.author_id', 'author.name'),

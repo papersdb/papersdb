@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.11 2006/06/14 17:47:17 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.12 2006/06/20 14:21:58 aicmltec Exp $
 
 /**
  * \file
@@ -26,7 +26,7 @@ define('PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED', 3);
  */
 class pdHtmlPage {
     var $page_id;
-    var $title;
+    var $pageTitle;
     var $relativeUrl;
     var $redirectUrl;
     var $redirectTimeout;
@@ -50,7 +50,7 @@ class pdHtmlPage {
         if (($page_id != null) && ($page_id != '')
             && (isset($this->page_info[$page_id]))) {
             $this->page_id     = $page_id;
-            $this->title       = $this->page_info[$page_id][0];
+            $this->pageTitle   = $this->page_info[$page_id][0];
             $this->relativeUrl = $this->page_info[$page_id][1];
             $this->loginLevel  = $this->page_info[$page_id][2];
         }
@@ -67,7 +67,7 @@ class pdHtmlPage {
     }
 
     function htmlPageHeader() {
-        $result = $this->htmlHeader($this->page_id, $this->title);
+        $result = $this->htmlHeader();
         $result .= $this->js;
         $result .= '<body>';
 
@@ -189,7 +189,7 @@ class pdHtmlPage {
         'delete_interest'    => array('Delete Interest',
                                       'Admin/delete_interest.php',
                                       PD_HTML_PAGE_NAV_MENU_NEVER),
-        'edit_user'          => array('Edit User', 'Admin/edit_user.php',
+        'edit_user'          => array('User Preferences', 'Admin/edit_user.php',
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'advanced_search'    => array('Advanced Search', 'advanced_search.php',
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
@@ -207,12 +207,12 @@ class pdHtmlPage {
                                       PD_HTML_PAGE_NAV_MENU_ALWAYS)
         );
 
-    function htmlHeader($page, $title, $redirect = '') {
+    function htmlHeader() {
         $result =
             '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
             . 'lang="en">'
             . '<head>'
-            . '<title>' . $this->title . '</title>'
+            . '<title>' . $this->pageTitle . '</title>'
             . '<meta http-equiv="Content-Type" '
             . 'content="text/html; charset=iso-8859-1" />';
 
