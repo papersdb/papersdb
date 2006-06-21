@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.18 2006/06/20 14:21:58 aicmltec Exp $
+// $Id: pdUser.php,v 1.19 2006/06/21 05:34:22 aicmltec Exp $
 
 /**
  * \file
@@ -115,6 +115,7 @@ class pdUser {
                                'publication.pub_id=pub_author.pub_id',
                                'user.login' => $this->login),
                          "pdUser::popularAuthorsDbLoad");
+        if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
             $this->author_rank[$r->author_id]++;

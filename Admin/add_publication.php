@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.29 2006/06/16 16:00:04 aicmltec Exp $
+// $Id: add_publication.php,v 1.30 2006/06/21 05:34:22 aicmltec Exp $
 
 /**
  * \file
@@ -19,7 +19,13 @@ require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
 
 class add_publication extends pdHtmlPage {
-    function add_publication() {
+    function add_publication($edit = null,
+                             $pub_id = null,
+                             $cat_id = null,
+                             $venue_id = null,
+                             $ext =  null,
+                             $intpoint = null,
+                             $nummaterials = null) {
         global $logged_in;
 
         parent::pdHtmlPage('add_publication');
@@ -31,44 +37,38 @@ class add_publication extends pdHtmlPage {
 
         $db =& dbCreate();
 
-        if (isset($_GET['venue_id']) && ($_GET['venue_id'] != '')) {
-            $venue_id = intval($_GET['venue_id']);
+        if ($venue_id != null) {
             $venue = new pdVenue();
             $venue->dbLoad($db, $venue_id);
         }
-        else
-            $venue_id = null;
 
-        if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
-            $cat_id = intval($_GET['cat_id']);
-            if ($cat_id > 0) {
-                $category = new pdCategory();
-                $result = $category->dbLoad($db, $cat_id);
-                assert('$result');
-            }
+        if (($cat_id != null) && ($cat_id > 0)) {
+            $category = new pdCategory();
+            $result = $category->dbLoad($db, $cat_id);
+            assert('$result');
         }
-        else
-            $cat_id = null;
 
-        if (isset($_GET['ext']) && ($_GET['ext'] != ''))
-            $ext = intval($_GET['ext']);
-        else
+        if ($ext == null)
             $ext = 0;
 
-        if (isset($_GET['intpoint']) && ($_GET['intpoint'] != ''))
-            $intpoint = intval($_GET['intpoint']);
-        else
+        if ($intpoint == null)
             $intpoint = 0;
 
-        if (isset($_GET['numMaterials']) && $_GET['numMaterials'] != '')
-            $numMaterials = intval($_GET['numMaterials']);
-        else
-            $numMaterials = 0;
+        if ($intpoint == null)
+            $intpoint = 0;
+
+        if ($nummaterials == null)
+            $nummaterials = 0;
 
         $form = new HTML_QuickForm('pubForm');
 
+        if ($edit && ($pub_id == null)) {
+            $this->pageError = true;
+            return;
+        }
+
         if ($edit) {
-            $form->addElement('hidden', 'pub_id', $_GET['pub_id']);
+            $form->addElement('hidden', 'pub_id', $pub_id);
         }
 
         // Venue
@@ -136,6 +136,7 @@ class add_publication extends pdHtmlPage {
         // get the first 10 popular authors used by this user
         $user->popularAuthorsDbLoad($db);
 
+        $most_used_authors = array();
         if (count($user->author_rank) > 0) {
             $most_used_author_ids
                 = array_slice(array_keys($user->author_rank), 0, 10);
@@ -235,16 +236,16 @@ class add_publication extends pdHtmlPage {
                           array('size' => 45, 'maxlength' => 250));
 
         // other materials
-        $form->addElement('hidden', 'numMaterials', $numMaterials);
+        $form->addElement('hidden', 'nummaterials', $nummaterials);
         $form->addElement('button', 'materials_add',
                           'Add Other Material',
                           'onClick="dataKeep(\'addnum\');"');
 
-        if ($numMaterials > 0) {
+        if ($nummaterials > 0) {
             $form->addElement('button', 'materials_remove',
                               'Remove This Material',
                               'onClick="dataKeep(\'remnum\');"');
-            for ($i = 1; $i <= $numMaterials; $i++) {
+            for ($i = 1; $i <= $nummaterials; $i++) {
                 $form->addElement('text', 'type' . $i, null,
                                   array('size' => 17, 'maxlength' => 250));
                 $form->addElement('text', 'uploadadditional' . $i, null,
@@ -269,8 +270,8 @@ class add_publication extends pdHtmlPage {
                 $form->setDefaults(array('cat_id' => $category->cat_id));
             }
 
-            if ($numMaterials > 0) {
-                for ($i = 1; $i <= $numMaterials; $i++) {
+            if ($nummaterials > 0) {
+                for ($i = 1; $i <= $nummaterials; $i++) {
                     if (!isset($_GET['type' . $i])
                         || ($_GET['type' . $i] = '')) {
                         $materials['type' . $i] = 'Additional Material ' . $i;
@@ -446,10 +447,10 @@ class add_publication extends pdHtmlPage {
                                  $rend->elementToHtml('nopaper', 'false')
                                  . ' ' . $rend->elementToHtml('uploadpaper')));
             $table->addRow(array('', $rend->elementToHtml('nopaper', 'true')));
-            if ($numMaterials > 0) {
+            if ($nummaterials > 0) {
                 $table->addRow(array('Additional Materials:'));
 
-                for ($i = 1; $i <= $numMaterials; $i++) {
+                for ($i = 1; $i <= $nummaterials; $i++) {
                     $table->addRow(array($rend->elementToHtml('type' . $i),
                                          ':' . $rend->elementToHtml('uploadadditional' . $i)));
                 }
@@ -495,19 +496,19 @@ class add_publication extends pdHtmlPage {
             $this->renderer = $rend;
             $this->table = $table;
 
-            $this->javascript($ext, $intpoint, $numMaterials);
+            $this->javascript($ext, $intpoint, $nummaterials);
         }
 
         $db->close();
     }
 
-    function javascript($ext, $intpoint, $numMaterials) {
+    function javascript($ext, $intpoint, $nummaterials) {
         $ext_next = $ext + 1;
         $ext_prev = $ext - 1;
         $intpoint_next = $intpoint + 1;
         $intpoint_prev = $intpoint - 1;
-        $numMaterials_next = $numMaterials + 1;
-        $numMaterials_prev = $numMaterials - 1;
+        $nummaterials_next = $nummaterials + 1;
+        $nummaterials_prev = $nummaterials - 1;
 
         $this->js = <<<JS_END
             <script language="JavaScript" src="../calendar.js"></script>
@@ -638,13 +639,13 @@ class add_publication extends pdHtmlPage {
                         else
                             qsArray.push(element.name + "={$intpoint}");
                     }
-                    else if (element.name == "numMaterials"){
+                    else if (element.name == "nummaterials"){
                         if (tab == "addnum")
                             qsArray.push(element.name
-                                         + "={$numMaterials_next}");
+                                         + "={$nummaterials_next}");
                         else if (tab == "remnum")
                             qsArray.push(element.name
-                                         + "={$numMaterials_prev}");
+                                         + "={$nummaterials_prev}");
                     }
                     else
                         qsArray.push(element.name + "=" + element.value);
@@ -777,15 +778,15 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
         $intpoint = 0;
         $ext = 0;
         while($point_line = mysql_fetch_array($point_result, MYSQL_ASSOC)){
-            if ($point_line[type] == "int"){
+            if ($point_line['type'] == "int"){
                 $internal = "intpointer".($intpoint++);
-                $$internal = $point_line[value];
+                $$internal = $point_line['value'];
             }
-            else if ($point_line[type] == "ext"){
+            else if ($point_line['type'] == "ext"){
                 $externalname = "extname".$ext;
-                $$externalname = $point_line[name];
+                $$externalname = $point_line['name'];
 
-                $temparray1 = split("<a href=\"",$point_line[value]);
+                $temparray1 = split("<a href=\"",$point_line['value']);
                 $temparray2 = split("\" target=\"_blank\">",$temparray1[1]);
                 $temparray3 = split("</a>",$temparray2[1]);
 
@@ -854,13 +855,13 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
 	// than what currently exist in the DB.
 	$dbMaterials = get_num_db_materials ($pub_id);
 
-	if ($_GET['numMaterials'] != "") {
-		if ($_GET['numMaterials'] < $dbMaterials) {
-			$numMaterials = $dbMaterials;
+	if ($_GET['nummaterials'] != "") {
+		if ($_GET['nummaterials'] < $dbMaterials) {
+			$nummaterials = $dbMaterials;
 		}
 	}
 	else {
-		$numMaterials = $dbMaterials;
+		$nummaterials = $dbMaterials;
 	}
 
 
@@ -882,8 +883,18 @@ if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
 }
 /////////////////////EDIT END///////////////////////////////////////
 
-$page = new add_publication($_GET['edit'], $_GET['venue_id'], $ext,
-                            $intpoint, $numMaterials);
+$options = array('edit', 'pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
+                 'nummaterials');
+foreach ($options as $opt) {
+    if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
+        $$opt = stripslashes($_GET[$opt]);
+    else
+        $$opt = null;
+}
+
+
+$page = new add_publication($edit, $pub_id, $cat_id, $venue_id, $ext,
+                            $intpoint, $nummaterials);
 echo $page->toHtml();
 
 

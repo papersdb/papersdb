@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.5 2006/06/19 14:39:16 aicmltec Exp $
+// $Id: authorselect.php,v 1.6 2006/06/21 05:34:22 aicmltec Exp $
 
 /**
  * \file
@@ -83,6 +83,11 @@ END;
         if ($this->_flagFrozen) {
             return $this->getFrozenHtml();
         }
+
+        $tabs    = $this->_getTabs();
+        $tab     = $this->_getTab();
+        $strHtml = '';
+
         $selectName = $this->getName() . '[]';
         $jsfuncName = $this->_jsPrefix . $this->_jsPostfix;
 
@@ -458,7 +463,6 @@ END;
                     );
             }
             options.sort(compareFunction);
-            {$reverse}
             list.options.length = 0;
             for (var i = 0; i < options.length; i++) {
                 list.options[i] = options[i];

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.12 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: add_category.php,v 1.13 2006/06/21 05:34:22 aicmltec Exp $
 
 /**
  * \file
@@ -160,8 +160,7 @@ class add_category extends pdHtmlPage {
 
             $table->addRow(array('',
                                  $renderer->elementToHtml('submit')
-                                 . '&nbsp;'.$renderer->elementToHtml('reset')),
-                           array('', 'colspan' => 2));
+                                 . '&nbsp;'.$renderer->elementToHtml('reset')));
 
             $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                          array('colspan' => 2));

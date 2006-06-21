@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.8 2006/06/11 20:42:27 aicmltec Exp $
+// $Id: defines.php,v 1.9 2006/06/21 05:34:22 aicmltec Exp $
 
 /**
  * \file
@@ -9,6 +9,8 @@
  *
  * Defines contants to connect to the PapersDB database.
  */
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
 
 /** The server hosting the database. */
 if ($_ENV['HOSTNAME'] == 'levante')

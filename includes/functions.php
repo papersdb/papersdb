@@ -393,5 +393,94 @@ function tableHighlightRows(&$table) {
     }
 }
 
+function backtrace() {
+    $s = '';
+    $MAXSTRLEN = 64;
+
+    $s = '<pre align=left>';
+    $traceArr = debug_backtrace();
+
+    //print_r($traceArr);
+
+    array_shift($traceArr);
+    $tabs = sizeof($traceArr)-1;
+    foreach($traceArr as $arr) {
+        for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
+        $tabs -= 1;
+        $s .= '<font face="Courier New,Courier">';
+        if (isset($arr['class'])) $s .= $arr['class'].'.';
+        $args = array();
+        if(!empty($arr['args'])) foreach($arr['args'] as $v)
+        {
+            if (is_null($v)) $args[] = 'null';
+            else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
+            else if (is_object($v)) $args[] = 'Object:'.get_class($v);
+            else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
+            else
+            {
+                $v = (string) @$v;
+                $str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
+                if (strlen($v) > $MAXSTRLEN) $str .= '...';
+                $args[] = "\"".$str."\"";
+            }
+        }
+        $s .= $arr['function'].'('.implode(', ',$args).')</font>';
+        $Line = (isset($arr['line'])? $arr['line'] : "unknown");
+        $File = (isset($arr['file'])? $arr['file'] : "unknown");
+        $s .= sprintf("<font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
+                      $Line, $File, $File);
+        $s .= "\n";
+    }
+    $s .= '</pre>';
+    return $s;
+}
+
+// user defined error handling function
+function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
+    if ($errno >= E_STRICT) return;
+
+    // timestamp for the error entry
+    $dt = date("Y-m-d H:i:s (T)");
+
+    // define an assoc array of error string
+    // in reality the only entries we should
+    // consider are E_WARNING, E_NOTICE, E_USER_ERROR,
+    // E_USER_WARNING and E_USER_NOTICE
+    $errortype = array (
+        E_ERROR          => "Error",
+        E_WARNING        => "Warning",
+        E_PARSE          => "Parsing Error",
+        E_NOTICE          => "Notice",
+        E_CORE_ERROR      => "Core Error",
+        E_CORE_WARNING    => "Core Warning",
+        E_COMPILE_ERROR  => "Compile Error",
+        E_COMPILE_WARNING => "Compile Warning",
+        E_USER_ERROR      => "User Error",
+        E_USER_WARNING    => "User Warning",
+        E_USER_NOTICE    => "User Notice",
+        E_STRICT          => "Runtime Notice"
+        );
+    // set of errors for which a var trace will be saved
+    $user_errors = array(E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE);
+
+    $err = "<errorentry>\n";
+    $err .= "\t<datetime>" . $dt . "</datetime>\n";
+    $err .= "\t<errornum>" . $errno . "</errornum>\n";
+    $err .= "\t<errortype>" . $errortype[$errno] . "</errortype>\n";
+    $err .= "\t<errormsg>" . $errmsg . "</errormsg>\n";
+    $err .= "\t<scriptname>" . $filename . "</scriptname>\n";
+    $err .= "\t<scriptlinenum>" . $linenum . "</scriptlinenum>\n";
+
+    if (in_array($errno, $user_errors)) {
+        $err .= "\t<vartrace>" . wddx_serialize_value($vars, "Variables") . "</vartrace>\n";
+    }
+    $err .= "</errorentry>\n\n";
+
+    // for testing
+    echo $err . '<br/>';
+    backtrace();
+}
+
+$old_error_handler = set_error_handler("userErrorHandler");
 
 ?>
