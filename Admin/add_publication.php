@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.30 2006/06/21 05:34:22 aicmltec Exp $
+// $Id: add_publication.php,v 1.31 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -19,16 +19,21 @@ require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
 
 class add_publication extends pdHtmlPage {
-    function add_publication($edit = null,
-                             $pub_id = null,
-                             $cat_id = null,
-                             $venue_id = null,
-                             $ext =  null,
-                             $intpoint = null,
-                             $nummaterials = null) {
+    function add_publication() {
         global $logged_in;
 
         parent::pdHtmlPage('add_publication');
+
+        $options = array('edit', 'pub_id', 'cat_id', 'venue_id', 'ext',
+                         'intpoint', 'nummaterials');
+        foreach ($options as $opt) {
+            if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
+                $$opt = stripslashes($_GET[$opt]);
+            else if (isset($_POST[$opt]) && ($_POST[$opt] != ''))
+                $$opt = stripslashes($_POST[$opt]);
+            else
+                $$opt = null;
+        }
 
         if (!$logged_in) {
             $this->loginError = true;
@@ -248,7 +253,7 @@ class add_publication extends pdHtmlPage {
             for ($i = 1; $i <= $nummaterials; $i++) {
                 $form->addElement('text', 'type' . $i, null,
                                   array('size' => 17, 'maxlength' => 250));
-                $form->addElement('text', 'uploadadditional' . $i, null,
+                $form->addElement('file', 'uploadadditional' . $i, null,
                                   array('size' => 50, 'maxlength' => 250));
             }
         }
@@ -258,7 +263,18 @@ class add_publication extends pdHtmlPage {
 
         if ($form->validate()) {
             $values = $form->exportValues();
+
+            foreach ($values['authors'] as $index => $author) {
+                $pos = strpos($author, ':');
+                if ($pos !== false) {
+                    $values['authors'][$index] = substr($author, $pos + 1);
+                }
+            }
+
             $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
+            $this->contentPre .= '<pre>' . print_r($_FILES, true) . '</pre>';
+
+            // \todo copy files here
         }
         else {
             //
@@ -600,8 +616,7 @@ class add_publication extends pdHtmlPage {
             for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
                 var element = document.forms["pubForm"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
-                    && (element.type != "button")
-                    && (element.type != "checkbox")
+                    && (element.type != "button") && (element.type != "checkbox")
                     && (element.value != "") && (element.value != null)) {
 
                     if (element.name == "authors[]") {
@@ -713,188 +728,7 @@ JS_END;
 }
 
 
-//User's 10 most popular Authors
-function popularauthors(){
-    $userauthorcount = 0;
-    $user_query
-        = "SELECT pub_author.author_id "
-        . "FROM pub_author, publication, user "
-		. "WHERE publication.submit = user.name "
-        . "AND publication.pub_id = pub_author.pub_id "
-        . "AND user.login=\"" .$_SERVER['PHP_AUTH_USER'] . "\"";
-
-    $user_result  = mysql_query($user_query)
-        or die("Query failed: " . mysql_error());
-    while($user_array = mysql_fetch_array($user_result, MYSQL_ASSOC)){
-		$popular_users[$user_array['author_id']]++;
-		$listofauthors[$userauthorcount++] = $user_array['author_id'];
-    }
-    if ($userauthorcount < 10) $length = $userauthorcount; else $length = 10;
-    for($count = 0; $count < $length; $count++){
-        $largest = "";
-        $largestvalue = 0;
-        for($index = 0; $index< $userauthorcount; $index++)
-            if ($popular_users[$listofauthors[$index]] > $largestvalue){
-                $largestvalue = $popular_users[$listofauthors[$index]];
-                $largest = $listofauthors[$index];
-            }
-        $finallist[$count] = $largest;
-        $popular_users[$largest] = 0;
-    }
-    return $finallist;
-
-}
-
-// Global variable to keep track of what we're doing - can change this
-// to not be a boolean if we want to deal with more than 2 different
-// operations (save, new) on this page
-$edit = FALSE;
-
-//////////////////////EDIT START/////////////////////////////////
-// Check to see if we've been passed a publication ID
-if ((isset($_GET['pub_id']) && $_GET['pub_id'] != "")
-    && ($_GET['new'] != "false")) {
-
-	// Set "edit mode" to true - we could just check for the existence
-	// of pub_id in the GET variables, but this is more clear.
-	$edit = TRUE;
-	// Get publication info
-    $pub = new pdPublication();
-    $pub->dbLoad($db, $_GET['pub_id']);
-
-	// Check if the publication actually exists
-	if (!isset($pub->pub_id)) {
-        "Error: Publication with ID " . $_GET['pub_id'] . " doesn't exist.";
-        echo "</div>\n";
-        pageFooter();
-        echo "</body></html>";
-        $db->close();
-		exit;
-	}
-    if (($intpoint == "")&&($ext == "")){
-        $point_query = "SELECT type, name, value FROM pointer WHERE pub_id="
-            . $_GET['pub_id'];
-        $point_result = query_db($point_query);
-        $intpoint = 0;
-        $ext = 0;
-        while($point_line = mysql_fetch_array($point_result, MYSQL_ASSOC)){
-            if ($point_line['type'] == "int"){
-                $internal = "intpointer".($intpoint++);
-                $$internal = $point_line['value'];
-            }
-            else if ($point_line['type'] == "ext"){
-                $externalname = "extname".$ext;
-                $$externalname = $point_line['name'];
-
-                $temparray1 = split("<a href=\"",$point_line['value']);
-                $temparray2 = split("\" target=\"_blank\">",$temparray1[1]);
-                $temparray3 = split("</a>",$temparray2[1]);
-
-                $externalvalue = "extvalue".$ext;
-                $$externalvalue = $temparray3[0];
-                $externallink = "extlink".($ext++);
-                $$externallink = $temparray2[0];
-            }
-        }
-    }
-
-	// Set the variables to be set in the page as initial values.  We have to
-	// check and see if there's a value that's already been posted back to us,
-	// and use that instead, in case it changes between page updates.
-
-	$catvals = get_category($_GET['pub_id']);
-	$category_id = $catvals['cat_id'];
-
-	if ($_GET['category'] == "") {
-		$category = $catvals['category'];
-	}
-
-	if ($_GET['title'] == "") {
-		$title = $pubInfo['title'];
-	}
-
-	if ($_GET['abstract'] == "") {
-		$abstract = $pubInfo['abstract'];
-	}
-
-	if ($_GET['venue'] == "") {
-		$venue = $pubInfo['venue'];
-	}
-
-	if ($_GET['extra_info'] == "") {
-		$extra_info = $pubInfo['extra_info'];
-	}
-
-	if ($_GET['keywords'] == "") {
-		$keywords = $pubInfo['keywords'];
-	}
-
-	// Deal with the publication date.
-	// variables we care about are $month, $day, $year.
-	$published = $pubInfo['published'];
-
-	$myYear = strtok($published,"-");
-	$myMonth = strtok("-");
-	$myDay = strtok("-");
-
-	if ($_GET['month'] == "") {
-		$month = $myMonth;
-	}
-
-	if ($_GET['day'] == "") {
-		$day = $myDay;
-	}
-
-	if ($_GET['year'] == "") {
-		$year = $myYear;
-	}
-
-
-	// Check the number of materials
-	// Don't allow the user to set the number of materials less
-	// than what currently exist in the DB.
-	$dbMaterials = get_num_db_materials ($pub_id);
-
-	if ($_GET['nummaterials'] != "") {
-		if ($_GET['nummaterials'] < $dbMaterials) {
-			$nummaterials = $dbMaterials;
-		}
-	}
-	else {
-		$nummaterials = $dbMaterials;
-	}
-
-
-	// andy_note: Paper is a special case! For now we'll use strtok to
-	// get only the name of the file and discard the rest.
-	$paper = $pubInfo['paper'];
-	$paperTmp = strtok($paper,"/");
-
-	// Since strtok will return a "false" as the last element, the
-	// item we're actually interested in is the item that appears
-	// *second to last*.  So we set $paper = $paperTmp and then get
-	// the right thing.
-	while ($paperTmp) {
-		$paper = $paperTmp;
-		$paperTmp = strtok("/");
-	}
-
-	$authors_from_db = get_authors($_GET['pub_id']);
-}
-/////////////////////EDIT END///////////////////////////////////////
-
-$options = array('edit', 'pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
-                 'nummaterials');
-foreach ($options as $opt) {
-    if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
-        $$opt = stripslashes($_GET[$opt]);
-    else
-        $$opt = null;
-}
-
-
-$page = new add_publication($edit, $pub_id, $cat_id, $venue_id, $ext,
-                            $intpoint, $nummaterials);
+$page = new add_publication();
 echo $page->toHtml();
 
 

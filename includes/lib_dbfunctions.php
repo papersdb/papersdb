@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.7 2006/06/21 05:34:22 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.8 2006/07/04 23:11:21 aicmltec Exp $
 
   /**
    * \file
@@ -29,8 +29,7 @@ $wgSiteName = "PapersDB";
  * Creates a database object to operate on the database.
  */
 function &dbCreate() {
-    $db =& Database::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, DB_NAME);
-    return $db;
+    return Database::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, DB_NAME);
 }
 
 /**

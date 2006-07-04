@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.8 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: pdCategory.php,v 1.9 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -91,7 +91,8 @@ class pdCategory {
         if (isset($this->cat_id)) {
 
             $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '25%'));            $db->update('category', array('category' => $this->category),
+                                                 'width' => '25%'));
+            $db->update('category', array('category' => $this->category),
                         array('cat_id' => $this->cat_id), 'pdUser::dbSave');
         }
         else {

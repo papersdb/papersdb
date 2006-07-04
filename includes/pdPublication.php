@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.16 2006/06/14 17:47:17 aicmltec Exp $
+// $Id: pdPublication.php,v 1.17 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -35,7 +35,7 @@ class pdPublication {
     var $keywords;
     var $published;
     var $venue;
-    var $venue_info;
+    var $venue_id;
     var $authors;
     var $extra_info;
     var $submit;
@@ -64,7 +64,7 @@ class pdPublication {
         $this->keywords = null;
         $this->published = null;
         $this->venue = null;
-        $this->venue_info = null;
+        $this->venue_id = null;
         $this->authors = null;
         $this->extra_info = null;
         $this->submit = null;
@@ -164,7 +164,7 @@ class pdPublication {
             if ($q) {
                 $r = $db->fetchObject($q);
                 while ($r) {
-                    $this->extPointer[] = $r;
+                    $this->extPointer[$r->name] = $r->value;
                     $r = $db->fetchObject($q);
                 }
             }
@@ -187,9 +187,9 @@ class pdPublication {
 
         if ($venue_id[1] == "") return;
 
-        $this->venue_info = new pdVenue();
-        $this->venue_info->dbload($db, $venue_id[1]);
-        $this->venue = '';
+        $this->venue_id = $venue_id[1];
+        $this->venue = new pdVenue();
+        $this->venue->dbload($db, $this->venue_id);
     }
 
     function authorsToHtml($urlPrefix = null) {
@@ -232,6 +232,112 @@ class pdPublication {
                         'pdPublication::dbDelete');
         }
         $this->makeNull();
+    }
+
+    function dbSave(&$db) {
+        assert('is_object($db)');
+
+        $arr = array('title'      => $this->title,
+                     'abstract'   => $this->abstract,
+                     'keywords'   => $this->keywords,
+                     'published'  => $this->published,
+                     'extra_info' => $this->extra_info,
+                     'updated'    => date("Y-m-d"));
+
+        if (is_object($this->venue))
+            $array['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
+        else
+            $array['venue'] = $this->venue;
+
+        if (isset($this->pub_id)) {
+            $db->update('publication', $arr, array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+        }
+        else {
+            if ($this->paper == null)
+                $arr['paper'] = 'No Paper';
+            else
+                $arr['paper'] = $this->paper;
+
+            $db->insert('publication', $arr, 'pdPublication::dbSave');
+
+            // get the pub_id now
+            $r = $db->selectRow('publication', 'pub_id',
+                                array('title' => $this->title),
+                                'pdUser::dbSave');
+            assert('($r !== false)');
+            $this->pub_id = $r->pub_id;
+        }
+
+        $db->delete('pointer', array('pub_id' => $this->pub_id),
+                    'pdPublication::dbDelete');
+        $arr = array();
+        foreach ($this->extPointer as $name => $value) {
+            array_push($arr, array('pub_id' => $this->pub_id,
+                                   'type'   => 'ext',
+                                   'name'   => $name,
+                                   'value'  => $value));
+        }
+        foreach ($this->intPointer as $value) {
+            array_push($arr, array('pub_id' => $this->pub_id,
+                                   'type'   => 'ext',
+                                   'name'   => '-',
+                                   'value'  => $value));
+        }
+        $db->insert('pointer', $arr, 'pdPublication::dbSave');
+
+        if (($this->additional_info != null)
+            && (count($this->additional_info) > 0)) {
+            $arr = array();
+            foreach ($this->additional_info as $info) {
+                array_push($arr, array('location' => $info->location,
+                                       'type'     => $info->type));
+            }
+            $db->insert('additional_info', $arr, 'pdPublication::dbSave');
+
+            $arr = array();
+            foreach ($this->additional_info as $info) {
+                $r = $db->selectRow('additional_info', 'add_id',
+                                    array('location' => $info->location,
+                                          'type'     => $info->type),
+                                    'pdPublication::dbSave');
+                assert('$r !== false');
+                array_push($arr, array('pub_id' => $this->pub_id,
+                                       'add_id' => $r->add_id));
+            }
+            $db->insert('pub_add', $arr, 'pdPublication::dbSave');
+        }
+
+        $db->delete('pub_author', array('pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+        $arr = array();
+        $count = 0;
+        foreach ($this->authors as $author) {
+            array_push($arr, array('pub_id'    => $this->pub_id,
+                                   'author_id' => $author->author_id,
+                                   'rank'      => $count));
+            $count++;
+        }
+        $db->insert('pub_author', $arr, 'pdPublication::dbSave');
+
+        $db->update('pub_cat', array('cat_id' => $this->category->cat_id),
+                    array('pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+        $db->delete('pub_cat_info', array('pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+
+        if (($this->category->info != null) &&
+            (count($this->category->info) > 0)) {
+            $arr = array();
+            foreach ($this->category->info as $info_id => $name) {
+                array_push($arr,
+                           array('pub_id'  => $this->pub_id,
+                                 'cat_id'  => $this->category->cat_id,
+                                 'info_id' => $info_id,
+                                 'value'   => $this->$name));
+            }
+            $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
+        }
     }
 
     /**

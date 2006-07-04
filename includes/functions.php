@@ -437,7 +437,10 @@ function backtrace() {
 
 // user defined error handling function
 function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
-    if ($errno >= E_STRICT) return;
+    if (PHP_VERSION >= 5)
+        if ($errno >= E_STRICT) return;
+
+    if ($errno == E_NOTICE) return;
 
     // timestamp for the error entry
     $dt = date("Y-m-d H:i:s (T)");
@@ -447,18 +450,18 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     // consider are E_WARNING, E_NOTICE, E_USER_ERROR,
     // E_USER_WARNING and E_USER_NOTICE
     $errortype = array (
-        E_ERROR          => "Error",
-        E_WARNING        => "Warning",
-        E_PARSE          => "Parsing Error",
+        E_ERROR           => "Error",
+        E_WARNING         => "Warning",
+        E_PARSE           => "Parsing Error",
         E_NOTICE          => "Notice",
         E_CORE_ERROR      => "Core Error",
         E_CORE_WARNING    => "Core Warning",
-        E_COMPILE_ERROR  => "Compile Error",
+        E_COMPILE_ERROR   => "Compile Error",
         E_COMPILE_WARNING => "Compile Warning",
         E_USER_ERROR      => "User Error",
         E_USER_WARNING    => "User Warning",
-        E_USER_NOTICE    => "User Notice",
-        E_STRICT          => "Runtime Notice"
+        E_USER_NOTICE     => "User Notice"
+        //E_STRICT          => "Runtime Notice"
         );
     // set of errors for which a var trace will be saved
     $user_errors = array(E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE);

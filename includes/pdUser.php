@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.19 2006/06/21 05:34:22 aicmltec Exp $
+// $Id: pdUser.php,v 1.20 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -90,7 +90,8 @@ class pdUser {
                          array('author.author_id', 'author.name'),
                          array('user_author.login' => $this->login,
                                'user_author.author_id=author.author_id'),
-                         "pdUser::collaboratorsDbLoad");
+                         "pdUser::collaboratorsDbLoad",
+                         array('ORDER BY' => 'name ASC'));
         $r = $db->fetchObject($q);
         while ($r) {
             $this->collaborators[$r->author_id] = $r->name;

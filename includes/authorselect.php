@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.6 2006/06/21 05:34:22 aicmltec Exp $
+// $Id: authorselect.php,v 1.7 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -314,15 +314,9 @@ END;
         $js .= <<<JS_END
             /* begin javascript for authorselect */
             function buildSelect(list) {
-            var availAuthors
-            = document.forms["pubForm"].elements["__{$selectName}"];
-
-            var selectedAuthors
-            = document.forms["pubForm"].elements["_{$selectName}"];
-
-            var allAuthors
-            = document.forms["pubForm"].elements["{$selectName}"];
-
+            var availAuthors = document.forms["pubForm"].elements["__{$selectName}"];
+            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
+            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
             var re = new RegExp(list, "g");
 
             var isSelected;
@@ -333,29 +327,21 @@ END;
                     // do not add those already selected
                     isSelected = false;
                     for (j=0; j < selectedAuthors.length; j++) {
-                        if (allAuthors.options[i].text
-                            == selectedAuthors.options[j].text) {
+                        if (allAuthors.options[i].text == selectedAuthors.options[j].text) {
                             isSelected = true;
                         }
                     }
-                    if (!isSelected)
-                        availAuthors.options[availAuthors.length]
-                            = new Option(allAuthors.options[i].text,
-                                         allAuthors.options[i].value);
+                    if (!isSelected) {
+                        availAuthors.options[availAuthors.length] = new Option(allAuthors.options[i].text, allAuthors.options[i].value);
+                    }
                 }
             }
         }
 
         function {$jsfuncName}(action) {
-            var availAuthors
-            = document.forms["pubForm"].elements["__{$selectName}"];
-
-            var selectedAuthors
-            = document.forms["pubForm"].elements["_{$selectName}"];
-
-            var allAuthors
-            = document.forms["pubForm"].elements["{$selectName}"];
-
+            var availAuthors = document.forms["pubForm"].elements["__{$selectName}"];
+            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
+            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
             var menuFrom;
             var menuTo;
 
@@ -369,61 +355,39 @@ END;
 
             // Don't do anything if nothing selected. Otherwise we throw
             // javascript errors.
-            if ((menuFrom.selectedIndex == -1)
-                && ((action == 'add') || (action == 'remove'))) {
+            if ((menuFrom.selectedIndex == -1) && ((action == 'add') || (action == 'remove'))) {
                 return;
             }
 
             maxTo = menuTo.length;
 
             // Add items to the 'TO' list.
-            var selectedListRadio
-                = document.forms["pubForm"].elements["which_list"];
+            var selectedListRadio = document.forms["pubForm"].elements["which_list"];
 
             for (i=0; i < selectedListRadio.length; i++) {
-                if (selectedListRadio[i].checked)
+                if (selectedListRadio[i].checked) {
                     selectedListRadiovalue = selectedListRadio[i].value;
+                }
             }
 
-
             for (i=0; i < menuFrom.length; i++) {
-                if ((action == 'all') || (action == 'none')
-                    || (action == 'toggle') || menuFrom.options[i].selected) {
+                if ((action == 'all') || (action == 'none') || (action == 'toggle') || menuFrom.options[i].selected) {
                     var option = menuFrom.options[i];
 
                     if (menuTo == availAuthors) {
-                        var addToList = false;
-
                         // only add if author belongs to the author list
-                        if ((option.value.indexOf("author_list") >= 0)
-                            && (selectedListRadiovalue == "author_list"))
-                            addToList = true;
-
-                        // only add if author belongs to the author list
-                        if ((option.value.indexOf("favorite_authors") >= 0)
-                            && (selectedListRadiovalue == "favorite_authors"))
-                            addToList = true;
-
-                        // only add if author belongs to the author list
-                        if ((option.value.indexOf("most_used_authors") >= 0)
-                            && (selectedListRadiovalue == "most_used_authors"))
-                            addToList = true;
-
-                        if (addToList)
-                            menuTo.options[menuTo.length]
-                                = new Option(option.text, option.value);
-                    }
-                    else {
-                        menuTo.options[menuTo.length]
-                            = new Option(option.text, option.value);
+                        if (option.value.indexOf(selectedListRadiovalue) >= 0) {
+                            menuTo.options[menuTo.length] = new Option(option.text, option.value);
+                        }
+                    } else {
+                        menuTo.options[menuTo.length] = new Option(option.text, option.value);
                     }
                 }
             }
 
             // Remove items from the 'FROM' list.
-            for (i=(menuFrom.length - 1); i>=0; i--){
-                if ((action == 'all') || (action == 'none')
-                    || (action == 'toggle') || menuFrom.options[i].selected) {
+            for (i = menuFrom.length - 1; i >= 0; i--) {
+                if ((action == 'all') || (action == 'none') || (action == 'toggle') || menuFrom.options[i].selected) {
                     menuFrom.options[i] = null;
                 }
             }
@@ -431,9 +395,7 @@ END;
             // Add items to the 'FROM' list for toggle function
             if (action == 'toggle') {
                 for (i=0; i < maxTo; i++) {
-                    menuFrom.options[menuFrom.length]
-                        = new Option(menuTo.options[i].text,
-                                     menuTo.options[i].value);
+                    menuFrom.options[menuFrom.length] = new Option(menuTo.options[i].text, menuTo.options[i].value);
                 }
                 for (i=(maxTo - 1); i>=0; i--) {
                     menuTo.options[i] = null;
@@ -441,10 +403,8 @@ END;
             }
 
             // Sort list if required
-            if (menuTo
-                == document.forms["pubForm"].elements["__{$selectName}"]) {
-                {$this->_jsPrefix}sortList(menuTo,
-                                           {$this->_jsPrefix}compareText);
+            if (menuTo == document.forms["pubForm"].elements["__{$selectName}"]) {
+                {$this->_jsPrefix}sortList(menuTo, {$this->_jsPrefix}compareText);
             }
 
             // Set the appropriate items as 'selected in the hidden select.
@@ -455,16 +415,14 @@ END;
         function {$this->_jsPrefix}sortList(list, compareFunction) {
             var options = new Array (list.options.length);
             for (var i = 0; i < options.length; i++) {
-                options[i] = new Option (
-                    list.options[i].text,
-                    list.options[i].value,
-                    list.options[i].defaultSelected,
-                    list.options[i].selected
-                    );
+                options[i] = new Option (list.options[i].text,
+                                         list.options[i].value,
+                                         list.options[i].defaultSelected,
+                                         list.options[i].selected);
             }
             options.sort(compareFunction);
             list.options.length = 0;
-            for (var i = 0; i < options.length; i++) {
+            for (i = 0; i < options.length; i++) {
                 list.options[i] = options[i];
             }
         }
@@ -472,29 +430,27 @@ END;
         function {$this->_jsPrefix}compareText(option1, option2) {
             if (option1.text == option2.text) return 0;
 
-            return (option1.text.toLowerCase()
-                    < option2.text.toLowerCase() ? -1 : 1);
+            return (option1.text.toLowerCase() < option2.text.toLowerCase() ? -1 : 1);
         }
 
         function {$this->_jsPrefix}updateHidden(select) {
-            var allAuthors
-                = document.forms["pubForm"].elements["{$selectName}"];
+            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
 
             for (i=0; i < allAuthors.length; i++) {
                 allAuthors.options[i].selected = false;
             }
 
             for (i=0; i < select.length; i++) {
-                allAuthors.options[allAuthors.length]
-                    = new Option(select.options[i].text,
-                                 select.options[i].value);
-                allAuthors.options[allAuthors.length-1].selected = true;
+                for (j=0; j < allAuthors.length; j++) {
+                    if (select[i].value == allAuthors.options[j].value) {
+                        allAuthors.options[j].selected = true;
+                    }
+                }
             }
         }
 
         function {$this->_jsPrefix}moveUp() {
-            var selectedAuthors
-                = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
             var index = selectedAuthors.selectedIndex;
 
             if (index < 0) return;
@@ -506,8 +462,7 @@ END;
         }
 
         function {$this->_jsPrefix}moveDown() {
-            var selectedAuthors
-                = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
             var index = selectedAuthors.selectedIndex;
 
             if (index < 0) return;
@@ -519,14 +474,11 @@ END;
         }
 
         function {$this->_jsPrefix}moveSwap(i,j) {
-            var selectedAuthors
-                = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
             var value = selectedAuthors.options[i].value;
             var text = selectedAuthors.options[i].text;
-            selectedAuthors.options[i].value
-                = selectedAuthors.options[j].value;
-            selectedAuthors.options[i].text
-                = selectedAuthors.options[j].text;
+            selectedAuthors.options[i].value = selectedAuthors.options[j].value;
+            selectedAuthors.options[i].text = selectedAuthors.options[j].text;
             selectedAuthors.options[j].value = value;
             selectedAuthors.options[j].text = text;
             selectedAuthors.selectedIndex = j;

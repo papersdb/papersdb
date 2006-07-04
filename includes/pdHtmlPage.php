@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.12 2006/06/20 14:21:58 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.13 2006/07/04 23:11:21 aicmltec Exp $
 
 /**
  * \file
@@ -243,12 +243,7 @@ class pdHtmlPage {
             if (($logged_in && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS))
                 || (!$logged_in
                     && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
-                if ($name == 'login') {
-                    $options[$info[0]] = $info[1]
-                        . '?redirect=' . $_SERVER['PHP_SELF']
-                        . '?' . $_SERVER['QUERY_STRING'];
-                }
-                else if ($name == $this->page_id) {
+                if ($name == $this->page_id) {
                     $options[$info[0]] = '';
                 }
                 else if (($this->page_id != '')
@@ -256,6 +251,12 @@ class pdHtmlPage {
                     $options[$info[0]] = $url_prefix . $info[1];
                 else
                     $options[$info[0]] = $info[1];
+
+                // add redirection option to the URL
+                if ($name == 'login') {
+                    $options[$info[0]] .= '?redirect=' . $_SERVER['PHP_SELF']
+                        . '?' . $_SERVER['QUERY_STRING'];
+                }
             }
         }
 
