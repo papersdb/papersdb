@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.31 2006/07/04 23:11:21 aicmltec Exp $
+// $Id: add_publication.php,v 1.32 2006/07/05 03:24:01 aicmltec Exp $
 
 /**
  * \file
@@ -72,8 +72,10 @@ class add_publication extends pdHtmlPage {
             return;
         }
 
-        if ($edit) {
+        if ($pub_id != null) {
             $form->addElement('hidden', 'pub_id', $pub_id);
+            $pub = new pdPublication();
+            $pub->dbLoad($db, $pub_id);
         }
 
         // Venue
@@ -284,6 +286,55 @@ class add_publication extends pdHtmlPage {
 
             if (isset($category) && is_object($category)) {
                 $form->setDefaults(array('cat_id' => $category->cat_id));
+            }
+
+            if (($pub != null) && is_object($pub)) {
+                $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
+
+                $defaults = array('cat_id'     => $pub->category->cat_id,
+                                  'title'      => $pub->title,
+                                  'abstract'   => $pub->abstract,
+                                  'extra_info' => $pub->extra_info,
+                                  'keywords'   => $pub->keywords,
+                                  'date_published' => $pub->published
+                    );
+
+                if ($pub->venue_id == null)
+                    $defaults['venue_id'] = -3;
+                else
+                    $defaults['venue_id'] = $pub->venue_id;
+
+                foreach ($pub->authors as $author)
+                    $defaults['authors'][] = $author->author_id;
+
+                if (isset($category) && is_object($category)
+                    && is_array($category->info)) {
+                    foreach (array_values($category->info) as $name) {
+                        $defaults[$name] = $pub->info[$name];
+                    }
+                }
+
+                if (count($pub->extPointer) > 0) {
+                    $c = 0;
+                    foreach ($pub->extPointer as $name => $value) {
+                        $defaults['extname' . $c] = $name;
+                        $defaults['extvalue' . $c] = $value;
+                        $c++;
+                    }
+                }
+
+                if (count($pub->intPointer) > 0) {
+                    $c = 0;
+                    foreach ($pub->intPointer as $value) {
+                        $defaults['intpointer' . $c] = $value;
+                        $c++;
+                    }
+                }
+
+                if ($pub->paper == 'No Paper')
+                    $defaults['paper'] = false;
+                else
+                    $defaults['paper'] = true;
             }
 
             if ($nummaterials > 0) {

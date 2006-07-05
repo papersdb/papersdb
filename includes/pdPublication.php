@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.17 2006/07/04 23:11:21 aicmltec Exp $
+// $Id: pdPublication.php,v 1.18 2006/07/05 03:24:01 aicmltec Exp $
 
 /**
  * \file
@@ -334,7 +334,7 @@ class pdPublication {
                            array('pub_id'  => $this->pub_id,
                                  'cat_id'  => $this->category->cat_id,
                                  'info_id' => $info_id,
-                                 'value'   => $this->$name));
+                                 'value'   => $this->info[$name]));
             }
             $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
         }
