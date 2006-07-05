@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.32 2006/07/05 03:24:01 aicmltec Exp $
+// $Id: add_publication.php,v 1.33 2006/07/05 14:27:22 aicmltec Exp $
 
 /**
  * \file
@@ -335,6 +335,8 @@ class add_publication extends pdHtmlPage {
                     $defaults['paper'] = false;
                 else
                     $defaults['paper'] = true;
+
+                $form->setDefaults($defaults);
             }
 
             if ($nummaterials > 0) {
