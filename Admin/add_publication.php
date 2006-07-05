@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.34 2006/07/05 19:49:05 aicmltec Exp $
+// $Id: add_publication.php,v 1.35 2006/07/05 21:05:47 aicmltec Exp $
 
 /**
  * \file
@@ -50,6 +50,8 @@ class add_publication extends pdHtmlPage {
             $venued_id = $pub->venue_id;
             $category = $pub->category;
 
+            $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
+
             $form->addElement('hidden', 'pub_id', $pub_id);
 
             if ($ext == null)
@@ -60,8 +62,6 @@ class add_publication extends pdHtmlPage {
 
             if ($nummaterials == null)
                 $nummaterials = count($pub->additional_info);
-
-            $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
         }
         else {
             if ($venue_id != null) {
@@ -199,7 +199,12 @@ class add_publication extends pdHtmlPage {
                               'Remove the above Pointer',
                               'onClick="dataKeep(\'remext\');"');
 
-            for ($e = 1; $e <= $ext; $e++) {
+            if ($pub != null)
+                $start = count($pub->extPointer) + 1;
+            else
+                $start = 1;
+
+            for ($e = $start; $e <= $ext; $e++) {
                 $form->addElement('text', 'extname' . $e, null,
                                   array('size' => 12, 'maxlength' => 250));
                 $form->addElement('text', 'extvalue' . $e, null,
@@ -233,7 +238,13 @@ class add_publication extends pdHtmlPage {
                 else
                     $options[$p->pub_id] = $p->title;
             }
-            for ($e = 1; $e <= $intpoint; $e++) {
+
+            if ($pub != null)
+                $start = count($pub->intPointer) + 1;
+            else
+                $start = 1;
+
+            for ($e = $start; $e <= $intpoint; $e++) {
                 $form->addElement('select', 'intpointer' . $e, null, $options);
             }
         }
@@ -244,10 +255,23 @@ class add_publication extends pdHtmlPage {
         $form->addElement('text', 'date_published', null,
                           array('size' => 10, 'maxlength' => 10));
 
-        $form->addElement('radio', 'nopaper', null, null, 'false');
-        $form->addElement('radio', 'nopaper', null, 'no paper at this time', 'true');
-        $form->addElement('file', 'uploadpaper', null,
-                          array('size' => 45, 'maxlength' => 250));
+        if ($pub == null) {
+            $form->addElement('radio', 'nopaper', null, null, 'false');
+            $form->addElement('radio', 'nopaper', null,
+                              'no paper at this time', 'true');
+            $form->addElement('file', 'uploadpaper', null,
+                              array('size' => 45, 'maxlength' => 250));
+        }
+        else if ($pub->paper == 'No paper') {
+            $form->addElement('advcheckbox', 'add_paper', null,
+                          'Attach a paper to this publication',
+                          null, array('no', 'yes'));
+        }
+        else {
+            $form->addElement('advcheckbox', 'add_paper', null,
+                          'Attach a different paper to this publication',
+                          null, array('no', 'yes'));
+        }
 
         // other materials
         $form->addElement('hidden', 'nummaterials', $nummaterials);
@@ -259,7 +283,13 @@ class add_publication extends pdHtmlPage {
             $form->addElement('button', 'materials_remove',
                               'Remove This Material',
                               'onClick="dataKeep(\'remnum\');"');
-            for ($i = 1; $i <= $nummaterials; $i++) {
+
+            if ($pub != null)
+                $start = count($pub->additional_info) + 1;
+            else
+                $start = 1;
+
+            for ($i = $start; $i <= $nummaterials; $i++) {
                 $form->addElement('text', 'type' . $i, null,
                                   array('size' => 17, 'maxlength' => 250));
                 $form->addElement('file', 'uploadadditional' . $i, null,
@@ -363,7 +393,7 @@ class add_publication extends pdHtmlPage {
                     }
                 }
 
-                if ($pub->paper == 'No Paper')
+                if ($pub->paper == 'No paper')
                     $defaults['nopaper'] = 'false';
                 else
                     $defaults['nopaper'] = 'true';
@@ -378,7 +408,6 @@ class add_publication extends pdHtmlPage {
                 }
 
                 $form->setDefaults($defaults);
-                $this->contentPre .= 'defaults<br/><pre>' . print_r($defaults, true) . '</pre>';
             }
 
             $rend = new HTML_QuickForm_Renderer_QuickHtml();
@@ -460,20 +489,28 @@ class add_publication extends pdHtmlPage {
                                      $rend->elementToHtml('ext_ptr_add')));
             }
             else {
+                if ($pub != null)
+                    $extPointerKeys = array_keys($pub->extPointer);
+
                 for ($e = 1; $e <= $ext; $e++) {
-                    $cell = '';
+                    $cell1 = '';
                     if ($e == 1) {
-                        $cell = '<a name="pointers"></a>'
+                        $cell1 = '<a name="pointers"></a>'
                             . $this->helpTooltip('External Pointers',
                                                  'externalPtrHelp')
-                            . '<br/><div id="small">optional</div>';
+                            . ':<br/><div id="small">optional</div>';
                     }
 
-                    $table->addRow(array($cell,
-                                         $rend->elementToHtml('extname'.$e)
-                                         . ' ' . $rend->elementToHtml('extvalue'.$e)
-                                         . ' ' . $rend->elementToHtml('extlink'.$e)));
-
+                    if (($pub != null) && ($e < count($pub->extPointer) + 1)) {
+                        $cell2 = $extPointerKeys[$e-1] . ': '
+                            . $pub->extPointer[$extPointerKeys[$e-1]];
+                    }
+                    else {
+                        $cell2 = $rend->elementToHtml('extname'.$e)
+                            . ' ' . $rend->elementToHtml('extvalue'.$e)
+                            . ' ' . $rend->elementToHtml('extlink'.$e);
+                    }
+                    $table->addRow(array($cell1, $cell2));
                 }
                 $table->addRow(array('',
                                      $rend->elementToHtml('ext_ptr_add')
@@ -492,10 +529,19 @@ class add_publication extends pdHtmlPage {
                 for ($e = 1; $e <= $intpoint; $e++) {
                     $cell = '';
                     if ($e == 1)
-                        $cell = $this->helpTooltip('Internal Pointers', 'internalPtrHelp')
+                        $cell1 = $this->helpTooltip('Internal Pointers',
+                                                    'internalPtrHelp')
                             . ':<br/><div id="small">optional</div>';
-                    $table->addRow(array($cell,
-                                         $rend->elementToHtml('intpointer' . $e)));
+
+                    if (($pub != null) && ($e < count($pub->intPointer) + 1)) {
+                        $cell2
+                            = $pub_list->pubTitle($pub->intPointer[$e-1]->value);
+                    }
+                    else {
+                        $cell2 = $rend->elementToHtml('intpointer' . $e);
+                    }
+
+                    $table->addRow(array($cell1, $cell2));
                 }
                 $table->addRow(array('',
                                      $rend->elementToHtml('int_ptr_add')
@@ -529,16 +575,45 @@ class add_publication extends pdHtmlPage {
 
             $table->addRow(array('<hr/>'), array('colspan' => 2));
             $table->addRow(array('<a name="step2"></a>Step 2:'));
-            $table->addRow(array('Paper:',
-                                 $rend->elementToHtml('nopaper', 'false')
-                                 . ' ' . $rend->elementToHtml('uploadpaper')));
-            $table->addRow(array('', $rend->elementToHtml('nopaper', 'true')));
+
+            if ($pub != null) {
+                if ($pub->paper == 'No paper')
+                    $cell = $pub->paper;
+                else
+                    $cell = '<a href="' . FS_PATH . $pub->paper . '">'
+                        . basename($pub->paper) . '</a>';
+
+                $cell .= '<br/>' . $rend->elementToHtml('add_paper');
+
+                $table->addRow(array('Paper:', $cell));
+            }
+            else {
+                $table->addRow(array('Paper:',
+                                     $rend->elementToHtml('nopaper', 'false')
+                                     . ' '
+                                     . $rend->elementToHtml('uploadpaper')));
+                $table->addRow(array('', $rend->elementToHtml('nopaper',
+                                                              'true')));
+            }
+
             if ($nummaterials > 0) {
                 $table->addRow(array('Additional Materials:'));
 
                 for ($i = 1; $i <= $nummaterials; $i++) {
-                    $table->addRow(array($rend->elementToHtml('type' . $i),
-                                         ':' . $rend->elementToHtml('uploadadditional' . $i)));
+                    if (($pub != null)
+                        && ($i < count($pub->additional_info) + 1))
+                        $table->addRow(array($pub->additional_info[$i-1]->type,
+                                             ':&nbsp;'
+                                             . '<a href="'
+                                             . FS_PATH
+                                             . $pub->additional_info[$i-1]->location
+                                             . '">'
+                                             . basename($pub->additional_info[$i-1]->location)
+                                             . '</a>'));
+                    else
+                        $table->addRow(array($rend->elementToHtml('type' . $i),
+                                             ':'
+                                             . $rend->elementToHtml('uploadadditional' . $i)));
                 }
                 $table->addRow(array('',
                                      $rend->elementToHtml('materials_add')
@@ -768,7 +843,7 @@ class add_publication extends pdHtmlPage {
             }
             else if ((pubform.elements["nopaper"].value == "false")
                      && (pubform.elements["uploadpaper"].value == "")) {
-                alert("Please choose a paper to upload or select \"No Paper\".");
+                alert("Please choose a paper to upload or select \"No paper\".");
                 return false;
             }
             else if (pubform.elements["selected_authors"].value == "") {

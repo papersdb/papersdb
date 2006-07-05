@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.6 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: pdPubList.php,v 1.7 2006/07/05 21:05:47 aicmltec Exp $
 
 /**
  * \file
@@ -135,6 +135,14 @@ class pdPubList {
                          "pdAuthor::publicationsDbLoad",
                          array( 'ORDER BY' => 'publication.title ASC'));
         return $db->numRows($q);
+    }
+
+    function pubTitle($pub_id) {
+        assert('count($this->list) > 0');
+        foreach ($this->list as $pub) {
+            if ($pub->pub_id == $pub_id) return $pub->title;
+        }
+        return null;
     }
 }
 
