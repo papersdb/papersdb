@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.33 2006/07/05 14:27:22 aicmltec Exp $
+// $Id: add_publication.php,v 1.34 2006/07/05 19:49:05 aicmltec Exp $
 
 /**
  * \file
@@ -24,8 +24,8 @@ class add_publication extends pdHtmlPage {
 
         parent::pdHtmlPage('add_publication');
 
-        $options = array('edit', 'pub_id', 'cat_id', 'venue_id', 'ext',
-                         'intpoint', 'nummaterials');
+        $options = array('pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
+                         'nummaterials');
         foreach ($options as $opt) {
             if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
                 $$opt = stripslashes($_GET[$opt]);
@@ -41,41 +41,48 @@ class add_publication extends pdHtmlPage {
         }
 
         $db =& dbCreate();
-
-        if ($venue_id != null) {
-            $venue = new pdVenue();
-            $venue->dbLoad($db, $venue_id);
-        }
-
-        if (($cat_id != null) && ($cat_id > 0)) {
-            $category = new pdCategory();
-            $result = $category->dbLoad($db, $cat_id);
-            assert('$result');
-        }
-
-        if ($ext == null)
-            $ext = 0;
-
-        if ($intpoint == null)
-            $intpoint = 0;
-
-        if ($intpoint == null)
-            $intpoint = 0;
-
-        if ($nummaterials == null)
-            $nummaterials = 0;
-
         $form = new HTML_QuickForm('pubForm');
 
-        if ($edit && ($pub_id == null)) {
-            $this->pageError = true;
-            return;
-        }
-
         if ($pub_id != null) {
-            $form->addElement('hidden', 'pub_id', $pub_id);
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
+            $venue = $pub->venue;
+            $venued_id = $pub->venue_id;
+            $category = $pub->category;
+
+            $form->addElement('hidden', 'pub_id', $pub_id);
+
+            if ($ext == null)
+                $ext = count($pub->extPointer);
+
+            if ($intpoint == null)
+                $intpoint = count($pub->intPointer);
+
+            if ($nummaterials == null)
+                $nummaterials = count($pub->additional_info);
+
+            $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
+        }
+        else {
+            if ($venue_id != null) {
+                $venue = new pdVenue();
+                $venue->dbLoad($db, $venue_id);
+            }
+
+            if (($cat_id != null) && ($cat_id > 0)) {
+                $category = new pdCategory();
+                $result = $category->dbLoad($db, $cat_id);
+                assert('$result');
+            }
+
+            if ($ext == null)
+                $ext = 0;
+
+            if ($intpoint == null)
+                $intpoint = 0;
+
+            if ($nummaterials == null)
+                $nummaterials = 0;
         }
 
         // Venue
@@ -220,11 +227,11 @@ class add_publication extends pdHtmlPage {
             $pub_list = new pdPubList($db);
             unset($options);
             $options[''] = '--- Link to a publication --';
-            foreach ($pub_list->list as $pub) {
-                if (strlen($pub->title) > 70)
-                    $options[$pub->pub_id] = substr($pub->title, 0, 67) . '...';
+            foreach ($pub_list->list as $p) {
+                if (strlen($p->title) > 70)
+                    $options[$p->pub_id] = substr($p->title, 0, 67) . '...';
                 else
-                    $options[$pub->pub_id] = $pub->title;
+                    $options[$p->pub_id] = $p->title;
             }
             for ($e = 1; $e <= $intpoint; $e++) {
                 $form->addElement('select', 'intpointer' . $e, null, $options);
@@ -288,54 +295,18 @@ class add_publication extends pdHtmlPage {
                 $form->setDefaults(array('cat_id' => $category->cat_id));
             }
 
-            if (($pub != null) && is_object($pub)) {
-                $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
-
-                $defaults = array('cat_id'     => $pub->category->cat_id,
-                                  'title'      => $pub->title,
-                                  'abstract'   => $pub->abstract,
-                                  'extra_info' => $pub->extra_info,
-                                  'keywords'   => $pub->keywords,
-                                  'date_published' => $pub->published
-                    );
-
-                if ($pub->venue_id == null)
-                    $defaults['venue_id'] = -3;
-                else
-                    $defaults['venue_id'] = $pub->venue_id;
-
-                foreach ($pub->authors as $author)
-                    $defaults['authors'][] = $author->author_id;
-
-                if (isset($category) && is_object($category)
-                    && is_array($category->info)) {
-                    foreach (array_values($category->info) as $name) {
-                        $defaults[$name] = $pub->info[$name];
-                    }
+            if ($ext > 0) {
+                for ($e = 1; $e <= $ext; $e++) {
+                    if (!isset($_GET['extname'.$e])
+                        || $_GET['extname'.$e] == '')
+                        $defaults['extname'.$e] = 'Pointer Type';
+                    if (!isset($_GET['extvalue'.$e])
+                        || $_GET['extvalue'.$e] == '')
+                        $defaults['extvalue'.$e] = 'http://';
+                    if (!isset($_GET['extlink'.$e])
+                        || $_GET['extlink'.$e] == '')
+                        $defaults['extlink'.$e] = 'Title of link';
                 }
-
-                if (count($pub->extPointer) > 0) {
-                    $c = 0;
-                    foreach ($pub->extPointer as $name => $value) {
-                        $defaults['extname' . $c] = $name;
-                        $defaults['extvalue' . $c] = $value;
-                        $c++;
-                    }
-                }
-
-                if (count($pub->intPointer) > 0) {
-                    $c = 0;
-                    foreach ($pub->intPointer as $value) {
-                        $defaults['intpointer' . $c] = $value;
-                        $c++;
-                    }
-                }
-
-                if ($pub->paper == 'No Paper')
-                    $defaults['paper'] = false;
-                else
-                    $defaults['paper'] = true;
-
                 $form->setDefaults($defaults);
             }
 
@@ -349,19 +320,65 @@ class add_publication extends pdHtmlPage {
                 $form->setDefaults($materials);
             }
 
-            if ($ext > 0) {
-                for ($e = 1; $e <= $ext; $e++) {
-                    if (!isset($_GET['extname'.$e])
-                        || $_GET['extname'.$e] == '')
-                        $defaults['extname'.$e] = "Pointer Type";
-                    if (!isset($_GET['extvalue'.$e])
-                        || $_GET['extvalue'.$e] == '')
-                        $defaults['extvalue'.$e] = "http://";
-                    if (!isset($_GET['extlink'.$e])
-                        || $_GET['extlink'.$e] == '')
-                        $defaults['extlink'.$e] = "Title of link";
+            if (($pub != null) && is_object($pub)) {
+                $defaults = array('cat_id'     => $pub->category->cat_id,
+                                  'title'      => $pub->title,
+                                  'abstract'   => $pub->abstract,
+                                  'extra_info' => $pub->extra_info,
+                                  'keywords'   => $pub->keywords,
+                                  'date_published' => $pub->published
+                    );
+
+                if ($pub->venue != null)
+                    $defaults['venue_id'] = $pub->venue_id;
+                else
+                    $defaults['venue_id'] = -3;
+
+                if (count($pub->authors) > 0) {
+                    foreach ($pub->authors as $author)
+                        $defaults['authors'][] = $author->author_id;
                 }
+
+                if (isset($category) && is_object($category)
+                    && is_array($category->info)) {
+                    foreach (array_values($category->info) as $name) {
+                        $defaults[$name] = $pub->info[$name];
+                    }
+                }
+
+                if (count($pub->extPointer) > 0) {
+                    $c = 1;
+                    foreach ($pub->extPointer as $name => $value) {
+                        $defaults['extname' . $c] = $name;
+                        $defaults['extvalue' . $c] = $value;
+                        $c++;
+                    }
+                }
+
+                if (count($pub->intPointer) > 0) {
+                    $c = 1;
+                    foreach ($pub->intPointer as $i) {
+                        $defaults['intpointer' . $c] = $i->value;
+                        $c++;
+                    }
+                }
+
+                if ($pub->paper == 'No Paper')
+                    $defaults['nopaper'] = 'false';
+                else
+                    $defaults['nopaper'] = 'true';
+
+                if (count($pub->additional_info) > 0) {
+                    $c = 1;
+                    foreach ($pub->additional_info as $info) {
+                        $defaults['type' . $c] = $info->type;
+                        $defaults['uploadadditional' . $c] = $info->location;
+                        $c++;
+                    }
+                }
+
                 $form->setDefaults($defaults);
+                $this->contentPre .= 'defaults<br/><pre>' . print_r($defaults, true) . '</pre>';
             }
 
             $rend = new HTML_QuickForm_Renderer_QuickHtml();
@@ -398,7 +415,7 @@ class add_publication extends pdHtmlPage {
 
             // Show venue info
             if ($venue_id > 0) {
-                assert('is_object($venue)');
+                assert('$venue != null');
                 $cell1 = '';
                 $cell2 = '';
 
@@ -548,13 +565,13 @@ class add_publication extends pdHtmlPage {
             }
 
             $this->contentPre .= '<a name="start"></a><h3>';
-            if ($edit)
+            if ($pub != null)
                 $this->contentPre .= 'Edit';
             else
                 $this->contentPre .= 'Add';
             $this->contentPre .= ' Publication</h3>';
 
-            if (!$edit) {
+            if ($pub == null) {
                 $this->contentPre .= 'Adding a publication takes two steps:<br/>'
                     . '1. Fill in the appropriate fields<br/>'
                     . '2. Upload the paper and any additional '

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.7 2006/07/04 23:11:21 aicmltec Exp $
+// $Id: authorselect.php,v 1.8 2006/07/05 19:49:05 aicmltec Exp $
 
 /**
  * \file
@@ -131,25 +131,27 @@ END;
             $arrHtmlHidden = array_fill(0, $options, ' ');
 
             foreach ($this->_options as $option) {
-                if (is_array($this->_values)
-                    && (in_array((string)$option['attr']['value'],
-                                 $this->_values))) {
-                    // Get the post order
-                    $key = array_search($option['attr']['value'],
-                                        $this->_values);
+                $value = (string) $option['attr']['value'];
+                $value = substr($value, strpos($value, ':') + 1);
 
-                    // The item is *selected* so we want to put it in the
-                    // 'selected' multi-select
-                    $arrHtmlSelected[$key] = $option;
-                    // Add it to the 'hidden' multi-select and set it as
-                    // 'selected'
-                    $option['attr']['selected'] = 'selected';
-                    $arrHtmlHidden[$key] = $option;
-                } else {
+                if ((is_array($this->_values))
+                    && (in_array($value, $this->_values))) {
+                        // Get the post order
+                        $key = array_search($value, $this->_values);
+
+                        // The item is *selected* so we want to put it in the
+                        // 'selected' multi-select
+                        $arrHtmlSelected[$key] = $option;
+                        // Add it to the 'hidden' multi-select and set it as
+                        // 'selected'
+                        $option['attr']['selected'] = 'selected';
+                        $arrHtmlHidden[$key] = $option;
+                }
+                else {
                     if (strpos($option['attr']['value'], 'author_list')
                         !== false) {
-                        // The item is *unselected* so we want to put it in the
-                        // 'unselected' multi-select
+                        // The item is *unselected* so we want to put it in
+                        // the 'unselected' multi-select
                         $arrHtmlUnselected[] = $option;
                     }
                     // Add it to the hidden multi-select as 'unselected'
