@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.20 2006/07/06 22:24:57 aicmltec Exp $
+// $Id: pdPublication.php,v 1.21 2006/07/06 22:47:14 aicmltec Exp $
 
 /**
  * \file
@@ -276,18 +276,22 @@ class pdPublication {
         $db->delete('pointer', array('pub_id' => $this->pub_id),
                     'pdPublication::dbDelete');
         $arr = array();
-        foreach ($this->extPointer as $name => $value) {
-            array_push($arr, array('pub_id' => $this->pub_id,
-                                   'type'   => 'ext',
-                                   'name'   => $name,
-                                   'value'  => $value));
-        }
-        foreach ($this->intPointer as $value) {
-            array_push($arr, array('pub_id' => $this->pub_id,
-                                   'type'   => 'ext',
-                                   'name'   => '-',
-                                   'value'  => $value));
-        }
+        if (count($this->extPointer) > 0)
+            foreach ($this->extPointer as $name => $value) {
+                array_push($arr, array('pub_id' => $this->pub_id,
+                                       'type'   => 'ext',
+                                       'name'   => $name,
+                                       'value'  => $value));
+            }
+
+        if (count($this->intPointer ) > 0)
+            foreach ($this->intPointer as $value) {
+                array_push($arr, array('pub_id' => $this->pub_id,
+                                       'type'   => 'ext',
+                                       'name'   => '-',
+                                       'value'  => $value));
+            }
+
         $db->insert('pointer', $arr, 'pdPublication::dbSave');
 
         if (($this->additional_info != null)

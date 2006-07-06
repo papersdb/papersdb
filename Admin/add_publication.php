@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.37 2006/07/06 22:24:57 aicmltec Exp $
+// $Id: add_publication.php,v 1.38 2006/07/06 22:47:14 aicmltec Exp $
 
 /**
  * \file
@@ -720,7 +720,8 @@ class add_publication extends pdHtmlPage {
             . print_r($this->pub, true) . '</pre>';
 
         // copy files here
-        if (is_uploaded_file($_FILES['uploadpaper']['tmp_name'])) {
+        $element = $this->form->getElement('uploadpaper');
+        if ($element->isUploadedFile()) {
             $path = FS_PATH . '/uploaded_files/' . $this->pub->pub_id;
             $basename = 'paper_' . $_FILES['uploadpaper']['name'];
             $filename = $path . '/' . $basename;
@@ -730,12 +731,10 @@ class add_publication extends pdHtmlPage {
                 mkdir($path, 0777);
             // mkdir with 0777 does not seem to work
             chmod($path, 0777);
-            chmod(FS_PATH . '/uploaded_files/561', 0777);
 
-            copy($_FILES['uploadpaper']['tmp_name'], $filename);
+            $element->moveUploadedFile($path, $basename);
             chmod($filename, 0777);
             $this->pub->dbUpdatePaper($this->db, $relativename);
-            $this->contentPre .= 'file<pre>' . print_r($filename, true) . '</pre>';
         }
 
         if ($values['nummaterials'] > 0) {
