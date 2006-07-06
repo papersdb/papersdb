@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.28 2006/07/04 23:11:21 aicmltec Exp $
+// $Id: view_publication.php,v 1.29 2006/07/06 02:45:51 aicmltec Exp $
 
 /**
  * \file
@@ -161,10 +161,10 @@ class view_publication extends pdHtmlPage {
     }
 
     function extPointerRowsAdd(&$pub, &$table) {
-        if (!isset($pub->extPointer)) return;
+        if ($pub->extPointer == null) return;
 
-        foreach ($pub->extPointer as $ext) {
-            $table->addRow(array($ext->name . ':', $ext->value));
+        foreach ($pub->extPointer as $name => $value) {
+            $table->addRow(array($name . ':', $value));
         }
     }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.35 2006/07/05 21:05:47 aicmltec Exp $
+// $Id: add_publication.php,v 1.36 2006/07/06 02:45:51 aicmltec Exp $
 
 /**
  * \file
@@ -22,8 +22,6 @@ class add_publication extends pdHtmlPage {
     function add_publication() {
         global $logged_in;
 
-        parent::pdHtmlPage('add_publication');
-
         $options = array('pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
                          'nummaterials');
         foreach ($options as $opt) {
@@ -34,6 +32,11 @@ class add_publication extends pdHtmlPage {
             else
                 $$opt = null;
         }
+
+        if ($pub_id != null)
+            parent::pdHtmlPage('edit_publication');
+        else
+            parent::pdHtmlPage('add_publication');
 
         if (!$logged_in) {
             $this->loginError = true;
@@ -49,8 +52,6 @@ class add_publication extends pdHtmlPage {
             $venue = $pub->venue;
             $venued_id = $pub->venue_id;
             $category = $pub->category;
-
-            $this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
 
             $form->addElement('hidden', 'pub_id', $pub_id);
 
@@ -199,12 +200,7 @@ class add_publication extends pdHtmlPage {
                               'Remove the above Pointer',
                               'onClick="dataKeep(\'remext\');"');
 
-            if ($pub != null)
-                $start = count($pub->extPointer) + 1;
-            else
-                $start = 1;
-
-            for ($e = $start; $e <= $ext; $e++) {
+            for ($e = 1; $e <= $ext; $e++) {
                 $form->addElement('text', 'extname' . $e, null,
                                   array('size' => 12, 'maxlength' => 250));
                 $form->addElement('text', 'extvalue' . $e, null,
@@ -239,12 +235,7 @@ class add_publication extends pdHtmlPage {
                     $options[$p->pub_id] = $p->title;
             }
 
-            if ($pub != null)
-                $start = count($pub->intPointer) + 1;
-            else
-                $start = 1;
-
-            for ($e = $start; $e <= $intpoint; $e++) {
+            for ($e = 1; $e <= $intpoint; $e++) {
                 $form->addElement('select', 'intpointer' . $e, null, $options);
             }
         }
@@ -297,118 +288,18 @@ class add_publication extends pdHtmlPage {
             }
         }
 
-        $form->addElement('submit', 'Save', 'Add Publication');
+        if ($pub != null)
+            $form->addElement('submit', 'Save', 'Submit');
+        else
+            $form->addElement('submit', 'Save', 'Add Publication');
+
         $form->addElement('reset', 'Clear', 'Clear');
 
         if ($form->validate()) {
-            $values = $form->exportValues();
-
-            foreach ($values['authors'] as $index => $author) {
-                $pos = strpos($author, ':');
-                if ($pos !== false) {
-                    $values['authors'][$index] = substr($author, $pos + 1);
-                }
-            }
-
-            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
-            $this->contentPre .= '<pre>' . print_r($_FILES, true) . '</pre>';
-
-            // \todo copy files here
+            $this->processForm($form, $pub);
         }
         else {
-            //
-            // Set form defaults
-            //
-            $form->setDefaults($_GET);
-
-            if (isset($category) && is_object($category)) {
-                $form->setDefaults(array('cat_id' => $category->cat_id));
-            }
-
-            if ($ext > 0) {
-                for ($e = 1; $e <= $ext; $e++) {
-                    if (!isset($_GET['extname'.$e])
-                        || $_GET['extname'.$e] == '')
-                        $defaults['extname'.$e] = 'Pointer Type';
-                    if (!isset($_GET['extvalue'.$e])
-                        || $_GET['extvalue'.$e] == '')
-                        $defaults['extvalue'.$e] = 'http://';
-                    if (!isset($_GET['extlink'.$e])
-                        || $_GET['extlink'.$e] == '')
-                        $defaults['extlink'.$e] = 'Title of link';
-                }
-                $form->setDefaults($defaults);
-            }
-
-            if ($nummaterials > 0) {
-                for ($i = 1; $i <= $nummaterials; $i++) {
-                    if (!isset($_GET['type' . $i])
-                        || ($_GET['type' . $i] = '')) {
-                        $materials['type' . $i] = 'Additional Material ' . $i;
-                    }
-                }
-                $form->setDefaults($materials);
-            }
-
-            if (($pub != null) && is_object($pub)) {
-                $defaults = array('cat_id'     => $pub->category->cat_id,
-                                  'title'      => $pub->title,
-                                  'abstract'   => $pub->abstract,
-                                  'extra_info' => $pub->extra_info,
-                                  'keywords'   => $pub->keywords,
-                                  'date_published' => $pub->published
-                    );
-
-                if ($pub->venue != null)
-                    $defaults['venue_id'] = $pub->venue_id;
-                else
-                    $defaults['venue_id'] = -3;
-
-                if (count($pub->authors) > 0) {
-                    foreach ($pub->authors as $author)
-                        $defaults['authors'][] = $author->author_id;
-                }
-
-                if (isset($category) && is_object($category)
-                    && is_array($category->info)) {
-                    foreach (array_values($category->info) as $name) {
-                        $defaults[$name] = $pub->info[$name];
-                    }
-                }
-
-                if (count($pub->extPointer) > 0) {
-                    $c = 1;
-                    foreach ($pub->extPointer as $name => $value) {
-                        $defaults['extname' . $c] = $name;
-                        $defaults['extvalue' . $c] = $value;
-                        $c++;
-                    }
-                }
-
-                if (count($pub->intPointer) > 0) {
-                    $c = 1;
-                    foreach ($pub->intPointer as $i) {
-                        $defaults['intpointer' . $c] = $i->value;
-                        $c++;
-                    }
-                }
-
-                if ($pub->paper == 'No paper')
-                    $defaults['nopaper'] = 'false';
-                else
-                    $defaults['nopaper'] = 'true';
-
-                if (count($pub->additional_info) > 0) {
-                    $c = 1;
-                    foreach ($pub->additional_info as $info) {
-                        $defaults['type' . $c] = $info->type;
-                        $defaults['uploadadditional' . $c] = $info->location;
-                        $c++;
-                    }
-                }
-
-                $form->setDefaults($defaults);
-            }
+            $this->setDefaults($form, $pub);
 
             $rend = new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($rend);
@@ -433,9 +324,11 @@ class add_publication extends pdHtmlPage {
             $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
                                  . ':',
                                  $rend->elementToHtml('cat_id')));
-            $table->addRow(array($this->helpTooltip('Title', 'titleHelp') . ':',
+            $table->addRow(array($this->helpTooltip('Title', 'titleHelp')
+                                 . ':',
                                  $rend->elementToHtml('title')));
-            $table->addRow(array($this->helpTooltip('Author(s)', 'authorsHelp') . ':',
+            $table->addRow(array($this->helpTooltip('Author(s)',
+                                                    'authorsHelp') . ':',
                                  $rend->elementToHtml('authors')));
             $table->addRow(array('', $rend->elementToHtml('add_author')));
             $table->addRow(array($this->helpTooltip('Abstract', 'abstractHelp')
@@ -501,15 +394,10 @@ class add_publication extends pdHtmlPage {
                             . ':<br/><div id="small">optional</div>';
                     }
 
-                    if (($pub != null) && ($e < count($pub->extPointer) + 1)) {
-                        $cell2 = $extPointerKeys[$e-1] . ': '
-                            . $pub->extPointer[$extPointerKeys[$e-1]];
-                    }
-                    else {
-                        $cell2 = $rend->elementToHtml('extname'.$e)
-                            . ' ' . $rend->elementToHtml('extvalue'.$e)
-                            . ' ' . $rend->elementToHtml('extlink'.$e);
-                    }
+                    $cell2 = $rend->elementToHtml('extname'.$e)
+                        . ' ' . $rend->elementToHtml('extvalue'.$e)
+                        . ' ' . $rend->elementToHtml('extlink'.$e);
+
                     $table->addRow(array($cell1, $cell2));
                 }
                 $table->addRow(array('',
@@ -532,15 +420,7 @@ class add_publication extends pdHtmlPage {
                         $cell1 = $this->helpTooltip('Internal Pointers',
                                                     'internalPtrHelp')
                             . ':<br/><div id="small">optional</div>';
-
-                    if (($pub != null) && ($e < count($pub->intPointer) + 1)) {
-                        $cell2
-                            = $pub_list->pubTitle($pub->intPointer[$e-1]->value);
-                    }
-                    else {
-                        $cell2 = $rend->elementToHtml('intpointer' . $e);
-                    }
-
+                    $cell2 = $rend->elementToHtml('intpointer' . $e);
                     $table->addRow(array($cell1, $cell2));
                 }
                 $table->addRow(array('',
@@ -661,6 +541,138 @@ class add_publication extends pdHtmlPage {
         }
 
         $db->close();
+    }
+
+    function setDefaults(&$form, &$pub) {
+        $form->setDefaults($_GET);
+
+        if (isset($category) && is_object($category)) {
+            $form->setDefaults(array('cat_id' => $category->cat_id));
+        }
+
+        if ($ext > 0) {
+            for ($e = 1; $e <= $ext; $e++) {
+                if (!isset($_GET['extname'.$e])
+                    || $_GET['extname'.$e] == '')
+                    $defaults['extname'.$e] = 'Pointer Type';
+                if (!isset($_GET['extvalue'.$e])
+                    || $_GET['extvalue'.$e] == '')
+                    $defaults['extvalue'.$e] = 'http://';
+                if (!isset($_GET['extlink'.$e])
+                    || $_GET['extlink'.$e] == '')
+                    $defaults['extlink'.$e] = 'Title of link';
+            }
+            $form->setDefaults($defaults);
+        }
+
+        if ($nummaterials > 0) {
+            for ($i = 1; $i <= $nummaterials; $i++) {
+                if (!isset($_GET['type' . $i])
+                    || ($_GET['type' . $i] = '')) {
+                    $materials['type' . $i] = 'Additional Material ' . $i;
+                }
+            }
+            $form->setDefaults($materials);
+        }
+
+        if (($pub != null) && is_object($pub)) {
+            $defaults = array('cat_id'     => $pub->category->cat_id,
+                              'title'      => $pub->title,
+                              'abstract'   => $pub->abstract,
+                              'extra_info' => $pub->extra_info,
+                              'keywords'   => $pub->keywords,
+                              'date_published' => $pub->published
+                );
+
+            if ($pub->venue != null)
+                $defaults['venue_id'] = $pub->venue_id;
+            else
+                $defaults['venue_id'] = -3;
+
+            if (count($pub->authors) > 0) {
+                foreach ($pub->authors as $author)
+                    $defaults['authors'][] = $author->author_id;
+            }
+
+            if (isset($category) && is_object($category)
+                && is_array($category->info)) {
+                foreach (array_values($category->info) as $name) {
+                    $defaults[$name] = $pub->info[$name];
+                }
+            }
+
+            if (count($pub->extPointer) > 0) {
+                $c = 1;
+                foreach ($pub->extPointer as $name => $value) {
+                    $defaults['extname' . $c] = $name;
+                    $defaults['extvalue' . $c] = $value;
+                    $c++;
+                }
+            }
+
+            if (count($pub->intPointer) > 0) {
+                $c = 1;
+                foreach ($pub->intPointer as $i) {
+                    $defaults['intpointer' . $c] = $i->value;
+                    $c++;
+                }
+            }
+
+            if ($pub->paper == 'No paper')
+                $defaults['nopaper'] = 'false';
+            else
+                $defaults['nopaper'] = 'true';
+
+            if (count($pub->additional_info) > 0) {
+                $c = 1;
+                foreach ($pub->additional_info as $info) {
+                    $defaults['type' . $c] = $info->type;
+                    $defaults['uploadadditional' . $c] = $info->location;
+                    $c++;
+                }
+            }
+
+            $form->setDefaults($defaults);
+        }
+    }
+
+    function processForm(&$form, &$pub) {
+        $values = $form->exportValues();
+
+        if (count($values['authors']) > 0)
+            foreach ($values['authors'] as $index => $author) {
+                $pos = strpos($author, ':');
+                if ($pos !== false) {
+                    $values['authors'][$index] = substr($author, $pos + 1);
+                }
+            }
+
+        $this->contentPre .= 'values<br/><pre>' . print_r($values, true) . '</pre>';
+        $this->contentPre .= '_FILES<br/><pre>' . print_r($_FILES, true) . '</pre>';
+        if ($pub != null) {
+            $pub->load($values);
+
+            if ($pub->category->cat_id != $values['cat_id']) {
+                $newCategory = new pdCategory();
+                $newCategory->dbLoad($db, $values['cat_id']);
+                $pub->category = $newCategory;
+                $pub->cat_id = $newCategory->cat_id;
+            }
+
+            if (count($pub->info) > 0) {
+                foreach (array_keys($pub->info) as $name) {
+                    $pub->info[$name] = $values[$name];
+                }
+            }
+            return;
+        }
+
+        $pub = new pdPublication();
+        $pub->load($values);
+
+        $this->contentPre .= 'pub<br/><pre>' . print_r($pub, true) . '</pre>';
+
+        // \todo copy files here
     }
 
     function javascript($ext, $intpoint, $nummaterials) {

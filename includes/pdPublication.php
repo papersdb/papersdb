@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.18 2006/07/05 03:24:01 aicmltec Exp $
+// $Id: pdPublication.php,v 1.19 2006/07/06 02:45:51 aicmltec Exp $
 
 /**
  * \file
@@ -341,35 +341,54 @@ class pdPublication {
     }
 
     /**
-     * Loads publication data from the object passed in
+     * Loads publication data from the object or array passed in
      */
-    function load(&$obj) {
-        if ($obj == NULL) return;
+    function load(&$mixed) {
+        if (is_object($mixed)) {
+            if (isset($mixed->pub_id))
+                $this->pub_id = $mixed->pub_id;
+            if (isset($mixed->title))
+                $this->title = $mixed->title;
+            if (isset($mixed->paper))
+                $this->paper = $mixed->paper;
+            if (isset($mixed->abstract))
+                $this->abstract = $mixed->abstract;
+            if (isset($mixed->keywords))
+                $this->keywords = $mixed->keywords;
+            if (isset($mixed->published))
+                $this->published = $mixed->published;
+            if (isset($mixed->venue))
+                $this->venue = $mixed->venue;
+            if (isset($mixed->extra_info))
+                $this->extra_info = $mixed->extra_info;
+            if (isset($mixed->submit))
+                $this->submit = $mixed->submit;
+            if (isset($mixed->updated))
+                $this->updated = $mixed->updated;
+            if (isset($mixed->additional_info))
+                $this->additional_info = $mixed->additional_info;
+            if (isset($mixed->category))
+                $this->category = $mixed->category;
+        }
+        else if (is_array($mixed)) {
+            $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
+                             'published', 'venue', 'extra_info', 'submit',
+                             'updated', 'additional_info', 'category');
+            foreach ($members as $member) {
+                if (isset($mixed[$member]))
+                    $this->$member = $mixed[$member];
+            }
+        }
+    }
 
-        if (isset($obj->pub_id))
-            $this->pub_id = $obj->pub_id;
-        if (isset($obj->title))
-            $this->title = $obj->title;
-        if (isset($obj->paper))
-            $this->paper = $obj->paper;
-        if (isset($obj->abstract))
-            $this->abstract = $obj->abstract;
-        if (isset($obj->keywords))
-            $this->keywords = $obj->keywords;
-        if (isset($obj->published))
-            $this->published = $obj->published;
-        if (isset($obj->venue))
-            $this->venue = $obj->venue;
-        if (isset($obj->extra_info))
-            $this->extra_info = $obj->extra_info;
-        if (isset($obj->submit))
-            $this->submit = $obj->submit;
-        if (isset($obj->updated))
-            $this->updated = $obj->updated;
-        if (isset($obj->additional_info))
-            $this->additional_info = $obj->additional_info;
-        if (isset($obj->category))
-            $this->category = $obj->category;
+    function addVenue($venue_id) {
+        if ($pub->venue != null)
+            && ($pub->venue->venue_id == $venue_id)  return;
+
+        $pub->venue = new pdVenue();
+        $result = $pub->venue->dbLoad($db, $venue_id);
+        $pub->venue = $pub->venue;
+        $pub->venue_id = $pub->venue->venue_id;
     }
 }
 
