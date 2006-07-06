@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.19 2006/07/06 02:45:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.20 2006/07/06 22:24:57 aicmltec Exp $
 
 /**
  * \file
@@ -10,6 +10,7 @@
  *
  */
 
+require_once 'includes/pdAuthor.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdVenue.php';
 
@@ -245,9 +246,9 @@ class pdPublication {
                      'updated'    => date("Y-m-d"));
 
         if (is_object($this->venue))
-            $array['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
+            $arr['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
         else
-            $array['venue'] = $this->venue;
+            $arr['venue'] = $this->venue;
 
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
@@ -259,7 +260,10 @@ class pdPublication {
             else
                 $arr['paper'] = $this->paper;
 
+            $arr['submit'] = $this->submit;
+
             $db->insert('publication', $arr, 'pdPublication::dbSave');
+            echo 'arr<pre>' . print_r($arr, true) . '</pre>';
 
             // get the pub_id now
             $r = $db->selectRow('publication', 'pub_id',
@@ -344,36 +348,17 @@ class pdPublication {
      * Loads publication data from the object or array passed in
      */
     function load(&$mixed) {
+        $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
+                         'published', 'venue', 'extra_info', 'submit',
+                         'updated', 'additional_info', 'category');
+
         if (is_object($mixed)) {
-            if (isset($mixed->pub_id))
-                $this->pub_id = $mixed->pub_id;
-            if (isset($mixed->title))
-                $this->title = $mixed->title;
-            if (isset($mixed->paper))
-                $this->paper = $mixed->paper;
-            if (isset($mixed->abstract))
-                $this->abstract = $mixed->abstract;
-            if (isset($mixed->keywords))
-                $this->keywords = $mixed->keywords;
-            if (isset($mixed->published))
-                $this->published = $mixed->published;
-            if (isset($mixed->venue))
-                $this->venue = $mixed->venue;
-            if (isset($mixed->extra_info))
-                $this->extra_info = $mixed->extra_info;
-            if (isset($mixed->submit))
-                $this->submit = $mixed->submit;
-            if (isset($mixed->updated))
-                $this->updated = $mixed->updated;
-            if (isset($mixed->additional_info))
-                $this->additional_info = $mixed->additional_info;
-            if (isset($mixed->category))
-                $this->category = $mixed->category;
+            foreach ($members as $member) {
+                if (isset($mixed->$member))
+                    $this->$member = $mixed->$member;
+            }
         }
         else if (is_array($mixed)) {
-            $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
-                             'published', 'venue', 'extra_info', 'submit',
-                             'updated', 'additional_info', 'category');
             foreach ($members as $member) {
                 if (isset($mixed[$member]))
                     $this->$member = $mixed[$member];
@@ -381,14 +366,80 @@ class pdPublication {
         }
     }
 
-    function addVenue($venue_id) {
-        if ($pub->venue != null)
-            && ($pub->venue->venue_id == $venue_id)  return;
+    function addVenue(&$db, $mixed) {
+        if (is_object($mixed)) {
+            $this->venue = $mixed;
+            $this->venue_id = $this->venue->venue_id;
+            return;
+        }
 
-        $pub->venue = new pdVenue();
-        $result = $pub->venue->dbLoad($db, $venue_id);
-        $pub->venue = $pub->venue;
-        $pub->venue_id = $pub->venue->venue_id;
+        if (($this->venue != null)
+            && ($this->venue->mixed == $mixed)) return;
+
+        $this->venue = new pdVenue();
+        $result = $this->venue->dbLoad($db, $mixed);
+        assert('$result');
+        $this->venue_id = $this->venue->venue_id;
+    }
+
+    function addCategory(&$db, $mixed) {
+        if (is_object($mixed)) {
+            $this->category = $mixed;
+        }
+        else {
+            if (($this->category != null)
+                && ($this->category->cat_id == $mixed)) return;
+
+            $this->category = new pdCategory();
+            $result = $this->category->dbLoad($db, $values['cat_id']);
+            assert('$result');
+        }
+
+        if (is_array($this->category->info)) {
+            foreach ($this->category->info as $info_id => $name) {
+                $this->info[$name] = '';
+            }
+        }
+    }
+
+    function addAuthor(&$db, $mixed) {
+        if (is_object($mixed)) {
+            // check if publication already has this author
+            if ($this->authors != null)
+                foreach ($this->authors as $author) {
+                    if ($author->author_id == $mixed->author_id)
+                        return;
+                }
+
+            $this->authors[] = $mixed;
+            return;
+        }
+
+        // check if publication already has this author
+        if ($this->authors != null)
+            foreach ($this->authors as $author) {
+                if ($author->author_id == $mixed)
+                    return;
+            }
+
+        $author = new pdAuthor();
+        $result = $author->dbLoad($db, $mixed, PD_AUTHOR_DB_LOAD_BASIC);
+        assert('$result');
+        $this->authors[] = $author;
+    }
+
+    function addExtPointer(&$db, $type, $location) {
+        $this->extPointer[$type] = $location;
+    }
+
+    function addIntPointer(&$db, $pub_id) {
+        $this->intPointer[] = $pub_id;
+    }
+
+    function dbUpdatePaper(&$db, $paper) {
+        $db->update('publication', array('paper' => $paper),
+                    array('pub_id' => $this->pub_id),
+                    'pdPublication::updatePaper');
     }
 }
 

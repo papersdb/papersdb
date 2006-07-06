@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.14 2006/07/06 02:45:51 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.15 2006/07/06 22:24:57 aicmltec Exp $
 
 /**
  * \file
@@ -144,10 +144,8 @@ class pdHtmlPage {
                 else
                     $result .= $this->renderer->toHtml();
             }
-            else {
-                assert ('($this->form == null)');
-                if ($this->table != null)
-                    $result .= $this->table->toHtml();
+            else if ($this->table != null) {
+                $result .= $this->table->toHtml();
             }
 
             if (isset($this->contentPost))

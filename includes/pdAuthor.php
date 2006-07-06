@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.11 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.12 2006/07/06 22:24:57 aicmltec Exp $
 
 /**
  * \file
@@ -14,10 +14,11 @@ require_once 'pdPubList.php';
 require_once 'pdAuthInterests.php';
 
 define('PD_AUTHOR_DB_LOAD_BASIC',     0);
-define('PD_AUTHOR_DB_LOAD_INTERESTS', 1);
-define('PD_AUTHOR_DB_LOAD_PUBS_MIN',  2);
-define('PD_AUTHOR_DB_LOAD_PUBS_ALL',  4);
-define('PD_AUTHOR_DB_LOAD_ALL',       0x7);
+define('PD_AUTHOR_DB_LOAD_MIN',       1);
+define('PD_AUTHOR_DB_LOAD_INTERESTS', 2);
+define('PD_AUTHOR_DB_LOAD_PUBS_MIN',  4);
+define('PD_AUTHOR_DB_LOAD_PUBS_ALL',  8);
+define('PD_AUTHOR_DB_LOAD_ALL',       0xF);
 
 
 /**
@@ -68,7 +69,12 @@ class pdAuthor {
 
         $this->dbLoadFlags = $flags;
 
-        $q = $db->selectRow('author', '*', array('author_id' => $id),
+        if ($flags & PD_AUTHOR_DB_LOAD_MIN)
+            $fields = array('author_id', 'name');
+        else
+            $fields = '*';
+
+        $q = $db->selectRow('author', $fields, array('author_id' => $id),
                             "pdAuthor::dbLoad");
         if ($q === false) return false;
         $this->load($q);

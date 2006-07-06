@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.9 2006/06/21 05:34:22 aicmltec Exp $
+// $Id: defines.php,v 1.10 2006/07/06 22:24:57 aicmltec Exp $
 
 /**
  * \file
@@ -33,7 +33,7 @@ define('DB_NAME',   'pubDBdev');
 
 /** The path on the fileserver where documents are stored. */
 //define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
-define('FS_PATH', '/usr/abee4/cshome/loyola');
+define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
 
 // required for Database.php
 define( 'DBO_DEBUG', 1 );
