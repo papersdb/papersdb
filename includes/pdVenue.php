@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.6 2006/06/15 14:17:01 aicmltec Exp $
+// $Id: pdVenue.php,v 1.7 2006/07/07 23:49:56 aicmltec Exp $
 
 /**
  * \file
@@ -38,7 +38,7 @@ class pdVenue {
      *
      * Use flags to load individual tables
      */
-    function dbLoad(&$db, $id, $flags = 0) {
+    function dbLoad(&$db, $id) {
         $q = $db->selectRow('venue', '*', array('venue_id' => $id),
                          "pdPublication::dbLoadVenue");
         if ($q === false) return false;

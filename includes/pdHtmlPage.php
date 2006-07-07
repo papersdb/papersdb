@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.15 2006/07/06 22:24:57 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.16 2006/07/07 23:49:56 aicmltec Exp $
 
 /**
  * \file
@@ -13,6 +13,8 @@ require_once 'includes/check_login.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
+require_once 'HTML/QuickForm/Controller.php';
+require_once 'HTML/QuickForm/Action/Display.php';
 require_once 'HTML/Table.php';
 
 define('PD_HTML_PAGE_NAV_MENU_NEVER',          0);
@@ -23,6 +25,12 @@ define('PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED', 3);
 
 /**
  * \brief Base class for all HTML pages in PapersDB.
+ *
+ * Page can be made up of:
+ *   - form
+ *   - renderer
+ *   - table
+ *   - form controller
  */
 class pdHtmlPage {
     var $page_id;
@@ -42,6 +50,7 @@ class pdHtmlPage {
     var $contentPost;
     var $useStdLayout;
     var $hasHelpTooltips;
+    var $form_controller;
 
     /**
      * Constructor.
@@ -151,9 +160,14 @@ class pdHtmlPage {
             if (isset($this->contentPost))
                 $result .= $this->contentPost;
         }
-        $result .= '</div>' . $this->htmlPageFooter();
+        $result .= $this->htmlPageFooter();
 
         return $result;
+    }
+
+    function run() {
+        assert('$this->form_controller != null');
+        $this->form_controller->run();
     }
 
     // private date to this class

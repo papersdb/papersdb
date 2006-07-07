@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.38 2006/07/06 22:47:14 aicmltec Exp $
+// $Id: add_publication.php,v 1.39 2006/07/07 23:49:56 aicmltec Exp $
 
 /**
  * \file
@@ -18,8 +18,215 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
 
+$db = null;
+
+class pubInfoPage extends HTML_QuickForm_Page {
+    var $masterPage;
+
+    function pubInfoPage($name, &$masterPage) {
+        parent::HTML_QuickForm_Page($name);
+        $this->masterPage =& $masterPage;
+    }
+
+    function buildForm() {
+        global $db;
+
+        $this->_formBuilt = true;
+
+        $this->addElement('header', null, 'Add Publication: Step 1');
+
+        // Venue
+        $venue_list = new pdVenueList($db);
+        $options = array(''   => '--- Select a Venue ---',
+                         -2 => 'No Venue',
+                         -3 => 'Unique Venue');
+        $options += $venue_list->list;
+        $this->addElement('select', 'venue_id',
+                          $this->masterPage->helpTooltip('Publication Venue',
+                                                         'venueHelp') . ':',
+                          $options);
+
+        // category
+        $category_list = new pdCatList($db);
+        $options = array('' => '--- Please Select a Category ---');
+        $options += $category_list->list;
+        $this->addElement('select', 'cat_id',
+                          $this->masterPage->helpTooltip('Category',
+                                                         'categoryHelp') . ':',
+                          $options);
+
+        // title
+        $this->addElement('text', 'title',
+                          $this->masterPage->helpTooltip('Title',
+                                                         'titleHelp') . ':',
+                          array('size' => 60, 'maxlength' => 250));
+
+        // Authors
+        $user = $_SESSION['user'];
+        $auth_list = new pdAuthorList($db);
+        $all_authors = $auth_list->list;
+
+        foreach (array_keys($user->collaborators) as $author_id) {
+            unset($all_authors[$author_id]);
+        }
+
+        // get the first 10 popular authors used by this user
+        $user->popularAuthorsDbLoad($db);
+
+        $most_used_authors = array();
+        if (count($user->author_rank) > 0) {
+            $most_used_author_ids
+                = array_slice(array_keys($user->author_rank), 0, 10);
+
+            foreach($most_used_author_ids as $author_id) {
+                $most_used_authors[$author_id] = $all_authors[$author_id];
+                unset($all_authors[$author_id]);
+            }
+        }
+
+        $this->addElement('authorselect', 'authors',
+                          $this->masterPage->helpTooltip('Author(s)',
+                                                         'authorsHelp') . ':',
+
+                          array('author_list' => $all_authors,
+                                'favorite_authors' => $user->collaborators,
+                                'most_used_authors' => $most_used_authors),
+                          array('class' => 'pool',
+                                'style' => 'width:150px;'));
+
+        $this->addElement('textarea', 'abstract',
+                          $this->masterPage->helpTooltip('Abstract',
+                                                         'abstractHelp')
+                          . ':<br/><div id="small">HTML Enabled</div>',
+                          array('cols' => 60, 'rows' => 10));
+
+        $this->addElement('text', 'keywords',
+                          $this->masterPage->helpTooltip('Keywords',
+                                                         'keywordsHelp') . ':',
+                          array('size' => 55, 'maxlength' => 250));
+
+        $this->addElement('text', 'date_published',
+                          $this->masterPage->helpTooltip('Date Published',
+                                                         'datePublishedHelp')
+                          . ':',
+                          array('size' => 10, 'maxlength' => 10));
+
+        $buttons[0] =& HTML_QuickForm::createElement(
+            'button', 'cancel', 'Cancel',
+            array('onclick' => "javascript:location.href='"
+                  . $_SERVER['PHP_SELF'] . "';"));
+        $buttons[1] =& HTML_QuickForm::createElement(
+            'submit', $this->getButtonName('next'), 'Next step >>');
+        $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
+    }
+}
+
+class pubCategoryPage extends HTML_QuickForm_Page {
+    var $masterPage;
+
+    function pubCategoryPage($name, &$masterPage) {
+        parent::HTML_QuickForm_Page($name);
+        $this->masterPage =& $masterPage;
+    }
+
+    function buildForm() {
+        global $db;
+
+        $this->addElement('header', null,
+                          'Add Publication: Category Information');
+
+        $venue_id = $this->controller->exportValue('pubForm', 'venue_id');
+        $cat_id = $this->controller->exportValue('pubForm', 'cat_id');
+
+        if ($venue_id == -3)
+            $this->addElement('textarea', 'venue_name', null,
+                              array('cols' => 60, 'rows' => 5));
+
+        if ($cat_id > 0) {
+            $category = new pdCategory();
+            $result = $category->dbLoad($db, $cat_id);
+            assert('$result');
+
+            $this->addElement('static', 'categoryname', 'Category:',
+                              $category->category);
+
+            if ($category->info != null) {
+                foreach (array_values($category->info) as $name) {
+                    $this->addElement('text', $name, ucfirst($name) . ':',
+                                      array('size' => 50, 'maxlength' => 250));
+                }
+            }
+        }
+
+        $location = $_SERVER['PHP_SELF'];
+
+        $buttons[0] =& HTML_QuickForm::createElement(
+            'button', 'cancel', 'Cancel',
+            array('onclick' => "javascript:location.href='"
+                  . $_SERVER['PHP_SELF'] . "';"));
+        $buttons[1] =& HTML_QuickForm::createElement(
+            'submit', $this->getButtonName('next'), 'Next step >>');
+        $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
+    }
+}
+
+
+class ActionDisplay extends HTML_QuickForm_Action_Display {
+    var $masterPage;
+
+    function ActionDisplay(&$masterPage) {
+        $this->masterPage =& $masterPage;
+    }
+
+    function _renderForm(&$page) {
+        $renderer =& $page->defaultRenderer();
+
+        $page->setRequiredNote('<font color="#FF0000">*</font> shows the required fields.');
+        $page->setJsWarnings('Those fields have errors :',
+                             'Thanks for correcting them.');
+
+        $renderer->setFormTemplate('<table border="0" cellpadding="3" cellspacing="2" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate('<tr><td style="white-space:nowrap;background:#996;color:#ffc;" align="left" colspan="2"><b>{header}</b></td></tr>');
+        $renderer->setGroupTemplate('<table><tr>{content}</tr></table>', 'name');
+        $renderer->setGroupElementTemplate('<td>{element}<br /><span style="font-size:10px;"><!-- BEGIN required --><span style="color: #f00">*</span><!-- END required --><span style="color:#996;">{label}</span></span></td>', 'name');
+
+        $renderer->setElementTemplate(
+            '<tr><td><b>{label}</b></td><td>{element}'
+            . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
+            . '</td></tr>',
+            'keywords');
+
+        $renderer->setElementTemplate(
+            '<tr><td><b>{label}</b></td><td>{element}'
+            . '<a href="javascript:doNothing()" onClick="setDateField('
+            . 'document.pubForm.date_published);'
+            . 'top.newWin=window.open(\'../calendar.html\','
+            . '\'cal\',\'dependent=yes,width=230,height=250,'
+            . 'screenX=200,screenY=300,titlebar=yes\')">'
+            . '<img src="../calendar.gif" border=0></a> '
+            . '<span style="font-size:10px;">(yyyy-mm-dd)</span>'
+            . '</td></tr>',
+            'date_published');
+
+        $page->accept($renderer);
+
+        $this->masterPage->renderer =& $renderer;
+        $this->masterPage->javascript();
+
+        echo $this->masterPage->toHtml();
+    }
+}
+
+class ActionProcess extends HTML_QuickForm_Action {
+    function perform(&$page, $actionName) {
+        $values = $page->controller->exportValues();
+        echo '<pre>';
+        var_dump($values);
+        echo '</pre>';
+    }
+}
+
 class add_publication extends pdHtmlPage {
-    var $db;
     var $pub;
     var $venue;
     var $category;
@@ -31,7 +238,7 @@ class add_publication extends pdHtmlPage {
     var $nummaterials;
 
     function add_publication() {
-        global $logged_in;
+        global $db, $logged_in;
 
         $options = array('pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
                          'nummaterials');
@@ -54,8 +261,17 @@ class add_publication extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
         $this->db =& $db;
+        $this->form_controller
+            = new HTML_QuickForm_Controller('pubWizard', true);
+        $this->form_controller->addPage(new pubInfoPage('pubForm', $this));
+        $this->form_controller->addPage(new pubCategoryPage('page2', $this));
+
+        $this->form_controller->addAction('display',
+                                          new ActionDisplay($this));
+        $this->form_controller->addAction('process', new ActionProcess());
+
+        /*
         $form = new HTML_QuickForm('pubForm');
         $this->form =& $form;
 
@@ -100,38 +316,6 @@ class add_publication extends pdHtmlPage {
                 $this->nummaterials = 0;
         }
 
-        // Venue
-        if (($this->venue_id > 0) && ($this->cat_id == null)) {
-            $this->category = new pdCategory();
-
-            if (($this->category->category == '')
-                || ($this->category->category == 'In Conference')
-                || ($this->category->category == 'In Workshop')
-                || ($this->category->category == 'In Journal')) {
-                if ($this->venue->type == 'Conference') {
-                    $result = $this->category->dbLoad($db, null, 'In Conference');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Workshop') {
-                    $result = $this->category->dbLoad($db, null, 'In Workshop');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Journal') {
-                    $result = $this->category->dbLoad($db, null, 'In Journal');
-                    assert('$result');
-                }
-            }
-        }
-
-        $venue_list = new pdVenueList($db);
-        $options = array(''   => '--- Select a Venue ---',
-                         -1 => '-- Add New Venue to Database--',
-                         -2 => 'No Venue',
-                         -3 => 'Unique Venue');
-        $options += $venue_list->list;
-        $form->addElement('select', 'venue_id', null, $options,
-                          array('onChange' => 'dataKeep(\'none\');'));
-
         // Category
         unset($options);
         $category_list = new pdCatList($db);
@@ -149,46 +333,6 @@ class add_publication extends pdHtmlPage {
             }
         }
 
-        // title
-        $form->addElement('text', 'title', null,
-                          array('size' => 60, 'maxlength' => 250));
-
-        // Authors
-        $user = $_SESSION['user'];
-        $auth_list = new pdAuthorList($db);
-        $all_authors = $auth_list->list;
-
-        foreach (array_keys($user->collaborators) as $author_id) {
-            unset($all_authors[$author_id]);
-        }
-
-        // get the first 10 popular authors used by this user
-        $user->popularAuthorsDbLoad($db);
-
-        $most_used_authors = array();
-        if (count($user->author_rank) > 0) {
-            $most_used_author_ids
-                = array_slice(array_keys($user->author_rank), 0, 10);
-
-            foreach($most_used_author_ids as $author_id) {
-                $most_used_authors[$author_id] = $all_authors[$author_id];
-                unset($all_authors[$author_id]);
-            }
-        }
-
-        $form->addElement('authorselect', 'authors', null,
-                          array('author_list' => $all_authors,
-                                'favorite_authors' => $user->collaborators,
-                                'most_used_authors' => $most_used_authors),
-                          array('class' => 'pool',
-                                'style' => 'width:150px;'));
-
-        $form->addElement('advcheckbox', 'add_author', null,
-                          'Add new author(s) to database and this publication',
-                          null, array('no', 'yes'));
-
-        $form->addElement('textarea', 'abstract', null,
-                          array('cols' => 60, 'rows' => 10));
 
         if ($this->venue_id == -3)
             $form->addElement('textarea', 'venue_name', null,
@@ -253,12 +397,6 @@ class add_publication extends pdHtmlPage {
                 $form->addElement('select', 'intpointer' . $e, null, $options);
             }
         }
-
-        $form->addElement('text', 'keywords', null,
-                          array('size' => 55, 'maxlength' => 250));
-
-        $form->addElement('text', 'date_published', null,
-                          array('size' => 10, 'maxlength' => 10));
 
         if ($pub == null) {
             $form->addElement('radio', 'nopaper', null, null, 'false');
@@ -357,7 +495,8 @@ class add_publication extends pdHtmlPage {
 
                 if ($this->venue->type != '')
                     $cell1 .= $this->venue->type;
-
+,
+                          array('onChange' => 'dataKeep(\'none\');')
                 if ($this->venue->url != '')
                     $cell2 .= '<a href="' . $this->venue->url
                         . '" target="_blank">';
@@ -553,8 +692,7 @@ class add_publication extends pdHtmlPage {
 
             $this->javascript();
         }
-
-        $db->close();
+        */
     }
 
     function setDefaults() {
@@ -952,9 +1090,9 @@ JS_END;
     }
 }
 
-
+$db =& dbCreate();
 $page = new add_publication();
-echo $page->toHtml();
-
+echo $page->run();
+$db->close();
 
 ?>

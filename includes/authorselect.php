@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.8 2006/07/05 19:49:05 aicmltec Exp $
+// $Id: authorselect.php,v 1.9 2006/07/07 23:49:56 aicmltec Exp $
 
 /**
  * \file
@@ -35,7 +35,7 @@ class authorselect extends HTML_QuickForm_advmultiselect {
         parent::HTML_QuickForm_advmultiselect($elementName, $elementLabel,
                                               $all_authors, $attributes);
 
-        $this->setLabel(array('Authors:', 'Selected', 'Available'));
+        $this->setLabel(array($this->_label, 'Selected', 'Available'));
         $this->setButtonAttributes('add', array('value' => 'Add',
                                                 'class' => 'inputCommand'));
         $this->setButtonAttributes('remove', array('value' => 'Remove',
@@ -64,15 +64,15 @@ class authorselect extends HTML_QuickForm_advmultiselect {
   <td>&nbsp;</td>
   <td>&nbsp;</td>
   <td>
-    <input name="which_list" value="author_list" type="radio" id="author_list"
-           onclick="buildSelect('author_list')" checked>
-      <label for="author_list">All Authors</label><br/>
+    <input name="which_list" value="most_used_authors" type="radio"
+           onclick="buildSelect('most_used_authors')" checked>
+      <label for="most_used_authors">Most Used Authors</label><br/>
     <input name="which_list" value="favorite_authors" type="radio"
            onclick="buildSelect('favorite_authors')">
       <label for="favorite_authors">Favourite Authors</label><br/>
-    <input name="which_list" value="most_used_authors" type="radio"
-           onclick="buildSelect('most_used_authors')">
-      <label for="most_used_authors">Most Used Authors</label><br/>
+    <input name="which_list" value="author_list" type="radio" id="author_list"
+           onclick="buildSelect('author_list')">
+      <label for="author_list">Remaining Authors</label><br/>
   </td>
 </tr>
 </table>
@@ -148,7 +148,7 @@ END;
                         $arrHtmlHidden[$key] = $option;
                 }
                 else {
-                    if (strpos($option['attr']['value'], 'author_list')
+                    if (strpos($option['attr']['value'], 'most_used_authors')
                         !== false) {
                         // The item is *unselected* so we want to put it in
                         // the 'unselected' multi-select
