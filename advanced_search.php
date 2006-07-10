@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.29 2006/07/10 14:21:36 aicmltec Exp $
+// $Id: advanced_search.php,v 1.30 2006/07/10 19:55:35 aicmltec Exp $
 
 /**
  * \file
@@ -73,9 +73,12 @@ class advanced_search extends pdHtmlPage {
 
         $renderer =& $this->form->defaultRenderer();
 
-        $renderer->setFormTemplate('<table border="0" cellpadding="3" cellspacing="2" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
-        $renderer->setHeaderTemplate('<tr><td style="white-space:nowrap;background:#996;color:#ffc;" align="left" colspan="2"><b>{header}</b></td></tr>');
-        $renderer->setGroupTemplate('<table><tr>{content}</tr></table>', 'name');
+        $renderer->setFormTemplate(
+            '<table border="0" cellpadding="3" cellspacing="2" '
+            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate(
+            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
 
         $renderer->setElementTemplate(
             '<tr><td><b>{label}</b></td><td>{element}'
@@ -138,9 +141,9 @@ END;
                                    '_self', 'multipart/form-data');
 
         $form->addElement('header', null, 'Quick Search');
-        $qsElement[0] = HTML_QuickForm::createElement(
+        $qsElement[0] =& HTML_QuickForm::createElement(
             'text', 'search', null, array('size' => 50, 'maxlength' => 250));
-        $qsElement[1] = HTML_QuickForm::createElement(
+        $qsElement[1] =& HTML_QuickForm::createElement(
             'submit', 'Quick', 'Search');
         $form->addGroup($qsElement, 'quicksearch', 'Search for:', '&nbsp;',
                         false);
@@ -152,12 +155,12 @@ END;
         $form->addElement('text', 'title', 'Title:',
                           array('size' => 60, 'maxlength' => 250));
 
-        $authElement[0] = HTML_QuickForm::createElement(
+        $authElement[0] =& HTML_QuickForm::createElement(
             'text', 'authortyped', null,
             array('size' => 20, 'maxlength' => 250));
-        $authElement[1] = HTML_QuickForm::createElement(
+        $authElement[1] =& HTML_QuickForm::createElement(
             'static', 'auth_label', null, 'or select from list');
-        $authElement[2] = HTML_QuickForm::createElement(
+        $authElement[2] =& HTML_QuickForm::createElement(
             'select', 'authorselect', null, $this->auth_list->list,
             array('multiple' => 'multiple', 'size' => 4));
         $form->addGroup($authElement, 'authors', 'Authors:', '&nbsp;',
@@ -170,10 +173,10 @@ END;
         $form->addElement('text', 'venue', 'Venue:',
                           array('size' => 60, 'maxlength' => 250));
 
-        $kwElement[0] = HTML_QuickForm::createElement(
+        $kwElement[0] =& HTML_QuickForm::createElement(
             'text', 'keywords', null,
             array('size' => 60, 'maxlength' => 250));
-        $kwElement[1] = HTML_QuickForm::createElement(
+        $kwElement[1] =& HTML_QuickForm::createElement(
             'static', 'auth_label', null, 'seperate using semi-colon (;)');
         $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
                         false);
@@ -185,10 +188,10 @@ END;
             }
         }
 
-        $dates[0] = HTML_QuickForm::createElement(
+        $dates[0] =& HTML_QuickForm::createElement(
             'text', 'startdate', null,
             array('size' => 10, 'maxlength' => 10));
-        $dates[1] = HTML_QuickForm::createElement(
+        $dates[1] =& HTML_QuickForm::createElement(
             'static', 'date_js', null,
             '<a href="javascript:doNothing()" '
             . 'onClick="setDateField(document.pubForm.startdate);'
@@ -196,10 +199,10 @@ END;
             . '\'dependent=yes,width=230,height=250,screenX=200,'
             . 'screenY=300,titlebar=yes\')">'
             . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) and ');
-        $dates[2] = HTML_QuickForm::createElement(
+        $dates[2] =& HTML_QuickForm::createElement(
             'text', 'enddate', null,
             array('size' => 10, 'maxlength' => 10));
-        $dates[3] = HTML_QuickForm::createElement(
+        $dates[3] =& HTML_QuickForm::createElement(
             'static', 'date_js', null,
             '<a href="javascript:doNothing()" '
             . 'onClick="setDateField(document.pubForm.enddate);'
@@ -210,7 +213,7 @@ END;
         $form->addGroup($dates, 'datesGroup', 'Published between:', '&nbsp;',
                         false);
 
-        $form->addElement('header', null, 'Advanced Search Preferences');
+        $form->addElement('header', null, 'Show in Results');
         unset($searchPrefs);
         $searchPrefs = array(
             'titlecheck'        => 'Title',
@@ -224,19 +227,17 @@ END;
             'keywordscheck'     => 'Keywords',
             'datecheck'         => 'Date Published');
 
-        $c = 0;
-        $label = 'Select Preferences:';
         foreach ($searchPrefs as $name => $text) {
-            $prefElements[] = HTML_QuickForm::createElement(
+            $prefElements[] =& HTML_QuickForm::createElement(
                 'advcheckbox', $name, null, $text, array('size' => 10),
                 array('no', 'yes'));
         }
-        $form->addGroup($prefElements, 'prefsGroup'.$c, null, '<br/>',
+        $form->addGroup($prefElements, 'prefsGroup', null, "<br/>\n",
                         false);
 
-        $buttons[0] = HTML_QuickForm::createElement(
+        $buttons[0] =& HTML_QuickForm::createElement(
             'submit', 'Submit', 'Search');
-        $buttons[1] = HTML_QuickForm::createElement(
+        $buttons[1] =& HTML_QuickForm::createElement(
             'submit', 'Clear', 'Clear');
         $form->addGroup($buttons, 'buttonsGroup', '', '&nbsp;', false);
 

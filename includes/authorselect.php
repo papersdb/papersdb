@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.9 2006/07/07 23:49:56 aicmltec Exp $
+// $Id: authorselect.php,v 1.10 2006/07/10 19:55:35 aicmltec Exp $
 
 /**
  * \file
@@ -13,6 +13,7 @@ require_once 'HTML/QuickForm/radio.php';
 
 
 class authorselect extends HTML_QuickForm_advmultiselect {
+    var $form_name;
     var $author_list;
     var $favorite_authors;
     var $most_used_authors;
@@ -23,12 +24,14 @@ class authorselect extends HTML_QuickForm_advmultiselect {
                           $attributes = null) {
 
         $all_authors = array();
-        foreach(array('author_list', 'favorite_authors', 'most_used_authors')
-                as $list) {
-            if (isset($options[$list])) {
-                $this->$list = $options[$list];
-                foreach ($options[$list] as $key => $value)
-                    $all_authors[$list . ':' . $key]= $value;
+        foreach(array('form_name', 'author_list', 'favorite_authors',
+                      'most_used_authors')
+                as $opt) {
+            if (isset($options[$opt])) {
+                $this->$opt = $options[$opt];
+                if (is_array($options[$opt]))
+                    foreach ($options[$opt] as $key => $value)
+                        $all_authors[$opt . ':' . $key]= $value;
             }
         }
 
@@ -316,9 +319,9 @@ END;
         $js .= <<<JS_END
             /* begin javascript for authorselect */
             function buildSelect(list) {
-            var availAuthors = document.forms["pubForm"].elements["__{$selectName}"];
-            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
-            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
+            var availAuthors = document.forms["{$this->form_name}"].elements["__{$selectName}"];
+            var selectedAuthors = document.forms["{$this->form_name}"].elements["_{$selectName}"];
+            var allAuthors = document.forms["{$this->form_name}"].elements["{$selectName}"];
             var re = new RegExp(list, "g");
 
             var isSelected;
@@ -341,9 +344,9 @@ END;
         }
 
         function {$jsfuncName}(action) {
-            var availAuthors = document.forms["pubForm"].elements["__{$selectName}"];
-            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
-            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
+            var availAuthors = document.forms["{$this->form_name}"].elements["__{$selectName}"];
+            var selectedAuthors = document.forms["{$this->form_name}"].elements["_{$selectName}"];
+            var allAuthors = document.forms["{$this->form_name}"].elements["{$selectName}"];
             var menuFrom;
             var menuTo;
 
@@ -364,7 +367,7 @@ END;
             maxTo = menuTo.length;
 
             // Add items to the 'TO' list.
-            var selectedListRadio = document.forms["pubForm"].elements["which_list"];
+            var selectedListRadio = document.forms["{$this->form_name}"].elements["which_list"];
 
             for (i=0; i < selectedListRadio.length; i++) {
                 if (selectedListRadio[i].checked) {
@@ -405,13 +408,13 @@ END;
             }
 
             // Sort list if required
-            if (menuTo == document.forms["pubForm"].elements["__{$selectName}"]) {
+            if (menuTo == document.forms["{$this->form_name}"].elements["__{$selectName}"]) {
                 {$this->_jsPrefix}sortList(menuTo, {$this->_jsPrefix}compareText);
             }
 
             // Set the appropriate items as 'selected in the hidden select.
             // These are the values that will actually be posted with the form.
-            {$this->_jsPrefix}updateHidden(document.forms["pubForm"].elements["_{$selectName}"]);
+            {$this->_jsPrefix}updateHidden(document.forms["{$this->form_name}"].elements["_{$selectName}"]);
         }
 
         function {$this->_jsPrefix}sortList(list, compareFunction) {
@@ -436,7 +439,7 @@ END;
         }
 
         function {$this->_jsPrefix}updateHidden(select) {
-            var allAuthors = document.forms["pubForm"].elements["{$selectName}"];
+            var allAuthors = document.forms["{$this->form_name}"].elements["{$selectName}"];
 
             for (i=0; i < allAuthors.length; i++) {
                 allAuthors.options[i].selected = false;
@@ -452,7 +455,7 @@ END;
         }
 
         function {$this->_jsPrefix}moveUp() {
-            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["{$this->form_name}"].elements["_{$selectName}"];
             var index = selectedAuthors.selectedIndex;
 
             if (index < 0) return;
@@ -464,7 +467,7 @@ END;
         }
 
         function {$this->_jsPrefix}moveDown() {
-            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["{$this->form_name}"].elements["_{$selectName}"];
             var index = selectedAuthors.selectedIndex;
 
             if (index < 0) return;
@@ -476,7 +479,7 @@ END;
         }
 
         function {$this->_jsPrefix}moveSwap(i,j) {
-            var selectedAuthors = document.forms["pubForm"].elements["_{$selectName}"];
+            var selectedAuthors = document.forms["{$this->form_name}"].elements["_{$selectName}"];
             var value = selectedAuthors.options[i].value;
             var text = selectedAuthors.options[i].text;
             selectedAuthors.options[i].value = selectedAuthors.options[j].value;

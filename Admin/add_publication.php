@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.39 2006/07/07 23:49:56 aicmltec Exp $
+// $Id: add_publication.php,v 1.40 2006/07/10 19:55:35 aicmltec Exp $
 
 /**
  * \file
@@ -17,6 +17,7 @@ require_once 'includes/pdVenueList.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
+require_once 'includes/pdExtraInfoList.php';
 
 $db = null;
 
@@ -60,6 +61,8 @@ class pubInfoPage extends HTML_QuickForm_Page {
                           $this->masterPage->helpTooltip('Title',
                                                          'titleHelp') . ':',
                           array('size' => 60, 'maxlength' => 250));
+        $this->addRule('title', 'please enter a title', 'required',
+                       null, 'client');
 
         // Authors
         $user = $_SESSION['user'];
@@ -88,7 +91,8 @@ class pubInfoPage extends HTML_QuickForm_Page {
                           $this->masterPage->helpTooltip('Author(s)',
                                                          'authorsHelp') . ':',
 
-                          array('author_list' => $all_authors,
+                          array('form_name' => $this->_attributes['name'],
+                                'author_list' => $all_authors,
                                 'favorite_authors' => $user->collaborators,
                                 'most_used_authors' => $most_used_authors),
                           array('class' => 'pool',
@@ -105,11 +109,27 @@ class pubInfoPage extends HTML_QuickForm_Page {
                                                          'keywordsHelp') . ':',
                           array('size' => 55, 'maxlength' => 250));
 
-        $this->addElement('text', 'date_published',
-                          $this->masterPage->helpTooltip('Date Published',
-                                                         'datePublishedHelp')
-                          . ':',
-                          array('size' => 10, 'maxlength' => 10));
+        $dateGroup[] =& HTML_QuickForm::createElement(
+            'text', 'date_published', null,
+            array('size' => 10, 'maxlength' => 10));
+
+        $dateGroup[] =& HTML_QuickForm::createElement(
+            'static', 'dategroup_icon', null,
+            '<a href="javascript:doNothing()" onClick="setDateField('
+            . 'document.page1.date_published);'
+            . 'top.newWin=window.open(\'../calendar.html\','
+            . '\'cal\',\'dependent=yes,width=230,height=250,'
+            . 'screenX=200,screenY=300,titlebar=yes\')">'
+            . '<img src="../calendar.gif" border=0></a> '
+            . '<span style="font-size:10px;">(yyyy-mm-dd)</span>');
+        $this->addGroup($dateGroup, 'dategroup',
+                        $this->masterPage->helpTooltip('Date Published',
+                                                       'datePublishedHelp')
+                        . ':',
+                        '&nbsp;', false);
+
+        $this->addRule('date_published', 'please enter a publication date',
+                       'required', null, 'client');
 
         $buttons[0] =& HTML_QuickForm::createElement(
             'button', 'cancel', 'Cancel',
@@ -132,14 +152,13 @@ class pubCategoryPage extends HTML_QuickForm_Page {
     function buildForm() {
         global $db;
 
-        $this->addElement('header', null,
-                          'Add Publication: Category Information');
+        $this->addElement('header', null, 'Add Publication: Step 2');
 
-        $venue_id = $this->controller->exportValue('pubForm', 'venue_id');
-        $cat_id = $this->controller->exportValue('pubForm', 'cat_id');
+        $venue_id = $this->controller->exportValue('page1', 'venue_id');
+        $cat_id = $this->controller->exportValue('page1', 'cat_id');
 
         if ($venue_id == -3)
-            $this->addElement('textarea', 'venue_name', null,
+            $this->addElement('textarea', 'venue_name', 'Unique Venue Name:',
                               array('cols' => 60, 'rows' => 5));
 
         if ($cat_id > 0) {
@@ -158,18 +177,155 @@ class pubCategoryPage extends HTML_QuickForm_Page {
             }
         }
 
-        $location = $_SERVER['PHP_SELF'];
+        $this->addElement('advcheckbox', 'add_paper',
+                          $this->masterPage->helpTooltip('Attach Paper',
+                                                         'paperAtt') . ':',
+                          'check this box to attach the primary document',
+                          null, array('no', 'yes'));
 
-        $buttons[0] =& HTML_QuickForm::createElement(
-            'button', 'cancel', 'Cancel',
-            array('onclick' => "javascript:location.href='"
-                  . $_SERVER['PHP_SELF'] . "';"));
+        $numOptions = array('' => 'none',
+                            '1' => '1',
+                            '2' => '2',
+                            '3' => '3',
+                            '4' => '4',
+                            '5' => '5',
+                            '6' => '6',
+                            '7' => '7',
+                            '8' => '8',
+                            '9' => '9',
+                            '10' => '10');
+
+        $attachments[] =& HTML_QuickForm::createElement(
+            'select', 'other_attachments', null, $numOptions);
+        $attachments[] =& HTML_QuickForm::createElement(
+            'static', 'attachmentsStatic', null, 'additional attachments');
+        $this->addGroup($attachments, 'attachmentsGroup',
+                        $this->masterPage->helpTooltip('Other Attachments',
+                                                       'otherAtt') . ':',
+                        '&nbsp;', false);
+
+
+        $this->addElement('textarea', 'extra_info',
+                          $this->masterPage->helpTooltip('Extra Information',
+                                                         'extraInfoHelp')
+                          . ':',
+                          array('cols' => 60, 'rows' => 5));
+
+        $this->addElement('advcheckbox', 'extra_info_list',
+                          $this->masterPage->helpTooltip(
+                              'Extra Info From List', 'extraInfoListHelp')
+                          . ':',
+                          'check this box to select extra info from a list',
+                          null, array('no', 'yes'));
+
+        $this->addElement('select', 'web_links',
+                          $this->masterPage->helpTooltip('Web Links',
+                                                         'extLinks') . ':',
+                          $numOptions);
+        $this->addElement('select', 'int_links',
+                          $this->masterPage->helpTooltip('Publication Links',
+                                                         'intLinks') . ':',
+                          $numOptions);
+
+        $buttons[0] =& $this->createElement(
+            'submit', $this->getButtonName('back'), '<< Previous step');
         $buttons[1] =& HTML_QuickForm::createElement(
             'submit', $this->getButtonName('next'), 'Next step >>');
         $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
     }
 }
 
+
+class pubAttachmentsPage extends HTML_QuickForm_Page {
+    var $masterPage;
+
+    function pubAttachmentsPage($name, &$masterPage) {
+        parent::HTML_QuickForm_Page($name);
+        $this->masterPage =& $masterPage;
+    }
+
+    function buildForm() {
+        global $db;
+
+        $this->addElement('header', null, 'Add Publication: Step 3');
+
+        $add_paper = $this->controller->exportValue('page2', 'add_paper');
+        $other_attachments
+            = $this->controller->exportValue('page2', 'other_attachments');
+        $extra_info_list
+            = $this->controller->exportValue('page2', 'extra_info_list');
+        $web_links = $this->controller->exportValue('page2', 'web_links');
+        $int_links = $this->controller->exportValue('page2', 'int_links');
+
+        if ($add_paper == 'yes') {
+            $this->addElement('file', 'uploadpaper', 'Paper:',
+                              array('size' => 45, 'maxlength' => 250));
+        }
+
+        for ($i = 0; $i < $other_attachments; $i++) {
+            $this->addElement('file', 'other_attachments' . $i,
+                              'Attachment ' . ($i + 1). ':',
+                              array('size' => 45, 'maxlength' => 250));
+        }
+
+        if ($extra_info_list == "yes") {
+            $this->addElement('header', null, 'Select Extra Information');
+            $extra_info = new pdExtraInfoList($db);
+
+            $c = 0;
+            foreach ($extra_info->list as $info) {
+                $this->addElement('advcheckbox', 'extra_info[' . $c . ']',
+                                  null, $info, null, array('no', 'yes'));
+                $c++;
+            }
+        }
+
+        if ($web_links > 0) {
+            $this->addElement('header', null, 'Web Links');
+            $this->addElement('static', 'web_links_help', null,
+                              'Link Text : Link URL');
+
+            for ($i = 0; $i < $web_links; $i++) {
+                unset($web_link_group);
+                $web_link_group [] =& HTML_QuickForm::createElement(
+                    'text', 'exttext' . $i, null,
+                    array('size' => 12, 'maxlength' => 250));
+                $web_link_group [] =& HTML_QuickForm::createElement(
+                    'static', 'web_links_help', null, ':');
+                $web_link_group [] =& HTML_QuickForm::createElement(
+                    'text', 'exturl' . $i, null,
+                    array('size' => 25, 'maxlength' => 250));
+
+                $this->addGroup($web_link_group, 'web_link_group',
+                                'Web Link ' . ($i + 1). ':', '&nbsp;', false);
+            }
+        }
+
+        if ($int_links > 0) {
+            $this->addElement('header', null, 'Publication Links');
+            $pub_list = new pdPubList($db);
+            $options[''] = '--- select publication --';
+            foreach ($pub_list->list as $p) {
+                if (strlen($p->title) > 70)
+                    $options[$p->pub_id] = substr($p->title, 0, 67) . '...';
+                else
+                    $options[$p->pub_id] = $p->title;
+            }
+
+            for ($i = 0; $i < $int_links; $i++) {
+                $this->addElement('select', 'int_link' . $i,
+                                  'Publication Link ' . ($i + 1) . ':',
+                                  $options);
+            }
+        }
+
+        $buttons[0] =& $this->createElement(
+            'submit', $this->getButtonName('back'), '<< Previous step');
+        $buttons[1] =& HTML_QuickForm::createElement(
+            'submit', $this->getButtonName('next'), 'Finish');
+        $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
+    }
+}
 
 class ActionDisplay extends HTML_QuickForm_Action_Display {
     var $masterPage;
@@ -185,28 +341,20 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $page->setJsWarnings('Those fields have errors :',
                              'Thanks for correcting them.');
 
-        $renderer->setFormTemplate('<table border="0" cellpadding="3" cellspacing="2" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
-        $renderer->setHeaderTemplate('<tr><td style="white-space:nowrap;background:#996;color:#ffc;" align="left" colspan="2"><b>{header}</b></td></tr>');
-        $renderer->setGroupTemplate('<table><tr>{content}</tr></table>', 'name');
-        $renderer->setGroupElementTemplate('<td>{element}<br /><span style="font-size:10px;"><!-- BEGIN required --><span style="color: #f00">*</span><!-- END required --><span style="color:#996;">{label}</span></span></td>', 'name');
+        $renderer->setFormTemplate(
+            '<table border="0" cellpadding="3" cellspacing="2" '
+            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate(
+            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+        $renderer->setGroupTemplate(
+            '<table><tr>{content}</tr></table>', 'name');
 
         $renderer->setElementTemplate(
             '<tr><td><b>{label}</b></td><td>{element}'
             . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
             . '</td></tr>',
             'keywords');
-
-        $renderer->setElementTemplate(
-            '<tr><td><b>{label}</b></td><td>{element}'
-            . '<a href="javascript:doNothing()" onClick="setDateField('
-            . 'document.pubForm.date_published);'
-            . 'top.newWin=window.open(\'../calendar.html\','
-            . '\'cal\',\'dependent=yes,width=230,height=250,'
-            . 'screenX=200,screenY=300,titlebar=yes\')">'
-            . '<img src="../calendar.gif" border=0></a> '
-            . '<span style="font-size:10px;">(yyyy-mm-dd)</span>'
-            . '</td></tr>',
-            'date_published');
 
         $page->accept($renderer);
 
@@ -218,11 +366,94 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
 }
 
 class ActionProcess extends HTML_QuickForm_Action {
+    var $masterPage;
+
+    function ActionProcess($masterPage) {
+        $this->masterPage = $masterPage;
+    }
+
     function perform(&$page, $actionName) {
+        global $db;
+
         $values = $page->controller->exportValues();
-        echo '<pre>';
-        var_dump($values);
-        echo '</pre>';
+        $this->masterPage->contentPre
+            .= 'values<pre>' . print_r($values, true) . '</pre>';
+
+        if (count($values['authors']) > 0)
+            foreach ($values['authors'] as $index => $author) {
+                $pos = strpos($author, ':');
+                if ($pos !== false) {
+                    $values['authors'][$index] = substr($author, $pos + 1);
+                }
+            }
+
+        if ($pub != null) {
+            $pub->load($values);
+            $pub->addVenue($db, $values['venue_id']);
+            $pub->addCategory($db, $values['cat_id']);
+        }
+        else {
+            $pub = new pdPublication();
+            $pub->load($values);
+            if ($this->venue != null)
+                $pub->addVenue($db, $this->venue);
+            if ($this->category != null)
+                $pub->addCategory($db, $this->category);
+
+            $pub->submit = $_SESSION['user']->name;
+        }
+
+        foreach ($values['authors'] as $author_id)
+            $pub->addAuthor($db, $author_id);
+
+        if (count($pub->info) > 0) {
+            foreach (array_keys($pub->info) as $name) {
+                $pub->info[$name] = $values[$name];
+            }
+        }
+
+        $pub->published = $values['date_published'];
+
+        for ($e = 1; $e <= $values['ext']; $e++) {
+            $url = '<a href="' . $values['extvalue'.$e] . '">'
+                . $values['extlink'.$e] . '</a>';
+            $pub->addExtPointer($db, $values['extname'.$e], $url);
+        }
+
+        for ($e = 1; $e <= $values['intpoint']; $e++) {
+            $pub->addIntPointer($db, $values['intpointer'.$e]);
+        }
+
+        //$pub->dbSave($db);
+
+        $this->contentPre .= 'pub<br/><pre>'
+            . print_r($pub, true) . '</pre>';
+
+        // copy files here
+        $data =& $page->controller->container();
+        $this->masterPage->contentPre
+            .= 'data<pre>' . print_r($data, true) . '</pre>';
+        echo $this->masterPage->toHtml();
+        return;
+
+        $element =& $data['uploadpaper'];
+        if ($element->isUploadedFile()) {
+            $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
+            $basename = 'paper_' . $_FILES['uploadpaper']['name'];
+            $filename = $path . '/' . $basename;
+            $relativename = $pub->pub_id . '/'. $basename;
+
+            if (!file_exists($path))
+                mkdir($path, 0777);
+            // mkdir with 0777 does not seem to work
+            chmod($path, 0777);
+
+            $element->moveUploadedFile($path, $basename);
+            chmod($filename, 0777);
+            $pub->dbUpdatePaper($db, $relativename);
+        }
+
+        echo $this->masterPage->toHtml();
     }
 }
 
@@ -264,435 +495,15 @@ class add_publication extends pdHtmlPage {
         $this->db =& $db;
         $this->form_controller
             = new HTML_QuickForm_Controller('pubWizard', true);
-        $this->form_controller->addPage(new pubInfoPage('pubForm', $this));
+        $this->form_controller->addPage(new pubInfoPage('page1', $this));
         $this->form_controller->addPage(new pubCategoryPage('page2', $this));
+        $this->form_controller->addPage(
+            new pubAttachmentsPage('page3', $this));
 
         $this->form_controller->addAction('display',
                                           new ActionDisplay($this));
-        $this->form_controller->addAction('process', new ActionProcess());
+        $this->form_controller->addAction('process', new ActionProcess($this));
 
-        /*
-        $form = new HTML_QuickForm('pubForm');
-        $this->form =& $form;
-
-        if ($this->pub_id != null) {
-            $this->pub = new pdPublication();
-            $this->pub->dbLoad($db, $this->pub_id);
-            $this->venue = $this->pub->venue;
-            $venued_id = $this->pub->venue_id;
-            $this->category = $this->pub->category;
-
-            $form->addElement('hidden', 'pub_id', $this->pub_id);
-
-            if ($this->ext == null)
-                $this->ext = count($this->pub->extPointer);
-
-            if ($this->intpoint == null)
-                $this->intpoint = count($this->pub->intPointer);
-
-            if ($this->nummaterials == null)
-                $this->nummaterials = count($this->pub->additional_info);
-        }
-        else {
-            if ($this->venue_id != null) {
-                $this->venue = new pdVenue();
-                $result = $this->venue->dbLoad($db, $this->venue_id);
-                assert('$result');
-            }
-
-            if (($this->cat_id != null) && ($this->cat_id > 0)) {
-                $this->category = new pdCategory();
-                $result = $this->category->dbLoad($db, $this->cat_id);
-                assert('$result');
-            }
-
-            if ($this->ext == null)
-                $this->ext = 0;
-
-            if ($this->intpoint == null)
-                $this->intpoint = 0;
-
-            if ($this->nummaterials == null)
-                $this->nummaterials = 0;
-        }
-
-        // Category
-        unset($options);
-        $category_list = new pdCatList($db);
-        $options = array('' => '--- Please Select a Category ---',
-                         -1 => '-- Add New Category to Database--');
-        $options += $category_list->list;
-        $form->addElement('select', 'cat_id', null, $options,
-                          array('onChange' => 'dataKeep(\'none\');'));
-
-        if (isset($this->category) && is_object($this->category)
-            && is_array($this->category->info)) {
-            foreach (array_values($this->category->info) as $name) {
-                $form->addElement('text', $name, null,
-                                  array('size' => 50, 'maxlength' => 250));
-            }
-        }
-
-
-        if ($this->venue_id == -3)
-            $form->addElement('textarea', 'venue_name', null,
-                              array('cols' => 60, 'rows' => 5));
-        $form->addElement('textarea', 'extra_info', null,
-                          array('cols' => 60, 'rows' => 5));
-        $form->addElement('button', 'extra_info_select',
-                          'Select from a list of previously used information options',
-                          'onClick="dataKeepPopup(\'extra_info.php\');"');
-
-        $form->addElement('hidden', 'ext', $this->ext);
-
-        if ($this->ext == 0) {
-            $form->addElement('button', 'ext_ptr_add',
-                              'Add an External Pointer',
-                              'onClick="dataKeep(\'addext\');"');
-        }
-        else {
-            $form->addElement('button', 'ext_ptr_add',
-                              'Add Another External Pointer',
-                              'onClick="dataKeep(\'addext\');"');
-            $form->addElement('button', 'ext_ptr_remove',
-                              'Remove the above Pointer',
-                              'onClick="dataKeep(\'remext\');"');
-
-            for ($e = 1; $e <= $this->ext; $e++) {
-                $form->addElement('text', 'extname' . $e, null,
-                                  array('size' => 12, 'maxlength' => 250));
-                $form->addElement('text', 'extvalue' . $e, null,
-                                  array('size' => 18, 'maxlength' => 250));
-                $form->addElement('text', 'extlink' . $e, null,
-                                  array('size' => 25, 'maxlength' => 250));
-            }
-        }
-
-        $form->addElement('hidden', 'intpoint', $this->intpoint);
-
-        if ($this->intpoint == 0) {
-            $form->addElement('button', 'int_ptr_add',
-                              'Add an Internal Pointer',
-                              'onClick="dataKeep(\'addint\');"');
-        }
-        else {
-            $form->addElement('button', 'int_ptr_add',
-                              'Add Another Internal Pointer',
-                              'onClick="dataKeep(\'addint\');"');
-            $form->addElement('button', 'int_ptr_remove',
-                              'Remove the above Pointer',
-                              'onClick="dataKeep(\'remint\');"');
-
-            $pub_list = new pdPubList($db);
-            unset($options);
-            $options[''] = '--- Link to a publication --';
-            foreach ($pub_list->list as $p) {
-                if (strlen($p->title) > 70)
-                    $options[$p->pub_id] = substr($p->title, 0, 67) . '...';
-                else
-                    $options[$p->pub_id] = $p->title;
-            }
-
-            for ($e = 1; $e <= $this->intpoint; $e++) {
-                $form->addElement('select', 'intpointer' . $e, null, $options);
-            }
-        }
-
-        if ($pub == null) {
-            $form->addElement('radio', 'nopaper', null, null, 'false');
-            $form->addElement('radio', 'nopaper', null,
-                              'no paper at this time', 'true');
-            $form->addElement('file', 'uploadpaper', null,
-                              array('size' => 45, 'maxlength' => 250));
-        }
-        else if ($this->pub->paper == 'No paper') {
-            $form->addElement('advcheckbox', 'add_paper', null,
-                          'Attach a paper to this publication',
-                          null, array('no', 'yes'));
-        }
-        else {
-            $form->addElement('advcheckbox', 'add_paper', null,
-                          'Attach a different paper to this publication',
-                          null, array('no', 'yes'));
-        }
-
-        // other materials
-        $form->addElement('hidden', 'nummaterials', $this->nummaterials);
-        $form->addElement('button', 'materials_add',
-                          'Add Other Material',
-                          'onClick="dataKeep(\'addnum\');"');
-
-        if ($this->nummaterials > 0) {
-            $form->addElement('button', 'materials_remove',
-                              'Remove This Material',
-                              'onClick="dataKeep(\'remnum\');"');
-
-            if ($pub != null)
-                $start = count($this->pub->additional_info) + 1;
-            else
-                $start = 1;
-
-            for ($i = $start; $i <= $this->nummaterials; $i++) {
-                $form->addElement('text', 'type' . $i, null,
-                                  array('size' => 17, 'maxlength' => 250));
-                $form->addElement('file', 'uploadadditional' . $i, null,
-                                  array('size' => 50, 'maxlength' => 250));
-            }
-        }
-
-        if ($pub != null)
-            $form->addElement('submit', 'Save', 'Submit');
-        else
-            $form->addElement('submit', 'Save', 'Add Publication');
-
-        $form->addElement('reset', 'Clear', 'Clear');
-
-        if ($form->validate()) {
-            $this->processForm();
-        }
-        else {
-            $this->setDefaults();
-
-            $rend = new HTML_QuickForm_Renderer_QuickHtml();
-            $form->accept($rend);
-
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
-            $table->addRow(array('<hr/>'), array('colspan' => 2));
-            $table->addRow(array('<a name="step1"></a>Step 1:'));
-            $table->addRow(array($this->helpTooltip('Publication Venue',
-                                                    'venueHelp') . ':',
-                                 $rend->elementToHtml('venue_id')));
-
-            if ($this->venue_id == -3) {
-                $table->addRow(array('Unique Venue:'
-                                     . '<br/><div id="small">HTML Enabled</div>',
-                                     $rend->elementToHtml('venue_name')));
-            }
-            $table->addRow(array($this->helpTooltip('Category', 'categoryHelp')
-                                 . ':',
-                                 $rend->elementToHtml('cat_id')));
-            $table->addRow(array($this->helpTooltip('Title', 'titleHelp')
-                                 . ':',
-                                 $rend->elementToHtml('title')));
-            $table->addRow(array($this->helpTooltip('Author(s)',
-                                                    'authorsHelp') . ':',
-                                 $rend->elementToHtml('authors')));
-            $table->addRow(array('', $rend->elementToHtml('add_author')));
-            $table->addRow(array($this->helpTooltip('Abstract', 'abstractHelp')
-                                 . ':<br/><div id="small">HTML Enabled</div>',
-                                 $rend->elementToHtml('abstract')));
-
-            // Show venue info
-            if ($this->venue_id > 0) {
-                assert('$this->venue != null');
-                $cell1 = '';
-                $cell2 = '';
-
-                if ($this->venue->type != '')
-                    $cell1 .= $this->venue->type;
-,
-                          array('onChange' => 'dataKeep(\'none\');')
-                if ($this->venue->url != '')
-                    $cell2 .= '<a href="' . $this->venue->url
-                        . '" target="_blank">';
-
-                if ($this->venue->name != '')
-                    $cell2 .= $this->venue->name;
-
-                if ($this->venue->url != '')
-                    $cell2 .= '</a>';
-
-                $table->addRow(array($cell1 . ':', $cell2));
-
-                $cell1 = '';
-                if ($this->venue->type == 'Conference')
-                    $cell1 = 'Location:';
-                else if ($this->venue->type == 'Journal')
-                    $cell1 = 'Publisher:';
-                else if ($this->venue->type == 'Workshop')
-                    $cell1 = 'Associated Conference:';
-
-                $table->addRow(array($cell1, $this->venue->data));
-            }
-
-            $table ->addRow(array($this->helpTooltip('Extra Information',
-                                                     'extraInfoHelp')
-                                  . ':<br/><div id="small">optional</div>',
-                                  $rend->elementToHtml('extra_info')
-                                  . $rend->elementToHtml('extra_info_select')));
-
-            // External Pointers
-            if ($this->ext == 0) {
-                $table->addRow(array('<a name="pointers"></a>'
-                                     . $this->helpTooltip('External Pointers',
-                                                          'externalPtrHelp')
-                                     . ':<br/><div id="small">optional</div>',
-                                     $rend->elementToHtml('ext_ptr_add')));
-            }
-            else {
-                if ($pub != null)
-                    $extPointerKeys = array_keys($this->pub->extPointer);
-
-                for ($e = 1; $e <= $this->ext; $e++) {
-                    $cell1 = '';
-                    if ($e == 1) {
-                        $cell1 = '<a name="pointers"></a>'
-                            . $this->helpTooltip('External Pointers',
-                                                 'externalPtrHelp')
-                            . ':<br/><div id="small">optional</div>';
-                    }
-
-                    $cell2 = $rend->elementToHtml('extname'.$e)
-                        . ' ' . $rend->elementToHtml('extvalue'.$e)
-                        . ' ' . $rend->elementToHtml('extlink'.$e);
-
-                    $table->addRow(array($cell1, $cell2));
-                }
-                $table->addRow(array('',
-                                     $rend->elementToHtml('ext_ptr_add')
-                                     . '&nbsp;' .
-                                     $rend->elementToHtml('ext_ptr_remove')));
-            }
-
-            // Internal Pointers
-            if ($this->intpoint == 0) {
-                $table->addRow(array($this->helpTooltip('Internal Pointers',
-                                                        'internalPtrHelp')
-                                     . ':<br/><div id="small">optional</div>',
-                                     $rend->elementToHtml('int_ptr_add')));
-            }
-            else {
-                for ($e = 1; $e <= $this->intpoint; $e++) {
-                    $cell = '';
-                    if ($e == 1)
-                        $cell1 = $this->helpTooltip('Internal Pointers',
-                                                    'internalPtrHelp')
-                            . ':<br/><div id="small">optional</div>';
-                    $cell2 = $rend->elementToHtml('intpointer' . $e);
-                    $table->addRow(array($cell1, $cell2));
-                }
-                $table->addRow(array('',
-                                     $rend->elementToHtml('int_ptr_add')
-                                     . '&nbsp;' .
-                                     $rend->elementToHtml('int_ptr_remove')));
-            }
-
-            $table->addRow(array($this->helpTooltip('Keywords', 'keywordsHelp') . ':',
-                                 $rend->elementToHtml('keywords')
-                                 . ' <div id="small">separate using semicolon (;)</div>'));
-
-            // Additional Information
-            if (isset($this->category) && is_object($this->category)
-                && is_array($this->category->info)) {
-                foreach (array_values($this->category->info) as $name) {
-                    $table->addRow(array($name . ':', $rend->elementToHtml($name)));
-                }
-            }
-
-            $table->addRow(array($this->helpTooltip('Date Published', 'datePublishedHelp') . ':',
-                                 $rend->elementToHtml('date_published')
-                                 . '<a href="javascript:doNothing()" '
-                                 . 'onClick="setDateField('
-                                 . 'document.pubForm.date_published);'
-                                 . 'top.newWin=window.open(\'../calendar.html\','
-                                 . '\'cal\',\'dependent=yes,width=230,height=250,'
-                                 . 'screenX=200,screenY=300,titlebar=yes\')">'
-                                 . '<img src="../calendar.gif" border=0></a> '
-                                 . '(yyyy-mm-dd) '
-                               ));
-
-            $table->addRow(array('<hr/>'), array('colspan' => 2));
-            $table->addRow(array('<a name="step2"></a>Step 2:'));
-
-            if ($pub != null) {
-                if ($this->pub->paper == 'No paper')
-                    $cell = $this->pub->paper;
-                else
-                    $cell = '<a href="' . FS_PATH . $this->pub->paper . '">'
-                        . basename($this->pub->paper) . '</a>';
-
-                $cell .= '<br/>' . $rend->elementToHtml('add_paper');
-
-                $table->addRow(array('Paper:', $cell));
-            }
-            else {
-                $table->addRow(array('Paper:',
-                                     $rend->elementToHtml('nopaper', 'false')
-                                     . ' '
-                                     . $rend->elementToHtml('uploadpaper')));
-                $table->addRow(array('', $rend->elementToHtml('nopaper',
-                                                              'true')));
-            }
-
-            if ($this->nummaterials > 0) {
-                $table->addRow(array('Additional Materials:'));
-
-                for ($i = 1; $i <= $this->nummaterials; $i++) {
-                    if (($pub != null)
-                        && ($i < count($this->pub->additional_info) + 1))
-                        $table->addRow(array($this->pub->additional_info[$i-1]->type,
-                                             ':&nbsp;'
-                                             . '<a href="'
-                                             . FS_PATH
-                                             . $this->pub->additional_info[$i-1]->location
-                                             . '">'
-                                             . basename($this->pub->additional_info[$i-1]->location)
-                                             . '</a>'));
-                    else
-                        $table->addRow(array($rend->elementToHtml('type' . $i),
-                                             ':'
-                                             . $rend->elementToHtml('uploadadditional' . $i)));
-                }
-                $table->addRow(array('',
-                                     $rend->elementToHtml('materials_add')
-                                     . '&nbsp;'
-                                     . $rend->elementToHtml('materials_remove')));
-            }
-            else {
-                $table->addRow(array('',
-                                     $rend->elementToHtml('materials_add')));
-            }
-
-            $table->addRow(array('<hr/>'), array('colspan' => 2));
-            $table->addRow(array('',
-                                 $rend->elementToHtml('Save')
-                                 . ' ' . $rend->elementToHtml('Clear')));
-
-            $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
-
-            // emphasize the 'step' cells
-            for ($i = 0 ; $i < $table->getRowCount(); $i++) {
-                if ((strpos($table->getCellContents($i, 0), 'Step 1:') !== false)
-                    || (strpos($table->getCellContents($i, 0), 'Step 2:') !== false))
-                    $table->updateCellAttributes($i, 0, array('id' => 'emph_large'));
-            }
-
-            $this->contentPre .= '<a name="start"></a><h3>';
-            if ($pub != null)
-                $this->contentPre .= 'Edit';
-            else
-                $this->contentPre .= 'Add';
-            $this->contentPre .= ' Publication</h3>';
-
-            if ($pub == null) {
-                $this->contentPre .= 'Adding a publication takes two steps:<br/>'
-                    . '1. Fill in the appropriate fields<br/>'
-                    . '2. Upload the paper and any additional '
-                    . 'materials';
-            }
-
-            $this->form = $form;
-            $this->renderer = $rend;
-            $this->table = $table;
-
-            $this->javascript();
-        }
-        */
     }
 
     function setDefaults() {
@@ -933,15 +744,14 @@ class add_publication extends pdHtmlPage {
             "Specify auxiliary information, to help classify this publication. "
             + "Eg, &quot;with student&quot; or &quot;best paper&quot;, etc. Note "
             + "that, by default, this information will NOT be shown when this "
-            + "document is presented. Separate using semicolons(;). You can see "
-            + "previously enterred entries by clicking the &quot;Select from a list "
-            + "of previously used information options&quot;, and just check off "
-            + "those that apply to the current publication.";
+            + "document is presented. Separate using semicolons(;).";
 
-        var externalPtrHelp=
-            "These can be used to connect this publication to an outside source "
-            + "such as a website or a publication that is not in the current "
-            + "database."
+        var extraInfoListHelp=
+            "Select extra information from entries already in the database.";
+
+        var extLinks=
+            "Link this publication to an outside source such as a website or a "
+            + "publication that is not in the current database."
             + "<ul>"
             + "<li>The &quot;Pointer Type&quot; is the kind of object you are linking "
             + "with. eg website or publication,</li>"
@@ -950,10 +760,6 @@ class add_publication extends pdHtmlPage {
             + "<li>The &quot;http://&quot; would be where you would enter the url."
             + "</li>"
             + "</ul>";
-
-        var internalPtrHelp=
-            "These can be used to connect this publication with another publication "
-            + "inside the database.";
 
 
         var keywordsHelp=
@@ -970,12 +776,22 @@ class add_publication extends pdHtmlPage {
             + "specified a publication_venue that include a date, then this date "
             + "field will already be enterred.";
 
+        var paperAtt =
+            "Attach a postscript, PDF, or other version of the publication.";
+
+        var otherAtt =
+            "In addition to the primary paper attachment, attach additional "
+            + "files to this publication.";
+
+        var intLinks =
+            "Link other publications in the database to this publication.";
+
         function dataKeep(tab) {
             var qsArray = new Array();
             var qsString = "";
 
-            for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-                var element = document.forms["pubForm"].elements[i];
+            for (i = 0; i < document.forms["page1"].elements.length; i++) {
+                var element = document.forms["page1"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
                     && (element.type != "button") && (element.type != "checkbox")
                     && (element.value != "") && (element.value != null)) {
@@ -1050,7 +866,7 @@ class add_publication extends pdHtmlPage {
         }
 
         function verify(num) {
-            var pubform = document.forms["pubForm"];
+            var pubform = document.forms["page1"];
             if (pubform.elements["category"].value == "") {
                 alert("Please select a category for the publication.");
                 return false;
