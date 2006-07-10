@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.16 2006/06/09 22:59:39 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.17 2006/07/10 14:21:36 aicmltec Exp $
 
 /**
  * \file
@@ -91,7 +91,7 @@ class search_publication_db extends pdHtmlPage {
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
             $this->option_list->authorcheck = 'yes';
-            $this->option_list->$halfabstractcheck = 'yes';
+            $this->option_list->halfabstractcheck = 'yes';
             $this->contentPre .= '<h3> QUICK SEARCH </h3>';
         }
         else {

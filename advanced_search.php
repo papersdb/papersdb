@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.28 2006/06/20 14:21:58 aicmltec Exp $
+// $Id: advanced_search.php,v 1.29 2006/07/10 14:21:36 aicmltec Exp $
 
 /**
  * \file
@@ -69,15 +69,23 @@ class advanced_search extends pdHtmlPage {
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
-        $this->renderer = new HTML_QuickForm_Renderer_QuickHtml();
         $renderer =& $this->renderer;
+
+        $renderer =& $this->form->defaultRenderer();
+
+        $renderer->setFormTemplate('<table border="0" cellpadding="3" cellspacing="2" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate('<tr><td style="white-space:nowrap;background:#996;color:#ffc;" align="left" colspan="2"><b>{header}</b></td></tr>');
+        $renderer->setGroupTemplate('<table><tr>{content}</tr></table>', 'name');
+
+        $renderer->setElementTemplate(
+            '<tr><td><b>{label}</b></td><td>{element}'
+            . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
+            . '</td></tr>',
+            'keywords');
+
+        $this->renderer =& $renderer;
         $this->form->accept($renderer);
-        $this->createTable($renderer);
         $this->javascript();
-
-        $this->contentPre .= '<h2><b><u>Search</u></b></h2>';
-        $this->contentPost .= $renderer->elementToHtml('expand');
-
         $this->db->close();
     }
 
@@ -120,7 +128,7 @@ END;
 
     /**
      * Creates the from used on this page. The renderer is then used to
-     * display the form correctly on the page (see createTable).
+     * display the form correctly on the page.
      *
      * Note: calendar.js is used as a shorcut way of entering date values.
      */
@@ -129,67 +137,116 @@ END;
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
 
-        $form->addElement('text', 'search', null,
-                          array('size' => 50, 'maxlength' => 250));
-        $form->addElement('submit', 'Quick', 'Search');
-        $form->addElement('select', 'cat_id', null, $this->cat_list->list,
+        $form->addElement('header', null, 'Quick Search');
+        $qsElement[0] = HTML_QuickForm::createElement(
+            'text', 'search', null, array('size' => 50, 'maxlength' => 250));
+        $qsElement[1] = HTML_QuickForm::createElement(
+            'submit', 'Quick', 'Search');
+        $form->addGroup($qsElement, 'quicksearch', 'Search for:', '&nbsp;',
+                        false);
+
+        $form->addElement('header', null, 'Advanced Search');
+        $form->addElement('select', 'cat_id', 'Category:',
+                          $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
-        $form->addElement('text', 'title', null,
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'authortyped', null,
-                          array('size' => 20, 'maxlength' => 250));
-        $form->addElement('select', 'authorselect', null,
-                          $this->auth_list->list,
-                          array('multiple' => 'multiple', 'size' => 4));
-        $form->addElement('text', 'paper', null,
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'abstract', null,
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'venue', null,
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'keywords', null,
+        $form->addElement('text', 'title', 'Title:',
                           array('size' => 60, 'maxlength' => 250));
 
-        if (is_object($this->category) && is_array($this->category->info)) {
+        $authElement[0] = HTML_QuickForm::createElement(
+            'text', 'authortyped', null,
+            array('size' => 20, 'maxlength' => 250));
+        $authElement[1] = HTML_QuickForm::createElement(
+            'static', 'auth_label', null, 'or select from list');
+        $authElement[2] = HTML_QuickForm::createElement(
+            'select', 'authorselect', null, $this->auth_list->list,
+            array('multiple' => 'multiple', 'size' => 4));
+        $form->addGroup($authElement, 'authors', 'Authors:', '&nbsp;',
+                        false);
+
+        $form->addElement('text', 'paper', 'Paper filename:',
+                          array('size' => 60, 'maxlength' => 250));
+        $form->addElement('text', 'abstract', 'Abstract:',
+                          array('size' => 60, 'maxlength' => 250));
+        $form->addElement('text', 'venue', 'Venue:',
+                          array('size' => 60, 'maxlength' => 250));
+
+        $kwElement[0] = HTML_QuickForm::createElement(
+            'text', 'keywords', null,
+            array('size' => 60, 'maxlength' => 250));
+        $kwElement[1] = HTML_QuickForm::createElement(
+            'static', 'auth_label', null, 'seperate using semi-colon (;)');
+        $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
+                        false);
+
+        if (($this->category != null) && ($this->category->info != null)) {
             foreach ($this->category->info as $info) {
                 $form->addElement('text', strtolower($info->name), null,
                                   array('size' => 60, 'maxlength' => 250));
             }
         }
 
-        $form->addElement('text', 'startdate', null,
-                          array('size' => 10, 'maxlength' => 10));
-        $form->addElement('text', 'enddate', null,
-                          array('size' => 10, 'maxlength' => 10));
+        $dates[0] = HTML_QuickForm::createElement(
+            'text', 'startdate', null,
+            array('size' => 10, 'maxlength' => 10));
+        $dates[1] = HTML_QuickForm::createElement(
+            'static', 'date_js', null,
+            '<a href="javascript:doNothing()" '
+            . 'onClick="setDateField(document.pubForm.startdate);'
+            . 'top.newWin=window.open(\'calendar.html\', \'cal\','
+            . '\'dependent=yes,width=230,height=250,screenX=200,'
+            . 'screenY=300,titlebar=yes\')">'
+            . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) and ');
+        $dates[2] = HTML_QuickForm::createElement(
+            'text', 'enddate', null,
+            array('size' => 10, 'maxlength' => 10));
+        $dates[3] = HTML_QuickForm::createElement(
+            'static', 'date_js', null,
+            '<a href="javascript:doNothing()" '
+            . 'onClick="setDateField(document.pubForm.enddate);'
+            . 'top.newWin=window.open(\'calendar.html\', \'cal\','
+            . '\'dependent=yes,width=230,height=250,screenX=200,'
+            . 'screenY=300,titlebar=yes\')">'
+            . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd)');
+        $form->addGroup($dates, 'datesGroup', 'Published between:', '&nbsp;',
+                        false);
 
-        unset($options);
-        $options = array('titlecheck'        => 'Title',
-                         'authorcheck'       => 'Author(s)',
-                         'categorycheck'     => 'Category',
-                         'extracheck'        => 'Category Related Information',
-                         'papercheck'        => 'Link to Paper',
-                         'additionalcheck'   => 'Link to Additional Material',
-                         'halfabstractcheck' => 'Short Abstract',
-                         'venuecheck'        => 'Publication Venue',
-                         'keywordscheck'     => 'Keywords',
-                         'datecheck'         => 'Date Published');
-        if ($this->expand) {
-            foreach ($options as $name => $text) {
-                $form->addElement('advcheckbox', $name, null, $text, null,
-                                  array('no', 'yes'));
-            }
-        }
-        else {
-            foreach ($options as $name => $text) {
-                $form->addElement('hidden', $name, false);
-            }
-        }
+        $form->addElement('header', null, 'Advanced Search Preferences');
+        unset($searchPrefs);
+        $searchPrefs = array(
+            'titlecheck'        => 'Title',
+            'authorcheck'       => 'Author(s)',
+            'categorycheck'     => 'Category',
+            'extracheck'        => 'Category Related Information',
+            'papercheck'        => 'Link to Paper',
+            'additionalcheck'   => 'Link to Additional Material',
+            'halfabstractcheck' => 'Short Abstract',
+            'venuecheck'        => 'Publication Venue',
+            'keywordscheck'     => 'Keywords',
+            'datecheck'         => 'Date Published');
 
-        $form->addElement('submit', 'Submit', 'Search');
-        $form->addElement('submit', 'Clear', 'Clear');
+        $c = 0;
+        $label = 'Select Preferences:';
+        foreach ($searchPrefs as $name => $text) {
+            $prefElements[] = HTML_QuickForm::createElement(
+                'advcheckbox', $name, null, $text, array('size' => 10),
+                array('no', 'yes'));
+        }
+        $form->addGroup($prefElements, 'prefsGroup'.$c, null, '<br/>',
+                        false);
+
+        $buttons[0] = HTML_QuickForm::createElement(
+            'submit', 'Submit', 'Search');
+        $buttons[1] = HTML_QuickForm::createElement(
+            'submit', 'Clear', 'Clear');
+        $form->addGroup($buttons, 'buttonsGroup', '', '&nbsp;', false);
 
         if($this->expand)
             $form->addElement('hidden', 'expand', 'true');
+
+        $form->setRequiredNote('<font color="#FF0000">*'
+                               . '</font> shows the required fields.');
+        $form->setJsWarnings('Those fields have errors :',
+                             'Thanks for correcting them.');
 
         $this->form =& $form;
     }
@@ -222,123 +279,6 @@ END;
         $this->form->setDefaults($defaultValues);
     }
 
-    /**
-     * Creates the table displaying the form fields.
-     */
-    function createTable(&$renderer) {
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '6',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
-
-        $table->addRow(array('Search:',
-                             $renderer->elementToHtml('search')
-                             . ' ' . $renderer->elementToHtml('Quick')));
-
-        // horizontal line
-        $table->addRow(array('<hr/>'), array('colspan' => '2'));
-
-        $table->addRow(array('<h3>Advanced Search</h3>'), array('colspan' => '2'));
-        $table->addRow(array('<h4>Search within:</h4>'), array('colspan' => '2'));
-
-        // Category
-        $table->addRow(array('Category:', $renderer->elementToHtml('cat_id')));
-
-        // Title
-        $table->addRow(array('Title:', $renderer->elementToHtml('title')));
-
-        // Authors
-        $table->addRow(array('Authors:',
-                             $renderer->elementToHtml('authortyped')
-                             . ' or select from list '
-                             . $renderer->elementToHtml('authorselect')));
-
-        $table->addRow(array('Paper Filename:',
-                             $renderer->elementToHtml('paper')));
-        $table->addRow(array('Abstract:',
-                             $renderer->elementToHtml('abstract')));
-        $table->addRow(array('Publication Venue:',
-                             $renderer->elementToHtml('venue')));
-        $table->addRow(array('Keywords:',
-                             $renderer->elementToHtml('keywords')));
-
-        if (is_object($this->category) && is_array($this->category->info)) {
-            foreach ($this->category->info as $info) {
-                $table->addRow(array($info->name . ':',
-                                     $renderer->elementToHtml(
-                                         strtolower($info->name))));
-            }
-        }
-
-        // date published - uses jscal (http://sourceforge.net/projects/jscal/)
-        // to enter dates.
-        $table->addRow(array('Published between:',
-                             $renderer->elementToHtml('startdate')
-                             . '<a href="javascript:doNothing()" '
-                             . 'onClick="setDateField(document.pubForm.startdate);'
-                             . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-                             . '\'dependent=yes,width=230,height=250,screenX=200,'
-                             . 'screenY=300,titlebar=yes\')">'
-                             . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) '
-                             . 'and '
-                             . $renderer->elementToHtml('enddate')
-                             . '<a href="javascript:doNothing()" '
-                             . 'onClick="setDateField(document.pubForm.enddate);'
-                             . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-                             . '\'dependent=yes,width=230,height=250,screenX=200,'
-                             . 'screenY=300,titlebar=yes\')">'
-                             . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) '
-                           ));
-
-        if ($this->expand) {
-            $table->addRow(array('<hr/>'), array('colspan' => '2'));
-
-            $prefsTable = new HTML_Table();
-
-            $prefsTable->addRow(array('<br/>'
-                                      . $renderer->elementToHtml('titlecheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('authorcheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('categorycheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('extracheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('papercheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('additionalcheck'),
-                                      $renderer->elementToHtml('halfabstractcheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('venuecheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('keywordscheck')
-                                      . '<br/>'
-                                      . $renderer->elementToHtml('datecheck')
-                                    ));
-            $prefsTable->updateRowAttributes($prefsTable->getRowCount() - 1,
-                                             array('id' => 'middle'));
-            $table->addRow(array('Search Preferences',
-                                 'Show the following in search results:'
-                                 . $prefsTable->toHtml()));
-            $table->addRow(array('<hr/>'), array('colspan' => '2'));
-        }
-        else {
-            $table->addRow(array('<a href="javascript:dataKeep(1);">'
-                                 . 'Search Preferences</a>'),
-                           array('colspan' => '2'));
-        }
-
-        $table->addRow(array('',
-                             $renderer->elementToHtml('Submit')
-                             . ' ' . $renderer->elementToHtml('Clear')));
-
-        $table->updateColAttributes(0, array('id' => 'emph',
-                                             'width' => '25%'));
-        $table->updateColAttributes(1, array('valign' => 'top'));
-
-        $this->table =& $table;
-    }
 }
 
 $page = new advanced_search();
