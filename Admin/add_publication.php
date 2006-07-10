@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.40 2006/07/10 19:55:35 aicmltec Exp $
+// $Id: add_publication.php,v 1.41 2006/07/10 23:45:22 aicmltec Exp $
 
 /**
  * \file
@@ -259,7 +259,7 @@ class pubAttachmentsPage extends HTML_QuickForm_Page {
 
         if ($add_paper == 'yes') {
             $this->addElement('file', 'uploadpaper', 'Paper:',
-                              array('size' => 45, 'maxlength' => 250));
+                              array('size' => 45));
         }
 
         for ($i = 0; $i < $other_attachments; $i++) {
@@ -324,6 +324,8 @@ class pubAttachmentsPage extends HTML_QuickForm_Page {
         $buttons[1] =& HTML_QuickForm::createElement(
             'submit', $this->getButtonName('next'), 'Finish');
         $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
+
+        $this->setDefaultAction('upload');
     }
 }
 
@@ -403,8 +405,9 @@ class ActionProcess extends HTML_QuickForm_Action {
             $pub->submit = $_SESSION['user']->name;
         }
 
-        foreach ($values['authors'] as $author_id)
-            $pub->addAuthor($db, $author_id);
+        if (count($values['authors']) > 0)
+            foreach ($values['authors'] as $author_id)
+                $pub->addAuthor($db, $author_id);
 
         if (count($pub->info) > 0) {
             foreach (array_keys($pub->info) as $name) {
@@ -436,7 +439,9 @@ class ActionProcess extends HTML_QuickForm_Action {
         echo $this->masterPage->toHtml();
         return;
 
-        $element =& $data['uploadpaper'];
+        // get the element containing the upload
+        $element =& $page->getElement('uploadpaper');
+
         if ($element->isUploadedFile()) {
             $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
             $basename = 'paper_' . $_FILES['uploadpaper']['name'];
@@ -454,6 +459,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         }
 
         echo $this->masterPage->toHtml();
+        $page->controller->container(true);
     }
 }
 
@@ -499,6 +505,7 @@ class add_publication extends pdHtmlPage {
         $this->form_controller->addPage(new pubCategoryPage('page2', $this));
         $this->form_controller->addPage(
             new pubAttachmentsPage('page3', $this));
+
 
         $this->form_controller->addAction('display',
                                           new ActionDisplay($this));
