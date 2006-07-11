@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.41 2006/07/10 23:45:22 aicmltec Exp $
+// $Id: add_publication.php,v 1.42 2006/07/11 15:27:10 aicmltec Exp $
 
 /**
  * \file
@@ -45,15 +45,6 @@ class pubInfoPage extends HTML_QuickForm_Page {
         $this->addElement('select', 'venue_id',
                           $this->masterPage->helpTooltip('Publication Venue',
                                                          'venueHelp') . ':',
-                          $options);
-
-        // category
-        $category_list = new pdCatList($db);
-        $options = array('' => '--- Please Select a Category ---');
-        $options += $category_list->list;
-        $this->addElement('select', 'cat_id',
-                          $this->masterPage->helpTooltip('Category',
-                                                         'categoryHelp') . ':',
                           $options);
 
         // title
@@ -155,7 +146,15 @@ class pubCategoryPage extends HTML_QuickForm_Page {
         $this->addElement('header', null, 'Add Publication: Step 2');
 
         $venue_id = $this->controller->exportValue('page1', 'venue_id');
-        $cat_id = $this->controller->exportValue('page1', 'cat_id');
+
+        // category
+        $category_list = new pdCatList($db);
+        $options = array('' => '--- Please Select a Category ---');
+        $options += $category_list->list;
+        $this->addElement('select', 'cat_id',
+                          $this->masterPage->helpTooltip('Category',
+                                                         'categoryHelp') . ':',
+                          $options);
 
         if ($venue_id == -3)
             $this->addElement('textarea', 'venue_name', 'Unique Venue Name:',

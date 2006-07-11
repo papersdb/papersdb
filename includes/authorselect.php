@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.10 2006/07/10 19:55:35 aicmltec Exp $
+// $Id: authorselect.php,v 1.11 2006/07/11 15:27:10 aicmltec Exp $
 
 /**
  * \file
@@ -75,7 +75,7 @@ class authorselect extends HTML_QuickForm_advmultiselect {
       <label for="favorite_authors">Favourite Authors</label><br/>
     <input name="which_list" value="author_list" type="radio" id="author_list"
            onclick="buildSelect('author_list')">
-      <label for="author_list">Remaining Authors</label><br/>
+      <label for="author_list">Remaining Authors</label>
   </td>
 </tr>
 </table>
