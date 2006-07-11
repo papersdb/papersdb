@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.42 2006/07/11 15:27:10 aicmltec Exp $
+// $Id: add_publication.php,v 1.43 2006/07/11 18:18:50 aicmltec Exp $
 
 /**
  * \file
@@ -76,6 +76,7 @@ class pubInfoPage extends HTML_QuickForm_Page {
                 $most_used_authors[$author_id] = $all_authors[$author_id];
                 unset($all_authors[$author_id]);
             }
+            sort($most_used_authors);
         }
 
         $this->addElement('authorselect', 'authors',
@@ -338,9 +339,12 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
     function _renderForm(&$page) {
         $renderer =& $page->defaultRenderer();
 
-        $page->setRequiredNote('<font color="#FF0000">*</font> shows the required fields.');
-        $page->setJsWarnings('Those fields have errors :',
-                             'Thanks for correcting them.');
+        $container = $page->controller->container();
+        //$this->masterPage->contentPre
+        //    .= 'values<pre>' . print_r($container, true) . '</pre>';
+
+        $page->setRequiredNote(
+            '<font color="#FF0000">*</font> shows the required fields.');
 
         $renderer->setFormTemplate(
             '<table border="0" cellpadding="3" cellspacing="2" '
@@ -476,8 +480,7 @@ class add_publication extends pdHtmlPage {
     function add_publication() {
         global $db, $logged_in;
 
-        $options = array('pub_id', 'cat_id', 'venue_id', 'ext', 'intpoint',
-                         'nummaterials');
+        $options = array('pub_id');
         foreach ($options as $opt) {
             if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
                 $this->$opt = stripslashes($_GET[$opt]);
@@ -506,10 +509,9 @@ class add_publication extends pdHtmlPage {
             new pubAttachmentsPage('page3', $this));
 
 
-        $this->form_controller->addAction('display',
-                                          new ActionDisplay($this));
+        $this->form_controller->addAction(
+            'display', new ActionDisplay($this));
         $this->form_controller->addAction('process', new ActionProcess($this));
-
     }
 
     function setDefaults() {
@@ -914,7 +916,7 @@ JS_END;
 
 $db =& dbCreate();
 $page = new add_publication();
-echo $page->run();
+$page->run();
 $db->close();
 
 ?>

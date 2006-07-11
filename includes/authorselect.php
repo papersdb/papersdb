@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.11 2006/07/11 15:27:10 aicmltec Exp $
+// $Id: authorselect.php,v 1.12 2006/07/11 18:18:50 aicmltec Exp $
 
 /**
  * \file
@@ -135,20 +135,30 @@ END;
 
             foreach ($this->_options as $option) {
                 $value = (string) $option['attr']['value'];
-                $value = substr($value, strpos($value, ':') + 1);
+                $auth_id = substr($value, strpos($value, ':') + 1);
 
-                if ((is_array($this->_values))
-                    && (in_array($value, $this->_values))) {
-                        // Get the post order
+                $key = false;
+
+                if (is_array($this->_values)) {
+                    // Get the post order
+                    if (in_array($auth_id, $this->_values)) {
+                        // $this->_values set by user
+                        $key = array_search($auth_id, $this->_values);
+                    }
+                    else if (in_array($value, $this->_values)) {
+                        // $this->_values set internally
                         $key = array_search($value, $this->_values);
+                    }
+                }
 
-                        // The item is *selected* so we want to put it in the
-                        // 'selected' multi-select
-                        $arrHtmlSelected[$key] = $option;
-                        // Add it to the 'hidden' multi-select and set it as
-                        // 'selected'
-                        $option['attr']['selected'] = 'selected';
-                        $arrHtmlHidden[$key] = $option;
+                if ($key !== false) {
+                    // The item is *selected* so we want to put it in the
+                    // 'selected' multi-select
+                    $arrHtmlSelected[$key] = $option;
+                    // Add it to the 'hidden' multi-select and set it as
+                    // 'selected'
+                    $option['attr']['selected'] = 'selected';
+                    $arrHtmlHidden[$key] = $option;
                 }
                 else {
                     if (strpos($option['attr']['value'], 'most_used_authors')

@@ -466,21 +466,19 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     // set of errors for which a var trace will be saved
     $user_errors = array(E_USER_ERROR, E_USER_WARNING, E_USER_NOTICE);
 
-    $err = "<errorentry>\n";
-    $err .= "\t<datetime>" . $dt . "</datetime>\n";
-    $err .= "\t<errornum>" . $errno . "</errornum>\n";
-    $err .= "\t<errortype>" . $errortype[$errno] . "</errortype>\n";
-    $err .= "\t<errormsg>" . $errmsg . "</errormsg>\n";
-    $err .= "\t<scriptname>" . $filename . "</scriptname>\n";
-    $err .= "\t<scriptlinenum>" . $linenum . "</scriptlinenum>\n";
+    $err = "<ul>\n";
+    $err .= "\t<li>" . $dt . "</li>\n";
+    $err .= "\t<li>Errno: " . $errno . ', ' . $errortype[$errno] . "</li>\n";
+    $err .= "\t<li>" . $errmsg . "</li>\n";
+    $err .= "\t<li>" . $filename . ":" . $linenum . "</li>\n";
 
     if (in_array($errno, $user_errors)) {
-        $err .= "\t<vartrace>" . wddx_serialize_value($vars, "Variables") . "</vartrace>\n";
+        $err .= "\t<li>" . wddx_serialize_value($vars, "Variables") . "</li>\n";
     }
-    $err .= "</errorentry>\n\n";
+    $err .= "</ul>\n\n";
 
     // for testing
-    echo $err . '<br/>';
+    echo $err;
     backtrace();
 }
 
