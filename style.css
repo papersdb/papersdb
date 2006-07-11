@@ -1,5 +1,4 @@
 body {
-  margin: 0;
   padding: 0;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   background-color: #F2F2F2;
@@ -16,20 +15,29 @@ table {
   margin: 5px 0;
   border: 1px;
   vertical-align: top;
+  font-size:20px;
 }
 
 table tr {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
   vertical-align: top;
 }
 
 table td, table th  {
   font-size:12px;
-  padding: 3px;
+  padding: 2px;
   text-align: left;
   vertical-align: top;
 }
 
 table.nomargins {
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  border: none;
+}
+
+table.nomargins tr {
   margin: 0 0 0 0;
   padding: 0 0 0 0;
   border: none;

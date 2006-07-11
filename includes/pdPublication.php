@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.21 2006/07/06 22:47:14 aicmltec Exp $
+// $Id: pdPublication.php,v 1.22 2006/07/11 22:01:03 aicmltec Exp $
 
 /**
  * \file
@@ -263,7 +263,6 @@ class pdPublication {
             $arr['submit'] = $this->submit;
 
             $db->insert('publication', $arr, 'pdPublication::dbSave');
-            echo 'arr<pre>' . print_r($arr, true) . '</pre>';
 
             // get the pub_id now
             $r = $db->selectRow('publication', 'pub_id',
@@ -390,14 +389,16 @@ class pdPublication {
         if (is_object($mixed)) {
             $this->category = $mixed;
         }
-        else {
+        else if (is_string($mixed)) {
             if (($this->category != null)
                 && ($this->category->cat_id == $mixed)) return;
 
             $this->category = new pdCategory();
-            $result = $this->category->dbLoad($db, $values['cat_id']);
+            $result = $this->category->dbLoad($db, $mixed);
             assert('$result');
         }
+        else
+            return;
 
         if (is_array($this->category->info)) {
             foreach ($this->category->info as $info_id => $name) {
@@ -432,8 +433,8 @@ class pdPublication {
         $this->authors[] = $author;
     }
 
-    function addExtPointer(&$db, $type, $location) {
-        $this->extPointer[$type] = $location;
+    function addExtPointer(&$db, $name, $url) {
+        $this->extPointer[$name] = $url;
     }
 
     function addIntPointer(&$db, $pub_id) {
@@ -444,6 +445,17 @@ class pdPublication {
         $db->update('publication', array('paper' => $paper),
                     array('pub_id' => $this->pub_id),
                     'pdPublication::updatePaper');
+    }
+
+    function dbUpdateAdditional(&$db, $filename) {
+        $db->insert('additional_info', array('location' => $filename),
+                    'pdPublication::dbUpdateAdditional');
+
+        $add_id = $db->insertId();
+
+        $db->insert('pub_add', array('pub_id' => $this->pub_id,
+                                     'add_id' => $add_id),
+                    'pdPublication::dbUpdateAdditional');
     }
 }
 

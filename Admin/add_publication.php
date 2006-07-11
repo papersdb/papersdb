@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.43 2006/07/11 18:18:50 aicmltec Exp $
+// $Id: add_publication.php,v 1.44 2006/07/11 22:01:03 aicmltec Exp $
 
 /**
  * \file
@@ -21,10 +21,10 @@ require_once 'includes/pdExtraInfoList.php';
 
 $db = null;
 
-class pubInfoPage extends HTML_QuickForm_Page {
+class pubStep1Page extends HTML_QuickForm_Page {
     var $masterPage;
 
-    function pubInfoPage($name, &$masterPage) {
+    function pubStep1Page($name, &$masterPage) {
         parent::HTML_QuickForm_Page($name);
         $this->masterPage =& $masterPage;
     }
@@ -46,6 +46,15 @@ class pubInfoPage extends HTML_QuickForm_Page {
                           $this->masterPage->helpTooltip('Publication Venue',
                                                          'venueHelp') . ':',
                           $options);
+
+        // category
+        $category_list = new pdCatList($db);
+        $options = array('' => '--- Please Select a Category ---')
+            + $category_list->list;
+        $catElement = $this->addElement(
+            'select', 'cat_id',
+            $this->masterPage->helpTooltip('Category', 'categoryHelp') . ':',
+            $options);
 
         // title
         $this->addElement('text', 'title',
@@ -76,7 +85,7 @@ class pubInfoPage extends HTML_QuickForm_Page {
                 $most_used_authors[$author_id] = $all_authors[$author_id];
                 unset($all_authors[$author_id]);
             }
-            sort($most_used_authors);
+            asort($most_used_authors);
         }
 
         $this->addElement('authorselect', 'authors',
@@ -96,10 +105,15 @@ class pubInfoPage extends HTML_QuickForm_Page {
                           . ':<br/><div id="small">HTML Enabled</div>',
                           array('cols' => 60, 'rows' => 10));
 
-        $this->addElement('text', 'keywords',
-                          $this->masterPage->helpTooltip('Keywords',
-                                                         'keywordsHelp') . ':',
-                          array('size' => 55, 'maxlength' => 250));
+        $kwGroup[] =& HTML_QuickForm::createElement(
+            'text', 'keywords', null, array('size' => 55, 'maxlength' => 250));
+        $kwGroup[] =& HTML_QuickForm::createElement(
+            'static', 'kwgroup_help', null,
+            '<span style="font-size:10px;">seperate using semi-colon (;)</span>');
+        $this->addGroup($kwGroup, 'kwgroup',
+                        $this->masterPage->helpTooltip('Keywords',
+                                                       'keywordsHelp') . ':',
+                        '<br/>', false);
 
         $dateGroup[] =& HTML_QuickForm::createElement(
             'text', 'date_published', null,
@@ -120,7 +134,7 @@ class pubInfoPage extends HTML_QuickForm_Page {
                         . ':',
                         '&nbsp;', false);
 
-        $this->addRule('date_published', 'please enter a publication date',
+        $this->addRule('dategroup', 'please enter a publication date',
                        'required', null, 'client');
 
         $buttons[0] =& HTML_QuickForm::createElement(
@@ -133,10 +147,10 @@ class pubInfoPage extends HTML_QuickForm_Page {
     }
 }
 
-class pubCategoryPage extends HTML_QuickForm_Page {
+class pubStep2Page extends HTML_QuickForm_Page {
     var $masterPage;
 
-    function pubCategoryPage($name, &$masterPage) {
+    function pubStep2Page($name, &$masterPage) {
         parent::HTML_QuickForm_Page($name);
         $this->masterPage =& $masterPage;
     }
@@ -148,33 +162,9 @@ class pubCategoryPage extends HTML_QuickForm_Page {
 
         $venue_id = $this->controller->exportValue('page1', 'venue_id');
 
-        // category
-        $category_list = new pdCatList($db);
-        $options = array('' => '--- Please Select a Category ---');
-        $options += $category_list->list;
-        $this->addElement('select', 'cat_id',
-                          $this->masterPage->helpTooltip('Category',
-                                                         'categoryHelp') . ':',
-                          $options);
-
-        if ($venue_id == -3)
+        if ($venue_id == -3) {
             $this->addElement('textarea', 'venue_name', 'Unique Venue Name:',
                               array('cols' => 60, 'rows' => 5));
-
-        if ($cat_id > 0) {
-            $category = new pdCategory();
-            $result = $category->dbLoad($db, $cat_id);
-            assert('$result');
-
-            $this->addElement('static', 'categoryname', 'Category:',
-                              $category->category);
-
-            if ($category->info != null) {
-                foreach (array_values($category->info) as $name) {
-                    $this->addElement('text', $name, ucfirst($name) . ':',
-                                      array('size' => 50, 'maxlength' => 250));
-                }
-            }
         }
 
         $this->addElement('advcheckbox', 'add_paper',
@@ -204,6 +194,8 @@ class pubCategoryPage extends HTML_QuickForm_Page {
                                                        'otherAtt') . ':',
                         '&nbsp;', false);
 
+        $this->addElement('header', 'other_info',
+                          'Other information', null);
 
         $this->addElement('textarea', 'extra_info',
                           $this->masterPage->helpTooltip('Extra Information',
@@ -236,10 +228,10 @@ class pubCategoryPage extends HTML_QuickForm_Page {
 }
 
 
-class pubAttachmentsPage extends HTML_QuickForm_Page {
+class pubStep3Page extends HTML_QuickForm_Page {
     var $masterPage;
 
-    function pubAttachmentsPage($name, &$masterPage) {
+    function pubStep3Page($name, &$masterPage) {
         parent::HTML_QuickForm_Page($name);
         $this->masterPage =& $masterPage;
     }
@@ -249,6 +241,7 @@ class pubAttachmentsPage extends HTML_QuickForm_Page {
 
         $this->addElement('header', null, 'Add Publication: Step 3');
 
+        $cat_id = $this->controller->exportValue('page1', 'cat_id');
         $add_paper = $this->controller->exportValue('page2', 'add_paper');
         $other_attachments
             = $this->controller->exportValue('page2', 'other_attachments');
@@ -257,7 +250,24 @@ class pubAttachmentsPage extends HTML_QuickForm_Page {
         $web_links = $this->controller->exportValue('page2', 'web_links');
         $int_links = $this->controller->exportValue('page2', 'int_links');
 
+        if ($cat_id > 0) {
+            $category = new pdCategory();
+            $result = $category->dbLoad($db, $cat_id);
+            assert('$result');
+
+            $this->addElement('static', 'categoryinfo',
+                              'Additional category information', null);
+
+            if ($category->info != null) {
+                foreach (array_values($category->info) as $name) {
+                    $this->addElement('text', $name, ucfirst($name) . ':',
+                                      array('size' => 50, 'maxlength' => 250));
+                }
+            }
+        }
+
         if ($add_paper == 'yes') {
+            $this->addElement('header', null, 'Attachments');
             $this->addElement('file', 'uploadpaper', 'Paper:',
                               array('size' => 45));
         }
@@ -274,30 +284,32 @@ class pubAttachmentsPage extends HTML_QuickForm_Page {
 
             $c = 0;
             foreach ($extra_info->list as $info) {
-                $this->addElement('advcheckbox', 'extra_info[' . $c . ']',
-                                  null, $info, null, array('no', 'yes'));
+                $this->addElement('advcheckbox',
+                                  'extra_info_from_list[' . $c . ']',
+                                  null, $info, null, array('', $info));
                 $c++;
             }
         }
 
         if ($web_links > 0) {
             $this->addElement('header', null, 'Web Links');
-            $this->addElement('static', 'web_links_help', null,
-                              'Link Text : Link URL');
 
             for ($i = 0; $i < $web_links; $i++) {
                 unset($web_link_group);
                 $web_link_group [] =& HTML_QuickForm::createElement(
-                    'text', 'exttext' . $i, null,
+                    'text', 'web_link_text' . $i, 'Link Text',
                     array('size' => 12, 'maxlength' => 250));
                 $web_link_group [] =& HTML_QuickForm::createElement(
                     'static', 'web_links_help', null, ':');
                 $web_link_group [] =& HTML_QuickForm::createElement(
-                    'text', 'exturl' . $i, null,
+                    'text', 'web_link_url' . $i, 'Link URL',
                     array('size' => 25, 'maxlength' => 250));
 
-                $this->addGroup($web_link_group, 'web_link_group',
-                                'Web Link ' . ($i + 1). ':', '&nbsp;', false);
+                $this->addGroup($web_link_group, 'web_link_group' . $i,
+                                $this->masterPage->helpTooltip(
+                                    'Web Link ' . ($i + 1),
+                                    'webLinkHelp') . ':',
+                                '&nbsp;', false);
             }
         }
 
@@ -340,15 +352,12 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $renderer =& $page->defaultRenderer();
 
         $container = $page->controller->container();
-        //$this->masterPage->contentPre
-        //    .= 'values<pre>' . print_r($container, true) . '</pre>';
 
         $page->setRequiredNote(
             '<font color="#FF0000">*</font> shows the required fields.');
 
         $renderer->setFormTemplate(
-            '<table border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<table bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
@@ -356,10 +365,8 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
             '<table><tr>{content}</tr></table>', 'name');
 
         $renderer->setElementTemplate(
-            '<tr><td><b>{label}</b></td><td>{element}'
-            . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
-            . '</td></tr>',
-            'keywords');
+            '<tr><td colspan="2">{label}</td></tr>',
+            'categoryinfo');
 
         $page->accept($renderer);
 
@@ -381,9 +388,6 @@ class ActionProcess extends HTML_QuickForm_Action {
         global $db;
 
         $values = $page->controller->exportValues();
-        $this->masterPage->contentPre
-            .= 'values<pre>' . print_r($values, true) . '</pre>';
-
         if (count($values['authors']) > 0)
             foreach ($values['authors'] as $index => $author) {
                 $pos = strpos($author, ':');
@@ -391,6 +395,9 @@ class ActionProcess extends HTML_QuickForm_Action {
                     $values['authors'][$index] = substr($author, $pos + 1);
                 }
             }
+
+        $this->masterPage->contentPre
+            .= 'values<pre>' . print_r($values, true) . '</pre>';
 
         if ($pub != null) {
             $pub->load($values);
@@ -400,10 +407,10 @@ class ActionProcess extends HTML_QuickForm_Action {
         else {
             $pub = new pdPublication();
             $pub->load($values);
-            if ($this->venue != null)
-                $pub->addVenue($db, $this->venue);
-            if ($this->category != null)
-                $pub->addCategory($db, $this->category);
+            if ($values['venue_id'] > 0)
+                $pub->addVenue($db, $values['venue_id']);
+            if ($values['cat_id'] > 0)
+                $pub->addCategory($db, $values['cat_id']);
 
             $pub->submit = $_SESSION['user']->name;
         }
@@ -420,49 +427,87 @@ class ActionProcess extends HTML_QuickForm_Action {
 
         $pub->published = $values['date_published'];
 
-        for ($e = 1; $e <= $values['ext']; $e++) {
-            $url = '<a href="' . $values['extvalue'.$e] . '">'
-                . $values['extlink'.$e] . '</a>';
-            $pub->addExtPointer($db, $values['extname'.$e], $url);
+        for ($e = 0; $e < $values['web_links']; $e++) {
+            $pub->addExtPointer($db, $values['web_link_text'.$e],
+                                $values['web_link_url'.$e]);
         }
 
-        for ($e = 1; $e <= $values['intpoint']; $e++) {
-            $pub->addIntPointer($db, $values['intpointer'.$e]);
+        for ($e = 0; $e < $values['int_links']; $e++) {
+            $pub->addIntPointer($db, $values['int_link'.$e]);
         }
 
-        //$pub->dbSave($db);
+        $extra_info_arr = array($values['extra_info']);
+        foreach ($values['extra_info_from_list'] as $info) {
+            if ($info != '')
+                $extra_info_arr[] = $info;
+        }
 
-        $this->contentPre .= 'pub<br/><pre>'
+        $this->masterPage->contentPre .= 'extra_info<br/><pre>'
+            . print_r($extra_info_arr, true) . '</pre>';
+        $pub->extra_info = implode('; ', $extra_info_arr);
+
+        $pub->dbSave($db);
+
+        $this->masterPage->contentPre .= 'pub<br/><pre>'
             . print_r($pub, true) . '</pre>';
 
-        // copy files here
-        $data =& $page->controller->container();
-        $this->masterPage->contentPre
-            .= 'data<pre>' . print_r($data, true) . '</pre>';
-        echo $this->masterPage->toHtml();
-        return;
-
-        // get the element containing the upload
+        // copy files here - get the element containing the upload
+        $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
         $element =& $page->getElement('uploadpaper');
 
         if ($element->isUploadedFile()) {
-            $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
             $basename = 'paper_' . $_FILES['uploadpaper']['name'];
             $filename = $path . '/' . $basename;
             $relativename = $pub->pub_id . '/'. $basename;
 
-            if (!file_exists($path))
+            $vars = array('path', 'basename', 'filename', 'relativename');
+
+            foreach ($vars as $v)
+                $this->masterPage->contentPre .= $v . '<br/><pre>'
+                . print_r($$v, true) . '</pre>';
+
+            if (!file_exists($path)) {
                 mkdir($path, 0777);
-            // mkdir with 0777 does not seem to work
-            chmod($path, 0777);
+                // mkdir permissions with 0777 does not seem to work
+                chmod($path, 0777);
+            }
 
             $element->moveUploadedFile($path, $basename);
             chmod($filename, 0777);
             $pub->dbUpdatePaper($db, $relativename);
         }
 
+        if ($values['other_attachments'] > 0) {
+            for ($i = 0; $i < $values['other_attachments']; $i++) {
+                $element =& $page->getElement('other_attachments' . $i);
+
+                if ($element->isUploadedFile()) {
+                    $basename = 'additional_'
+                        . $_FILES['other_attachments' . $i]['name'];
+                    $filename = $path . '/' . $basename;
+                    $relativename = $pub->pub_id . '/'. $basename;
+
+                    $vars = array('basename', 'filename', 'relativename');
+
+                    foreach ($vars as $v)
+                        $this->masterPage->contentPre .= $v . '<br/><pre>'
+                        . print_r($$v, true) . '</pre>';
+
+                    if (!file_exists($path)) {
+                        mkdir($path, 0777);
+                        // mkdir permissions with 0777 does not seem to work
+                        chmod($path, 0777);
+                    }
+
+                    $element->moveUploadedFile($path, $basename);
+                    chmod($filename, 0777);
+                    $pub->dbUpdateAdditional($db, $relativename);
+                }
+            }
+        }
+
         echo $this->masterPage->toHtml();
-        $page->controller->container(true);
+        //$page->controller->container(true);
     }
 }
 
@@ -503,10 +548,9 @@ class add_publication extends pdHtmlPage {
         $this->db =& $db;
         $this->form_controller
             = new HTML_QuickForm_Controller('pubWizard', true);
-        $this->form_controller->addPage(new pubInfoPage('page1', $this));
-        $this->form_controller->addPage(new pubCategoryPage('page2', $this));
-        $this->form_controller->addPage(
-            new pubAttachmentsPage('page3', $this));
+        $this->form_controller->addPage(new pubStep1Page('page1', $this));
+        $this->form_controller->addPage(new pubStep2Page('page2', $this));
+        $this->form_controller->addPage(new pubStep3Page('page3', $this));
 
 
         $this->form_controller->addAction(
@@ -635,54 +679,65 @@ class add_publication extends pdHtmlPage {
         $this->contentPre .= '_FILES<pre>' . print_r($_FILES, true) . '</pre>';
 
         if ($pub != null) {
-            $this->pub->load($values);
-            $this->pub->addVenue($this->db, $values['venue_id']);
-            $this->pub->addCategory($this->db, $values['cat_id']);
+            $pub->load($values);
+            $pub->addVenue($this->db, $values['venue_id']);
+            $pub->addCategory($this->db, $values['cat_id']);
         }
         else {
-            $this->pub = new pdPublication();
-            $this->pub->load($values);
+            $pub = new pdPublication();
+            $pub->load($values);
             if ($this->venue != null)
-                $this->pub->addVenue($this->db, $this->venue);
+                $pub->addVenue($this->db, $this->venue);
             if ($this->category != null)
-                $this->pub->addCategory($this->db, $this->category);
+                $pub->addCategory($this->db, $this->category);
 
-            $this->pub->submit = $_SESSION['user']->name;
+            $pub->submit = $_SESSION['user']->name;
         }
 
         foreach ($values['authors'] as $author_id)
-            $this->pub->addAuthor($this->db, $author_id);
+            $pub->addAuthor($this->db, $author_id);
 
-        if (count($this->pub->info) > 0) {
-            foreach (array_keys($this->pub->info) as $name) {
-                $this->pub->info[$name] = $values[$name];
+        if (count($pub->info) > 0) {
+            foreach (array_keys($pub->info) as $name) {
+                $pub->info[$name] = $values[$name];
             }
         }
 
-        $this->pub->published = $values['date_published'];
+        $extra_info_arr = array($values['extra_info']);
+        foreach ($values['extra_info_from_list'] as $info) {
+            if ($info != '')
+                $extra_info_arr[] = $info;
+        }
+
+        $this->contentPre .= 'extra_infobr/><pre>'
+            . print_r($extra_info_arr, true) . '</pre>';
+
+        $pub->extra_info = explode(';', $extra_info_arr);
+
+        $pub->published = $values['date_published'];
 
         for ($e = 1; $e <= $values['ext']; $e++) {
             $url = '<a href="' . $values['extvalue'.$e] . '">'
                 . $values['extlink'.$e] . '</a>';
-            $this->pub->addExtPointer($db, $values['extname'.$e], $url);
+            $pub->addExtPointer($db, $values['extname'.$e], $url);
         }
 
         for ($e = 1; $e <= $values['intpoint']; $e++) {
-            $this->pub->addIntPointer($db, $values['intpointer'.$e]);
+            $pub->addIntPointer($db, $values['intpointer'.$e]);
         }
 
-        $this->pub->dbSave($this->db);
+        $pub->dbSave($this->db);
 
         $this->contentPre .= 'pub<br/><pre>'
-            . print_r($this->pub, true) . '</pre>';
+            . print_r($pub, true) . '</pre>';
 
         // copy files here
         $element = $this->form->getElement('uploadpaper');
         if ($element->isUploadedFile()) {
-            $path = FS_PATH . '/uploaded_files/' . $this->pub->pub_id;
+            $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
             $basename = 'paper_' . $_FILES['uploadpaper']['name'];
             $filename = $path . '/' . $basename;
-            $relativename = $this->pub->pub_id . '/'. $basename;
+            $relativename = $pub->pub_id . '/'. $basename;
 
             if (!file_exists($path))
                 mkdir($path, 0777);
@@ -691,7 +746,7 @@ class add_publication extends pdHtmlPage {
 
             $element->moveUploadedFile($path, $basename);
             chmod($filename, 0777);
-            $this->pub->dbUpdatePaper($this->db, $relativename);
+            $pub->dbUpdatePaper($this->db, $relativename);
         }
 
         if ($values['nummaterials'] > 0) {
@@ -758,16 +813,12 @@ class add_publication extends pdHtmlPage {
             "Select extra information from entries already in the database.";
 
         var extLinks=
-            "Link this publication to an outside source such as a website or a "
-            + "publication that is not in the current database."
-            + "<ul>"
-            + "<li>The &quot;Pointer Type&quot; is the kind of object you are linking "
-            + "with. eg website or publication,</li>"
-            + "<li>The &quot;Title of link&quot; would be the name of the website, or "
-            + "the nameof the publication</li>"
-            + "<li>The &quot;http://&quot; would be where you would enter the url."
-            + "</li>"
-            + "</ul>";
+            "Used to link this publication to an outside source such as a website or a "
+            + "publication that is not in the current database.";
+
+        var webLinkHelp =
+            "The first field contains the link title and the second link "
+            + "contains the URL.";
 
 
         var keywordsHelp=
@@ -792,7 +843,7 @@ class add_publication extends pdHtmlPage {
             + "files to this publication.";
 
         var intLinks =
-            "Link other publications in the database to this publication.";
+            "Used to link other publications in the database to this publication.";
 
         function dataKeep(tab) {
             var qsArray = new Array();
