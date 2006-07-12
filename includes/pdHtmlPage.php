@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.17 2006/07/11 18:18:50 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.18 2006/07/12 21:47:43 aicmltec Exp $
 
 /**
  * \file
@@ -163,41 +163,6 @@ class pdHtmlPage {
         $result .= $this->htmlPageFooter();
 
         return $result;
-    }
-
-    function run() {
-        $result = $this->htmlPageHeader();
-
-        if ($this->loginError) {
-            if (isset($this->contentPre))
-                $result .= $this->contentPre;
-            else
-                $result .= $this->loginErrorMessage();
-
-            if (isset($this->contentPost))
-                $result .= $this->contentPost;
-
-            $result .= $this->htmlPageFooter();
-            echo $result;
-            return;
-        }
-        else if ($this->pageError) {
-            if (isset($this->contentPre))
-                $result .= $this->contentPre;
-            else
-                $result .= $this->errorMessage();
-
-            if (isset($this->contentPost))
-                $result .= $this->contentPost;
-
-            $result .= $this->htmlPageFooter();
-            echo $result;
-            return;
-        }
-        else {
-            assert('$this->form_controller != null');
-            $this->form_controller->run();
-        }
     }
 
     // private date to this class

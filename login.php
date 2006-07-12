@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.14 2006/06/20 14:21:58 aicmltec Exp $
+// $Id: login.php,v 1.15 2006/07/12 21:47:43 aicmltec Exp $
 
 /**
  * \file
@@ -198,6 +198,8 @@ class login extends pdHtmlPage {
     }
 }
 
+session_start();
+check_login();
 $page = new login();
 echo $page->toHtml();
 

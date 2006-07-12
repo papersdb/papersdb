@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.22 2006/07/11 22:01:03 aicmltec Exp $
+// $Id: pdPublication.php,v 1.23 2006/07/12 21:47:43 aicmltec Exp $
 
 /**
  * \file
@@ -105,18 +105,17 @@ class pdPublication {
             && isset($this->category->cat_id)) {
             $this->category->dbLoadCategoryInfo($db);
 
-            if (is_array($this->category->info)) {
+            if ($this->category->info != null) {
                 foreach ($this->category->info as $info_id => $name) {
-                    $q = $db->select('pub_cat_info', array('value'),
-                                     array('pub_id' => $id,
-                                           'cat_id' => quote_smart($this->category->cat_id),
-                                           'info_id' => quote_smart($info_id)),
-                                     "pdPublication::dbLoad");
-                    $r = $db->fetchObject($q);
-                    while ($r) {
+                    $r = $db->selectRow('pub_cat_info', array('value'),
+                                        array('pub_id' => $id,
+                                              'cat_id' => quote_smart($this->category->cat_id),
+                                              'info_id' => quote_smart($info_id)),
+                                        "pdPublication::dbLoad");
+                    if ($r !== false)
                         $this->info[$name] = $r->value;
-                        $r = $db->fetchObject($q);
-                    }
+                    else
+                        $this->info[$name] = '';
                 }
             }
         }
@@ -261,15 +260,8 @@ class pdPublication {
                 $arr['paper'] = $this->paper;
 
             $arr['submit'] = $this->submit;
-
             $db->insert('publication', $arr, 'pdPublication::dbSave');
-
-            // get the pub_id now
-            $r = $db->selectRow('publication', 'pub_id',
-                                array('title' => $this->title),
-                                'pdUser::dbSave');
-            assert('($r !== false)');
-            $this->pub_id = $r->pub_id;
+            $this->pub_id = $db->insertId();
         }
 
         $db->delete('pointer', array('pub_id' => $this->pub_id),

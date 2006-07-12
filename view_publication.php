@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.29 2006/07/06 02:45:51 aicmltec Exp $
+// $Id: view_publication.php,v 1.30 2006/07/12 21:47:43 aicmltec Exp $
 
 /**
  * \file
@@ -99,7 +99,7 @@ class view_publication extends pdHtmlPage {
             $this->contentPost = '<br><b><a href="Admin/add_publication.php?pub_id='
                 . quote_smart($this->pub_id)
                 . '">Edit this publication</a>&nbsp;&nbsp;&nbsp;'
-                . '<a href=\"Admin/delete_publication.php?pub_id='
+                . '<a href="Admin/delete_publication.php?pub_id='
                 . quote_smart($this->pub_id)
                 . '">Delete this publication</a></b>';
         }
@@ -220,6 +220,8 @@ class view_publication extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new view_publication();
 echo $page->toHtml();
 
