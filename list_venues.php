@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.5 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: list_venues.php,v 1.6 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -92,6 +92,8 @@ class list_venues extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new list_venues();
 echo $page->toHtml();
 

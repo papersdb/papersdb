@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.30 2006/07/10 19:55:35 aicmltec Exp $
+// $Id: advanced_search.php,v 1.31 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -282,6 +282,8 @@ END;
 
 }
 
+session_start();
+$logged_in = check_login();
 $page = new advanced_search();
 echo $page->toHtml();
 

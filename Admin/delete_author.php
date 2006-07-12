@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.7 2006/06/14 05:10:25 aicmltec Exp $
+// $Id: delete_author.php,v 1.8 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -129,6 +129,8 @@ class delete_author extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new delete_author();
 echo $page->toHtml();
 

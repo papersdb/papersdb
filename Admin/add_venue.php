@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.8 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: add_venue.php,v 1.9 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -255,6 +255,8 @@ JS_END;
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new add_venue();
 echo $page->toHtml();
 

@@ -20,7 +20,7 @@ class list_author extends pdHtmlPage {
     function list_author() {
         global $logged_in;
 
-        parent::pdHtmlPage('list_authors');
+        parent::pdHtmlPage('all_authors');
         $this->db =& dbCreate();
 
         // Performing SQL query
@@ -78,6 +78,8 @@ class list_author extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new list_author();
 echo $page->toHtml();
 

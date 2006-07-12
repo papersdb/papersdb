@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.7 2006/06/20 14:21:58 aicmltec Exp $
+// $Id: edit_user.php,v 1.8 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -196,6 +196,8 @@ END;
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new edit_user();
 echo $page->toHtml();
 

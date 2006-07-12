@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.3 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: delete_interest.php,v 1.4 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -82,6 +82,8 @@ class delete_interest extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new delete_interest();
 echo $page->toHtml();
 

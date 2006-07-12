@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.4 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: delete_venue.php,v 1.5 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -75,6 +75,8 @@ class delete_venue extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new delete_venue();
 echo $page->toHtml();
 

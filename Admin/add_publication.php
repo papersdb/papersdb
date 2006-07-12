@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.45 2006/07/12 21:47:43 aicmltec Exp $
+// $Id: add_publication.php,v 1.46 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -588,8 +588,8 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $masterPage->renderer =& $renderer;
         $masterPage->javascript();
 
-        $data =& $page->controller->container();
-        $masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
+        //$data =& $page->controller->container();
+        //$masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
 
         echo $masterPage->toHtml();
     }
@@ -727,9 +727,7 @@ class ActionReset extends HTML_QuickForm_Action {
 }
 
 session_start();
-
 $logged_in = check_login();
-
 $db =& dbCreate();
 
 $wizard = new HTML_QuickForm_Controller('pubWizard', true);

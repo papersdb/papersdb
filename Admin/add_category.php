@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.13 2006/06/21 05:34:22 aicmltec Exp $
+// $Id: add_category.php,v 1.14 2006/07/12 21:57:25 aicmltec Exp $
 
 /**
  * \file
@@ -236,6 +236,8 @@ JS_END;
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new add_category();
 echo $page->toHtml();
 
