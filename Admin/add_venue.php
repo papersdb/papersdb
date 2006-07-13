@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.9 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: add_venue.php,v 1.10 2006/07/13 23:31:51 aicmltec Exp $
 
 /**
  * \file
@@ -209,7 +209,6 @@ class add_venue extends pdHtmlPage {
 
     function javascript() {
         $this->js = <<< JS_END
-            <script language="JavaScript" src="../calendar.js"></script>
             <script language="JavaScript" type="text/JavaScript">
 
             function closewindow() {

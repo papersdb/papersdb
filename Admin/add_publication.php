@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.47 2006/07/13 21:45:25 aicmltec Exp $
+// $Id: add_publication.php,v 1.48 2006/07/13 23:31:51 aicmltec Exp $
 
 /**
  * \file
@@ -18,6 +18,7 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
 require_once 'includes/pdExtraInfoList.php';
+require_once 'includes/jscalendar.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
@@ -57,7 +58,7 @@ class add_publication extends pdHtmlPage {
                            'abstract'   => $pub->abstract,
                            'extra_info' => $pub->extra_info,
                            'keywords'   => $pub->keywords,
-                           'date_published' => $pub->published
+                           'pub_date' => $pub->published
             );
 
         if ($pub->venue != null)
@@ -99,7 +100,6 @@ class add_publication extends pdHtmlPage {
         $nummaterials_prev = $this->nummaterials - 1;
 
         $this->js = <<<JS_END
-            <script language="JavaScript" src="../calendar.js"></script>
             <script language="JavaScript" type="text/JavaScript">
 
             var venueHelp=
@@ -168,8 +168,8 @@ class add_publication extends pdHtmlPage {
 
         var datePublishedHelp=
             "Specifies the date that this document was published. If you have "
-            + "specified a publication_venue that include a date, then this date "
-            + "field will already be enterred.";
+            + "specified a publication venue that includes a date, then this "
+            + "date field will already be enterred.";
 
         var paperAtt =
             "Attach a postscript, PDF, or other version of the publication.";
@@ -270,25 +270,6 @@ class pubStep1Page extends HTML_QuickForm_Page {
                                                        'keywordsHelp') . ':',
                         '<br/>', false);
 
-        $dateGroup[] =& HTML_QuickForm::createElement(
-            'text', 'date_published', null,
-            array('size' => 10, 'maxlength' => 10));
-
-        $dateGroup[] =& HTML_QuickForm::createElement(
-            'static', 'dategroup_icon', null,
-            '<a href="javascript:doNothing()" onClick="setDateField('
-            . 'document.page1.date_published);'
-            . 'top.newWin=window.open(\'../calendar.html\','
-            . '\'cal\',\'dependent=yes,width=230,height=250,'
-            . 'screenX=200,screenY=300,titlebar=yes\')">'
-            . '<img src="../calendar.gif" border=0></a> '
-            . '<span style="font-size:10px;">(yyyy-mm-dd)</span>');
-        $this->addGroup($dateGroup, 'dategroup',
-                        $masterPage->helpTooltip('Date Published',
-                                                       'datePublishedHelp')
-                        . ':',
-                        '&nbsp;', false);
-
         $this->addRule('dategroup', 'please enter a publication date',
                        'required', null, 'client');
 
@@ -310,7 +291,7 @@ class pubStep1Page extends HTML_QuickForm_Page {
                               'title'      => $pub->title,
                               'abstract'   => $pub->abstract,
                               'keywords'   => $pub->keywords,
-                              'date_published' => $pub->published
+                              'pub_date' => $pub->published
                 );
 
             if ($pub->venue_id != null)
@@ -551,6 +532,35 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
+        $pub_date_options = array(
+            'baseURL' => '../includes/',
+            'styleCss' => 'calendar.css',
+            'language' => 'en',
+            'image' => array(
+                'src' => '../calendar.gif',
+                'border' => 0
+                ),
+            'setup' => array(
+                'inputField' => 'pub_date',
+                'ifFormat' => '%Y-%m-%d',
+                'showsTime' => false,
+                'time24' => true,
+                'weekNumbers' => false,
+                'showOthers' => true
+                )
+            );
+
+        $dateGroup[] =& HTML_QuickForm::createElement(
+            'text', 'pub_date', null,
+            array('readonly' => '1', 'id' => 'pub_date', 'size' => 10));
+        $dateGroup[] = HTML_QuickForm::createElement(
+            'jscalendar', 'startdate_calendar', null, $pub_date_options);
+        $this->addGroup($dateGroup, 'dategroup',
+                        $masterPage->helpTooltip('Date Published',
+                                                       'datePublishedHelp')
+                        . ':',
+                        '&nbsp;', false);
+
         $buttons[0] =& $this->createElement(
             'submit', $this->getButtonName('back'), '<< Previous step');
         $buttons[1] =& HTML_QuickForm::createElement(
@@ -642,7 +652,7 @@ class ActionProcess extends HTML_QuickForm_Action {
             }
         }
 
-        $pub->published = $values['date_published'];
+        $pub->published = $values['pub_date'];
 
         for ($e = 0; $e < $values['web_links']; $e++) {
             $pub->addExtPointer($db, $values['web_link_text'.$e],

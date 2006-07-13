@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.33 2006/07/13 23:19:14 aicmltec Exp $
+// $Id: advanced_search.php,v 1.34 2006/07/13 23:31:51 aicmltec Exp $
 
 /**
  * \file
@@ -119,8 +119,6 @@ class advanced_search extends pdHtmlPage {
     function javascript() {
         $this->js = <<<END
 
-            <script language="JavaScript" src="calendar.js"></script>
-
             <script language="JavaScript" type="text/JavaScript">
             window.name="search_publication.php";
 
@@ -158,7 +156,7 @@ END;
      * Creates the from used on this page. The renderer is then used to
      * display the form correctly on the page.
      *
-     * Note: calendar.js is used as a shorcut way of entering date values.
+     * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
         $form = new HTML_QuickForm('pubForm', 'post',
