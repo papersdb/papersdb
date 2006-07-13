@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.32 2006/07/13 21:45:24 aicmltec Exp $
+// $Id: advanced_search.php,v 1.33 2006/07/13 23:19:14 aicmltec Exp $
 
 /**
  * \file
@@ -22,6 +22,7 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthorList.php';
+require_once 'includes/jscalendar.php';
 
 /**
  * Renders the whole page.
@@ -45,16 +46,16 @@ class advanced_search extends pdHtmlPage {
 
         $this->titlecheck        = '1';
         $this->authorcheck       = '1';
-        $this->additionalcheck   = '1';
+        $this->papercheck        = '1';
         $this->halfabstractcheck = '1';
         $this->datecheck         = '1';
+        $this->venuecheck        = '1';
 
         if(isset($_GET['search']) && ($_GET['search'] != ''))
             $this->search = stripslashes($_GET['search']);
 
         $options = array('search', 'cat_id', 'title', 'authortyped',
                          'paper', 'abstract', 'venue', 'keywords',
-                         'startdate', 'enddate',
                          'titlecheck',
                          'authorcheck',
                          'categorycheck',
@@ -72,6 +73,9 @@ class advanced_search extends pdHtmlPage {
 
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
+
+        if (isset($_GET['datesGroup']) && (count($_GET['datesGroup']) > 0))
+            $this->datesGroup = $_GET['datesGroup'];
 
         $this->db =& dbCreate();
 
@@ -210,30 +214,57 @@ END;
             }
         }
 
-        $dates[0] =& HTML_QuickForm::createElement(
+        $startdate_options = array(
+            'baseURL' => 'includes/',
+            'styleCss' => 'calendar.css',
+            'language' => 'en',
+            'image' => array(
+                'src' => 'calendar.gif',
+                'border' => 0
+                ),
+            'setup' => array(
+                'inputField' => 'startdate',
+                'ifFormat' => '%Y-%m-%d',
+                'showsTime' => false,
+                'time24' => true,
+                'weekNumbers' => false,
+                'showOthers' => true
+                )
+            );
+
+        $enddate_options = array(
+            'baseURL' => 'includes/',
+            'styleCss' => 'calendar.css',
+            'language' => 'en',
+            'image' => array(
+                'src' => 'calendar.gif',
+                'border' => 0
+                ),
+            'setup' => array(
+                'inputField' => 'enddate',
+                'ifFormat' => '%Y-%m-%d',
+                'showsTime' => false,
+                'time24' => true,
+                'weekNumbers' => false,
+                'showOthers' => true
+                )
+            );
+
+        $datesGroup[] = HTML_QuickForm::createElement(
             'text', 'startdate', null,
-            array('size' => 10, 'maxlength' => 10));
-        $dates[1] =& HTML_QuickForm::createElement(
-            'static', 'date_js', null,
-            '<a href="javascript:doNothing()" '
-            . 'onClick="setDateField(document.pubForm.startdate);'
-            . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-            . '\'dependent=yes,width=230,height=250,screenX=200,'
-            . 'screenY=300,titlebar=yes\')">'
-            . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd) and ');
-        $dates[2] =& HTML_QuickForm::createElement(
+            array('readonly' => '1', 'id' => 'startdate', 'size' => 10));
+        $datesGroup[] = HTML_QuickForm::createElement(
+            'jscalendar', 'startdate_calendar', null, $startdate_options);
+        $datesGroup[] = HTML_QuickForm::createElement(
+            'static', 'date_label', null, 'and');
+        $datesGroup[] = HTML_QuickForm::createElement(
             'text', 'enddate', null,
-            array('size' => 10, 'maxlength' => 10));
-        $dates[3] =& HTML_QuickForm::createElement(
-            'static', 'date_js', null,
-            '<a href="javascript:doNothing()" '
-            . 'onClick="setDateField(document.pubForm.enddate);'
-            . 'top.newWin=window.open(\'calendar.html\', \'cal\','
-            . '\'dependent=yes,width=230,height=250,screenX=200,'
-            . 'screenY=300,titlebar=yes\')">'
-            . '<img src="calendar.gif" border=0></a> (yyyy-mm-dd)');
-        $form->addGroup($dates, 'datesGroup', 'Published between:', '&nbsp;',
-                        false);
+            array('readonly' => '1', 'id' => 'enddate', 'size' => 10));
+        $datesGroup[] = HTML_QuickForm::createElement(
+            'jscalendar', 'enddate_calendar', null, $enddate_options);
+
+        $form->addGroup($datesGroup, 'datesGroup', 'Published between:',
+                        '&nbsp;');
 
         $form->addElement('header', null, 'Show in Results');
         unset($searchPrefs);
@@ -287,9 +318,11 @@ END;
             'halfabstractcheck' => ($this->halfabstractcheck != ''),
             'venuecheck'        => ($this->venuecheck != ''),
             'keywordscheck'     => ($this->keywordscheck != ''),
-            'datecheck'         => ($this->datecheck != ''),
-            'startdate'         => $this->startdate,
-            'enddate'           => $this->enddate);
+            'datecheck'         => ($this->datecheck != ''));
+
+        $defaultValues['datesGroup']['startdate']
+            = $this->datesGroup['startdate'];
+        $defaultValues['datesGroup']['enddate'] = $this->datesGroup['enddate'];
 
         if (is_object($this->category) && is_array($this->category->info)) {
             foreach ($this->category->info as $info) {

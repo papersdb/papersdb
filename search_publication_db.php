@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.18 2006/07/13 21:45:24 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.19 2006/07/13 23:19:14 aicmltec Exp $
 
 /**
  * \file
@@ -26,12 +26,15 @@ class search_publication_db extends pdHtmlPage {
     var $allowed_options = array('categorycheck',
                                  'titlecheck',
                                  'authorcheck',
+                                 'categorycheck',
+                                 'extracheck',
+                                 'categorycheck',
+                                 'extracheck',
                                  'papercheck',
                                  'additionalcheck',
-                                 'venuecheck',
                                  'halfabstractcheck',
+                                 'venuecheck',
                                  'keywordscheck',
-                                 'extracheck',
                                  'datecheck',
                                  'search',
                                  'cat_id',
@@ -42,8 +45,7 @@ class search_publication_db extends pdHtmlPage {
                                  'abstract',
                                  'venue',
                                  'keywords',
-                                 'startdate',
-                                 'enddate');
+                                 'datesGroup');
     var $option_list;
     var $pub_id_array;
     var $parse_search_add_word_or_next = false;
@@ -52,9 +54,6 @@ class search_publication_db extends pdHtmlPage {
     function search_publication_db() {
         parent::pdHtmlPage('Search Publication');
         $this->optionsGet();
-
-        $this->contentPost
-            .= '<pre>' . print_r($this->option_list, true) . '</pre>';
 
         $link = connect_db();
         $pub_id_count = 0;
@@ -83,11 +82,10 @@ class search_publication_db extends pdHtmlPage {
         $url_opt = array();
         foreach ($this->allowed_options as $opt) {
             if (isset($this->option_list->$opt))
-                if ($opt == 'authorselect') {
-                    foreach ($this->option_list->authorselect
-                             as $key => $auth_id) {
-                        $url_opt[] = 'authorselect[' . $key . ']='
-                            . urlencode($auth_id);
+                if (($opt == 'authorselect') || ($opt == 'datesGroup')) {
+                    foreach ($this->option_list->$opt as $key => $value) {
+                        $url_opt[] = $opt .'[' . $key . ']='
+                            . urlencode($value);
                     }
                 }
                 else {
@@ -298,7 +296,8 @@ class search_publication_db extends pdHtmlPage {
 
                 // Show the date the publication was published.
                 if(($this->option_list->datecheck)
-                   || ($startdate != $enddate)){
+                   || ($this->option_list->datesGroup['startdate']
+                       != $this->option_list->datesGroup['enddate'])){
                     //PARSE DATES
                     $thedate = "";
                     $published = split("-",$pub->published);
@@ -342,7 +341,7 @@ class search_publication_db extends pdHtmlPage {
         else
             $arr =& $_GET;
 
-        $$this->option_list = new stdClass; // start off a new (empty) object
+        $this->option_list = new stdClass; // start off a new (empty) object
 
         foreach($this->allowed_options as $allowed_opt) {
             if (isset($arr[$allowed_opt])) {
@@ -643,18 +642,19 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // DATES SEARCH --------------------------------------
-        if (($this->option_list->startdate != $this->option_list->enddate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/',
-                          $this->option_list->startdate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/',
-                          $this->option_list->enddate)) {
+        $startdate =& $this->option_list->datesGroup['startdate'];
+        $enddate =& $this->option_list->datesGroup['enddate'];
+
+        if (($startdate != $enddate)
+            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $startdate)
+            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $enddate)) {
 
             $temporary_array = NULL;
 
             $search_query = "SELECT DISTINCT pub_id from publication "
                 . "WHERE published BETWEEN " .
-                quote_smart($this->option_list->startdate)
-                . " AND " . quote_smart($this->option_list->enddate);
+                quote_smart($startdate)
+                . " AND " . quote_smart($enddate);
             $this->add_to_array($search_query, $temporary_array);
             $this->pub_id_array = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
         }
