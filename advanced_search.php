@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.31 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: advanced_search.php,v 1.32 2006/07/13 21:45:24 aicmltec Exp $
 
 /**
  * \file
@@ -30,7 +30,6 @@ class advanced_search extends pdHtmlPage {
     var $cat_list;
     var $category;
     var $auth_list;
-    var $expand;
     var $search;
     var $cat_id;
     var $title;
@@ -39,22 +38,40 @@ class advanced_search extends pdHtmlPage {
     var $abstract;
     var $venue;
     var $keywords;
+    var $authorselect;
 
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
 
-        if(isset($_GET['expand']) && ($_GET['expand'] == 'true')) {
-            $this->expand = true;
-        }
+        $this->titlecheck        = '1';
+        $this->authorcheck       = '1';
+        $this->additionalcheck   = '1';
+        $this->halfabstractcheck = '1';
+        $this->datecheck         = '1';
 
         if(isset($_GET['search']) && ($_GET['search'] != ''))
             $this->search = stripslashes($_GET['search']);
 
         $options = array('search', 'cat_id', 'title', 'authortyped',
-                         'paper', 'abstract', 'venue', 'keywords');
+                         'paper', 'abstract', 'venue', 'keywords',
+                         'startdate', 'enddate',
+                         'titlecheck',
+                         'authorcheck',
+                         'categorycheck',
+                         'extracheck',
+                         'papercheck',
+                         'additionalcheck',
+                         'halfabstractcheck',
+                         'venuecheck',
+                         'keywordscheck',
+                         'datecheck');
+
         foreach ($options as $opt)
             if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
                 $this->$opt = stripslashes($_GET[$opt]);
+
+        if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
+            $this->authorselect = $_GET['authorselect'];
 
         $this->db =& dbCreate();
 
@@ -108,14 +125,18 @@ class advanced_search extends pdHtmlPage {
             var qsString = "";
 
             for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-                var element = document.forms["pubForm"].elements;
-                if ((element.value != "") && (element.value != null)) {
-                    temp_qs += element.name + "=" + element.value;
+                var element = document.forms["pubForm"].elements[i];
+                if ((element.value != "") && (element.value != null)
+                    && (element.type != "submit")) {
+
+                    if (element.type == "checkbox") {
+                        if (element.checked) {
+                            qsArray.push(element.name + "=" + element.value);
+                        }
+                    } else {
                         qsArray.push(element.name + "=" + element.value);
+                    }
                 }
-            }
-            if (num == 1) {
-                qsArray.push("expand=true");
             }
             if (qsArray.length > 0) {
                 qsString = qsArray.join("&");
@@ -150,20 +171,21 @@ END;
 
         $form->addElement('header', null, 'Advanced Search');
         $form->addElement('select', 'cat_id', 'Category:',
-                          $this->cat_list->list,
+                          array('' => '-- All Categories --')
+                          + $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
         $form->addElement('text', 'title', 'Title:',
                           array('size' => 60, 'maxlength' => 250));
 
         $authElement[0] =& HTML_QuickForm::createElement(
             'text', 'authortyped', null,
-            array('size' => 20, 'maxlength' => 250));
+            array('size' => 60, 'maxlength' => 250));
         $authElement[1] =& HTML_QuickForm::createElement(
             'static', 'auth_label', null, 'or select from list');
         $authElement[2] =& HTML_QuickForm::createElement(
             'select', 'authorselect', null, $this->auth_list->list,
-            array('multiple' => 'multiple', 'size' => 4));
-        $form->addGroup($authElement, 'authors', 'Authors:', '&nbsp;',
+            array('multiple' => 'multiple', 'size' => 10));
+        $form->addGroup($authElement, 'authors', 'Authors:', '<br/>',
                         false);
 
         $form->addElement('text', 'paper', 'Paper filename:',
@@ -182,8 +204,8 @@ END;
                         false);
 
         if (($this->category != null) && ($this->category->info != null)) {
-            foreach ($this->category->info as $info) {
-                $form->addElement('text', strtolower($info->name), null,
+            foreach ($this->category->info as $info => $name) {
+                $form->addElement('text', strtolower($name), $name . ':',
                                   array('size' => 60, 'maxlength' => 250));
             }
         }
@@ -229,7 +251,7 @@ END;
 
         foreach ($searchPrefs as $name => $text) {
             $prefElements[] =& HTML_QuickForm::createElement(
-                'advcheckbox', $name, null, $text, array('size' => 10),
+                'checkbox', $name, null, $text, array('size' => 10),
                 array('no', 'yes'));
         }
         $form->addGroup($prefElements, 'prefsGroup', null, "<br/>\n",
@@ -240,15 +262,6 @@ END;
         $buttons[1] =& HTML_QuickForm::createElement(
             'submit', 'Clear', 'Clear');
         $form->addGroup($buttons, 'buttonsGroup', '', '&nbsp;', false);
-
-        if($this->expand)
-            $form->addElement('hidden', 'expand', 'true');
-
-        $form->setRequiredNote('<font color="#FF0000">*'
-                               . '</font> shows the required fields.');
-        $form->setJsWarnings('Those fields have errors :',
-                             'Thanks for correcting them.');
-
         $this->form =& $form;
     }
 
@@ -265,11 +278,18 @@ END;
             'abstract'          => $this->abstract,
             'venue'             => $this->venue,
             'keywords'          => $this->keywords,
-            'titlecheck'        => 'yes',
-            'authorcheck'       => 'yes',
-            'additionalcheck'   => 'yes',
-            'halfabstractcheck' => 'yes',
-            'datecheck'         => 'yes');
+            'titlecheck'        => ($this->titlecheck != ''),
+            'authorcheck'       => ($this->authorcheck != ''),
+            'categorycheck'     => ($this->categorycheck != ''),
+            'extracheck'        => ($this->extracheck != ''),
+            'papercheck'        => ($this->papercheck != ''),
+            'additionalcheck'   => ($this->additionalcheck != ''),
+            'halfabstractcheck' => ($this->halfabstractcheck != ''),
+            'venuecheck'        => ($this->venuecheck != ''),
+            'keywordscheck'     => ($this->keywordscheck != ''),
+            'datecheck'         => ($this->datecheck != ''),
+            'startdate'         => $this->startdate,
+            'enddate'           => $this->enddate);
 
         if (is_object($this->category) && is_array($this->category->info)) {
             foreach ($this->category->info as $info) {
@@ -277,9 +297,11 @@ END;
             }
         }
 
+        if (count($this->authorselect) > 0)
+            $defaultValues['authorselect'] =& $this->authorselect;
+
         $this->form->setDefaults($defaultValues);
     }
-
 }
 
 session_start();

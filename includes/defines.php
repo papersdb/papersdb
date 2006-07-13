@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.10 2006/07/06 22:24:57 aicmltec Exp $
+// $Id: defines.php,v 1.11 2006/07/13 21:45:25 aicmltec Exp $
 
 /**
  * \file
@@ -29,7 +29,7 @@ define('DB_PASSWD', '');
  *
  * @todo needs to be changed to real database when SW is released
  */
-define('DB_NAME',   'pubDBdev');
+define('DB_NAME',   'pubDBdev2');
 
 /** The path on the fileserver where documents are stored. */
 //define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');

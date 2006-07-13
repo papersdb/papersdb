@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.30 2006/07/12 21:47:43 aicmltec Exp $
+// $Id: view_publication.php,v 1.31 2006/07/13 21:45:24 aicmltec Exp $
 
 /**
  * \file
@@ -50,6 +50,7 @@ class view_publication extends pdHtmlPage {
         $table->addRow(array('Title:', $pub->title));
         $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                      array('id' => 'emph'));
+        $this->venueRowsAdd($pub, $table);
         $table->addRow(array('Category:', $pub->category->category));
 
         if ($pub->paper == "No paper")
@@ -59,7 +60,6 @@ class view_publication extends pdHtmlPage {
             $papername = split("paper_", $pub->paper);
             $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
         }
-        $table->addRow(array('Paper:', $paperstring));
 
         if(isset($pub->additional_info)) {
             $table->addRow(array('Additional Materials:',
@@ -71,7 +71,6 @@ class view_publication extends pdHtmlPage {
         $table->addRow(array('Abstract:',
                              stripslashes(nl2br($pub->abstract))));
 
-        $this->venueRowsAdd($pub, $table);
         $this->extPointerRowsAdd($pub, $table);
         $this->intPointerRowsAdd($db, $pub, $table);
 
@@ -89,6 +88,7 @@ class view_publication extends pdHtmlPage {
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
 
+        $table->addRow(array('Paper:', $paperstring));
         $table->addRow(array('&nbsp;', $updateStr));
         $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                      array('id' => 'footer'));

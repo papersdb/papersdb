@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.17 2006/07/10 14:21:36 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.18 2006/07/13 21:45:24 aicmltec Exp $
 
 /**
  * \file
@@ -24,27 +24,26 @@ class search_publication_db extends pdHtmlPage {
      * by either GET or POST methods.
      */
     var $allowed_options = array('categorycheck',
-                                'titlecheck',
-                                'authorcheck',
-                                'papercheck',
-                                'additionalcheck',
-                                'venuecheck',
-                                'fullabstractcheck',
-                                'halfabstractcheck',
-                                'keywordscheck',
-                                'extracheck',
-                                'datecheck',
-                                'search',
-                                'cat_id',
-                                'title',
-                                'authortyped',
-                                'authorselect',
-                                'paper',
-                                'abstract',
-                                'venue',
-                                'keywords',
-                                'startdate',
-                                'enddate');
+                                 'titlecheck',
+                                 'authorcheck',
+                                 'papercheck',
+                                 'additionalcheck',
+                                 'venuecheck',
+                                 'halfabstractcheck',
+                                 'keywordscheck',
+                                 'extracheck',
+                                 'datecheck',
+                                 'search',
+                                 'cat_id',
+                                 'title',
+                                 'authortyped',
+                                 'authorselect',
+                                 'paper',
+                                 'abstract',
+                                 'venue',
+                                 'keywords',
+                                 'startdate',
+                                 'enddate');
     var $option_list;
     var $pub_id_array;
     var $parse_search_add_word_or_next = false;
@@ -53,6 +52,9 @@ class search_publication_db extends pdHtmlPage {
     function search_publication_db() {
         parent::pdHtmlPage('Search Publication');
         $this->optionsGet();
+
+        $this->contentPost
+            .= '<pre>' . print_r($this->option_list, true) . '</pre>';
 
         $link = connect_db();
         $pub_id_count = 0;
@@ -81,7 +83,17 @@ class search_publication_db extends pdHtmlPage {
         $url_opt = array();
         foreach ($this->allowed_options as $opt) {
             if (isset($this->option_list->$opt))
-                $url_opt[] = $opt . "=" . urlencode($this->option_list->$opt);
+                if ($opt == 'authorselect') {
+                    foreach ($this->option_list->authorselect
+                             as $key => $auth_id) {
+                        $url_opt[] = 'authorselect[' . $key . ']='
+                            . urlencode($auth_id);
+                    }
+                }
+                else {
+                    $url_opt[] = $opt . '='
+                        . urlencode($this->option_list->$opt);
+                }
         }
 
         if (count($url_opt) > 0) {
@@ -90,8 +102,8 @@ class search_publication_db extends pdHtmlPage {
 
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
-            $this->option_list->authorcheck = 'yes';
-            $this->option_list->halfabstractcheck = 'yes';
+            $this->option_list->authorcheck = '1';
+            $this->option_list->halfabstractcheck = '1';
             $this->contentPre .= '<h3> QUICK SEARCH </h3>';
         }
         else {
@@ -102,7 +114,7 @@ class search_publication_db extends pdHtmlPage {
         $db =& dbCreate();
         $countentries = 0;
         $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
-        $this->option_list->titlecheck = 'yes';
+        $this->option_list->titlecheck = '1';
 
         $form =& $this->searchFormCreate();
         $form->setDefaults(array('search' => $input_unsanitized));
@@ -149,7 +161,7 @@ class search_publication_db extends pdHtmlPage {
                 $pubTable = new HTML_Table();
 
                 // Show Category
-                if (($this->option_list->categorycheck == 'yes')
+                if (($this->option_list->categorycheck == '1')
                     || ($this->option_list->category != ''))
                     $pubTable->addRow(array('<u>'
                                             . $pub->category->category
@@ -157,7 +169,7 @@ class search_publication_db extends pdHtmlPage {
                                       array('id' => 'small'));
 
                 // Show Title
-                if (($this->option_list->titlecheck == 'yes')
+                if (($this->option_list->titlecheck == '1')
                     || ($this->option_list->title != ''))
                     $pubTable->addRow(array('<a href="view_publication.php?'
                                             . 'pub_id=' . $pub->pub_id . '">'
@@ -165,7 +177,7 @@ class search_publication_db extends pdHtmlPage {
                                       array('id' => 'large'));
 
                 // Show Author
-                if($this->option_list->authorcheck == 'yes') {
+                if($this->option_list->authorcheck == '1') {
                     $first = true;
                     $cell = '';
                     foreach ($pub->authors as $auth) {
@@ -181,7 +193,7 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // Show Paper
-                if (($this->option_list->papercheck == 'yes')
+                if (($this->option_list->papercheck == '1')
                     || ($this->option_list->paper != '')) {
                     if($pub->paper == 'No paper')
                         $cell = "No Paper at this time.";
@@ -196,7 +208,7 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // Show Additional Materials
-                if (($this->option_list->additionalcheck == 'yes')
+                if (($this->option_list->additionalcheck == '1')
                     || ($this->option_list->additional != '')) {
                     if(is_array($pub->additional_info)) {
                         $add_count = 1;
@@ -205,7 +217,7 @@ class search_publication_db extends pdHtmlPage {
                             if ($additional->type != "")
                                 $cell = $additional->type . ":";
                             else
-                                $cell = '"Additional Material '
+                                $cell = 'Additional Material '
                                     . ($add_count++) . ':';
                             $cell .= '<a href=.' . $additional->location . '>'
                                 . '<i><b>' . $temp[1] . '</b></i>'
@@ -217,44 +229,39 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // Show the venue
-                if(($this->option_list->venuecheck == 'yes')
-                   || ($this->option_list->venue != '')) {
-                    if (isset($pub->venue_info)) {
-                        $cell = '<b>' . $pub->venue_info->type . '</b>: ';
-                        if($pub->venue_info->url != '')
-                            $cell .= '<a href="' . $$pub->venue_info->url
+                if(($this->option_list->venuecheck == '1')
+                   || ($this->option_list->venue != null)) {
+                    if (is_object($pub->venue)) {
+                        $cell = '<b>' . $pub->venue->type . '</b>: ';
+                        if($pub->venue->url != '')
+                            $cell .= '<a href="' . $$pub->venue->url
                                 . '" target="_blank">';
-                        $cell .= $pub->venue_info->name;
-                        if($pub->venue_info->url != '')
+                        $cell .= $pub->venue->name;
+                        if($pub->venue->url != '')
                             $cell .= '</a>';
                         $pubTable->addRow(array($cell),
                                           array('id' => 'small'));
 
-                        if($pub->venue_info->data != ''){
-                            if($pub->venue_info->type == "Conference")
+                        if($pub->venue->data != ''){
+                            if($pub->venue->type == "Conference")
                                 $cell = "<b>Location:&nbsp;</b>";
-                            else if($pub->venue_info->type == "Journal")
+                            else if($pub->venue->type == "Journal")
                                 $cell = "<b>Publisher:&nbsp;</b>";
-                            else if($pub->venue_info->type == "Workshop")
+                            else if($pub->venue->type == "Workshop")
                                 $cell = "<b>Associated Conference:&nbsp;</b>";
-                            $cell .= $pub->venue_info->data;
+                            $cell .= $pub->venue->data;
                             $pubTable->addRow(array($cell),
                                               array('id' => 'standard'));
                         }
-                        else {
-                            $pubTable->addRow(array($pub->venue),
-                                              array('id' => 'standard'));
-                        }
+                    }
+                    else {
+                        $pubTable->addRow(array('Venue: ' . $pub->venue),
+                                          array('id' => 'standard'));
                     }
                 }
 
-                if($this->option_list->fullabstractcheck == 'yes'){
-                    $pubTable->addRow(
-                        array(stripslashes(nl2br($pub->abstract))),
-                        array('id' => 'small'));
-                }
-                else if(($this->option_list->halfabstractcheck == 'yes')
-                        || ($this->option_list->abstract != '')) {
+                if(($this->option_list->halfabstractcheck == '1')
+                   || ($this->option_list->abstract != '')) {
                     // Show part of the abstract.
                     $tempstring = stripslashes(nl2br($pub->abstract));
                     if(strlen($tempstring) > 350) {
@@ -263,9 +270,14 @@ class search_publication_db extends pdHtmlPage {
                     $pubTable->addRow(array($tempstring),
                                       array('id' => 'small'));
                 }
+                else {
+                    $pubTable->addRow(
+                        array(stripslashes(nl2br($pub->abstract))),
+                        array('id' => 'small'));
+                }
 
                 // Show the keywords
-                if(($this->option_list->keywordscheck = 'yes')
+                if(($this->option_list->keywordscheck = '1')
                    || ($this->option_list->keywords != '')) {
                     $pubTable->addRow(array('<b>Keywords: </b>'
                                             . $pub->keywordsGet()),
@@ -273,13 +285,12 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // Show the extra information related to the category
-                if (($this->option_list->extracheck = 'yes')
+                if (($this->option_list->extracheck = '1')
                     && is_array($pub->info)) {
-                    foreach ($pub->info as $info) {
-                        if(($info->value != "") && ($info->name != "")) {
-                            $pubTable->addRow(array('<b>' . $info->name
-                                                    . ': </b>'
-                                                    . $info->value),
+                    foreach ($pub->info as $info => $value) {
+                        if ($value != "") {
+                            $pubTable->addRow(array('<b>' . $info . ': </b>'
+                                                    . $value),
                                               array('id' => 'small'));
                         }
                     }
@@ -336,7 +347,7 @@ class search_publication_db extends pdHtmlPage {
         foreach($this->allowed_options as $allowed_opt) {
             if (isset($arr[$allowed_opt])) {
                 if (is_array($arr[$allowed_opt])) {
-                    $this->option_list->$allowed_opt = arr2obj($arr[$allowed_opt]);
+                    $this->option_list->$allowed_opt = $arr[$allowed_opt];
                 }
                 else {
                     $this->option_list->$allowed_opt = $arr[$allowed_opt];
@@ -633,16 +644,17 @@ class search_publication_db extends pdHtmlPage {
 
         // DATES SEARCH --------------------------------------
         if (($this->option_list->startdate != $this->option_list->enddate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $this->option_list->startdate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $this->option_list->enddate)) {
+            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/',
+                          $this->option_list->startdate)
+            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/',
+                          $this->option_list->enddate)) {
 
             $temporary_array = NULL;
 
-            echo "startdate: ". $startdate . " enddate: " . $enddate . "<br/>\n";
-
             $search_query = "SELECT DISTINCT pub_id from publication "
-                . "WHERE published BETWEEN " . quote_smart($startdate)
-                . " AND " . quote_smart($enddate);
+                . "WHERE published BETWEEN " .
+                quote_smart($this->option_list->startdate)
+                . " AND " . quote_smart($this->option_list->enddate);
             $this->add_to_array($search_query, $temporary_array);
             $this->pub_id_array = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
         }

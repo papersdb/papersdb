@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.22 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: index.php,v 1.23 2006/07/13 21:45:24 aicmltec Exp $
 
 /**
  * \file
@@ -46,6 +46,8 @@ class indexPage extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new indexPage();
 echo $page->toHtml();
 

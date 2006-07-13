@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.46 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: add_publication.php,v 1.47 2006/07/13 21:45:25 aicmltec Exp $
 
 /**
  * \file
@@ -194,7 +194,6 @@ class pubStep1Page extends HTML_QuickForm_Page {
         $masterPage =& $data['masterPage'];
         assert('$masterPage != null');
         $pub =& $data['pub'];
-        assert('$pub != null');
 
         $this->_formBuilt = true;
 
@@ -225,9 +224,10 @@ class pubStep1Page extends HTML_QuickForm_Page {
         $auth_list = new pdAuthorList($db);
         $all_authors = $auth_list->list;
 
-        foreach (array_keys($user->collaborators) as $author_id) {
-            unset($all_authors[$author_id]);
-        }
+        if (count($user->collaborators) > 0)
+            foreach (array_keys($user->collaborators) as $author_id) {
+                unset($all_authors[$author_id]);
+            }
 
         // get the first 10 popular authors used by this user
         $user->popularAuthorsDbLoad($db);
@@ -325,6 +325,7 @@ class pubStep1Page extends HTML_QuickForm_Page {
 
             $this->setConstants($defaults);
         }
+        //$masterPage->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
     }
 }
 
@@ -336,7 +337,6 @@ class pubStep2Page extends HTML_QuickForm_Page {
         $masterPage =& $data['masterPage'];
         assert('$masterPage != null');
         $pub =& $data['pub'];
-        assert('$pub != null');
 
         $this->addElement('header', null, 'Add Publication: Step 2');
 
@@ -355,6 +355,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
             'select', 'cat_id',
             $masterPage->helpTooltip('Category', 'categoryHelp') . ':',
             $options);
+
 
         $this->addElement('advcheckbox', 'add_paper',
                           $masterPage->helpTooltip('Attach Paper',
@@ -423,7 +424,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
         else {
             if ($venue_id > 0) {
                 $venue = new pdVenue();
-                $result = $this->venue->dbLoad($db, $venue_id);
+                $result = $venue->dbLoad($db, $venue_id);
                 assert('$result');
 
                 $category = null;
@@ -588,8 +589,8 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $masterPage->renderer =& $renderer;
         $masterPage->javascript();
 
-        //$data =& $page->controller->container();
-        //$masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
+        $data =& $page->controller->container();
+        $masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
 
         echo $masterPage->toHtml();
     }
@@ -739,11 +740,17 @@ $wizard->addAction('display', new ActionDisplay());
 $wizard->addAction('process', new ActionProcess());
 $wizard->addAction('reset', new ActionReset());
 
-$data =& $wizard->container();
 
+if (((count($_GET) == 0) && (count($_POST) == 0))
+    || (isset($_GET['pub_id']) && ($_GET['pub_id'] != ''))) {
+    $wizard->container(true);
+}
+
+$data =& $wizard->container();
 $data['db'] =& $db;
 
 $pub = null;
+
 if (isset($_GET['pub_id']) && ($_GET['pub_id'] != '')) {
     $pub = new pdPublication();
     $result = $pub->dbLoad($db, $_GET['pub_id']);
@@ -751,11 +758,13 @@ if (isset($_GET['pub_id']) && ($_GET['pub_id'] != '')) {
     $data['pub'] =& $pub;
 }
 
+if (isset($data['pub']) && ($data['pub'] != null)) {
+    $pub =& $data['pub'];
+}
+
 $masterPage = new add_publication($pub);
 $data['masterPage'] =& $masterPage;
-
 $wizard->run();
-
 $db->close();
 
 ?>
