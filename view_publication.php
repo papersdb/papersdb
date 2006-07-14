@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.31 2006/07/13 21:45:24 aicmltec Exp $
+// $Id: view_publication.php,v 1.32 2006/07/14 22:47:02 aicmltec Exp $
 
 /**
  * \file
@@ -38,7 +38,12 @@ class view_publication extends pdHtmlPage {
         isValid($this->pub_id);
 
         $pub = new pdPublication();
-        $pub->dbLoad($db, $this->pub_id);
+        $result = $pub->dbLoad($db, $this->pub_id);
+
+        if (!$result) {
+            $this->contentPre .= 'Publication does not exist';
+            return;
+        }
 
         $this->table = new HTML_Table(array('width' => '600',
                                             'border' => '0',
@@ -161,30 +166,29 @@ class view_publication extends pdHtmlPage {
     }
 
     function extPointerRowsAdd(&$pub, &$table) {
-        if ($pub->extPointer == null) return;
+        if (count($pub->extPointer) == 0) return;
 
         foreach ($pub->extPointer as $name => $value) {
-            $table->addRow(array($name . ':', $value));
+            if (strpos($value, 'http://') !== false)
+                $cell = '<a href="' . $value . '">' . $value . '</a>';
+            else
+                $cell = $value;
+            $table->addRow(array($name . ':', $cell));
         }
     }
 
     function intPointerRowsAdd(&$db, &$pub, &$table) {
-        global $logged_in;
-
-        if (!isset($pub->intPointer)) return;
+        if (count($pub->intPointer) == 0) return;
 
         foreach ($pub->intPointer as $int) {
-            $intLinkStr = "<a href=\"view_publication.php?";
-            if($logged_in)
-                $intLinkStr .= "admin=true&";
-
             $intPub = new pdPublication();
-            $intPub->dbLoad($db, $int->value);
+            $result = $intPub->dbLoad($db, $int->value);
+            if ($result) {
+                $intLinkStr = '<a href="view_publication.php?pub_id='
+                    . $int->value . '">' . $intPub->title . '</a>';
 
-            $intLinkStr .= "pub_id=" . $int->value . "\">"
-                . $intPub->title . "</a>";
-
-            $table->addRow(array('Connected with:', $intLinkStr));
+                $table->addRow(array('Linked to:', $intLinkStr));
+            }
         }
     }
 

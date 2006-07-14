@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.23 2006/07/12 21:47:43 aicmltec Exp $
+// $Id: pdPublication.php,v 1.24 2006/07/14 22:47:02 aicmltec Exp $
 
 /**
  * \file
@@ -34,7 +34,7 @@ class pdPublication {
     var $paper;
     var $abstract;
     var $keywords;
-    var $published;
+    var $published;   // this is the published date
     var $venue;
     var $venue_id;
     var $authors;
@@ -46,6 +46,7 @@ class pdPublication {
     var $intPointer;
     var $extPointer;
     var $dbLoadFlags;
+    var $additional_info; // these are the additional attached files
 
     /**
      * Constructor.

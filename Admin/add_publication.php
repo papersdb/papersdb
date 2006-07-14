@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.48 2006/07/13 23:31:51 aicmltec Exp $
+// $Id: add_publication.php,v 1.49 2006/07/14 22:47:02 aicmltec Exp $
 
 /**
  * \file
@@ -178,7 +178,7 @@ class add_publication extends pdHtmlPage {
             "In addition to the primary paper attachment, attach additional "
             + "files to this publication.";
 
-        var intLinks =
+        var pubLinks =
             "Used to link other publications in the database to this publication.";
 
         </script>
@@ -189,17 +189,19 @@ JS_END;
 class pubStep1Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
+
+        if (!isset($_SESSION['user']) || !isset($data['db'])
+            || !isset($data['masterPage'])) {
+            return;
+        }
+
         $db =& $data['db'];
-        assert('$db != null');
         $masterPage =& $data['masterPage'];
-        assert('$masterPage != null');
         $pub =& $data['pub'];
 
         $this->_formBuilt = true;
 
         $this->addElement('header', null, 'Add Publication: Step 1');
-
-        $element = $this->addElement('hidden', 'pub_id', 0);
 
         // Venue
         $venue_list = new pdVenueList($db);
@@ -264,7 +266,7 @@ class pubStep1Page extends HTML_QuickForm_Page {
             'text', 'keywords', null, array('size' => 55, 'maxlength' => 250));
         $kwGroup[] =& HTML_QuickForm::createElement(
             'static', 'kwgroup_help', null,
-            '<span style="font-size:10px;">seperate using semi-colon (;)</span>');
+            '<span style="font-size:10px;">separate using semi-colons (;)</span>');
         $this->addGroup($kwGroup, 'kwgroup',
                         $masterPage->helpTooltip('Keywords',
                                                        'keywordsHelp') . ':',
@@ -286,13 +288,9 @@ class pubStep1Page extends HTML_QuickForm_Page {
         $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
         if ($pub != null) {
-            $defaults = array('pub_id'     => $pub->pub_id,
-                              'cat_id'     => $pub->category->cat_id,
-                              'title'      => $pub->title,
+            $defaults = array('title'      => $pub->title,
                               'abstract'   => $pub->abstract,
-                              'keywords'   => $pub->keywords,
-                              'pub_date' => $pub->published
-                );
+                              'keywords'   => $pub->keywords);
 
             if ($pub->venue_id != null)
                 $defaults['venue_id'] = $pub->venue_id;
@@ -313,11 +311,19 @@ class pubStep1Page extends HTML_QuickForm_Page {
 class pubStep2Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
+
+        if (!isset($_SESSION['user']) || !isset($data['db'])
+            || !isset($data['masterPage'])) {
+            return;
+        }
+
         $db =& $data['db'];
         assert('$db != null');
         $masterPage =& $data['masterPage'];
         assert('$masterPage != null');
         $pub =& $data['pub'];
+
+        $this->_formBuilt = true;
 
         $this->addElement('header', null, 'Add Publication: Step 2');
 
@@ -337,14 +343,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
             $masterPage->helpTooltip('Category', 'categoryHelp') . ':',
             $options);
 
-
-        $this->addElement('advcheckbox', 'add_paper',
-                          $masterPage->helpTooltip('Attach Paper',
-                                                         'paperAtt') . ':',
-                          'check this box to attach the primary document',
-                          null, array('no', 'yes'));
-
-        $numOptions = array('' => 'none',
+        $numOptions = array(''  => '0',
                             '1' => '1',
                             '2' => '2',
                             '3' => '3',
@@ -356,14 +355,72 @@ class pubStep2Page extends HTML_QuickForm_Page {
                             '9' => '9',
                             '10' => '10');
 
-        $attachments[] =& HTML_QuickForm::createElement(
-            'select', 'other_attachments', null, $numOptions);
-        $attachments[] =& HTML_QuickForm::createElement(
-            'static', 'attachmentsStatic', null, 'additional attachments');
-        $this->addGroup($attachments, 'attachmentsGroup',
-                        $masterPage->helpTooltip('Other Attachments',
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        if ($pub == null) {
+            $this->addElement('advcheckbox', 'add_paper',
+                              $masterPage->helpTooltip('Attach Paper',
+                                                       'paperAtt') . ':',
+                              'check this box to attach the primary document',
+                              array('onclick' => 'confirm();'),
+                              array('no', 'yes'));
+
+            $this->addElement('select', 'other_attachments',
+                              $masterPage->helpTooltip('Other Attachments',
                                                        'otherAtt') . ':',
-                        '&nbsp;', false);
+                              $numOptions);
+        }
+        else {
+            $this->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'static', 'attached_paper', null,
+                        '<a href="' . $url . $pub->paper . '">'
+                        . basename($pub->paper) . '</a>'),
+                    HTML_QuickForm::createElement(
+                        'advcheckbox', 'change_paper', null,
+                        'check to replace or remove',
+                        null, array('no', 'yes'))),
+                'paper_group',
+                $masterPage->helpTooltip('Attached Paper',
+                                         'paperAtt') . ':',
+                '&nbsp;', false);
+
+            $label = $masterPage->helpTooltip('Other Attachments',
+                                              'otherAtt') . ':';
+            if (count($pub->additional_info) > 0) {
+                $c = 0;
+                foreach ($pub->additional_info as $att) {
+                    $this->addGroup(
+                        array(
+                            HTML_QuickForm::createElement(
+                                'static', 'curr_other_att', null,
+                                '<a href="' . $url . $att->location . '">'
+                                . basename($att->location) . '</a>'),
+                            HTML_QuickForm::createElement(
+                                'advcheckbox', 'change_paper[' . $c . ']', null,
+                                'check to remove',
+                                null, array('no', 'yes'))),
+                        'curr_att_group', $label, '&nbsp;', false);
+                    $c++;
+                    $label = '';
+                }
+            }
+
+            $other_att_label = $label;
+            $other_att_text = 'additional attachments';
+
+            $this->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null, 'add'),
+                    HTML_QuickForm::createElement(
+                        'select', 'other_attachments', null, $numOptions),
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null, $other_att_text)),
+                'attachmentsGroup', $other_att_label, '&nbsp;', false);
+        }
 
         $this->addElement('header', 'other_info',
                           'Other information', null);
@@ -381,14 +438,96 @@ class pubStep2Page extends HTML_QuickForm_Page {
                           'check this box to select extra info from a list',
                           null, array('no', 'yes'));
 
-        $this->addElement('select', 'web_links',
-                          $masterPage->helpTooltip('Web Links',
-                                                         'extLinks') . ':',
-                          $numOptions);
-        $this->addElement('select', 'int_links',
-                          $masterPage->helpTooltip('Publication Links',
-                                                         'intLinks') . ':',
-                          $numOptions);
+        $this->addElement('header', 'link_info', 'Links', null);
+
+        if ($pub == null) {
+            $this->addElement('select', 'web_links',
+                              $masterPage->helpTooltip('Web Links',
+                                                       'extLinks') . ':',
+                              $numOptions);
+            $this->addElement('select', 'pub_links',
+                              $masterPage->helpTooltip('Publication Links',
+                                                       'pubLinks') . ':',
+                              $numOptions);
+        }
+        else {
+            $label = $masterPage->helpTooltip('Web Links', 'extLinks') . ':';
+
+            if (count($pub->extPointer) > 0) {
+                $c = 0;
+                foreach ($pub->extPointer as $link) {
+                    if (strpos($link, 'http://') !== false)
+                        $text = '<a href="' . $link . '">' . $link . '</a>';
+                    else
+                        $text = $link;
+                    $this->addGroup(
+                        array(
+                            HTML_QuickForm::createElement(
+                                'static', 'curr_web_link[' . $c . ']', $label,
+                                $text),
+                            HTML_QuickForm::createElement(
+                                'advcheckbox',
+                                'remove_curr_web_link[' . $c . ']',
+                                null, 'check to remove',
+                                null, array('no', 'yes'))),
+                        'curr_web_link_group', $label, '&nbsp;', false);
+                    $label = '';
+                    $c++;
+                }
+            }
+
+            $this->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null, 'add'),
+                    HTML_QuickForm::createElement(
+                        'select', 'web_links', null, $numOptions),
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null, 'web links')),
+                'web_links_group', $label, '&nbsp;', false);
+
+            // internal links
+            $label = $masterPage->helpTooltip('Publication Links',
+                                              'pubLinks') . ':';
+            if (count($pub->intPointer) > 0) {
+
+                $c = 0;
+                foreach ($pub->intPointer as $int) {
+                    $intPub = new pdPublication();
+                    $result = $intPub->dbLoad($db, $int->value);
+                    if ($result) {
+                        $pubLinkstr = '<a href="' . $url
+                            . 'view_publication.php?pub_id=' . $int->value
+                            . '">' . $intPub->title . '</a>';
+
+                        $this->addGroup(
+                            array(
+                                HTML_QuickForm::createElement(
+                                    'static', 'curr_pub_link' . $c, $label,
+                                    $pubLinkstr),
+                                HTML_QuickForm::createElement(
+                                    'advcheckbox',
+                                    'remove_curr_pub_link[' . $c . ']',
+                                    null, 'check to remove',
+                                    null, array('no', 'yes'))),
+                            'curr_pub_link_group', $label, '&nbsp;', false);
+                        $label = '';
+                        $c++;
+                    }
+                }
+            }
+
+            $this->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null, 'add'),
+                    HTML_QuickForm::createElement(
+                        'select', 'pub_links', null, $numOptions),
+                    HTML_QuickForm::createElement(
+                        'static', 'attachmentsStatic', null,
+                        'publication links')),
+                'web_links_group', $label, '&nbsp;', false);
+        }
 
         $buttons[0] =& $this->createElement(
             'submit', $this->getButtonName('back'), '<< Previous step');
@@ -396,35 +535,32 @@ class pubStep2Page extends HTML_QuickForm_Page {
             'submit', $this->getButtonName('next'), 'Next step >>');
         $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
-        if ($pub != null) {
-            $defaults = array();
-            if (is_string($pub->venue))
-                $defaults['venue_name'] = $pub->venue;
-            $defaults['cat_id'] = $pub->category->cat_id;
-        }
-        else {
-            if ($venue_id > 0) {
-                $venue = new pdVenue();
-                $result = $venue->dbLoad($db, $venue_id);
+        $defaults = array();
+        if ($venue_id > 0) {
+            $venue = new pdVenue();
+            $result = $venue->dbLoad($db, $venue_id);
+            assert('$result');
+
+            $result = false;
+            $category = new pdCategory();
+            if ($venue->type == 'Conference') {
+                $result = $category->dbLoad($db, null, 'In Conference');
                 assert('$result');
-
-                $category = null;
-                if ($this->venue->type == 'Conference') {
-                    $result = $category->dbLoad($db, null, 'In Conference');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Workshop') {
-                    $result = $category->dbLoad($db, null, 'In Workshop');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Journal') {
-                    $result = $category->dbLoad($db, null, 'In Journal');
-                    assert('$result');
-                }
-
-                if ($category != null)
-                    $defaults['cat_id'] = $category->cat_id;
             }
+            else if ($venue->type == 'Workshop') {
+                $result = $category->dbLoad($db, null, 'In Workshop');
+                assert('$result');
+            }
+            else if ($venue->type == 'Journal') {
+                $result = $category->dbLoad($db, null, 'In Journal');
+                assert('$result');
+            }
+
+            if ($result)
+                $defaults['cat_id'] = $category->cat_id;
+        }
+        else if ($pub != null) {
+            $defaults['cat_id'] = $pub->category->cat_id;
         }
 
         $this->setConstants($defaults);
@@ -435,22 +571,23 @@ class pubStep2Page extends HTML_QuickForm_Page {
 class pubStep3Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
+
+        if (!isset($_SESSION['user']) || !isset($data['db'])
+            || !isset($data['masterPage'])) {
+            return;
+        }
+
         $db =& $data['db'];
         assert('$db != null');
         $masterPage =& $data['masterPage'];
         assert('$masterPage != null');
+        $pub =& $data['pub'];
+
+        $this->_formBuilt = true;
 
         $this->addElement('header', null, 'Add Publication: Step 3');
 
         $cat_id = $this->controller->exportValue('page1', 'cat_id');
-        $add_paper = $this->controller->exportValue('page2', 'add_paper');
-        $other_attachments
-            = $this->controller->exportValue('page2', 'other_attachments');
-        $extra_info_list
-            = $this->controller->exportValue('page2', 'extra_info_list');
-        $web_links = $this->controller->exportValue('page2', 'web_links');
-        $int_links = $this->controller->exportValue('page2', 'int_links');
-
         if ($cat_id > 0) {
             $category = new pdCategory();
             $result = $category->dbLoad($db, $cat_id);
@@ -467,18 +604,32 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
-        if ($add_paper == 'yes') {
+        if ($cat_id > 0) {
             $this->addElement('header', null, 'Attachments');
+        }
+
+        $add_paper = $this->controller->exportValue('page2', 'add_paper');
+        $change_paper = $this->controller->exportValue('page2', 'change_paper');
+        if (($add_paper == 'yes') || ($change_paper == 'yes')){
             $this->addElement('file', 'uploadpaper', 'Paper:',
                               array('size' => 45));
         }
 
+        $other_attachments
+            = $this->controller->exportValue('page2', 'other_attachments');
         for ($i = 0; $i < $other_attachments; $i++) {
+            $att_num = $i + 1;
+
+            if ($pub != null)
+                $att_num += count($pub->additional_info);
+
             $this->addElement('file', 'other_attachments' . $i,
-                              'Attachment ' . ($i + 1). ':',
+                              'Attachment ' . $att_num . ':',
                               array('size' => 45, 'maxlength' => 250));
         }
 
+        $extra_info_list
+            = $this->controller->exportValue('page2', 'extra_info_list');
         if ($extra_info_list == "yes") {
             $this->addElement('header', null, 'Select Extra Information');
             $extra_info = new pdExtraInfoList($db);
@@ -492,6 +643,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
+        $web_links = $this->controller->exportValue('page2', 'web_links');
         if ($web_links > 0) {
             $this->addElement('header', null, 'Web Links');
 
@@ -514,7 +666,8 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
-        if ($int_links > 0) {
+        $pub_links = $this->controller->exportValue('page2', 'pub_links');
+        if ($pub_links > 0) {
             $this->addElement('header', null, 'Publication Links');
             $pub_list = new pdPubList($db);
             $options[''] = '--- select publication --';
@@ -525,8 +678,8 @@ class pubStep3Page extends HTML_QuickForm_Page {
                     $options[$p->pub_id] = $p->title;
             }
 
-            for ($i = 0; $i < $int_links; $i++) {
-                $this->addElement('select', 'int_link' . $i,
+            for ($i = 0; $i < $pub_links; $i++) {
+                $this->addElement('select', 'pub_link' . $i,
                                   'Publication Link ' . ($i + 1) . ':',
                                   $options);
             }
@@ -555,7 +708,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             array('readonly' => '1', 'id' => 'pub_date', 'size' => 10));
         $dateGroup[] = HTML_QuickForm::createElement(
             'jscalendar', 'startdate_calendar', null, $pub_date_options);
-        $this->addGroup($dateGroup, 'dategroup',
+        $this->addGroup($dateGroup, 'dateGroup',
                         $masterPage->helpTooltip('Date Published',
                                                        'datePublishedHelp')
                         . ':',
@@ -567,12 +720,29 @@ class pubStep3Page extends HTML_QuickForm_Page {
             'submit', $this->getButtonName('next'), 'Finish');
         $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
-        $this->setDefaultAction('upload');
+        $venue_id = $this->controller->exportValue('page1', 'venue_id');
+        if (($pub == null) && ($venue_id > 0)) {
+            $venue = new pdVenue();
+            $venue->dbLoad($db, $venue_id);
+            $this->setConstants(array('pub_date' => $venue->date));
+        }
+        else if ($pub != null) {
+            $this->setConstants(array('pub_date' => $pub->published));
+        }
     }
 }
 
 class ActionDisplay extends HTML_QuickForm_Action_Display {
     function _renderForm(&$page) {
+        if (!$page->isFormBuilt()) {
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+            echo 'An error has occurred.<br/>'
+                . 'Please return to the <a href="' . $url . '">main page</a>.';
+            return;
+        }
+
         $data =& $page->controller->container();
         $masterPage = $data['masterPage'];
         assert('$masterPage != null');
@@ -583,7 +753,7 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
             '<font color="#FF0000">*</font> shows the required fields.');
 
         $renderer->setFormTemplate(
-            '<table bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<table width="100%" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
@@ -659,8 +829,8 @@ class ActionProcess extends HTML_QuickForm_Action {
                                 $values['web_link_url'.$e]);
         }
 
-        for ($e = 0; $e < $values['int_links']; $e++) {
-            $pub->addIntPointer($db, $values['int_link'.$e]);
+        for ($e = 0; $e < $values['pub_links']; $e++) {
+            $pub->addIntPointer($db, $values['pub_link'.$e]);
         }
 
         $extra_info_arr = array($values['extra_info']);
