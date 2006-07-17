@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.20 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: add_author.php,v 1.21 2006/07/17 17:04:09 aicmltec Exp $
 
 /**
  * \file
@@ -56,41 +56,56 @@ class add_author extends pdHtmlPage {
 
         $form = new HTML_QuickForm('authorForm');
 
-        $form->addElement('text', 'firstname', null,
+        $form->addElement('header', null,
+                          $this->helpTooltip('Add Author',
+                                             'addAuthorPageHelp'));
+
+        $form->addElement('text', 'firstname', 'First Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('firstname', 'a first name is required', 'required',
                        null, 'client');
-        $form->addRule('firstname',
-                       'the first name cannot contain punctuation',
+        $form->addRule('firstname', 'the first name cannot contain punctuation',
                        'lettersonly', null, 'client');
-        $form->addElement('text', 'lastname', null,
+        $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('lastname', 'a last name is required', 'required', null,
                        'client');
         $form->addRule('firstname', 'the lst name cannot contain punctuation',
                        'lettersonly', null, 'client');
-        $form->addElement('text', 'title', null,
+        $form->addElement('text', 'title',
+                          $this->helpTooltip('Title', 'authTitleHelp') . ':',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addElement('text', 'email', null,
+        $form->addElement('text', 'email', 'email:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('email', 'invalid email address', 'email', null,
                        'client');
-        $form->addElement('text', 'organization', null,
+        $form->addElement('text', 'organization', 'Organization:',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addElement('text', 'webpage', null,
+        $form->addElement('text', 'webpage', 'Webpage:',
                           array('size' => 50, 'maxlength' => 250));
 
         $interests = new pdAuthInterests($db);
-        $form->addElement('select', 'interests', null, $interests->list,
-                          array('multiple' => 'multiple', 'size' => 4));
+
+         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
+                . ($newInterests+1) .')">[Add Interest]</a></div>';
+
+        $form->addElement('select', 'interests',
+                          'Interests:' . $ref,
+                          $interests->list,
+                          array('multiple' => 'multiple', 'size' => 10));
 
         for ($i = 0; $i < $newInterests; $i++) {
-            $form->addElement('text', 'newInterests['.$i.']', null,
+            $form->addElement('text', 'newInterests['.$i.']',
+                              'Interest Name ' . ($i + 1) . ':',
                               array('size' => 50, 'maxlength' => 250));
         }
 
-        $form->addElement('submit', 'submit', 'Add Author');
-        $form->addElement('reset', 'reset', 'Reset');
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement('submit', 'submit', 'Add Author'),
+                HTML_QuickForm::createElement('reset', 'reset', 'Reset')
+                ),
+            'submit_group', null, '&nbsp;');
 
         $form->addElement('hidden', 'numNewInterests', $newInterests);
 
@@ -115,53 +130,28 @@ class add_author extends pdHtmlPage {
                 . 'Add another new author</a>';
         }
         else {
-            $this->contentPre .= '<h3>'
-                . $this->helpTooltip('Add Author', 'addAuthorPageHelp')
-                . '</h3>';
-
             $form->setDefaults($_GET);
             if ($author->author_id != '')
                 $form->setDefaults($author->asArray());
 
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
+
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
+                . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
+            $renderer->setElementTemplate(
+                '<tr><td><b>{label}</b></td><td>{element}'
+                . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
+            . '</td></tr>',
+                'keywords');
+
             $form->accept($renderer);
-
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
-            $table->addRow(array('First Name:',
-                                 $renderer->elementToHtml('firstname')));
-            $table->addRow(array('Last Name:',
-                                 $renderer->elementToHtml('lastname')));
-            $table->addRow(array($this->helpTooltip('Title',
-                                                    'authTitleHelp') . ':',
-                                 $renderer->elementToHtml('title')));
-            $table->addRow(array('Email:', $renderer->elementToHtml('email')));
-            $table->addRow(array('Organization:',
-                                 $renderer->elementToHtml('organization')));
-            $table->addRow(array('Webpage:', $renderer->elementToHtml('webpage')));
-
-            $ref = '<br/><div id="small"><a href="javascript:dataKeep('
-                . ($newInterests+1) .')">[Add Interest]</a></div>';
-
-            $table->addRow(array('Interests:' . $ref,
-                                 $renderer->elementToHtml('interests')));
-
-            for ($i = 0; $i < $newInterests; $i++) {
-                $table->addRow(array('Interest Name:',
-                                     $renderer->elementToHtml(
-                                         'newInterests['.$i.']')));
-            }
-
-            $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '25%'));
-
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->table =& $table;
             $this->javascript();
         }
         $db->close();
@@ -186,7 +176,14 @@ class add_author extends pdHtmlPage {
 
         var authTitleHelp=
             "The title of an author. Will take the form of one of: "
-            + "{Prof, PostDoc, PhD student, MSc student, Colleague, etc...}.";
+            + "<ul>"
+            + "<li>Prof</li>"
+            + "<li>PostDoc</li>"
+            + "<li>PhD student</li>"
+            + "<li>MSc student</li>"
+            + "<li>Colleague</li>"
+            + "<li>etc</li>"
+            + "</ul>";
 
         function dataKeep(num) {
             var qsArray = new Array();

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.34 2006/07/13 23:31:51 aicmltec Exp $
+// $Id: advanced_search.php,v 1.35 2006/07/17 17:04:09 aicmltec Exp $
 
 /**
  * \file
@@ -90,12 +90,10 @@ class advanced_search extends pdHtmlPage {
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
-        $renderer =& $this->renderer;
-
         $renderer =& $this->form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table border="0" cellpadding="3" cellspacing="2" '
+            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
             . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
