@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.8 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: edit_user.php,v 1.9 2006/07/18 22:29:22 aicmltec Exp $
 
 /**
  * \file
@@ -128,8 +128,11 @@ END;
             $this->contentPre .= '<h2><b><u>Login Information</u></b></h2>';
 
             $defaults = array('name' => $user->name,
-                              'email' => $user->email,
-                              'authors' => array_keys($user->collaborators));
+                              'email' => $user->email);
+
+            if (count($user->collaborators) >0)
+                $defaults['authors'] = array_keys($user->collaborators);
+
             $form->setDefaults($defaults);
 
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();

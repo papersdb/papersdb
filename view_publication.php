@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.32 2006/07/14 22:47:02 aicmltec Exp $
+// $Id: view_publication.php,v 1.33 2006/07/18 22:29:22 aicmltec Exp $
 
 /**
  * \file
@@ -66,11 +66,6 @@ class view_publication extends pdHtmlPage {
             $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
         }
 
-        if(isset($pub->additional_info)) {
-            $table->addRow(array('Additional Materials:',
-                                 $this->additional2Html($pub)));
-        }
-
         $table->addRow(array('Author(s):', $pub->authorsToHtml()));
 
         $table->addRow(array('Abstract:',
@@ -94,6 +89,12 @@ class view_publication extends pdHtmlPage {
         $updateStr .= 'Submitted by ' . $pub->submit;
 
         $table->addRow(array('Paper:', $paperstring));
+
+        if (count($pub->additional_info) > 0) {
+            $table->addRow(array('Other Attachments:',
+                                 $this->additional2Html($pub)));
+        }
+
         $table->addRow(array('&nbsp;', $updateStr));
         $table->updateCellAttributes($table->getRowCount() - 1, 1,
                                      array('id' => 'footer'));

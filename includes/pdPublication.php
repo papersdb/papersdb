@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.24 2006/07/14 22:47:02 aicmltec Exp $
+// $Id: pdPublication.php,v 1.25 2006/07/18 22:29:22 aicmltec Exp $
 
 /**
  * \file
@@ -269,29 +269,39 @@ class pdPublication {
                     'pdPublication::dbDelete');
         $arr = array();
         if (count($this->extPointer) > 0)
-            foreach ($this->extPointer as $name => $value) {
+            foreach ($this->extPointer as $text => $link) {
+                if (strpos($link, 'http://') === false)
+                    $link = 'http://' . $link;
+
                 array_push($arr, array('pub_id' => $this->pub_id,
                                        'type'   => 'ext',
-                                       'name'   => $name,
-                                       'value'  => $value));
+                                       'name'   => $text,
+                                       'value'  => $link));
             }
 
         if (count($this->intPointer ) > 0)
             foreach ($this->intPointer as $value) {
                 array_push($arr, array('pub_id' => $this->pub_id,
-                                       'type'   => 'ext',
+                                       'type'   => 'int',
                                        'name'   => '-',
                                        'value'  => $value));
             }
 
         $db->insert('pointer', $arr, 'pdPublication::dbSave');
 
-        if (($this->additional_info != null)
-            && (count($this->additional_info) > 0)) {
+        if (count($this->additional_info) > 0) {
+            $db->delete('pub_add', array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+
             $arr = array();
             foreach ($this->additional_info as $info) {
-                array_push($arr, array('location' => $info->location,
-                                       'type'     => $info->type));
+                $r = $db->selectRow('additional_info', 'add_id',
+                                    array('location' => $info->location,
+                                          'type'     => $info->type),
+                                    'pdPublication::dbSave');
+                if ($r === false)
+                    array_push($arr, array('location' => $info->location,
+                                           'type'     => $info->type));
             }
             $db->insert('additional_info', $arr, 'pdPublication::dbSave');
 
@@ -320,23 +330,28 @@ class pdPublication {
         }
         $db->insert('pub_author', $arr, 'pdPublication::dbSave');
 
-        $db->update('pub_cat', array('cat_id' => $this->category->cat_id),
-                    array('pub_id' => $this->pub_id),
-                    'pdPublication::dbSave');
-        $db->delete('pub_cat_info', array('pub_id' => $this->pub_id),
+        $db->delete('pub_cat', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
 
-        if (($this->category->info != null) &&
-            (count($this->category->info) > 0)) {
-            $arr = array();
-            foreach ($this->category->info as $info_id => $name) {
-                array_push($arr,
-                           array('pub_id'  => $this->pub_id,
-                                 'cat_id'  => $this->category->cat_id,
-                                 'info_id' => $info_id,
-                                 'value'   => $this->info[$name]));
+        if (is_object($this->category) && ($this->category->cat_id > 0)) {
+            $db->insert('pub_cat', array('cat_id' => $this->category->cat_id,
+                                         'pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+
+            $db->delete('pub_cat_info', array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+            if (($this->category->info != null) &&
+                (count($this->category->info) > 0)) {
+                $arr = array();
+                foreach ($this->category->info as $info_id => $name) {
+                    array_push($arr,
+                               array('pub_id'  => $this->pub_id,
+                                     'cat_id'  => $this->category->cat_id,
+                                     'info_id' => $info_id,
+                                     'value'   => $this->info[$name]));
+                }
+                $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
             }
-            $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
         }
     }
 
@@ -369,13 +384,19 @@ class pdPublication {
             return;
         }
 
-        if (($this->venue != null)
-            && ($this->venue->mixed == $mixed)) return;
+        if (is_numeric($mixed)) {
+            if (($this->venue != null)
+                && ($this->venue->venue_id == $mixed)) return;
 
-        $this->venue = new pdVenue();
-        $result = $this->venue->dbLoad($db, $mixed);
-        assert('$result');
-        $this->venue_id = $this->venue->venue_id;
+            $this->venue = new pdVenue();
+            $result = $this->venue->dbLoad($db, $mixed);
+            assert('$result');
+            $this->venue_id = $this->venue->venue_id;
+            return;
+        }
+
+        if (!is_string($mixed))  return;
+        $this->venue = $mixed;
     }
 
     function addCategory(&$db, $mixed) {
@@ -441,6 +462,12 @@ class pdPublication {
     }
 
     function dbUpdateAdditional(&$db, $filename) {
+        // check if already in database
+        $r = $db->selectRow('additional_info', 'add_id',
+                            array('location' => $info->location),
+                            'pdPublication::dbSave');
+        if ($r === false) return;
+
         $db->insert('additional_info', array('location' => $filename),
                     'pdPublication::dbUpdateAdditional');
 
@@ -449,6 +476,41 @@ class pdPublication {
         $db->insert('pub_add', array('pub_id' => $this->pub_id,
                                      'add_id' => $add_id),
                     'pdPublication::dbUpdateAdditional');
+    }
+
+    function webLinkRemove($text, $link) {
+        if (count($this->extPointer) == 0) return;
+
+        unset($this->extPointer[$text]);
+    }
+
+    function pubLinkRemove($pub_id) {
+        if (count($this->intPointer) == 0) return;
+
+        foreach ($this->intPointer as $key => $obj) {
+            if ($obj->value == $pub_id)
+                unset($this->intPointer[$key]);
+        }
+    }
+
+    function attachmentRemove($filename) {
+        foreach ($pub->additional_info as $k => $o) {
+            if ($o->location == $filename)
+                unset($pub->additional_info[$k]);
+        }
+
+        $r = $db->selectRow('additional_info', 'add_id',
+                            array('location' => $filename),
+                            'pdPublication::dbSave');
+        if ($r === false) return;
+
+        $db->delete('pub_add', array('add_id' => r->add_id,
+                                     'pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+
+        $db->delete('additional_info', array('add_id' => $r->add_id),
+                    'pdPublication::attachmentRemove');
+
     }
 }
 
