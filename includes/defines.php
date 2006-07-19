@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.11 2006/07/13 21:45:25 aicmltec Exp $
+// $Id: defines.php,v 1.12 2006/07/19 23:49:12 aicmltec Exp $
 
 /**
  * \file
@@ -33,7 +33,10 @@ define('DB_NAME',   'pubDBdev2');
 
 /** The path on the fileserver where documents are stored. */
 //define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
-define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+if ($_ENV['HOSTNAME'] == 'levante')
+    define('FS_PATH', '/home/nelson/public_html/papersdb');
+else
+    define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
 
 // required for Database.php
 define( 'DBO_DEBUG', 1 );
@@ -42,6 +45,5 @@ define( 'DBO_IGNORE', 4 );
 define( 'DBO_TRX', 8 );
 define( 'DBO_DEFAULT', 16 );
 define( 'DBO_PERSISTENT', 32 );
-
 
 ?>

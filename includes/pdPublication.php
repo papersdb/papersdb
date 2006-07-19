@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.25 2006/07/18 22:29:22 aicmltec Exp $
+// $Id: pdPublication.php,v 1.26 2006/07/19 23:49:12 aicmltec Exp $
 
 /**
  * \file
@@ -461,21 +461,47 @@ class pdPublication {
                     'pdPublication::updatePaper');
     }
 
-    function dbUpdateAdditional(&$db, $filename) {
+    function attachmentsUpdate(&$db, $filename) {
+        assert('$this->pub_id != null');
+
+        $pub->additional_info[] = $filename;
+
         // check if already in database
         $r = $db->selectRow('additional_info', 'add_id',
-                            array('location' => $info->location),
+                            array('location' => $filename),
                             'pdPublication::dbSave');
-        if ($r === false) return;
+        if ($r !== false) return;
 
         $db->insert('additional_info', array('location' => $filename),
-                    'pdPublication::dbUpdateAdditional');
+                    'pdPublication::attachmentsUpdate');
 
         $add_id = $db->insertId();
 
         $db->insert('pub_add', array('pub_id' => $this->pub_id,
                                      'add_id' => $add_id),
-                    'pdPublication::dbUpdateAdditional');
+                    'pdPublication::attachmentsUpdate');
+    }
+
+    function attachmentRemove($filename) {
+        assert('$this->pub_id != null');
+
+        foreach ($pub->additional_info as $k => $o) {
+            if ($o->location == $filename)
+                unset($pub->additional_info[$k]);
+        }
+
+        $r = $db->selectRow('additional_info', 'add_id',
+                            array('location' => $filename),
+                            'pdPublication::dbSave');
+        if ($r === false) return;
+
+        $db->delete('pub_add', array('add_id' => $r->add_id,
+                                     'pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+
+        $db->delete('additional_info', array('add_id' => $r->add_id),
+                    'pdPublication::attachmentRemove');
+
     }
 
     function webLinkRemove($text, $link) {
@@ -491,26 +517,6 @@ class pdPublication {
             if ($obj->value == $pub_id)
                 unset($this->intPointer[$key]);
         }
-    }
-
-    function attachmentRemove($filename) {
-        foreach ($pub->additional_info as $k => $o) {
-            if ($o->location == $filename)
-                unset($pub->additional_info[$k]);
-        }
-
-        $r = $db->selectRow('additional_info', 'add_id',
-                            array('location' => $filename),
-                            'pdPublication::dbSave');
-        if ($r === false) return;
-
-        $db->delete('pub_add', array('add_id' => r->add_id,
-                                     'pub_id' => $this->pub_id),
-                    'pdPublication::dbSave');
-
-        $db->delete('additional_info', array('add_id' => $r->add_id),
-                    'pdPublication::attachmentRemove');
-
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.50 2006/07/18 22:29:22 aicmltec Exp $
+// $Id: add_publication.php,v 1.51 2006/07/19 23:49:12 aicmltec Exp $
 
 /**
  * \file
@@ -688,7 +688,15 @@ class pubStep3Page extends HTML_QuickForm_Page {
             $this->setConstants(array('pub_date' => $venue->date));
         }
         else if ($pub != null) {
-            $this->setConstants(array('pub_date' => $pub->published));
+            $constants = array('pub_date' => $pub->published);
+
+            if ($category->info != null) {
+                foreach (array_values($category->info) as $name) {
+                    $constants[$name] = $pub->info[ucfirst($name)];
+                }
+            }
+
+            $this->setConstants($constants);
         }
     }
 }
@@ -731,7 +739,7 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $masterPage->javascript();
 
         $data =& $page->controller->container();
-        $masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
+        //$masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
 
         echo $masterPage->toHtml();
     }
@@ -840,12 +848,6 @@ class ActionProcess extends HTML_QuickForm_Action {
 
         $pub->dbSave($db);
 
-        $masterPage->contentPre
-            .= 'values<pre>' . print_r($values, true) . '</pre>';
-
-        $masterPage->contentPre
-            .= 'pub<pre>' . print_r($pub, true) . '</pre>';
-
         // copy files here - get the element containing the upload
         $path = FS_PATH . '/uploaded_files/' . $pub->pub_id;
         $element =& $page->getElement('uploadpaper');
@@ -885,7 +887,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
                     $element->moveUploadedFile($path, $basename);
                     chmod($filename, 0777);
-                    $pub->dbUpdateAdditional($db, $relativename);
+                    $pub->attachmentsUpdate($db, $relativename);
                 }
             }
         }
@@ -894,6 +896,12 @@ class ActionProcess extends HTML_QuickForm_Action {
             .= 'The following publication was submitted successfully:<p/>'
             . '<a href="../view_publication.php?pub_id=' . $pub->pub_id
             . '">' . $pub->title . '</a>';
+
+        $masterPage->contentPre
+            .= 'values<pre>' . print_r($values, true) . '</pre>';
+
+        $masterPage->contentPre
+            .= 'pub<pre>' . print_r($pub, true) . '</pre>';
 
         echo $masterPage->toHtml();
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.14 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: add_category.php,v 1.15 2006/07/19 23:49:12 aicmltec Exp $
 
 /**
  * \file
@@ -48,16 +48,22 @@ class add_category extends pdHtmlPage {
 
         $form = new HTML_QuickForm('catForm');
 
-        $form->addElement('text', 'catname', null,
+        $form->addElement('header', null,
+                          $this->helpTooltip('Add Category',
+                                             'addCategoryPageHelp'));
+
+        $form->addElement('text', 'catname', 'Category Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('catname', 'category name cannot be empty',
                        'required', null, 'client');
 
         // info list
+        $label = 'Related Fields:';
         $info_list = new pdInfoList($db);
         foreach ($info_list->list as $info_id => $name) {
             $form->addElement('advcheckbox', 'info[' . $info_id . ']',
-                              null, $name, null, array('', $name));
+                              $label, $name, null, array('', $name));
+            $label = '';
         }
 
         if (isset($_GET['numNewFields']) && ($_GET['numNewFields'] != ''))
@@ -69,16 +75,25 @@ class add_category extends pdHtmlPage {
             $newFields = 0;
 
         for ($i = 0; $i < $newFields; $i++) {
-            $form->addElement('text', 'new_fields[' . $i . ']', null,
+            $form->addElement('text', 'new_fields[' . $i . ']',
+                              'New field ' . ($i + 1) . ':',
                               array('size' => 50, 'maxlength' => 250));
         }
 
-        $form->addElement('button', 'add_field', 'Add Field',
-                          array('onClick' => 'dataKeep('
-                                . ($newFields + 1) . ');'));
         $form->addElement('hidden', 'numNewFields', $newFields);
-        $form->addElement('submit', 'submit', 'Add Category');
-        $form->addElement('reset', 'reset', 'Reset');
+
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'submit', 'submit', 'Submit New Category'),
+                HTML_QuickForm::createElement(
+                    'reset', 'reset', 'Reset'),
+                HTML_QuickForm::createElement(
+                    'button', 'add_field', 'Add Related Field',
+                    array('onClick' => 'dataKeep('
+                          . ($newFields + 1) . ');'))
+                ),
+            'submit_group', null, '&nbsp;');
 
         if ($form->validate()) {
             $values = $form->exportValues();
@@ -112,70 +127,24 @@ class add_category extends pdHtmlPage {
                 $form->setDefaults($defaults);
             }
 
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
+
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
+                . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
+            $renderer->setElementTemplate(
+                '<tr><td><b>{label}</b></td><td>{element}'
+                . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
+            . '</td></tr>',
+                'keywords');
+
             $form->accept($renderer);
-
-            $table = new HTML_Table(array('width' => '600',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
-            $table->addRow(array('Category Name:',
-                                 $renderer->elementToHtml('catname')));
-            $table->updateCellAttributes($table->getRowCount() - 1, 1,
-                                         array('colspan' => 2));
-            $countDiv2 = intval((count($info_list->list) + 1) /2);
-
-            // assign info to the 2 columns
-            $count = 0;
-            foreach ($info_list->list as $info_id => $name) {
-                if ($count < $countDiv2)
-                    $col1[] = 'info[' . $info_id . ']';
-                else
-                    $col2[] = 'info[' . $info_id . ']';
-                $count++;
-            }
-
-            // display info in table
-            for ($i = 0; $i < $countDiv2; $i++) {
-                $cell1 = '';
-                if ($i == 0)
-                    $cell1 = 'Related Field(s):<br/>'
-                        . $renderer->elementToHtml('add_field');
-                $cell2 = $renderer->elementToHtml($col1[$i]);
-                $cell3 = '';
-                if ($countDiv2 + $i < count($info_list->list))
-                    $cell3 = $renderer->elementToHtml($col2[$i]);
-                $table->addRow(array($cell1, $cell2, $cell3));
-            }
-
-            for ($i = 0; $i < $newFields; $i++) {
-                $table->addRow(array('Field Name:',
-                                     $renderer->elementToHtml(
-                                         'new_fields['.$i.']')));
-                $table->updateCellAttributes($table->getRowCount() - 1, 1,
-                                             array('colspan' => 2));
-            }
-
-            $table->addRow(array('',
-                                 $renderer->elementToHtml('submit')
-                                 . '&nbsp;'.$renderer->elementToHtml('reset')));
-
-            $table->updateCellAttributes($table->getRowCount() - 1, 1,
-                                         array('colspan' => 2));
-            $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '25%'));
-            $table->updateCellAttributes(1, 0, array('rowspan' => 2));
-
-
-            $this->contentPre .= '<h3>'
-                . $this->helpTooltip('Add Category', 'addCategoryPageHelp')
-                . '</h3>';
-
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->table =& $table;
             $this->javascript();
         }
         $db->close();

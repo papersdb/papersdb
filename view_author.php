@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.14 2006/06/13 19:00:22 aicmltec Exp $
+// $Id: view_author.php,v 1.15 2006/07/19 23:49:12 aicmltec Exp $
 
 /**
  * \file
@@ -128,6 +128,8 @@ class view_author extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new view_author();
 echo $page->toHtml();
 
