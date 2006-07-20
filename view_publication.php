@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.34 2006/07/20 05:39:33 aicmltec Exp $
+// $Id: view_publication.php,v 1.35 2006/07/20 17:32:04 aicmltec Exp $
 
 /**
  * \file
@@ -80,12 +80,15 @@ class view_publication extends pdHtmlPage {
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
 
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
         if ($pub->paper == 'No paper')
             $paperstring = 'No Paper at this time.';
         else {
-            $paperstring = '<a href="';
+            $paperstring = '<a href="' . $url;
             if (strpos($pub->paper, 'uploaded_files/') === false)
-                $paperstring .= 'uploaded_files/';
+                $paperstring .= '/uploaded_files/' . $pub->pub_id . '/';
             $paperstring .= $pub->paper;
             $papername = split("paper_", $pub->paper);
             $paperstring .= '"><i><b>' . $papername[1] . '</b></i></a>';
@@ -126,7 +129,7 @@ class view_publication extends pdHtmlPage {
             $temp = split('additional_', $info->location);
             $additionalMaterials .= '<a href=./';
             if (strpos($info->location, 'uploaded_files/') === false)
-                $additionalMaterials .= 'uploaded_files/';
+                $additionalMaterials .= '/uploaded_files/' . $pub->pub_id . '/';
             $additionalMaterials .= $info->location . '>';
             $additionalMaterials .= "<i><b>".$temp[1]."</b></i>";
 

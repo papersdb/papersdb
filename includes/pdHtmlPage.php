@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.18 2006/07/12 21:47:43 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.19 2006/07/20 17:32:04 aicmltec Exp $
 
 /**
  * \file
@@ -214,7 +214,9 @@ class pdHtmlPage {
         'logout'             => array('Logout', 'logout.php',
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'login'              => array('Login or Register', 'login.php',
-                                      PD_HTML_PAGE_NAV_MENU_ALWAYS)
+                                      PD_HTML_PAGE_NAV_MENU_ALWAYS),
+        'home'              => array('Home', 'index.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ)
         );
 
     function htmlHeader() {

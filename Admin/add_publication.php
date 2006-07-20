@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.52 2006/07/20 05:39:33 aicmltec Exp $
+// $Id: add_publication.php,v 1.53 2006/07/20 17:32:04 aicmltec Exp $
 
 /**
  * \file
@@ -310,7 +310,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        if ($pub == null) {
+        if (($pub == null) || (($pub != null) && ($pub->paper == ''))) {
             $this->addElement('advcheckbox', 'add_paper',
                               $masterPage->helpTooltip('Attach Paper',
                                                        'paperAtt') . ':',
@@ -325,11 +325,17 @@ class pubStep2Page extends HTML_QuickForm_Page {
         }
         else {
             list($other, $paper_name) = split("paper_", $pub->paper);
+
+            if (strpos($pub->paper, 'uploaded_files/') === false)
+                $file_url = $url . '/uploaded_files/' . $pub->pub_id . '/' . $pub->paper;
+            else
+                $file_url = $url . $pub->paper;
+
             $this->addGroup(
                 array(
                     HTML_QuickForm::createElement(
                         'static', 'attached_paper', null,
-                        '<a href="' . $url . $pub->paper . '">'
+                        '<a href="' . $file_url . '">'
                         . $paper_name . '</a>'),
                     HTML_QuickForm::createElement(
                         'advcheckbox', 'change_paper', null,
@@ -842,13 +848,14 @@ class ActionProcess extends HTML_QuickForm_Action {
         if ($values['change_paper'] == 'yes') {
             if (file_exists($pub->paper))
                 unlink($path . $pub->paper);
-            $pub->paper = '';
+            $pub->dbUpdatePaper($db, '');
+
         }
 
         if (count($values['remove_att']) > 0) {
             foreach ($values['remove_att'] as $file => $value) {
                 if ($value == 'yes') {
-                    if (file_exists($pub->paper))
+                    if (file_exists($path . $file))
                         unlink($path . $file);
                     $pub->attachmentRemove($file);
                 }
@@ -864,7 +871,6 @@ class ActionProcess extends HTML_QuickForm_Action {
         if (!isset($element->message) && ($element->isUploadedFile())) {
             $basename = 'paper_' . $_FILES['uploadpaper']['name'];
             $filename = $path . '/' . $basename;
-            $relativename = $pub->pub_id . '/'. $basename;
 
             if (!file_exists($path)) {
                 mkdir($path, 0777);
@@ -874,7 +880,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
             $element->moveUploadedFile($path, $basename);
             chmod($filename, 0777);
-            $pub->dbUpdatePaper($db, $relativename);
+            $pub->dbUpdatePaper($db, $basename);
         }
 
         if ($values['other_attachments'] > 0) {
@@ -886,7 +892,6 @@ class ActionProcess extends HTML_QuickForm_Action {
                     $basename = 'additional_'
                         . $_FILES['other_attachments' . $i]['name'];
                     $filename = $path . '/' . $basename;
-                    $relativename = $pub->pub_id . '/'. $basename;
 
                     if (!file_exists($path)) {
                         mkdir($path, 0777);
@@ -896,7 +901,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
                     $element->moveUploadedFile($path, $basename);
                     chmod($filename, 0777);
-                    $pub->attachmentsUpdate($db, $relativename);
+                    $pub->attachmentsUpdate($db, $basename);
                 }
             }
         }

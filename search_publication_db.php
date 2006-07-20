@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.19 2006/07/13 23:19:14 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.20 2006/07/20 17:32:04 aicmltec Exp $
 
 /**
  * \file
@@ -709,6 +709,8 @@ class search_publication_db extends pdHtmlPage {
     }
 }
 
+session_start();
+$logged_in = check_login();
 $page = new search_publication_db();
 echo $page->toHtml();
 
