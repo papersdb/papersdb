@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.51 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: add_publication.php,v 1.52 2006/07/20 05:39:33 aicmltec Exp $
 
 /**
  * \file
@@ -324,12 +324,13 @@ class pubStep2Page extends HTML_QuickForm_Page {
                               $numOptions);
         }
         else {
+            list($other, $paper_name) = split("paper_", $pub->paper);
             $this->addGroup(
                 array(
                     HTML_QuickForm::createElement(
                         'static', 'attached_paper', null,
                         '<a href="' . $url . $pub->paper . '">'
-                        . basename($pub->paper) . '</a>'),
+                        . $paper_name . '</a>'),
                     HTML_QuickForm::createElement(
                         'advcheckbox', 'change_paper', null,
                         'check to replace or remove',
@@ -344,12 +345,14 @@ class pubStep2Page extends HTML_QuickForm_Page {
             if (count($pub->additional_info) > 0) {
                 $c = 0;
                 foreach ($pub->additional_info as $att) {
+                    list($other, $att_name)
+                        = split("additional_", $att->location);
                     $this->addGroup(
                         array(
                             HTML_QuickForm::createElement(
                                 'static', 'curr_other_att', null,
                                 '<a href="' . $url . $att->location . '">'
-                                . basename($att->location) . '</a>'),
+                                . $att_name . '</a>'),
                             HTML_QuickForm::createElement(
                                 'advcheckbox',
                                 'remove_att[' . $att->location . ']', null,
@@ -398,7 +401,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
                               $masterPage->helpTooltip('Web Links',
                                                        'extLinks') . ':',
                               $numOptions);
-            $this->addElement('select', 'pub_links',
+            $this->addElement('select', 'pub_num_links',
                               $masterPage->helpTooltip('Publication Links',
                                                        'pubLinks') . ':',
                               $numOptions);
@@ -467,7 +470,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
                                     'remove_curr_pub_links[' . $int->value . ']',
                                     null, 'check to remove',
                                     null, array('no', 'yes'))),
-                            'curr_pub_links_group', $label, '&nbsp;', false);
+                            'curr_pub_links_group', $label, '<br/>', false);
                         $label = '';
                         $c++;
                     }
@@ -479,7 +482,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
                     HTML_QuickForm::createElement(
                         'static', 'attachmentsStatic', null, 'add'),
                     HTML_QuickForm::createElement(
-                        'select', 'pub_links', null, $numOptions),
+                        'select', 'pub_num_links', null, $numOptions),
                     HTML_QuickForm::createElement(
                         'static', 'attachmentsStatic', null,
                         'more publication links')),
@@ -565,7 +568,9 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
-        if ($cat_id > 0) {
+        $other_attachments
+            = $this->controller->exportValue('page2', 'other_attachments');
+        if (($cat_id > 0) && ($other_attachments > 0)) {
             $this->addElement('header', null, 'Attachments');
         }
 
@@ -576,8 +581,6 @@ class pubStep3Page extends HTML_QuickForm_Page {
                               array('size' => 45));
         }
 
-        $other_attachments
-            = $this->controller->exportValue('page2', 'other_attachments');
         for ($i = 0; $i < $other_attachments; $i++) {
             $att_num = $i + 1;
 
@@ -627,7 +630,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
-        $pub_links = $this->controller->exportValue('page2', 'pub_links');
+        $pub_links = $this->controller->exportValue('page2', 'pub_num_links');
         if ($pub_links > 0) {
             $this->addElement('header', null, 'Publication Links');
             $pub_list = new pdPubList($db);
@@ -640,7 +643,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
 
             for ($i = 0; $i < $pub_links; $i++) {
-                $this->addElement('select', 'pub_links' . $i,
+                $this->addElement('select', 'pub_links[' . $i . ']',
                                   'Publication Link ' . ($i + 1) . ':',
                                   $options);
             }
@@ -722,7 +725,8 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
             '<font color="#FF0000">*</font> shows the required fields.');
 
         $renderer->setFormTemplate(
-            '<table width="100%" bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<table width="100%" bgcolor="#CCCC99">'
+            . '<form{attributes}>{content}</form></table>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
@@ -782,9 +786,12 @@ class ActionProcess extends HTML_QuickForm_Action {
             $pub->submit = $_SESSION['user']->name;
         }
 
-        if (count($values['authors']) > 0)
-            foreach ($values['authors'] as $author_id)
+        if (count($values['authors']) > 0) {
+            $pub->clearAuthors();
+            foreach ($values['authors'] as $author_id) {
                 $pub->addAuthor($db, $author_id);
+            }
+        }
 
         if (count($pub->info) > 0) {
             foreach (array_keys($pub->info) as $name) {
@@ -816,9 +823,11 @@ class ActionProcess extends HTML_QuickForm_Action {
             }
         }
 
-        for ($e = 0; $e < $values['pub_links']; $e++) {
-            $pub->addIntPointer($db, $values['pub_links'.$e]);
-        }
+        if (count($values['pub_links']) > 0)
+            foreach ($values['pub_links'] as $pub_link) {
+                if ($pub_link != '')
+                    $pub->addIntPointer($db, $pub_link);
+            }
 
         $extra_info_arr = array($values['extra_info']);
         if (isset($values['extra_info_from_list']))

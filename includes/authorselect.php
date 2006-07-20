@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.12 2006/07/11 18:18:50 aicmltec Exp $
+// $Id: authorselect.php,v 1.13 2006/07/20 05:39:33 aicmltec Exp $
 
 /**
  * \file
@@ -448,19 +448,24 @@ END;
             return (option1.text.toLowerCase() < option2.text.toLowerCase() ? -1 : 1);
         }
 
-        function {$this->_jsPrefix}updateHidden(select) {
+        function {$this->_jsPrefix}updateHidden(s) {
             var allAuthors = document.forms["{$this->form_name}"].elements["{$selectName}"];
 
             for (i=0; i < allAuthors.length; i++) {
                 allAuthors.options[i].selected = false;
             }
 
-            for (i=0; i < select.length; i++) {
+            for (i=0; i < s.length; i++) {
                 for (j=0; j < allAuthors.length; j++) {
-                    if (select[i].value == allAuthors.options[j].value) {
-                        allAuthors.options[j].selected = true;
+                    if (s[i].value == allAuthors.options[j].value) {
+                        allAuthors.options[j] = null;
                     }
                 }
+            }
+
+            for (i=0; i < s.length; i++) {
+                allAuthors.options[allAuthors.length] = new Option(s[i].text, s.options[i].value);
+                allAuthors.options[allAuthors.length - 1].selected = true;
             }
         }
 

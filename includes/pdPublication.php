@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.26 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: pdPublication.php,v 1.27 2006/07/20 05:39:33 aicmltec Exp $
 
 /**
  * \file
@@ -421,6 +421,11 @@ class pdPublication {
         }
     }
 
+    function clearAuthors() {
+        if (count($this->authors) == 0) return;
+        unset($this->authors);
+    }
+
     function addAuthor(&$db, $mixed) {
         if (is_object($mixed)) {
             // check if publication already has this author
@@ -435,11 +440,12 @@ class pdPublication {
         }
 
         // check if publication already has this author
-        if ($this->authors != null)
+        if ($this->authors != null) {
             foreach ($this->authors as $author) {
                 if ($author->author_id == $mixed)
                     return;
             }
+        }
 
         $author = new pdAuthor();
         $result = $author->dbLoad($db, $mixed, PD_AUTHOR_DB_LOAD_BASIC);
@@ -469,7 +475,7 @@ class pdPublication {
         // check if already in database
         $r = $db->selectRow('additional_info', 'add_id',
                             array('location' => $filename),
-                            'pdPublication::dbSave');
+                            'pdPublication::attachmentsUpdate');
         if ($r !== false) return;
 
         $db->insert('additional_info', array('location' => $filename),
@@ -492,7 +498,7 @@ class pdPublication {
 
         $r = $db->selectRow('additional_info', 'add_id',
                             array('location' => $filename),
-                            'pdPublication::dbSave');
+                            'pdPublication::attachmentRemove');
         if ($r === false) return;
 
         $db->delete('pub_add', array('add_id' => $r->add_id,

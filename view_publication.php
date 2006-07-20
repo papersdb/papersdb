@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.33 2006/07/18 22:29:22 aicmltec Exp $
+// $Id: view_publication.php,v 1.34 2006/07/20 05:39:33 aicmltec Exp $
 
 /**
  * \file
@@ -58,14 +58,6 @@ class view_publication extends pdHtmlPage {
         $this->venueRowsAdd($pub, $table);
         $table->addRow(array('Category:', $pub->category->category));
 
-        if ($pub->paper == "No paper")
-            $paperstring = "No Paper at this time.";
-        else {
-            $paperstring = "<a href=\".".$pub->paper;
-            $papername = split("paper_", $pub->paper);
-            $paperstring .= "\"> Paper:<i><b>$papername[1]</b></i></a>";
-        }
-
         $table->addRow(array('Author(s):', $pub->authorsToHtml()));
 
         $table->addRow(array('Abstract:',
@@ -87,6 +79,17 @@ class view_publication extends pdHtmlPage {
             $updateStr ='Last Updated: ' . $updateStr . '<br/>';
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
+
+        if ($pub->paper == 'No paper')
+            $paperstring = 'No Paper at this time.';
+        else {
+            $paperstring = '<a href="';
+            if (strpos($pub->paper, 'uploaded_files/') === false)
+                $paperstring .= 'uploaded_files/';
+            $paperstring .= $pub->paper;
+            $papername = split("paper_", $pub->paper);
+            $paperstring .= '"><i><b>' . $papername[1] . '</b></i></a>';
+        }
 
         $table->addRow(array('Paper:', $paperstring));
 
@@ -114,24 +117,20 @@ class view_publication extends pdHtmlPage {
     }
 
     function additional2Html(&$pub) {
-        if(!isset($pub->additional_info)) return "No Additional Materials";
+        if(count($pub->additional_info) == 0) return "No Additional Materials";
 
         $additionalMaterials = "";
         $add_count = 0;
         $temp = "";
         foreach ($pub->additional_info as $info) {
-            $temp = split("additional_", $info->location);
-            $additionalMaterials .= "<a href=./" . $info->location . ">";
-            if($info->type != "") {
-                $additionalMaterials
-                    .= $info->type.": <i><b>".$temp[1]."</b></i>";
-            }
-            else {
-                $additionalMaterials .= "Additional Material "
-                    . ($add_count + 1) . ":<i><b>".$temp[1]."</b></i>";
-            }
+            $temp = split('additional_', $info->location);
+            $additionalMaterials .= '<a href=./';
+            if (strpos($info->location, 'uploaded_files/') === false)
+                $additionalMaterials .= 'uploaded_files/';
+            $additionalMaterials .= $info->location . '>';
+            $additionalMaterials .= "<i><b>".$temp[1]."</b></i>";
 
-            $additionalMaterials .= "</a><br>";
+            $additionalMaterials .= "</a><br/>";
             $add_count++;
         }
         return $additionalMaterials;
@@ -140,12 +139,12 @@ class view_publication extends pdHtmlPage {
     function venueRowsAdd(&$pub, &$table) {
         if(is_object($pub->venue)) {
             $venueStr = "";
-            if(isset($pub->venue->url))
+            if(strlen($pub->venue->url) > 0)
                 $venueStr .= " <a href=\"" . $pub->venue->url
                     . "\" target=\"_blank\">";
 
             $venueStr .= $pub->venue->name;
-            if(isset($pub->venue->url))
+            if(strlen($pub->venue->url) > 0)
                 $venueStr .= "</a>";
             $table->addRow(array($pub->venue->type . ':', $venueStr));
 
