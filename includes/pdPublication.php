@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.27 2006/07/20 05:39:33 aicmltec Exp $
+// $Id: pdPublication.php,v 1.28 2006/07/20 17:43:51 aicmltec Exp $
 
 /**
  * \file
@@ -239,6 +239,7 @@ class pdPublication {
         assert('is_object($db)');
 
         $arr = array('title'      => $this->title,
+                     'paper'      => $this->paper,
                      'abstract'   => $this->abstract,
                      'keywords'   => $this->keywords,
                      'published'  => $this->published,
@@ -255,12 +256,10 @@ class pdPublication {
                         'pdPublication::dbSave');
         }
         else {
-            if ($this->paper == null)
-                $arr['paper'] = 'No Paper';
-            else
-                $arr['paper'] = $this->paper;
-
+            // only want to keep track of the original user that submitted the
+            // publication
             $arr['submit'] = $this->submit;
+
             $db->insert('publication', $arr, 'pdPublication::dbSave');
             $this->pub_id = $db->insertId();
         }
