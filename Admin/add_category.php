@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.15 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: add_category.php,v 1.16 2006/07/25 20:54:57 aicmltec Exp $
 
 /**
  * \file
@@ -50,7 +50,8 @@ class add_category extends pdHtmlPage {
 
         $form->addElement('header', null,
                           $this->helpTooltip('Add Category',
-                                             'addCategoryPageHelp'));
+                                             'addCategoryPageHelp',
+                                             'helpHeading'));
 
         $form->addElement('text', 'catname', 'Category Name:',
                           array('size' => 50, 'maxlength' => 250));

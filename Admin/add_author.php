@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.21 2006/07/17 17:04:09 aicmltec Exp $
+// $Id: add_author.php,v 1.22 2006/07/25 20:54:57 aicmltec Exp $
 
 /**
  * \file
@@ -58,7 +58,8 @@ class add_author extends pdHtmlPage {
 
         $form->addElement('header', null,
                           $this->helpTooltip('Add Author',
-                                             'addAuthorPageHelp'));
+                                             'addAuthorPageHelp',
+                                             'helpHeading'));
 
         $form->addElement('text', 'firstname', 'First Name:',
                           array('size' => 50, 'maxlength' => 250));

@@ -69,6 +69,14 @@ a:link { color: #000099;}
 a:visited { color: #000099;}
 a:hover { color: #0066FF;}
 
+.help a:link { text-decoration: none; color: #000000;}
+.help a:visited { text-decoration: none; color: #000000;}
+.help a:hover { text-decoration: none; color: #555555;}
+
+.helpHeading a:link { text-decoration: none; color: #FFFFFF;}
+.helpHeading a:visited { text-decoration: none; color: #FFFFFF;}
+.helpHeading a:hover { text-decoration: none; color: #EEEEEE;}
+
 #titlebar {
   /* margin: 0 auto; */
   padding: 0;

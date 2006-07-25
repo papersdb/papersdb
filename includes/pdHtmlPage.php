@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.19 2006/07/20 17:32:04 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.20 2006/07/25 20:54:57 aicmltec Exp $
 
 /**
  * \file
@@ -350,10 +350,11 @@ END;
 END;
     }
 
-    function helpTooltip($text, $varname) {
+    function helpTooltip($text, $varname, $class = 'help') {
         $this->hasHelpTooltips = true;
-        return '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
-            . 'return escape(' . $varname . ')">' . $text . '</a>';
+        return '<span class="' . $class . '">'
+            . '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
+            . 'return escape(' . $varname . ')">' . $text . '</a></span>';
     }
 
     function confirmForm($name, $action = null) {
