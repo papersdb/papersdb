@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.5 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: delete_publication.php,v 1.6 2006/07/25 20:05:43 aicmltec Exp $
 
 /**
  * \file
@@ -50,6 +50,7 @@ class delete_publication extends pdHtmlPage {
                 return;
             }
 
+
             $title = $pub->title;
             $pub->dbDelete($db);
 
@@ -86,7 +87,23 @@ class delete_publication extends pdHtmlPage {
 
             $table->addRow(array('Title:', $pub->title));
             $table->addRow(array('Category:', $pub->category->category));
-            $table->addRow(array('Paper:', $pub->paper));
+
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+            if ($pub->paper == 'No paper')
+                $paperstring = 'No Paper at this time.';
+            else {
+                $paperstring = '<a href="' . $url;
+                if (strpos($pub->paper, 'uploaded_files/') === false)
+                    $paperstring .= '/uploaded_files/' . $pub->pub_id . '/';
+                $paperstring .= $pub->paper;
+                $papername = split("paper_", $pub->paper);
+                $paperstring .= '"><i><b>' . $papername[1] . '</b></i></a>';
+            }
+
+            $table->addRow(array('Paper:', $paperstring));
+
             $table->addRow(array('Authors:', $pub->authorsToHtml('..')));
             $table->addRow(array('Date Published:', $pub->published));
             $table->addRow(array('', $renderer->elementToHtml('submit')

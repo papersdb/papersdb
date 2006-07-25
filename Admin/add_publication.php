@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.53 2006/07/20 17:32:04 aicmltec Exp $
+// $Id: add_publication.php,v 1.54 2006/07/25 20:05:43 aicmltec Exp $
 
 /**
  * \file
@@ -568,7 +568,8 @@ class pubStep3Page extends HTML_QuickForm_Page {
 
             if ($category->info != null) {
                 foreach (array_values($category->info) as $name) {
-                    $this->addElement('text', $name, ucfirst($name) . ':',
+                    $element = preg_replace("/\s+/", '', $name);
+                    $this->addElement('text', $element, ucfirst($name) . ':',
                                       array('size' => 50, 'maxlength' => 250));
                 }
             }
@@ -701,7 +702,8 @@ class pubStep3Page extends HTML_QuickForm_Page {
 
             if ($category->info != null) {
                 foreach (array_values($category->info) as $name) {
-                    $constants[$name] = $pub->info[ucfirst($name)];
+                    $element = preg_replace("/\s+/", '', $name);
+                    $constants[$element] = $pub->info[ucfirst($name)];
                 }
             }
 
@@ -711,6 +713,8 @@ class pubStep3Page extends HTML_QuickForm_Page {
 }
 
 class ActionDisplay extends HTML_QuickForm_Action_Display {
+    var $debug = 1;
+
     function _renderForm(&$page) {
         if (!$page->isFormBuilt()) {
             $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
@@ -749,13 +753,19 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
         $masterPage->javascript();
 
         $data =& $page->controller->container();
-        //$masterPage->contentPost .= '<pre>' . print_r($data, true) . '</pre>';
+
+        if ($this->debug) {
+            $masterPage->contentPost
+                .= '<pre>' . print_r($data, true) . '</pre>';
+        }
 
         echo $masterPage->toHtml();
     }
 }
 
 class ActionProcess extends HTML_QuickForm_Action {
+    var $debug = 1;
+
     function perform(&$page, $actionName) {
         $data =& $page->controller->container();
         $db =& $data['db'];
@@ -801,7 +811,8 @@ class ActionProcess extends HTML_QuickForm_Action {
 
         if (count($pub->info) > 0) {
             foreach (array_keys($pub->info) as $name) {
-                $pub->info[$name] = $values[$name];
+                $element = preg_replace("/\s+/", '', $name);
+                $pub->info[$name] = $values[$element];
             }
         }
 
@@ -846,7 +857,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
         $path = FS_PATH . '/uploaded_files/';
         if ($values['change_paper'] == 'yes') {
-            if (file_exists($pub->paper))
+            if (file_exists($path . $pub->paper))
                 unlink($path . $pub->paper);
             $pub->dbUpdatePaper($db, '');
 
@@ -911,11 +922,13 @@ class ActionProcess extends HTML_QuickForm_Action {
             . '<a href="../view_publication.php?pub_id=' . $pub->pub_id
             . '">' . $pub->title . '</a>';
 
-        $masterPage->contentPre
-            .= 'values<pre>' . print_r($values, true) . '</pre>';
+        if ($this->debug) {
+            $masterPage->contentPre
+                .= 'values<pre>' . print_r($values, true) . '</pre>';
 
-        $masterPage->contentPre
-            .= 'pub<pre>' . print_r($pub, true) . '</pre>';
+            $masterPage->contentPre
+                .= 'pub<pre>' . print_r($pub, true) . '</pre>';
+        }
 
         echo $masterPage->toHtml();
     }

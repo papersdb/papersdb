@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.11 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: add_venue.php,v 1.12 2006/07/25 20:05:43 aicmltec Exp $
 
 /**
  * \file
@@ -203,60 +203,6 @@ class add_venue extends pdHtmlPage {
                 'keywords');
 
             $form->accept($renderer);
-
-//             $table = new HTML_Table(array('width' => '100%',
-//                                           'border' => '0',
-//                                           'cellpadding' => '6',
-//                                           'cellspacing' => '0'));
-//             $table->setAutoGrow(true);
-
-//             $table->addRow(array('Type:',
-//                                  $renderer->elementToHtml('type', 'Journal')));
-//             $table->addRow(array('',
-//                                  $renderer->elementToHtml('type', 'Conference')));
-//             $table->addRow(array('',
-//                                  $renderer->elementToHtml('type', 'Workshop')));
-//             $table->addRow(array('Internal Title:',
-//                                  $renderer->elementToHtml('title')));
-//             $table->addRow(array('Venue Name:',
-//                                  $renderer->elementToHtml('name')));
-//             $table->addRow(array('Venue URL:',
-//                                  $renderer->elementToHtml('url')));
-
-//             if ($venue->type != '') {
-//                 if ($venue->type == 'Conference')
-//                     $cell1 = 'Location';
-//                 else if ($venue->type == 'Journal')
-//                     $cell1 = 'Publisher';
-//                 else if ($venue->type == 'Workshop')
-//                     $cell1 = 'Associated Conference';
-//                 $table->addRow(array($cell1 . ':',
-//                                      $renderer->elementToHtml('data')));
-
-//                 if ($venue->type == 'Workshop')
-//                     $table->addRow(array('Editor:',
-//                                          $renderer->elementToHtml('editor')));
-
-
-//                 if (($venue->type == 'Conference')
-//                     || ($venue->type == 'Workshop'))
-//                     $table->addRow(array('Date:',
-//                                          $renderer->elementToHtml('date')
-//                                          . '<a href="doNothing()" '
-//                                          . 'onClick="setDateField('
-//                                          . 'document.venueForm.date);'
-//                                          . 'top.newWin=window.open('
-//                                          . '\'../calendar.html\','
-//                                          . '\'cal\',\'dependent=yes,width=230,'
-//                                          . 'height=250,screenX=200,screenY=300,'
-//                                          . 'titlebar=yes\')">'
-//                                          . '<img src="../calendar.gif" '
-//                                          . 'border=0></a> '
-//                                          . '(yyyy-mm-dd) '));
-//             }
-
-//             $table->updateColAttributes(0, array('id' => 'emph',
-//                                                  'width' => '25%'));
 
             $this->form =& $form;
             $this->renderer =& $renderer;

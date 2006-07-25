@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.35 2006/07/20 17:32:04 aicmltec Exp $
+// $Id: view_publication.php,v 1.36 2006/07/25 20:05:43 aicmltec Exp $
 
 /**
  * \file
@@ -129,7 +129,7 @@ class view_publication extends pdHtmlPage {
             $temp = split('additional_', $info->location);
             $additionalMaterials .= '<a href=./';
             if (strpos($info->location, 'uploaded_files/') === false)
-                $additionalMaterials .= '/uploaded_files/' . $pub->pub_id . '/';
+                $additionalMaterials .= 'uploaded_files/';
             $additionalMaterials .= $info->location . '>';
             $additionalMaterials .= "<i><b>".$temp[1]."</b></i>";
 

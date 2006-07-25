@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.28 2006/07/20 17:43:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.29 2006/07/25 20:05:43 aicmltec Exp $
 
 /**
  * \file
@@ -227,11 +227,25 @@ class pdPublication {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
+        if (count($this->additional_info) > 0) {
+            $arr = array();
+            foreach ($this->additional_info as $info) {
+                $r = $db->selectRow('additional_info', 'add_id',
+                                    array('location' => $info->location,
+                                          'type'     => $info->type),
+                                    'pdPublication::dbDelete');
+                if ($r !== false)
+                    $db->delete('additional_info', array('add_id' => $r->add_id),
+                                'pdPublication::dbDelete');
+            }
+        }
+
         $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication');
         foreach($tables as $table) {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
         }
+        $this->deleteFiles();
         $this->makeNull();
     }
 
@@ -319,15 +333,18 @@ class pdPublication {
 
         $db->delete('pub_author', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
-        $arr = array();
-        $count = 0;
-        foreach ($this->authors as $author) {
-            array_push($arr, array('pub_id'    => $this->pub_id,
-                                   'author_id' => $author->author_id,
-                                   'rank'      => $count));
-            $count++;
+
+        if (count($this->authors) > 0) {
+            $arr = array();
+            $count = 0;
+            foreach ($this->authors as $author) {
+                array_push($arr, array('pub_id'    => $this->pub_id,
+                                       'author_id' => $author->author_id,
+                                       'rank'      => $count));
+                $count++;
+            }
+            $db->insert('pub_author', $arr, 'pdPublication::dbSave');
         }
-        $db->insert('pub_author', $arr, 'pdPublication::dbSave');
 
         $db->delete('pub_cat', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
@@ -469,6 +486,8 @@ class pdPublication {
     function attachmentsUpdate(&$db, $filename) {
         assert('$this->pub_id != null');
 
+        $filename = $this->pub_id . '/' . $filename;
+
         $pub->additional_info[] = $filename;
 
         // check if already in database
@@ -521,6 +540,46 @@ class pdPublication {
         foreach ($this->intPointer as $key => $obj) {
             if ($obj->value == $pub_id)
                 unset($this->intPointer[$key]);
+        }
+    }
+
+    function deleteFiles() {
+        assert('$this->pub_id != null');
+
+        if (strpos($this->paper, 'uploaded_files/') === false) {
+            $pub_path = FS_PATH . '/uploaded_files/' . $this->pub_id . '/';
+            $filepath = $pub_path . $this->paper;
+
+            if (file_exists($filepath))
+                unlink($filepath);
+
+            if (count($this->additional_info) > 0) {
+                foreach ($this->additional_info as $att) {
+                    $filepath = FS_PATH . '/uploaded_files/' . $att->location;
+
+                    if (file_exists($filepath))
+                        unlink($filepath);
+                }
+            }
+
+            if (file_exists($pub_path))
+                rmdir($pub_path);
+        }
+        else {
+            // previous way of keeping track of attachments
+
+            if (file_exists(FS_PATH . $this->paper))
+                unlink(FS_PATH . $this->paper);
+
+            if (count($this->additional_info) > 0) {
+                foreach ($this->additional_info as $att) {
+                    if (file_exists(FS_PATH . $att->location))
+                        unlink(FS_PATH . $att->location);
+                }
+            }
+
+            if (file_exists(FS_PATH . '/uploaded_files/' . $this->pub_id))
+                rmdir(FS_PATH . '/uploaded_files/' . $this->pub_id);
         }
     }
 }
