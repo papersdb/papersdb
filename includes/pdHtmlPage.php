@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.20 2006/07/25 20:54:57 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.21 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -203,6 +203,9 @@ class pdHtmlPage {
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'advanced_search'    => array('Advanced Search', 'advanced_search.php',
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'search_results'    => array('Search Results',
+                                     'search_publication_db.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
         'all_publications'   => array('All Publications', 'list_publication.php',
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
         'all_authors'        => array('All Authors', 'list_author.php',
@@ -216,12 +219,15 @@ class pdHtmlPage {
         'login'              => array('Login or Register', 'login.php',
                                       PD_HTML_PAGE_NAV_MENU_ALWAYS),
         'home'              => array('Home', 'index.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ)
+                                     PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ)
         );
 
     function htmlHeader() {
         $result =
-            '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
+            "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
+            . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
+            . "\"http://www.w3.org/TR/html4/strict.dtd\">\n"
+            . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
             . 'lang="en">'
             . '<head>'
             . '<title>' . $this->pageTitle . '</title>'
@@ -272,9 +278,7 @@ class pdHtmlPage {
             }
         }
 
-        $result = '<div id="nav">'
-            . '<h2>navigation</h2>'
-            . '<ul>';
+        $result = '<div id="nav"><ul>';
 
         if (is_array($options))
             foreach ($options as $key => $value) {

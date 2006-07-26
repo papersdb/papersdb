@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.12 2006/07/06 22:24:57 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.13 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -69,7 +69,7 @@ class pdAuthor {
 
         $this->dbLoadFlags = $flags;
 
-        if ($flags & PD_AUTHOR_DB_LOAD_MIN)
+        if ($flags == PD_AUTHOR_DB_LOAD_MIN)
             $fields = array('author_id', 'name');
         else
             $fields = '*';
@@ -190,7 +190,7 @@ class pdAuthor {
                         'pdUser::dbSave');
         }
 
-        if (isset($this->interests) && (count($this->interests) > 0)) {
+        if (count($this->interests) > 0) {
             $db_interests = new pdAuthInterests($db);
 
             // first add the interests

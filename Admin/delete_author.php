@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.8 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: delete_author.php,v 1.9 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -64,11 +64,12 @@ class delete_author extends pdHtmlPage {
             }
             else {
                 // This is where the actual deletion happens.
+                $name = $author->name;
                 $author->dbDelete($db);
 
                 $this->contentPre .= 'You have successfully removed the '
-                    . 'following author from the database: <b>'
-                    . $author->name . '</b>';
+                    . 'following author from the database: <p/>'
+                    . '<b>' . $name . '</b>';
             }
         }
         else {

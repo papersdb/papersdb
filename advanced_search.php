@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.35 2006/07/17 17:04:09 aicmltec Exp $
+// $Id: advanced_search.php,v 1.36 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -98,12 +98,6 @@ class advanced_search extends pdHtmlPage {
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-        $renderer->setElementTemplate(
-            '<tr><td><b>{label}</b></td><td>{element}'
-            . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
-            . '</td></tr>',
-            'keywords');
 
         $this->renderer =& $renderer;
         $this->form->accept($renderer);

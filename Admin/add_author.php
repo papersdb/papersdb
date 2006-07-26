@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.22 2006/07/25 20:54:57 aicmltec Exp $
+// $Id: add_author.php,v 1.23 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -87,8 +87,8 @@ class add_author extends pdHtmlPage {
 
         $interests = new pdAuthInterests($db);
 
-         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
-                . ($newInterests+1) .')">[Add Interest]</a></div>';
+        $ref = '<br/><div id="small"><a href="javascript:dataKeep('
+            . ($newInterests+1) .')">[Add Interest]</a></div>';
 
         $form->addElement('select', 'interests',
                           'Interests:' . $ref,
@@ -143,12 +143,6 @@ class add_author extends pdHtmlPage {
             $renderer->setHeaderTemplate(
                 '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
                 . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-            $renderer->setElementTemplate(
-                '<tr><td><b>{label}</b></td><td>{element}'
-                . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
-            . '</td></tr>',
-                'keywords');
 
             $form->accept($renderer);
             $this->form =& $form;

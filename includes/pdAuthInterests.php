@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.5 2006/06/13 23:56:04 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.6 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -33,7 +33,7 @@ class pdAuthInterests {
     }
 
     function interestExists($interest) {
-        assert('isset($this->interests)');
+        assert('isset($this->list)');
         return in_array($interest, $this->list);
     }
 

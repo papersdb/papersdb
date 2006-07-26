@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.20 2006/07/20 17:32:04 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.21 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -52,7 +52,7 @@ class search_publication_db extends pdHtmlPage {
     var $input;
 
     function search_publication_db() {
-        parent::pdHtmlPage('Search Publication');
+        parent::pdHtmlPage('search_results');
         $this->optionsGet();
 
         $link = connect_db();
@@ -108,7 +108,11 @@ class search_publication_db extends pdHtmlPage {
             $this->advancedSearch();
         }
 
-        // SHOW THE RESULTS ---------------------------------------------------
+        $this->genResults($search_url);
+
+    }
+
+    function genResults($search_url) {
         $db =& dbCreate();
         $countentries = 0;
         $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
@@ -138,193 +142,201 @@ class search_publication_db extends pdHtmlPage {
 
         $this->contentPre .= $table->toHtml();
 
-        if($this->pub_id_array == null) {
+        if ($this->pub_id_array == null) {
             $this->contentPre .= "<br><h3>No entries found.</h3>";
+            return;
         }
-        else {
-            if (count($this->pub_id_array) == 1)
-                $this->contentPre .= "<h3>1 entry found.</h3>";
-            else
-                $this->contentPre .= "<h3>" . count($this->pub_id_array)
-                    . " entries found.</h3>";
 
-            $table = new HTML_Table(array('class' => 'nomargins',
-                                          'width' => '100%'));
+        if (count($this->pub_id_array) == 1)
+            $this->contentPre .= "<h3>1 entry found.</h3>";
+        else
+            $this->contentPre .= "<h3>" . count($this->pub_id_array)
+                . " entries found.</h3>";
 
-            $b = 0;
-            foreach ($this->pub_id_array as $pub_id) {
-                $pub = new pdPublication();
-                $pub->dbLoad($db, $pub_id);
+        $table = new HTML_Table(array('class' => 'nomargins',
+                                      'width' => '100%'));
 
-                $pubTable = new HTML_Table();
+        $b = 0;
+        foreach ($this->pub_id_array as $pub_id) {
+            $pub = new pdPublication();
+            $pub->dbLoad($db, $pub_id);
 
-                // Show Category
-                if (($this->option_list->categorycheck == '1')
-                    || ($this->option_list->category != ''))
-                    $pubTable->addRow(array('<u>'
-                                            . $pub->category->category
-                                            . '</u>'),
+            $pubTable = new HTML_Table();
+
+            // Show Category
+            if (($this->option_list->categorycheck == '1')
+                || ($this->option_list->category != ''))
+                $pubTable->addRow(array('<u>'
+                                        . $pub->category->category
+                                        . '</u>'),
+                                  array('id' => 'small'));
+
+            // Show Title
+            if (($this->option_list->titlecheck == '1')
+                || ($this->option_list->title != ''))
+                $pubTable->addRow(array('<a href="view_publication.php?'
+                                        . 'pub_id=' . $pub->pub_id . '">'
+                                        . $pub->title . '</a>'),
+                                  array('id' => 'large'));
+
+            // Show Author
+            if($this->option_list->authorcheck == '1') {
+                $first = true;
+                $cell = '';
+                foreach ($pub->authors as $auth) {
+                    if (!$first)
+                        $cell .= ' <b>-</b> ';
+                    $cell .= '<a href="./view_author.php?'
+                        . 'author_id=' . $auth->author_id . '">';
+                    $author = split(",", $auth->name);
+                    $cell .= $author[1] . ' ' . $author[0] . '</a>';
+                    $first = false;
+                }
+                $pubTable->addRow(array($cell), array('id' => 'standard'));
+            }
+
+            // Show Paper
+            if (($this->option_list->papercheck == '1')
+                || ($this->option_list->paper != '')) {
+                if($pub->paper == 'No paper')
+                    $cell = "No Paper at this time.";
+                else {
+                    $cell = '<a href="' . $pub->paper;
+                    $papername = split("paper_", $pub->paper);
+                    $cell .= '"> <i><b>' . $papername[1]
+                        . '</b></i></a>';
+                }
+                $pubTable->addRow(array('<b>Paper:</b> ' . $cell),
+                                  array('id' => 'standard'));
+            }
+
+            // Show Additional Materials
+            if (($this->option_list->additionalcheck == '1')
+                || ($this->option_list->additional != '')) {
+                if(is_array($pub->additional_info)) {
+                    $add_count = 1;
+                    foreach ($pub->additional_info as $additional) {
+                        $temp = split("additional_", $additional->location);
+                        if ($additional->type != "")
+                            $cell = $additional->type . ":";
+                        else
+                            $cell = 'Additional Material '
+                                . ($add_count++) . ':';
+                        $cell .= '<a href=.' . $additional->location . '>'
+                            . '<i><b>' . $temp[1] . '</b></i>'
+                            . '</a><br>';
+                    }
+                    $pubTable->addRow(array($cell),
+                                      array('id' => 'small'));
+                }
+            }
+
+            // Show the venue
+            if (($this->option_list->venuecheck == '1')
+                || ($this->option_list->venue != null)) {
+                if (is_object($pub->venue)) {
+                    $cell = '<b>' . $pub->venue->type . '</b>: ';
+                    if($pub->venue->url != '')
+                        $cell .= '<a href="' . $$pub->venue->url
+                            . '" target="_blank">';
+                    $cell .= $pub->venue->name;
+                    if($pub->venue->url != '')
+                        $cell .= '</a>';
+                    $pubTable->addRow(array($cell),
                                       array('id' => 'small'));
 
-                // Show Title
-                if (($this->option_list->titlecheck == '1')
-                    || ($this->option_list->title != ''))
-                    $pubTable->addRow(array('<a href="view_publication.php?'
-                                            . 'pub_id=' . $pub->pub_id . '">'
-                                            . $pub->title . '</a>'),
-                                      array('id' => 'large'));
-
-                // Show Author
-                if($this->option_list->authorcheck == '1') {
-                    $first = true;
-                    $cell = '';
-                    foreach ($pub->authors as $auth) {
-                        if (!$first)
-                            $cell .= ' <b>-</b> ';
-                        $cell .= '<a href="./view_author.php?'
-                            . 'author_id=' . $auth->author_id . '">';
-                        $author = split(",", $auth->name);
-                        $cell .= $author[1] . ' ' . $author[0] . '</a>';
-                        $first = false;
-                    }
-                    $pubTable->addRow(array($cell), array('id' => 'standard'));
-                }
-
-                // Show Paper
-                if (($this->option_list->papercheck == '1')
-                    || ($this->option_list->paper != '')) {
-                    if($pub->paper == 'No paper')
-                        $cell = "No Paper at this time.";
-                    else {
-                        $cell = '<a href="' . $pub->paper;
-                        $papername = split("paper_", $pub->paper);
-                        $cell .= '"> <i><b>' . $papername[1]
-                            . '</b></i></a>';
-                    }
-                    $pubTable->addRow(array('<b>Paper:</b> ' . $cell),
-                                      array('id' => 'standard'));
-                }
-
-                // Show Additional Materials
-                if (($this->option_list->additionalcheck == '1')
-                    || ($this->option_list->additional != '')) {
-                    if(is_array($pub->additional_info)) {
-                        $add_count = 1;
-                        foreach ($pub->additional_info as $additional) {
-                            $temp = split("additional_", $additional->location);
-                            if ($additional->type != "")
-                                $cell = $additional->type . ":";
-                            else
-                                $cell = 'Additional Material '
-                                    . ($add_count++) . ':';
-                            $cell .= '<a href=.' . $additional->location . '>'
-                                . '<i><b>' . $temp[1] . '</b></i>'
-                                . '</a><br>';
-                        }
+                    if($pub->venue->data != ''){
+                        if($pub->venue->type == "Conference")
+                            $cell = "<b>Location:&nbsp;</b>";
+                        else if($pub->venue->type == "Journal")
+                            $cell = "<b>Publisher:&nbsp;</b>";
+                        else if($pub->venue->type == "Workshop")
+                            $cell = "<b>Associated Conference:&nbsp;</b>";
+                        $cell .= $pub->venue->data;
                         $pubTable->addRow(array($cell),
-                                          array('id' => 'small'));
-                    }
-                }
-
-                // Show the venue
-                if(($this->option_list->venuecheck == '1')
-                   || ($this->option_list->venue != null)) {
-                    if (is_object($pub->venue)) {
-                        $cell = '<b>' . $pub->venue->type . '</b>: ';
-                        if($pub->venue->url != '')
-                            $cell .= '<a href="' . $$pub->venue->url
-                                . '" target="_blank">';
-                        $cell .= $pub->venue->name;
-                        if($pub->venue->url != '')
-                            $cell .= '</a>';
-                        $pubTable->addRow(array($cell),
-                                          array('id' => 'small'));
-
-                        if($pub->venue->data != ''){
-                            if($pub->venue->type == "Conference")
-                                $cell = "<b>Location:&nbsp;</b>";
-                            else if($pub->venue->type == "Journal")
-                                $cell = "<b>Publisher:&nbsp;</b>";
-                            else if($pub->venue->type == "Workshop")
-                                $cell = "<b>Associated Conference:&nbsp;</b>";
-                            $cell .= $pub->venue->data;
-                            $pubTable->addRow(array($cell),
-                                              array('id' => 'standard'));
-                        }
-                    }
-                    else {
-                        $pubTable->addRow(array('Venue: ' . $pub->venue),
                                           array('id' => 'standard'));
                     }
                 }
-
-                if(($this->option_list->halfabstractcheck == '1')
-                   || ($this->option_list->abstract != '')) {
-                    // Show part of the abstract.
-                    $tempstring = stripslashes(nl2br($pub->abstract));
-                    if(strlen($tempstring) > 350) {
-                        $tempstring = substr($tempstring,0,350)."...";
-                    }
-                    $pubTable->addRow(array($tempstring),
-                                      array('id' => 'small'));
-                }
                 else {
-                    $pubTable->addRow(
-                        array(stripslashes(nl2br($pub->abstract))),
-                        array('id' => 'small'));
+                    $pubTable->addRow(array('Venue: ' . $pub->venue),
+                                      array('id' => 'standard'));
                 }
+            }
 
-                // Show the keywords
-                if(($this->option_list->keywordscheck = '1')
-                   || ($this->option_list->keywords != '')) {
-                    $pubTable->addRow(array('<b>Keywords: </b>'
-                                            . $pub->keywordsGet()),
-                                      array('id' => 'small'));
+            if(($this->option_list->halfabstractcheck == '1')
+               || ($this->option_list->abstract != '')) {
+                // Show part of the abstract.
+                $tempstring = stripslashes(nl2br($pub->abstract));
+                if(strlen($tempstring) > 350) {
+                    $tempstring = substr($tempstring,0,350)."...";
                 }
+                $pubTable->addRow(array($tempstring),
+                                  array('id' => 'small'));
+            }
+            else {
+                $pubTable->addRow(
+                    array(stripslashes(nl2br($pub->abstract))),
+                    array('id' => 'small'));
+            }
 
-                // Show the extra information related to the category
-                if (($this->option_list->extracheck = '1')
-                    && is_array($pub->info)) {
-                    foreach ($pub->info as $info => $value) {
-                        if ($value != "") {
-                            $pubTable->addRow(array('<b>' . $info . ': </b>'
-                                                    . $value),
-                                              array('id' => 'small'));
-                        }
-                    }
-                }
+            // Show the keywords
+            if(($this->option_list->keywordscheck = '1')
+               || ($this->option_list->keywords != '')) {
+                $pubTable->addRow(array('<b>Keywords: </b>'
+                                        . $pub->keywordsGet()),
+                                  array('id' => 'small'));
+            }
 
-                // Show the date the publication was published.
-                if(($this->option_list->datecheck)
-                   || ($this->option_list->datesGroup['startdate']
-                       != $this->option_list->datesGroup['enddate'])){
-                    //PARSE DATES
-                    $thedate = "";
-                    $published = split("-",$pub->published);
-                    if ($published[1] != 00)
-                        $thedate .= date("F", mktime (0,0,0,$published[1]))." ";
-                    if ($published[2] != 00)
-                        $thedate .= $published[2].", ";
-                    if ($published[0] != 0000)
-                        $thedate .= $published[0];
-                    if ($thedate != NULL){
-                        $pubTable->addRow(array('<b>Date Published: </b>'
-                                                . $thedate),
+            // Show the extra information related to the category
+            if (($this->option_list->extracheck = '1')
+                && is_array($pub->info)) {
+                foreach ($pub->info as $info => $value) {
+                    if ($value != "") {
+                        $pubTable->addRow(array('<b>' . $info . ': </b>'
+                                                . $value),
                                           array('id' => 'small'));
                     }
                 }
-
-                $table->addRow(array(($b + 1) . ':', $pubTable->toHtml()));
-                $b++;
             }
-            tableHighlightRows($table);
-            $this->contentPre .= $table->toHtml();
+
+            // Show the date the publication was published.
+            if(($this->option_list->datecheck)
+               || ($this->option_list->datesGroup['startdate']
+                   != $this->option_list->datesGroup['enddate'])){
+                //PARSE DATES
+                $thedate = "";
+                $published = split("-",$pub->published);
+                if ($published[1] != 00)
+                    $thedate .= date("F", mktime (0,0,0,$published[1]))." ";
+                if ($published[2] != 00)
+                    $thedate .= $published[2].", ";
+                if ($published[0] != 0000)
+                    $thedate .= $published[0];
+                if ($thedate != NULL){
+                    $pubTable->addRow(array('<b>Date Published: </b>'
+                                            . $thedate),
+                                      array('id' => 'small'));
+                }
+            }
+
+            $indexTable = new HTML_Table();
+            $indexTable->addRow(array(($b + 1) . ':'));
+
+            $table->addRow(array($indexTable->toHtml(), $pubTable->toHtml()));
+            $b++;
         }
+        tableHighlightRows($table);
+        $this->contentPre .= $table->toHtml();
+
+        if (strlen($search_url) > 96)
+            $short_search_url = substr($search_url, 0, 96) . '...';
+        else
+            $short_search_url = $search_url;
 
         $this->contentPre .= '<hr/>'
             . 'Link to this search: <div id="small">'
             . '<a href="' . $search_url . '">'
-            . substr($search_url, 0, 96) . '...</a></div><br/>'
+            . $short_search_url . '</a></div><br/>'
             . '</div>';
 
         $db->close();

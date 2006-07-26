@@ -65,9 +65,9 @@ td#large {font-size:16px;}
 td#standard {font-size:12px;}
 td#small {font-size:10px;}
 
-a:link { color: #000099;}
-a:visited { color: #000099;}
-a:hover { color: #0066FF;}
+a:link { text-decoration: underline; color: #000099;}
+a:visited { text-decoration: underline; color: #000099;}
+a:hover { text-decoration: underline; color: #0066FF;}
 
 .help a:link { text-decoration: none; color: #000000;}
 .help a:visited { text-decoration: none; color: #000000;}
@@ -150,9 +150,11 @@ div#nav {
   padding:0 0 0 0;
   margin:0 0 0 0;
   font-weight:bold;
+  border-top: 3px solid #006633;
+  border-bottom: 2px solid #006633;
 }
 
-#nav h2 {
+div#nav h2 {
   margin: 0;
   padding: 4px 9px 3px 9px;
   color: #FFFFCC;
@@ -172,7 +174,8 @@ div#nav ul {
 div#nav li {
   margin-bottom:.1em;
   list-style: none;
-  text-indent: -3em;
+  /* text-indent: -3em; */
+  text-indent: 0;
   font-weight:bold;
   line-height: 1.3em;
 }
@@ -216,7 +219,7 @@ div#footer a:link {
   float: right;
   text-align: right;
   line-height: 1.2em;
-  color: 0;
+  color: #000000;
   font-weight:normal;
 }
 
@@ -229,7 +232,8 @@ div#footer a:link {
 #copyright li {
 	list-style: none !important;
 	margin: 0;
-	padding: 0;}
+	padding: 0;
+}
 
 .inputCommand {
   width: 60px;

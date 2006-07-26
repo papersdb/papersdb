@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.54 2006/07/25 20:05:43 aicmltec Exp $
+// $Id: add_publication.php,v 1.55 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -44,23 +44,16 @@ class add_publication extends pdHtmlPage {
     }
 
     function javascript() {
-        $ext_next = $this->ext + 1;
-        $ext_prev = $this->ext - 1;
-        $intpoint_next = $this->intpoint + 1;
-        $intpoint_prev = $this->intpoint - 1;
-        $nummaterials_next = $this->nummaterials + 1;
-        $nummaterials_prev = $this->nummaterials - 1;
-
         $this->js = <<<JS_END
             <script language="JavaScript" type="text/JavaScript">
 
             var venueHelp=
             "Where the paper was published -- specific journal, conference, "
             + "workshop, etc. If many of the database papers are in the same "
-            + "venue, you can create a single &quot;label&quot; for that "
+            + "venue, you can create a single <b>label</b> for that "
             + "venue, to specify name of the venue, location, date, editors "
             + "and other common information. You will then be able to use "
-            "and re-use that information.";
+            + "and re-use that information.";
 
         var categoryHelp=
             "Category describes the type of document that you are submitting "
@@ -73,17 +66,20 @@ class add_publication extends pdHtmlPage {
             + "information on a subsequent page.<br/><br/>";
 
         var titleHelp=
-            "Title should contain the title given to your document.<br/><br/>"
-            +  "Please enter the title of your document in the field provided.";
+            "Title should contain the title given to your document.";
 
         var authorsHelp=
-            "This field is to store the author(s) of your document in the database."
-            + "<br/><br/>"
-            + "To use this field select the author(s) of your document from the "
-            + "listbox. You can select multiple authors by holding down the control "
-            + "key and clicking. If you do not see the name of the author(s) of the "
-            + "document listed in the listbox then you must add them with the Add "
-            + "Author button.";
+            "This field is to store the author(s) of your document in the "
+            + "database. <p/>"
+            + "Select the author(s) for your document from the list on the "
+            + "right. You can select multiple authors by holding down the "
+            + "control key and clicking.<p/>"
+            + "Authors have been categorized as: most used, favourite, and "
+            + "remaining. Your most used authors are determined from your "
+            + "history of adding documents to the database. Your favourite "
+            + "authors can be selected in <b>User Preferences</b>. The "
+            + "remaining authors are the ones that fit neither of these "
+            + "previous 2 categories.";
 
         var abstractHelp=
             "Abstract is an area for you to provide an abstract of the document you "
@@ -713,7 +709,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
 }
 
 class ActionDisplay extends HTML_QuickForm_Action_Display {
-    var $debug = 1;
+    var $debug = 0;
 
     function _renderForm(&$page) {
         if (!$page->isFormBuilt()) {
@@ -764,7 +760,7 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
 }
 
 class ActionProcess extends HTML_QuickForm_Action {
-    var $debug = 1;
+    var $debug = 0;
 
     function perform(&$page, $actionName) {
         $data =& $page->controller->container();

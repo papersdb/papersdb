@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.12 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: defines.php,v 1.13 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -11,6 +11,8 @@
  */
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
+
+ini_set("include_path", ini_get("include_path") . ":/usr/share/pear");
 
 /** The server hosting the database. */
 if ($_ENV['HOSTNAME'] == 'levante')

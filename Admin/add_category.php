@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.16 2006/07/25 20:54:57 aicmltec Exp $
+// $Id: add_category.php,v 1.17 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -136,12 +136,6 @@ class add_category extends pdHtmlPage {
             $renderer->setHeaderTemplate(
                 '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
                 . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-            $renderer->setElementTemplate(
-                '<tr><td><b>{label}</b></td><td>{element}'
-                . '<br/><span style="font-size:10px;">seperate using semi-colon (;)</span>'
-            . '</td></tr>',
-                'keywords');
 
             $form->accept($renderer);
             $this->form =& $form;

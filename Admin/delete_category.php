@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.6 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: delete_category.php,v 1.7 2006/07/26 20:56:39 aicmltec Exp $
 
 /**
  * \file
@@ -35,6 +35,8 @@ class delete_category extends pdHtmlPage {
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != ''))
             $cat_id = intval($_GET['cat_id']);
+        else if (isset($_POST['cat_id']) && ($_POST['cat_id'] != ''))
+            $cat_id = intval($_POST['cat_id']);
         else {
             $this->contentPre .= 'No category id defined';
             $this->pageError = true;
