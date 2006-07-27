@@ -77,6 +77,25 @@ a:hover { text-decoration: underline; color: #0066FF;}
 .helpHeading a:visited { text-decoration: none; color: #FFFFFF;}
 .helpHeading a:hover { text-decoration: none; color: #EEEEEE;}
 
+#statusbar {
+  margin: 0;
+  padding: 0;
+  width: 800px;
+  height: 15px;
+  background-color: #CCCC99;
+}
+
+#statusbar table {
+  margin: 0;
+}
+
+#statusbar table tr td {
+  font-size: .45em;
+  color: #000000;
+  font-weight: bold;
+  text-align: right;
+}
+
 #titlebar {
   /* margin: 0 auto; */
   padding: 0;
@@ -145,7 +164,7 @@ div#nav {
   background-color: #EBEBEB;
   position:absolute;
   left:0px;
-  top:70px;
+  top:85px;
   width:180px;
   padding:0 0 .4em 0;
   margin:0 0 0 0;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.21 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.22 2006/07/27 22:25:33 aicmltec Exp $
 
 /**
  * \file
@@ -314,7 +314,24 @@ class pdHtmlPage {
     }
 
     function pageHeader() {
+        global $logged_in;
+
+        if ($logged_in) {
+            $status = 'Logged in as: ' . $_SESSION['user']->login;
+        }
+        else {
+            $status = 'Not Logged In';
+        }
+
         return <<<END
+            <div id="statusbar">
+            <table border="0" cellspacing="0" cellpadding="0" align="center"
+            width="100%">
+            <tr>
+            <td nowrap>{$status}</td>
+            </tr>
+            </table>
+            </div>
             <div id="titlebar">
             <a href="http://www.uofaweb.ualberta.ca/science/">
             <img src="http://www.cs.ualberta.ca/library/images/science.gif"
