@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.22 2006/07/27 00:02:18 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.23 2006/07/27 21:40:26 aicmltec Exp $
 
 /**
  * \file
@@ -24,8 +24,6 @@ class search_publication_db extends pdHtmlPage {
      * by either GET or POST methods.
      */
     var $allowed_options = array('categorycheck',
-                                 'titlecheck',
-                                 'authorcheck',
                                  'extracheck',
                                  'papercheck',
                                  'additionalcheck',
@@ -97,7 +95,6 @@ class search_publication_db extends pdHtmlPage {
 
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
-            $this->option_list->authorcheck = '1';
             $this->option_list->halfabstractcheck = '1';
             $this->contentPre .= '<h3> QUICK SEARCH </h3>';
         }
@@ -105,15 +102,17 @@ class search_publication_db extends pdHtmlPage {
             $this->advancedSearch();
         }
 
-        $this->genResults($search_url);
+        $this->searchResultsGenerate($search_url);
 
     }
 
-    function genResults($search_url) {
+    /**
+     * Generates results in citation format.
+     */
+    function searchResultsGenerate($search_url) {
         $db =& dbCreate();
         $countentries = 0;
         $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
-        $this->option_list->titlecheck = '1';
 
         $form =& $this->searchFormCreate();
         $form->setDefaults(array('search' => $input_unsanitized));
@@ -140,7 +139,8 @@ class search_publication_db extends pdHtmlPage {
         $this->contentPre .= $table->toHtml();
 
         if ($this->pub_id_array == null) {
-            $this->contentPre .= "<br><h3>No entries found.</h3>";
+            $this->contentPre
+                .= '<br><h3>Your search did not generate any results.</h3>';
             return;
         }
 
@@ -160,160 +160,120 @@ class search_publication_db extends pdHtmlPage {
 
             $pubTable = new HTML_Table();
 
-            // Show Category
-            if (($this->option_list->categorycheck == '1')
-                || ($this->option_list->category != ''))
-                $pubTable->addRow(array('<u>'
-                                        . $pub->category->category
-                                        . '</u>'));
-
-            // Show Title
-            if (($this->option_list->titlecheck == '1')
-                || ($this->option_list->title != ''))
-                $pubTable->addRow(array('<span id="pub_title">'
-                                        . '<a href="view_publication.php?'
-                                        . 'pub_id=' . $pub->pub_id . '">'
-                                        . $pub->title . '</a></span>'));
+            $citation = '';
 
             // Show Author
-            if($this->option_list->authorcheck == '1') {
-                $first = true;
-                $cell = '<span id="pub_authors">';
-                foreach ($pub->authors as $auth) {
-                    if (!$first)
-                        $cell .= ' <b>-</b> ';
-                    $cell .= ''
-                        . '<a href="./view_author.php?'
-                        . 'author_id=' . $auth->author_id . '">';
-                    $author = split(",", $auth->name);
-                    $cell .= $author[1] . ' ' . $author[0] . '</a>';
-                    $first = false;
-                }
-                $cell .= '</span>';
-                $pubTable->addRow(array($cell), array('id' => 'standard'));
+            $first = true;
+            $cell = '<span id="pub_authors">';
+            foreach ($pub->authors as $auth) {
+                if (!$first)
+                    $citation .= ', ';
+
+                $author = split(', ', $auth->name);
+                $citation .= ''
+                    . '<a href="./view_author.php?'
+                    . 'author_id=' . $auth->author_id . '">'
+                    . $author[1][0] . '. ' . $author[0] . '</a>';
+                $first = false;
             }
 
-            // Show Paper
-            if (($this->option_list->papercheck == '1')
-                || ($this->option_list->paper != '')) {
-                if($pub->paper == 'No paper')
-                    $cell = "No Paper at this time.";
-                else {
-                    $papername = split("paper_", $pub->paper);
-                    $cell = '<a href="' . $pub->paperAttGetUrl() . '">'
-                        . '<i><b>' . $papername[1] . '</b></i></a>';
+            // Show Title
+            $citation .= '. <span id="pub_title">&quot;' . $pub->title
+                . '&quot;.</span> ';
+
+            // Show Venue
+            if(is_object($pub->venue)) {
+                if ($pub->venue->url != '')
+                    $citation .= ' <a href="' . $pub->venue->url
+                        . '" target="_blank">';
+
+                $citation .= $pub->venue->name;
+                if ($pub->venue->url != '')
+                    $citation .= '</a>';
+
+                if ($pub->venue->data != '')
+                $citation .= ', ' . $pub->venue->data . ', ';
+            }
+            else if ($pub->venue != '') {
+                $citation .= strip_tags($pub->venue) . ', ';
+            }
+
+            // Additional Information - Outputs the category specific
+            // information if it exists
+            if (isset($pub->info))
+                foreach ($pub->info as $name => $value) {
+                    if($value != null)
+                        $$citation .= ", " . $value;
                 }
-                $pubTable->addRow(array('<b>Paper:</b> ' . $cell));
+
+            $date_str = "";
+            $published = split('-', $pub->published);
+            if ($published[1] != 0)
+                $date_str .= date('F', mktime (0, 0, 0, $published[1])) . ' ';
+            if ($published[2] != 0)
+                $date_str .= $published[2] . ', ';
+            if ($published[0] != 0)
+                $date_str .= $published[0];
+
+            $citation .= $date_str . '.';
+
+            // Show Paper
+            if ($pub->paper != 'No paper') {
+                $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
+
+                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
+                    $citation .= '<img src="pdf.gif" alt="PDF" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+                    $citation .= '<img src="ppt.gif" alt="PPT" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+                    $citation .= '<img src="ps.gif" alt="PS" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+                $citation .= '</a>';
             }
 
             // Show Additional Materials
-            if (($this->option_list->additionalcheck == '1')
-                || ($this->option_list->additional != '')) {
-                if(count($pub->additional_info) > 0) {
-                    $add_count = 1;
-                    foreach ($pub->additional_info as $additional) {
-                        $temp = split("additional_", $additional->location);
-                        if ($additional->type != "")
-                            $cell = '<b>' . $additional->type . "</b>: ";
-                        else
-                            $cell = 'Additional Material ' . $add_count . ':';
-                        $cell .= '<a href="'
-                            . $pub->attachmentGetUrl($add_count - 1) . '">'
-                            . '<i><b>' . $temp[1] . '</b></i>'
-                            . '</a><br/>';
-                        $add_count++;
+            if (count($pub->additional_info) > 0) {
+                $add_count = 1;
+                foreach ($pub->additional_info as $att) {
+                    $citation .= '<a href="'
+                        . $pub->attachmentGetUrl($add_count - 1) . '">';
+
+                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
+                        $citation .= '<img src="pdf.gif" alt="PDF" height="18" '
+                            . 'width="17" border="0" align="middle">';
                     }
-                    $pubTable->addRow(array($cell));
-                }
-            }
 
-            // Show the venue
-            if (($this->option_list->venuecheck == '1')
-                || ($this->option_list->venue != null)) {
-                if (is_object($pub->venue)) {
-                    $cell = '<b>' . $pub->venue->type . '</b>: ';
-                    if($pub->venue->url != '')
-                        $cell .= '<a href="' . $pub->venue->url
-                            . '" target="_blank">';
-                    $cell .= $pub->venue->name;
-                    if($pub->venue->url != '')
-                        $cell .= '</a>';
-                    $pubTable->addRow(array($cell));
-
-                    if($pub->venue->data != ''){
-                        if($pub->venue->type == "Conference")
-                            $cell = "<b>Location:&nbsp;</b>";
-                        else if($pub->venue->type == "Journal")
-                            $cell = "<b>Publisher:&nbsp;</b>";
-                        else if($pub->venue->type == "Workshop")
-                            $cell = "<b>Associated Conference:&nbsp;</b>";
-                        $cell .= $pub->venue->data;
-                        $pubTable->addRow(array($cell));
+                    if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+                        $citation .= '<img src="ppt.gif" alt="PPT" height="18" '
+                            . 'width="17" border="0" align="middle">';
                     }
-                }
-                else {
-                    $pubTable->addRow(array('<b>Venue</b>: ' . $pub->venue));
-                }
-            }
 
-            if(($this->option_list->halfabstractcheck == '1')
-               || ($this->option_list->abstract != '')) {
-                // Show part of the abstract.
-                $tempstring = stripslashes(nl2br($pub->abstract));
-                if(strlen($tempstring) > 350) {
-                    $tempstring = substr($tempstring,0,350)."...";
-                }
-                $pubTable->addRow(array($tempstring));
-            }
-            else {
-                $pubTable->addRow(
-                    array(stripslashes(nl2br($pub->abstract))),
-                    array('id' => 'small'));
-            }
-
-            // Show the keywords
-            if(($this->option_list->keywordscheck = '1')
-               || ($this->option_list->keywords != '')) {
-                $pubTable->addRow(array('<b>Keywords: </b>'
-                                        . $pub->keywordsGet()));
-            }
-
-            // Show the extra information related to the category
-            if (($this->option_list->extracheck = '1')
-                && is_array($pub->info)) {
-                foreach ($pub->info as $info => $value) {
-                    if ($value != "") {
-                        $pubTable->addRow(array('<b>' . $info . ': </b>'
-                                                . $value));
+                    if (preg_match("/\.(ps|PS)$/", $att->location)) {
+                        $citation .= '<img src="ps.gif" alt="PS" height="18" '
+                            . 'width="17" border="0" align="middle">';
                     }
+
+                    $add_count++;
                 }
             }
 
-            // Show the date the publication was published.
-            if(($this->option_list->datecheck)
-               || ($this->option_list->datesGroup['startdate']
-                   != $this->option_list->datesGroup['enddate'])){
-                //PARSE DATES
-                $thedate = "";
-                $published = split("-",$pub->published);
-                if ($published[1] != 00)
-                    $thedate .= date("F", mktime (0,0,0,$published[1]))." ";
-                if ($published[2] != 00)
-                    $thedate .= $published[2].", ";
-                if ($published[0] != 0000)
-                    $thedate .= $published[0];
-                if ($thedate != NULL){
-                    $pubTable->addRow(array('<b>Date Published: </b>'
-                                            . $thedate));
-                }
-            }
+            $pubTable->addRow(array($citation));
 
             $indexTable = new HTML_Table();
-            $indexTable->addRow(array(($b + 1) . ':'));
+            $indexTable->addRow(array('<a href="view_publication.php?pub_id='
+                                      . $pub->pub_id . '">' . ($b + 1)));
 
             $table->addRow(array($indexTable->toHtml(), $pubTable->toHtml()));
             $b++;
         }
+
         tableHighlightRows($table);
         $this->contentPre .= $table->toHtml();
 
@@ -697,9 +657,7 @@ class search_publication_db extends pdHtmlPage {
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
 
-        $elements = array('titlecheck'        => $this->option_list->titlecheck,
-                          'authorcheck'       => $this->option_list->authorcheck,
-                          'categorycheck'     => $this->option_list->categorycheck,
+        $elements = array('categorycheck'     => $this->option_list->categorycheck,
                           'extracheck'        => $this->option_list->extracheck,
                           'papercheck'        => $this->option_list->papercheck,
                           'additionalcheck'   => $this->option_list->additionalcheck,

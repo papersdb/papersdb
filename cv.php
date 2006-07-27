@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.7 2006/06/09 22:34:19 aicmltec Exp $
+// $Id: cv.php,v 1.8 2006/07/27 21:40:26 aicmltec Exp $
 
 /**
  * \file
@@ -53,12 +53,12 @@ class cv extends pdHtmlPage {
 
             //  VENUE - Checks to see if its unique or an ID and takes the
             //  right action for each
-            if (is_object($pub->venue_info)) {
-                if (($pub->venue_info->name != null)
-                    && ($pub->venue_info->data != null)) {
-                    $this->contentPre .= ', ' . $pub->venue_info->type
-                        . ': ' . $pub->venue_info->name . ', '
-                        . $pub->venue_info->data;
+            if (is_object($pub->venue)) {
+                if (($pub->venue->name != null)
+                    && ($pub->venue->data != null)) {
+                    $this->contentPre .= ', ' . $pub->venue->type
+                        . ': ' . $pub->venue->name . ', '
+                        . $pub->venue->data;
                 }
             }
             else if ($pub->venue != '') {

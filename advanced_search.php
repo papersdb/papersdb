@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.36 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: advanced_search.php,v 1.37 2006/07/27 21:40:26 aicmltec Exp $
 
 /**
  * \file
@@ -44,8 +44,6 @@ class advanced_search extends pdHtmlPage {
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
 
-        $this->titlecheck        = '1';
-        $this->authorcheck       = '1';
         $this->papercheck        = '1';
         $this->halfabstractcheck = '1';
         $this->datecheck         = '1';
@@ -56,8 +54,6 @@ class advanced_search extends pdHtmlPage {
 
         $options = array('search', 'cat_id', 'title', 'authortyped',
                          'paper', 'abstract', 'venue', 'keywords',
-                         'titlecheck',
-                         'authorcheck',
                          'categorycheck',
                          'extracheck',
                          'papercheck',
@@ -259,8 +255,6 @@ END;
         $form->addElement('header', null, 'Show in Results');
         unset($searchPrefs);
         $searchPrefs = array(
-            'titlecheck'        => 'Title',
-            'authorcheck'       => 'Author(s)',
             'categorycheck'     => 'Category',
             'extracheck'        => 'Category Related Information',
             'papercheck'        => 'Link to Paper',
@@ -299,8 +293,6 @@ END;
             'abstract'          => $this->abstract,
             'venue'             => $this->venue,
             'keywords'          => $this->keywords,
-            'titlecheck'        => ($this->titlecheck != ''),
-            'authorcheck'       => ($this->authorcheck != ''),
             'categorycheck'     => ($this->categorycheck != ''),
             'extracheck'        => ($this->extracheck != ''),
             'papercheck'        => ($this->papercheck != ''),

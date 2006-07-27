@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.37 2006/07/27 00:02:18 aicmltec Exp $
+// $Id: view_publication.php,v 1.38 2006/07/27 21:40:26 aicmltec Exp $
 
 /**
  * \file
@@ -137,22 +137,22 @@ class view_publication extends pdHtmlPage {
     function venueRowsAdd(&$pub, &$table) {
         if(is_object($pub->venue)) {
             $venueStr = "";
-            if(strlen($pub->venue->url) > 0)
+            if ($pub->venue->url != '')
                 $venueStr .= " <a href=\"" . $pub->venue->url
                     . "\" target=\"_blank\">";
 
             $venueStr .= $pub->venue->name;
-            if(strlen($pub->venue->url) > 0)
+            if ($pub->venue->url != '')
                 $venueStr .= "</a>";
             $table->addRow(array($pub->venue->type . ':', $venueStr));
 
             if($pub->venue->data != ""){
                 $venueStr .= "</td></tr><tr><td width=\"25%\"><div id=\"emph\">";
-                if($pub->venue->type == "Conference")
+                if ($pub->venue->type == "Conference")
                     $venueStr = "Location:";
-                else if($pub->venue->type == "Journal")
+                else if ($pub->venue->type == "Journal")
                     $venueStr = "Publisher:";
-                else if($pub->venue->type == "Workshop")
+                else if ($pub->venue->type == "Workshop")
                     $venueStr = "Associated Conference:";
                 $table->addRow(array($venueStr, $pub->venue->data));
             }
