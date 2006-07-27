@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.55 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: add_publication.php,v 1.56 2006/07/27 00:02:18 aicmltec Exp $
 
 /**
  * \file
@@ -322,16 +322,11 @@ class pubStep2Page extends HTML_QuickForm_Page {
         else {
             list($other, $paper_name) = split("paper_", $pub->paper);
 
-            if (strpos($pub->paper, 'uploaded_files/') === false)
-                $file_url = $url . '/uploaded_files/' . $pub->pub_id . '/' . $pub->paper;
-            else
-                $file_url = $url . $pub->paper;
-
             $this->addGroup(
                 array(
                     HTML_QuickForm::createElement(
                         'static', 'attached_paper', null,
-                        '<a href="' . $file_url . '">'
+                        '<a href="' . $pub->paperAttGetUrl() . '">'
                         . $paper_name . '</a>'),
                     HTML_QuickForm::createElement(
                         'advcheckbox', 'change_paper', null,
@@ -353,7 +348,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
                         array(
                             HTML_QuickForm::createElement(
                                 'static', 'curr_other_att', null,
-                                '<a href="' . $url . $att->location . '">'
+                                '<a href="' . $pub->attachmentGetUrl($c) . '">'
                                 . $att_name . '</a>'),
                             HTML_QuickForm::createElement(
                                 'advcheckbox',

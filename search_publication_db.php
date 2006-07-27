@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.21 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.22 2006/07/27 00:02:18 aicmltec Exp $
 
 /**
  * \file
@@ -26,9 +26,6 @@ class search_publication_db extends pdHtmlPage {
     var $allowed_options = array('categorycheck',
                                  'titlecheck',
                                  'authorcheck',
-                                 'categorycheck',
-                                 'extracheck',
-                                 'categorycheck',
                                  'extracheck',
                                  'papercheck',
                                  'additionalcheck',
@@ -168,30 +165,31 @@ class search_publication_db extends pdHtmlPage {
                 || ($this->option_list->category != ''))
                 $pubTable->addRow(array('<u>'
                                         . $pub->category->category
-                                        . '</u>'),
-                                  array('id' => 'small'));
+                                        . '</u>'));
 
             // Show Title
             if (($this->option_list->titlecheck == '1')
                 || ($this->option_list->title != ''))
-                $pubTable->addRow(array('<a href="view_publication.php?'
+                $pubTable->addRow(array('<span id="pub_title">'
+                                        . '<a href="view_publication.php?'
                                         . 'pub_id=' . $pub->pub_id . '">'
-                                        . $pub->title . '</a>'),
-                                  array('id' => 'large'));
+                                        . $pub->title . '</a></span>'));
 
             // Show Author
             if($this->option_list->authorcheck == '1') {
                 $first = true;
-                $cell = '';
+                $cell = '<span id="pub_authors">';
                 foreach ($pub->authors as $auth) {
                     if (!$first)
                         $cell .= ' <b>-</b> ';
-                    $cell .= '<a href="./view_author.php?'
+                    $cell .= ''
+                        . '<a href="./view_author.php?'
                         . 'author_id=' . $auth->author_id . '">';
                     $author = split(",", $auth->name);
                     $cell .= $author[1] . ' ' . $author[0] . '</a>';
                     $first = false;
                 }
+                $cell .= '</span>';
                 $pubTable->addRow(array($cell), array('id' => 'standard'));
             }
 
@@ -201,33 +199,31 @@ class search_publication_db extends pdHtmlPage {
                 if($pub->paper == 'No paper')
                     $cell = "No Paper at this time.";
                 else {
-                    $cell = '<a href="' . $pub->paper;
                     $papername = split("paper_", $pub->paper);
-                    $cell .= '"> <i><b>' . $papername[1]
-                        . '</b></i></a>';
+                    $cell = '<a href="' . $pub->paperAttGetUrl() . '">'
+                        . '<i><b>' . $papername[1] . '</b></i></a>';
                 }
-                $pubTable->addRow(array('<b>Paper:</b> ' . $cell),
-                                  array('id' => 'standard'));
+                $pubTable->addRow(array('<b>Paper:</b> ' . $cell));
             }
 
             // Show Additional Materials
             if (($this->option_list->additionalcheck == '1')
                 || ($this->option_list->additional != '')) {
-                if(is_array($pub->additional_info)) {
+                if(count($pub->additional_info) > 0) {
                     $add_count = 1;
                     foreach ($pub->additional_info as $additional) {
                         $temp = split("additional_", $additional->location);
                         if ($additional->type != "")
-                            $cell = $additional->type . ":";
+                            $cell = '<b>' . $additional->type . "</b>: ";
                         else
-                            $cell = 'Additional Material '
-                                . ($add_count++) . ':';
-                        $cell .= '<a href=.' . $additional->location . '>'
+                            $cell = 'Additional Material ' . $add_count . ':';
+                        $cell .= '<a href="'
+                            . $pub->attachmentGetUrl($add_count - 1) . '">'
                             . '<i><b>' . $temp[1] . '</b></i>'
-                            . '</a><br>';
+                            . '</a><br/>';
+                        $add_count++;
                     }
-                    $pubTable->addRow(array($cell),
-                                      array('id' => 'small'));
+                    $pubTable->addRow(array($cell));
                 }
             }
 
@@ -237,13 +233,12 @@ class search_publication_db extends pdHtmlPage {
                 if (is_object($pub->venue)) {
                     $cell = '<b>' . $pub->venue->type . '</b>: ';
                     if($pub->venue->url != '')
-                        $cell .= '<a href="' . $$pub->venue->url
+                        $cell .= '<a href="' . $pub->venue->url
                             . '" target="_blank">';
                     $cell .= $pub->venue->name;
                     if($pub->venue->url != '')
                         $cell .= '</a>';
-                    $pubTable->addRow(array($cell),
-                                      array('id' => 'small'));
+                    $pubTable->addRow(array($cell));
 
                     if($pub->venue->data != ''){
                         if($pub->venue->type == "Conference")
@@ -253,13 +248,11 @@ class search_publication_db extends pdHtmlPage {
                         else if($pub->venue->type == "Workshop")
                             $cell = "<b>Associated Conference:&nbsp;</b>";
                         $cell .= $pub->venue->data;
-                        $pubTable->addRow(array($cell),
-                                          array('id' => 'standard'));
+                        $pubTable->addRow(array($cell));
                     }
                 }
                 else {
-                    $pubTable->addRow(array('Venue: ' . $pub->venue),
-                                      array('id' => 'standard'));
+                    $pubTable->addRow(array('<b>Venue</b>: ' . $pub->venue));
                 }
             }
 
@@ -270,8 +263,7 @@ class search_publication_db extends pdHtmlPage {
                 if(strlen($tempstring) > 350) {
                     $tempstring = substr($tempstring,0,350)."...";
                 }
-                $pubTable->addRow(array($tempstring),
-                                  array('id' => 'small'));
+                $pubTable->addRow(array($tempstring));
             }
             else {
                 $pubTable->addRow(
@@ -283,8 +275,7 @@ class search_publication_db extends pdHtmlPage {
             if(($this->option_list->keywordscheck = '1')
                || ($this->option_list->keywords != '')) {
                 $pubTable->addRow(array('<b>Keywords: </b>'
-                                        . $pub->keywordsGet()),
-                                  array('id' => 'small'));
+                                        . $pub->keywordsGet()));
             }
 
             // Show the extra information related to the category
@@ -293,8 +284,7 @@ class search_publication_db extends pdHtmlPage {
                 foreach ($pub->info as $info => $value) {
                     if ($value != "") {
                         $pubTable->addRow(array('<b>' . $info . ': </b>'
-                                                . $value),
-                                          array('id' => 'small'));
+                                                . $value));
                     }
                 }
             }
@@ -314,8 +304,7 @@ class search_publication_db extends pdHtmlPage {
                     $thedate .= $published[0];
                 if ($thedate != NULL){
                     $pubTable->addRow(array('<b>Date Published: </b>'
-                                            . $thedate),
-                                      array('id' => 'small'));
+                                            . $thedate));
                 }
             }
 
@@ -436,7 +425,8 @@ class search_publication_db extends pdHtmlPage {
                     $word .= $search[$index];
                 }
                 else {
-                    $search_terms = parse_search_add_word($word, $search_terms);
+                    $search_terms
+                        = $this->parse_search_add_word($word, $search_terms);
                     $word = "";
                 }
             }
@@ -497,13 +487,37 @@ class search_publication_db extends pdHtmlPage {
 
                 //Search through the publication table
                 $pub_search = array("title", "paper", "abstract", "keywords",
-                                    "venue", "extra_info");
+                                    "extra_info", "venue");
 
-                for($a = 0; $a < count($pub_search); $a++) {
+                foreach ($pub_search as $a) {
                     $search_query = "SELECT DISTINCT pub_id "
-                        . "from publication WHERE " . $pub_search[$a]
+                        . "from publication WHERE " . $a
                         . " LIKE " . quote_smart("%".$search_term."%");
                     $this->add_to_array($search_query, $union_array);
+                }
+
+                // search venues - title
+                $search_query = "SELECT venue_id from venue "
+                    . "WHERE title LIKE " . quote_smart("%".$search_term."%");
+                $search_result = query_db($search_query);
+                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                    $venue_id = $search_array['venue_id'];
+                    if($venue_id != null) {
+                        $search_query = "SELECT DISTINCT pub_id from publication WHERE venue LIKE " . quote_smart($venue_id);
+                        $this->add_to_array($search_query, $union_array);
+                    }
+                }
+
+                // search venues - name
+                $search_query = "SELECT venue_id from venue "
+                    . "WHERE name LIKE " . quote_smart("%".$search_term."%");
+                $search_result = query_db($search_query);
+                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                    $venue_id = $search_array['venue_id'];
+                    if($venue_id != null) {
+                        $search_query = "SELECT DISTINCT pub_id from publication WHERE venue LIKE " . quote_smart($venue_id);
+                        $this->add_to_array($search_query, $union_array);
+                    }
                 }
 
                 //Search Categories
@@ -604,7 +618,8 @@ class search_publication_db extends pdHtmlPage {
             if ($this->option_list->$field != "") {
                 $first_item = false;
                 $this->input .= " ".$_POST[$field];
-                $the_search_array = parse_search($this->option_list->$field);
+                $the_search_array
+                    = $this->parse_search($this->option_list->$field);
                 for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
                     $union_array = NULL;
                     for ($index2 = 0; $index2 < count($the_search_array[$index1]); $index2++) {

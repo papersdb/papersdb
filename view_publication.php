@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.36 2006/07/25 20:05:43 aicmltec Exp $
+// $Id: view_publication.php,v 1.37 2006/07/27 00:02:18 aicmltec Exp $
 
 /**
  * \file
@@ -86,12 +86,9 @@ class view_publication extends pdHtmlPage {
         if ($pub->paper == 'No paper')
             $paperstring = 'No Paper at this time.';
         else {
-            $paperstring = '<a href="' . $url;
-            if (strpos($pub->paper, 'uploaded_files/') === false)
-                $paperstring .= '/uploaded_files/' . $pub->pub_id . '/';
-            $paperstring .= $pub->paper;
             $papername = split("paper_", $pub->paper);
-            $paperstring .= '"><i><b>' . $papername[1] . '</b></i></a>';
+            $paperstring = '<a href="' . $pub->paperAttGetUrl() . '"><i><b>'
+                . $papername[1] . '</b></i></a>';
         }
 
         $table->addRow(array('Paper:', $paperstring));
@@ -127,11 +124,9 @@ class view_publication extends pdHtmlPage {
         $temp = "";
         foreach ($pub->additional_info as $info) {
             $temp = split('additional_', $info->location);
-            $additionalMaterials .= '<a href=./';
-            if (strpos($info->location, 'uploaded_files/') === false)
-                $additionalMaterials .= 'uploaded_files/';
-            $additionalMaterials .= $info->location . '>';
-            $additionalMaterials .= "<i><b>".$temp[1]."</b></i>";
+            $additionalMaterials .= '<a href="'
+                . $pub->attachmentGetUrl($add_count) . '">'
+                . "<i><b>".$temp[1]."</b></i>";
 
             $additionalMaterials .= "</a><br/>";
             $add_count++;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.29 2006/07/25 20:05:43 aicmltec Exp $
+// $Id: pdPublication.php,v 1.30 2006/07/27 00:02:18 aicmltec Exp $
 
 /**
  * \file
@@ -581,6 +581,34 @@ class pdPublication {
             if (file_exists(FS_PATH . '/uploaded_files/' . $this->pub_id))
                 rmdir(FS_PATH . '/uploaded_files/' . $this->pub_id);
         }
+    }
+
+    function paperAttGetUrl() {
+        if($this->paper == 'No paper') return '';
+
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $result = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        if (strpos($this->paper, 'uploaded_files/') === false)
+            $result .= '/uploaded_files/' . $this->pub_id . '/';
+        $result .= $this->paper;
+
+        return $result;
+    }
+
+    function attachmentGetUrl($att_num) {
+        if($att_num >= count($this->additional_info)) return '';
+
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $result = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        $att = $this->additional_info[$att_num];
+
+        if (strpos($att->location, 'uploaded_files/') === false)
+            $result .= '/uploaded_files/' . $this->pub_id . '/';
+        $result .= $att->location;
+
+        return $result;
     }
 }
 

@@ -61,9 +61,9 @@ table th {
 
 tr.odd {background-color: #fff;}
 tr.even {background-color:#eee;}
-td#large {font-size:16px;}
-td#standard {font-size:12px;}
-td#small {font-size:10px;}
+td#large {font-size:1.3em;}
+td#standard {font-size:1em;}
+td#small {font-size: .5em;}
 
 a:link { text-decoration: underline; color: #000099;}
 a:visited { text-decoration: underline; color: #000099;}
@@ -147,7 +147,7 @@ div#nav {
   left:0px;
   top:70px;
   width:180px;
-  padding:0 0 0 0;
+  padding:0 0 .4em 0;
   margin:0 0 0 0;
   font-weight:bold;
   border-top: 3px solid #006633;
@@ -237,4 +237,17 @@ div#footer a:link {
 
 .inputCommand {
   width: 60px;
+}
+
+#pub_title {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin: 0;
+  padding: 0;
+}
+
+#pub_authors {
+  font-size: .6em;
+  margin: 0;
+  padding: 0;
 }
