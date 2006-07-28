@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.37 2006/07/27 21:40:26 aicmltec Exp $
+// $Id: advanced_search.php,v 1.38 2006/07/28 19:33:16 aicmltec Exp $
 
 /**
  * \file
@@ -44,24 +44,11 @@ class advanced_search extends pdHtmlPage {
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
 
-        $this->papercheck        = '1';
-        $this->halfabstractcheck = '1';
-        $this->datecheck         = '1';
-        $this->venuecheck        = '1';
-
         if(isset($_GET['search']) && ($_GET['search'] != ''))
             $this->search = stripslashes($_GET['search']);
 
         $options = array('search', 'cat_id', 'title', 'authortyped',
-                         'paper', 'abstract', 'venue', 'keywords',
-                         'categorycheck',
-                         'extracheck',
-                         'papercheck',
-                         'additionalcheck',
-                         'halfabstractcheck',
-                         'venuecheck',
-                         'keywordscheck',
-                         'datecheck');
+                         'paper', 'abstract', 'venue', 'keywords');
 
         foreach ($options as $opt)
             if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
@@ -205,7 +192,7 @@ END;
             'styleCss' => 'calendar.css',
             'language' => 'en',
             'image' => array(
-                'src' => 'calendar.gif',
+                'src' => 'images/calendar.gif',
                 'border' => 0
                 ),
             'setup' => array(
@@ -223,7 +210,7 @@ END;
             'styleCss' => 'calendar.css',
             'language' => 'en',
             'image' => array(
-                'src' => 'calendar.gif',
+                'src' => 'images/calendar.gif',
                 'border' => 0
                 ),
             'setup' => array(
@@ -236,47 +223,29 @@ END;
                 )
             );
 
-        $datesGroup[] = HTML_QuickForm::createElement(
-            'text', 'startdate', null,
-            array('readonly' => '1', 'id' => 'startdate', 'size' => 10));
-        $datesGroup[] = HTML_QuickForm::createElement(
-            'jscalendar', 'startdate_calendar', null, $startdate_options);
-        $datesGroup[] = HTML_QuickForm::createElement(
-            'static', 'date_label', null, 'and');
-        $datesGroup[] = HTML_QuickForm::createElement(
-            'text', 'enddate', null,
-            array('readonly' => '1', 'id' => 'enddate', 'size' => 10));
-        $datesGroup[] = HTML_QuickForm::createElement(
-            'jscalendar', 'enddate_calendar', null, $enddate_options);
 
-        $form->addGroup($datesGroup, 'datesGroup', 'Published between:',
-                        '&nbsp;');
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'text', 'startdate', null,
+                    array('readonly' => '1', 'id' => 'startdate', 'size' => 10)),
+                HTML_QuickForm::createElement(
+                    'jscalendar', 'startdate_calendar', null,
+                    $startdate_options),
+                HTML_QuickForm::createElement(
+                    'static', 'date_label', null, 'and'),
+                HTML_QuickForm::createElement(
+                    'text', 'enddate', null,
+                    array('readonly' => '1', 'id' => 'enddate', 'size' => 10)),
+                HTML_QuickForm::createElement(
+                    'jscalendar', 'enddate_calendar', null, $enddate_options)),
+            'datesGroup', 'Published between:', '&nbsp;');
 
-        $form->addElement('header', null, 'Show in Results');
-        unset($searchPrefs);
-        $searchPrefs = array(
-            'categorycheck'     => 'Category',
-            'extracheck'        => 'Category Related Information',
-            'papercheck'        => 'Link to Paper',
-            'additionalcheck'   => 'Link to Additional Material',
-            'halfabstractcheck' => 'Short Abstract',
-            'venuecheck'        => 'Publication Venue',
-            'keywordscheck'     => 'Keywords',
-            'datecheck'         => 'Date Published');
-
-        foreach ($searchPrefs as $name => $text) {
-            $prefElements[] =& HTML_QuickForm::createElement(
-                'checkbox', $name, null, $text, array('size' => 10),
-                array('no', 'yes'));
-        }
-        $form->addGroup($prefElements, 'prefsGroup', null, "<br/>\n",
-                        false);
-
-        $buttons[0] =& HTML_QuickForm::createElement(
-            'submit', 'Submit', 'Search');
-        $buttons[1] =& HTML_QuickForm::createElement(
-            'submit', 'Clear', 'Clear');
-        $form->addGroup($buttons, 'buttonsGroup', '', '&nbsp;', false);
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement('submit', 'Submit', 'Search'),
+                HTML_QuickForm::createElement( 'submit', 'Clear', 'Clear')),
+            'buttonsGroup', '', '&nbsp;', false);
         $this->form =& $form;
     }
 
@@ -292,15 +261,7 @@ END;
             'paper'             => $this->paper,
             'abstract'          => $this->abstract,
             'venue'             => $this->venue,
-            'keywords'          => $this->keywords,
-            'categorycheck'     => ($this->categorycheck != ''),
-            'extracheck'        => ($this->extracheck != ''),
-            'papercheck'        => ($this->papercheck != ''),
-            'additionalcheck'   => ($this->additionalcheck != ''),
-            'halfabstractcheck' => ($this->halfabstractcheck != ''),
-            'venuecheck'        => ($this->venuecheck != ''),
-            'keywordscheck'     => ($this->keywordscheck != ''),
-            'datecheck'         => ($this->datecheck != ''));
+            'keywords'          => $this->keywords);
 
         $defaultValues['datesGroup']['startdate']
             = $this->datesGroup['startdate'];

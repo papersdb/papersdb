@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.23 2006/07/27 21:40:26 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.24 2006/07/28 19:33:16 aicmltec Exp $
 
 /**
  * \file
@@ -23,15 +23,7 @@ class search_publication_db extends pdHtmlPage {
      * These are the only options allowed by this script. These can be passed
      * by either GET or POST methods.
      */
-    var $allowed_options = array('categorycheck',
-                                 'extracheck',
-                                 'papercheck',
-                                 'additionalcheck',
-                                 'halfabstractcheck',
-                                 'venuecheck',
-                                 'keywordscheck',
-                                 'datecheck',
-                                 'search',
+    var $allowed_options = array('search',
                                  'cat_id',
                                  'title',
                                  'authortyped',
@@ -40,7 +32,8 @@ class search_publication_db extends pdHtmlPage {
                                  'abstract',
                                  'venue',
                                  'keywords',
-                                 'datesGroup');
+                                 'startdate',
+                                 'enddate');
     var $option_list;
     var $pub_id_array;
     var $parse_search_add_word_or_next = false;
@@ -76,8 +69,9 @@ class search_publication_db extends pdHtmlPage {
 
         $url_opt = array();
         foreach ($this->allowed_options as $opt) {
-            if (isset($this->option_list->$opt))
-                if (($opt == 'authorselect') || ($opt == 'datesGroup')) {
+            if (isset($this->option_list->$opt)
+                && ($this->option_list->$opt != '')) {
+                if ($opt == 'authorselect') {
                     foreach ($this->option_list->$opt as $key => $value) {
                         $url_opt[] = $opt .'[' . $key . ']='
                             . urlencode($value);
@@ -87,6 +81,7 @@ class search_publication_db extends pdHtmlPage {
                     $url_opt[] = $opt . '='
                         . urlencode($this->option_list->$opt);
                 }
+            }
         }
 
         if (count($url_opt) > 0) {
@@ -95,7 +90,6 @@ class search_publication_db extends pdHtmlPage {
 
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
-            $this->option_list->halfabstractcheck = '1';
             $this->contentPre .= '<h3> QUICK SEARCH </h3>';
         }
         else {
@@ -110,6 +104,8 @@ class search_publication_db extends pdHtmlPage {
      * Generates results in citation format.
      */
     function searchResultsGenerate($search_url) {
+        global $logged_in;
+
         $db =& dbCreate();
         $countentries = 0;
         $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
@@ -144,12 +140,6 @@ class search_publication_db extends pdHtmlPage {
             return;
         }
 
-        if (count($this->pub_id_array) == 1)
-            $this->contentPre .= "<h3>1 entry found.</h3>";
-        else
-            $this->contentPre .= "<h3>" . count($this->pub_id_array)
-                . " entries found.</h3>";
-
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '100%'));
 
@@ -160,79 +150,24 @@ class search_publication_db extends pdHtmlPage {
 
             $pubTable = new HTML_Table();
 
-            $citation = '';
-
-            // Show Author
-            $first = true;
-            $cell = '<span id="pub_authors">';
-            foreach ($pub->authors as $auth) {
-                if (!$first)
-                    $citation .= ', ';
-
-                $author = split(', ', $auth->name);
-                $citation .= ''
-                    . '<a href="./view_author.php?'
-                    . 'author_id=' . $auth->author_id . '">'
-                    . $author[1][0] . '. ' . $author[0] . '</a>';
-                $first = false;
-            }
-
-            // Show Title
-            $citation .= '. <span id="pub_title">&quot;' . $pub->title
-                . '&quot;.</span> ';
-
-            // Show Venue
-            if(is_object($pub->venue)) {
-                if ($pub->venue->url != '')
-                    $citation .= ' <a href="' . $pub->venue->url
-                        . '" target="_blank">';
-
-                $citation .= $pub->venue->name;
-                if ($pub->venue->url != '')
-                    $citation .= '</a>';
-
-                if ($pub->venue->data != '')
-                $citation .= ', ' . $pub->venue->data . ', ';
-            }
-            else if ($pub->venue != '') {
-                $citation .= strip_tags($pub->venue) . ', ';
-            }
-
-            // Additional Information - Outputs the category specific
-            // information if it exists
-            if (isset($pub->info))
-                foreach ($pub->info as $name => $value) {
-                    if($value != null)
-                        $$citation .= ", " . $value;
-                }
-
-            $date_str = "";
-            $published = split('-', $pub->published);
-            if ($published[1] != 0)
-                $date_str .= date('F', mktime (0, 0, 0, $published[1])) . ' ';
-            if ($published[2] != 0)
-                $date_str .= $published[2] . ', ';
-            if ($published[0] != 0)
-                $date_str .= $published[0];
-
-            $citation .= $date_str . '.';
+            $citation = $pub->getCitationHtml();
 
             // Show Paper
             if ($pub->paper != 'No paper') {
                 $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
 
                 if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                    $citation .= '<img src="pdf.gif" alt="PDF" height="18" '
-                        . 'width="17" border="0" align="middle">';
+                    $citation .= '<img src="images/pdf.gif" alt="PDF" '
+                        . 'height="18" width="17" border="0" align="middle">';
                 }
 
                 if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                    $citation .= '<img src="ppt.gif" alt="PPT" height="18" '
+                    $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
                         . 'width="17" border="0" align="middle">';
                 }
 
                 if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                    $citation .= '<img src="ps.gif" alt="PS" height="18" '
+                    $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
                         . 'width="17" border="0" align="middle">';
                 }
                 $citation .= '</a>';
@@ -246,17 +181,17 @@ class search_publication_db extends pdHtmlPage {
                         . $pub->attachmentGetUrl($add_count - 1) . '">';
 
                     if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                        $citation .= '<img src="pdf.gif" alt="PDF" height="18" '
+                        $citation .= '<img src="images/pdf.gif" alt="PDF" height="18" '
                             . 'width="17" border="0" align="middle">';
                     }
 
                     if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                        $citation .= '<img src="ppt.gif" alt="PPT" height="18" '
+                        $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
                             . 'width="17" border="0" align="middle">';
                     }
 
                     if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                        $citation .= '<img src="ps.gif" alt="PS" height="18" '
+                        $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
                             . 'width="17" border="0" align="middle">';
                     }
 
@@ -267,26 +202,38 @@ class search_publication_db extends pdHtmlPage {
             $pubTable->addRow(array($citation));
 
             $indexTable = new HTML_Table();
-            $indexTable->addRow(array('<a href="view_publication.php?pub_id='
-                                      . $pub->pub_id . '">' . ($b + 1)));
+
+            $cell = ($b + 1)
+                . '<br/><a href="view_publication.php?pub_id=' . $pub->pub_id . '">'
+                . '<img src="images/viewmag.png" alt="view" height="16" '
+                . 'width="16" border="0" align="middle" /></a>';
+
+            if ($logged_in)
+                $cell .= '<a href="Admin/add_publication.php?pub_id='
+                    . $pub->pub_id . '">'
+                    . '<img src="images/pencil.png" alt="edit" height="16" '
+                    . 'width="16" border="0" align="middle" /></a>';
+
+            $indexTable->addRow(array($cell), array('nowrap'));
 
             $table->addRow(array($indexTable->toHtml(), $pubTable->toHtml()));
             $b++;
         }
 
         tableHighlightRows($table);
-        $this->contentPre .= $table->toHtml();
 
-        if (strlen($search_url) > 96)
-            $short_search_url = substr($search_url, 0, 96) . '...';
-        else
-            $short_search_url = $search_url;
+        $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
+                                                'border' => '0',
+                                                'cellpadding' => '0',
+                                                'cellspacing' => '0'));
+        $searchLinkTable->addRow(
+            array('Link to this search: <div id="small">'
+                  . '<a href="' . $search_url . '">'
+                  . $search_url . '</a></div><br/>'
+                  . '</div>'));
 
-        $this->contentPre .= '<hr/>'
-            . 'Link to this search: <div id="small">'
-            . '<a href="' . $search_url . '">'
-            . $short_search_url . '</a></div><br/>'
-            . '</div>';
+        $this->contentPre .= $table->toHtml()
+            . '<hr/>' . $searchLinkTable->toHtml();
 
         $db->close();
     }
@@ -295,6 +242,9 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Retrieves the allowed options from an array. Note that this function
      * should only be called with $_POST or $_GET as the array.
+     *
+     * This code deals with advanced_search.php's form naming the 'startdate'
+     * and 'enddate' fields in an array named 'datesGroup.'
      */
     function optionsGet() {
         if (count($_POST) > 0)
@@ -306,12 +256,20 @@ class search_publication_db extends pdHtmlPage {
 
         foreach($this->allowed_options as $allowed_opt) {
             if (isset($arr[$allowed_opt])) {
-                if (is_array($arr[$allowed_opt])) {
+                if ($allowed_opt == 'authorselect') {
                     $this->option_list->$allowed_opt = $arr[$allowed_opt];
                 }
                 else {
                     $this->option_list->$allowed_opt = $arr[$allowed_opt];
                 }
+            }
+            else if (($allowed_opt == 'startdate')
+                     || ($allowed_opt == 'enddate')) {
+                if (isset($arr['datesGroup']))
+                    $this->option_list->$allowed_opt
+                        = $arr['datesGroup'][$allowed_opt];
+                else
+                    $this->option_list->$allowed_opt = $arr[$allowed_opt];
             }
         }
     }
@@ -446,13 +404,13 @@ class search_publication_db extends pdHtmlPage {
                 $search_term = $quick_search_array[$index1][$index2];
 
                 //Search through the publication table
-                $pub_search = array("title", "paper", "abstract", "keywords",
-                                    "extra_info", "venue");
+                $pub_search = array('title', 'paper', 'abstract', 'keywords',
+                                    'extra_info', 'venue');
 
                 foreach ($pub_search as $a) {
-                    $search_query = "SELECT DISTINCT pub_id "
-                        . "from publication WHERE " . $a
-                        . " LIKE " . quote_smart("%".$search_term."%");
+                    $search_query = 'SELECT DISTINCT pub_id '
+                        . 'from publication WHERE ' . $a
+                        . ' LIKE ' . quote_smart('%'.$search_term.'%');
                     $this->add_to_array($search_query, $union_array);
                 }
 
@@ -629,8 +587,8 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // DATES SEARCH --------------------------------------
-        $startdate =& $this->option_list->datesGroup['startdate'];
-        $enddate =& $this->option_list->datesGroup['enddate'];
+        $startdate =& $this->option_list->startdate;
+        $enddate =& $this->option_list->enddate;
 
         if (($startdate != $enddate)
             && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $startdate)
@@ -656,22 +614,6 @@ class search_publication_db extends pdHtmlPage {
         $form = new HTML_QuickForm('pubForm', 'post',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
-
-        $elements = array('categorycheck'     => $this->option_list->categorycheck,
-                          'extracheck'        => $this->option_list->extracheck,
-                          'papercheck'        => $this->option_list->papercheck,
-                          'additionalcheck'   => $this->option_list->additionalcheck,
-                          'halfabstractcheck' => $this->option_list->halfabstractcheck,
-                          'fullabstractcheck' => $this->option_list->fullabstractcheck,
-                          'venuecheck'        => $this->option_list->venuecheck,
-                          'extra_infocheck'   => $this->option_list->extra_infocheck,
-                          'keywordscheck'     => $this->option_list->keywordscheck,
-                          'datecheck'         => $this->option_list->datecheck,
-            );
-
-        foreach ($elements as $name => $value) {
-            $form->addElement('hidden', $name, $value);
-        }
         $form->addElement('text', 'search', null,
                           array('size' => 45, 'maxlength' => 250));
         $form->addElement('submit', 'Quick', 'Search');

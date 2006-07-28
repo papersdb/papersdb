@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.30 2006/07/27 00:02:18 aicmltec Exp $
+// $Id: pdPublication.php,v 1.31 2006/07/28 19:33:16 aicmltec Exp $
 
 /**
  * \file
@@ -609,6 +609,65 @@ class pdPublication {
         $result .= $att->location;
 
         return $result;
+    }
+
+    function getCitationHtml() {
+        $citation = '';
+
+        $first = true;
+        foreach ($this->authors as $auth) {
+            if (!$first)
+                $citation .= ', ';
+
+            $author = split(', ', $auth->name);
+            $citation .= ''
+                . '<a href="./view_author.php?'
+                . 'author_id=' . $auth->author_id . '">'
+                . $author[1][0] . '. ' . $author[0] . '</a>';
+            $first = false;
+        }
+
+        // Title
+        $citation .= '. <span id="pub_title">&quot;' . $this->title
+            . '&quot;.</span> ';
+
+        //  Venue
+        if(is_object($this->venue)) {
+            if ($this->venue->url != '')
+                $citation .= ' <a href="' . $this->venue->url
+                    . '" target="_blank">';
+
+            $citation .= $this->venue->name;
+            if ($this->venue->url != '')
+                $citation .= '</a>';
+
+            if ($this->venue->data != '')
+                $citation .= ', ' . $this->venue->data . ', ';
+        }
+        else if ($this->venue != '') {
+            $citation .= strip_tags($this->venue) . ', ';
+        }
+
+        // Additional Information - Outputs the category specific
+        // information if it exists
+        if (count($this->info) > 0)
+            foreach ($this->info as $name => $value) {
+                if($value != null)
+                    $$citation .= ", " . $value;
+            }
+
+        $date_str = "";
+        $pub_date = split('-', $this->published);
+        if ($pub_date[1] != 0)
+            $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
+        if ($pub_date[2] != 0)
+            $date_str .= $pub_date[2] . ', ';
+        if ($pub_date[0] != 0)
+            $date_str .= $pub_date[0];
+
+        $citation .= $date_str . '.';
+
+        return $citation;
     }
 }
 

@@ -59,6 +59,10 @@ table th {
 	background-color: #F2F2F2;
 }
 
+table#searchlink {
+  max-width: 600px;
+}
+
 tr.odd {background-color: #fff;}
 tr.even {background-color:#eee;}
 td#large {font-size:1.3em;}

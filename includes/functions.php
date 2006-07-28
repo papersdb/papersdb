@@ -348,13 +348,6 @@ function quickSearchFormCreate() {
     $form = new HTML_QuickForm('quickPubForm', 'post',
                                'search_publication_db.php', '_self',
                                'multipart/form-data');
-
-    $options = array('titlecheck', 'authorcheck', 'halfabstractcheck',
-                     'datecheck');
-
-    foreach ($options as $name) {
-        $form->addElement('hidden', $name, 'yes');
-    }
     $form->addElement('text', 'search', null,
                       array('size' => 12, 'maxlength' => 80));
     $form->addElement('submit', 'Quick', 'Search');
