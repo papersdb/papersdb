@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.31 2006/07/28 19:33:16 aicmltec Exp $
+// $Id: pdPublication.php,v 1.32 2006/07/28 22:10:49 aicmltec Exp $
 
 /**
  * \file
@@ -18,10 +18,11 @@ define('PD_PUB_DB_LOAD_BASIC',           0);
 define('PD_PUB_DB_LOAD_CATEGORY',        1);
 define('PD_PUB_DB_LOAD_CATEGORY_INFO',   2);
 define('PD_PUB_DB_LOAD_ADDITIONAL_INFO', 4);
-define('PD_PUB_DB_LOAD_AUTHOR',          8);
-define('PD_PUB_DB_LOAD_POINTER',         0x10);
-define('PD_PUB_DB_LOAD_VENUE',           0x20);
-define('PD_PUB_DB_LOAD_ALL',             0x3f);
+define('PD_PUB_DB_LOAD_AUTHOR_MIN',      8);
+define('PD_PUB_DB_LOAD_AUTHOR_FULL',     0x10);
+define('PD_PUB_DB_LOAD_POINTER',         0x20);
+define('PD_PUB_DB_LOAD_VENUE',           0x40);
+define('PD_PUB_DB_LOAD_ALL',             0x77);
 
 /**
  *
@@ -135,7 +136,8 @@ class pdPublication {
             }
         }
 
-        if ($flags & PD_PUB_DB_LOAD_AUTHOR) {
+        if ($flags & (PD_PUB_DB_LOAD_AUTHOR_MIN
+                      | PD_PUB_DB_LOAD_AUTHOR_FULL)) {
             $q = $db->select(array('author', 'pub_author'),
                              array('author.author_id', 'author.name'),
                              array('author.author_id=pub_author.author_id',
@@ -144,7 +146,14 @@ class pdPublication {
                              array( 'ORDER BY' => 'pub_author.rank'));
             $r = $db->fetchObject($q);
             while ($r) {
-                $this->authors[] = $r;
+                if ($flags & PD_PUB_DB_LOAD_AUTHOR_FULL) {
+                    $auth_count = count($this->authors);
+                    $this->authors[$auth_count] = new pdAuthor();
+                    $this->authors[$auth_count]->dbLoad($db, $r->author_id,
+                                                        PD_AUTHOR_DB_LOAD_BASIC);
+                }
+                else
+                    $this->authors[] = $r;
                 $r = $db->fetchObject($q);
             }
         }
@@ -198,13 +207,19 @@ class pdPublication {
 
         if ($urlPrefix == null) $urlPrefix = '.';
 
-        $authorsStr = '';
+        $authorsStr = '<ul>';
         foreach ($this->authors as $author) {
-            $authorsStr .= '<a href="' . $urlPrefix
+            $authorsStr .= '<li><a href="' . $urlPrefix
                 . '/view_author.php?author_id='
                 . $author->author_id . '" target="_self">'
-                . $author->name . "</a><br/>";
+                . $author->firstname . ' ' . $author->lastname . '</a>';
+
+            if ($author->organization != '')
+                $authorsStr .= ', ' . $author->organization;
+
+            $authorsStr .= '</li>';
         }
+        $authorsStr .= '</ul>';
         return $authorsStr;
     }
 
@@ -619,11 +634,10 @@ class pdPublication {
             if (!$first)
                 $citation .= ', ';
 
-            $author = split(', ', $auth->name);
             $citation .= ''
                 . '<a href="./view_author.php?'
                 . 'author_id=' . $auth->author_id . '">'
-                . $author[1][0] . '. ' . $author[0] . '</a>';
+                . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
             $first = false;
         }
 
@@ -668,6 +682,81 @@ class pdPublication {
         $citation .= $date_str . '.';
 
         return $citation;
+    }
+
+    function getBibtex() {
+        $bibtex = '';
+        if ($this->category->category == 'In Conference') {
+            $bibtex .= '@inconference{';
+        }
+        else if ($this->category->category == 'In Journal') {
+            $bibtex .= '@article{';
+        }
+        else if ($this->category->category == 'In Book') {
+            $bibtex .= '@book{';
+        }
+        else
+            return false;
+
+        $pub_date = split('-', $this->published);
+        $venue_short = '';
+        $venue_name = '';
+        if (is_object($this->venue)) {
+            $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
+            $venue_name = $this->venue->name;
+        }
+        else
+            $venue_name = $this->venue;
+
+        $auth_count = count($this->authors);
+        if ($auth_count > 0) {
+            $bibtex .= $this->authors[0]->lastname;
+            if ($auth_count > 1)
+                $bibtex .= '+al';
+
+            if ($this->category->category == 'In Book')
+                $bibtex .= ':' . $pub_date[0];
+            else if ($venue_short != '')
+                $bibtex .= ':' . $venue_short;
+
+            $bibtex .= "\n" . '  author = {';
+
+            $arr = array();
+            foreach ($this->authors as $auth) {
+                $arr[] = $auth->firstname . ' ' . $auth->lastname;
+            }
+            $bibtex .= implode(' and ', $arr) . "},\n";
+        }
+
+        $bibtex .= '  title = {' . $this->title . "},\n";
+
+        if (count($this->info) > 0) {
+            foreach ($this->info as $key => $value) {
+                if ($value != '') {
+                    $bibtex .= '  ' . $key . ' = ';
+
+                    if (strpos($value, ' '))
+                        $bibtex .= '{' . $value . "},\n";
+                    else
+                        $bibtex .= $value . ",\n";
+                }
+            }
+        }
+
+        if ($venue_name != '') {
+            if ($this->category->category == 'In Conference') {
+                $bibtex .= '  booktitle = {' . $venue_name . "},\n";
+            }
+            else if ($this->category->category == 'In Journal') {
+                $bibtex .= '  journal = {' . $venue_name . "},\n";
+            }
+        }
+
+        $bibtex .= '  year = ' . $pub_date[0] . ",\n";
+
+        $bibtex .= '}';
+
+        return $bibtex;
     }
 }
 

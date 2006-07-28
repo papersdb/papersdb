@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.6 2006/07/25 20:05:43 aicmltec Exp $
+// $Id: delete_publication.php,v 1.7 2006/07/28 22:10:49 aicmltec Exp $
 
 /**
  * \file
@@ -77,46 +77,12 @@ class delete_publication extends pdHtmlPage {
             $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
 
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-
-            $this->contentPre .= '<h3>Delete Publication</h3><br/>'
-                . 'Delete the following paper?';
-
-            $table->addRow(array('Title:', $pub->title));
-            $table->addRow(array('Category:', $pub->category->category));
-
-            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
-            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
-
-            if ($pub->paper == 'No paper')
-                $paperstring = 'No Paper at this time.';
-            else {
-                $paperstring = '<a href="' . $url;
-                if (strpos($pub->paper, 'uploaded_files/') === false)
-                    $paperstring .= '/uploaded_files/' . $pub->pub_id . '/';
-                $paperstring .= $pub->paper;
-                $papername = split("paper_", $pub->paper);
-                $paperstring .= '"><i><b>' . $papername[1] . '</b></i></a>';
-            }
-
-            $table->addRow(array('Paper:', $paperstring));
-
-            $table->addRow(array('Authors:', $pub->authorsToHtml('..')));
-            $table->addRow(array('Date Published:', $pub->published));
-            $table->addRow(array('', $renderer->elementToHtml('submit')
-                                 . '&nbsp;'
-                                 . $renderer->elementToHtml('cancel')));
-
-
-            $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '25%'));
+            $this->contentPre .= '<h3>Delete Publication</h3>'
+                . 'Delete the following paper?<p/>'
+                . $pub->getCitationHtml();
 
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->table =& $table;
         }
         $db->close();
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.8 2006/07/27 21:40:26 aicmltec Exp $
+// $Id: cv.php,v 1.9 2006/07/28 22:10:49 aicmltec Exp $
 
 /**
  * \file
@@ -40,8 +40,7 @@ class cv extends pdHtmlPage {
             // AUTHORS - Outputs the Authors for the ID
             unset($authors);
             foreach ($pub->authors as $auth) {
-                $temp = split(",", $auth->name);
-                $authors[] = substr(trim($temp[1]), 0, 1) . ". " . $temp[0];
+                $authors[] = $auth->firstname[0] . ". " . $auth->lastname;
             }
 
             $this->contentPre

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.38 2006/07/27 21:40:26 aicmltec Exp $
+// $Id: view_publication.php,v 1.39 2006/07/28 22:10:49 aicmltec Exp $
 
 /**
  * \file
@@ -45,73 +45,85 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
-        $this->table = new HTML_Table(array('width' => '600',
-                                            'border' => '0',
-                                            'cellpadding' => '6',
-                                            'cellspacing' => '0'));
-        $table =& $this->table;
-        $table->setAutoGrow(true);
+        $content = "<h1>" . $pub->title . "</h1>\n"
+            . $pub->authorsToHtml();
 
-        $table->addRow(array('Title:', $pub->title));
-        $table->updateCellAttributes($table->getRowCount() - 1, 1,
-                                     array('id' => 'emph'));
-        $this->venueRowsAdd($pub, $table);
-        $table->addRow(array('Category:', $pub->category->category));
+        if ($pub->paper != 'No paper') {
+            $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()
+                . '">';
 
-        $table->addRow(array('Author(s):', $pub->authorsToHtml()));
+            if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
+                $content .= '<img src="images/pdf.gif" alt="PDF" '
+                    . 'height="18" width="17" border="0" align="middle">';
+            }
 
-        $table->addRow(array('Abstract:',
-                             stripslashes(nl2br($pub->abstract))));
+            if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+                $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
+                    . 'width="17" border="0" align="middle">';
+            }
 
-        $this->extPointerRowsAdd($pub, $table);
-        $this->intPointerRowsAdd($db, $pub, $table);
-
-        $table->addRow(array('Keywords:', $pub->keywordsGet()));
-        $this->infoRowsAdd($pub, $table);
-
-        $pubDate = $this->publishDateGet($pub);
-        if ($pubDate != "") {
-            $table->addRow(array('Date Published:', $pubDate));
+            if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+                $content .= '<img src="images/ps.gif" alt="PS" height="18" '
+                    . 'width="17" border="0" align="middle">';
+            }
+            $content .= '</a><br/>';
         }
 
-        $updateStr = $this->lastUpdateGet($pub);
-        if ($updateStr != "") {
-            $updateStr ='Last Updated: ' . $updateStr . '<br/>';
-        }
-        $updateStr .= 'Submitted by ' . $pub->submit;
-
-        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
-        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
-
-        if ($pub->paper == 'No paper')
-            $paperstring = 'No Paper at this time.';
-        else {
-            $papername = split("paper_", $pub->paper);
-            $paperstring = '<a href="' . $pub->paperAttGetUrl() . '"><i><b>'
-                . $papername[1] . '</b></i></a>';
-        }
-
-        $table->addRow(array('Paper:', $paperstring));
-
+        // Show Additional Materials
         if (count($pub->additional_info) > 0) {
-            $table->addRow(array('Other Attachments:',
-                                 $this->additional2Html($pub)));
+            $add_count = 1;
+            foreach ($pub->additional_info as $att) {
+                $content .= 'Other Attachments: <a href="'
+                    . $pub->attachmentGetUrl($add_count - 1) . '">';
+
+                if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
+                    $content .= '<img src="images/pdf.gif" alt="PDF" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+                    $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ps|PS)$/", $att->location)) {
+                    $content .= '<img src="images/ps.gif" alt="PS" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                $add_count++;
+            }
+            $content .= '</a><br/>';
         }
 
-        $table->addRow(array('&nbsp;', $updateStr));
-        $table->updateCellAttributes($table->getRowCount() - 1, 1,
-                                     array('id' => 'footer'));
+        $content .= '<p/>' . stripslashes(nl2br($pub->abstract)) . '<p/>'
+            . '<h3>Citation</h3>' . $pub->getCitationHtml(). '<p/>';
 
+        $table = new HTML_Table(array('width' => '600',
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
+        $table->addRow(array('Category:', $pub->category->category));
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
+        $content .= $table->toHtml();
+
+        $bibtex = $pub->getBibtex();
+        if ($bibtex !== false)
+        $content .= '<h3>BibTex</h3><pre>' . $bibtex . '</pre><p/>';
+
         if ($logged_in) {
-            $this->contentPost = '<br><b><a href="Admin/add_publication.php?pub_id='
-                . quote_smart($this->pub_id)
-                . '">Edit this publication</a>&nbsp;&nbsp;&nbsp;'
+            $content .= '<a href="Admin/add_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
+                . 'width="16" border="0" align="middle" /></a>'
                 . '<a href="Admin/delete_publication.php?pub_id='
-                . quote_smart($this->pub_id)
-                . '">Delete this publication</a></b>';
+                . $pub->pub_id . '">'
+                . '<img src="images/kill.png" title="delete" alt="delete" height="16" '
+                . 'width="16" border="0" align="middle" /></a>';
         }
+
+        $this->contentPre .= $content;
 
         $db->close();
     }

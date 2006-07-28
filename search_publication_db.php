@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.24 2006/07/28 19:33:16 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.25 2006/07/28 22:10:49 aicmltec Exp $
 
 /**
  * \file
@@ -205,13 +205,13 @@ class search_publication_db extends pdHtmlPage {
 
             $cell = ($b + 1)
                 . '<br/><a href="view_publication.php?pub_id=' . $pub->pub_id . '">'
-                . '<img src="images/viewmag.png" alt="view" height="16" '
+                . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
                 . 'width="16" border="0" align="middle" /></a>';
 
             if ($logged_in)
                 $cell .= '<a href="Admin/add_publication.php?pub_id='
                     . $pub->pub_id . '">'
-                    . '<img src="images/pencil.png" alt="edit" height="16" '
+                    . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
                     . 'width="16" border="0" align="middle" /></a>';
 
             $indexTable->addRow(array($cell), array('nowrap'));
