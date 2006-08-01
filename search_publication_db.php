@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.25 2006/07/28 22:10:49 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.26 2006/08/01 02:58:06 aicmltec Exp $
 
 /**
  * \file
@@ -227,10 +227,8 @@ class search_publication_db extends pdHtmlPage {
                                                 'cellpadding' => '0',
                                                 'cellspacing' => '0'));
         $searchLinkTable->addRow(
-            array('Link to this search: <div id="small">'
-                  . '<a href="' . $search_url . '">'
-                  . $search_url . '</a></div><br/>'
-                  . '</div>'));
+            array('<a href="' . $search_url . '">'
+                  . 'Link to this search</a></div><br/>'));
 
         $this->contentPre .= $table->toHtml()
             . '<hr/>' . $searchLinkTable->toHtml();

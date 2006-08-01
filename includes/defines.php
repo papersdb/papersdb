@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.13 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: defines.php,v 1.14 2006/08/01 02:58:06 aicmltec Exp $
 
 /**
  * \file
@@ -18,7 +18,7 @@ ini_set("include_path", ini_get("include_path") . ":/usr/share/pear");
 if ($_ENV['HOSTNAME'] == 'levante')
     define('DB_SERVER', 'levante:3306');
 else
-    define('DB_SERVER', 'abee.cs.ualberta.ca:3306');
+    define('DB_SERVER', 'kingman.cs.ualberta.ca:3306');
 
 /** The user id accessing the database. */
 define('DB_USER', 'papersdb');

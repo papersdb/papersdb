@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.32 2006/07/28 22:10:49 aicmltec Exp $
+// $Id: pdPublication.php,v 1.33 2006/08/01 02:58:06 aicmltec Exp $
 
 /**
  * \file
@@ -192,10 +192,10 @@ class pdPublication {
 
         if (($this->venue == null) || ($this->venue == '')) return;
 
-        if (preg_match("/venue_id:<([0-9]+)>/", $this->venue, $venue_id) == 0)
+        if (preg_match("/venue_id:<(\d+)>/", $this->venue, $venue_id) == 0)
             return;
 
-        if ($venue_id[1] == "") return;
+        if ($venue_id[1] == '') return;
 
         $this->venue_id = $venue_id[1];
         $this->venue = new pdVenue();
@@ -711,7 +711,9 @@ class pdPublication {
         $auth_count = count($this->authors);
         if ($auth_count > 0) {
             $bibtex .= $this->authors[0]->lastname;
-            if ($auth_count > 1)
+            if ($auth_count == 2)
+                $bibtex .= '+' . $this->authors[1]->lastname;
+            else if ($auth_count > 2)
                 $bibtex .= '+al';
 
             if ($this->category->category == 'In Book')

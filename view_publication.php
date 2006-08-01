@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.39 2006/07/28 22:10:49 aicmltec Exp $
+// $Id: view_publication.php,v 1.40 2006/08/01 02:58:06 aicmltec Exp $
 
 /**
  * \file
@@ -45,10 +45,24 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
-        $content = "<h1>" . $pub->title . "</h1>\n"
+        if ($logged_in) {
+            $actions .= '<a href="Admin/add_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="images/pencil.png" title="edit" alt="edit" '
+                . 'height="16" width="16" border="0" align="middle" /></a>'
+                . '<a href="Admin/delete_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="images/kill.png" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="middle" /></a>';
+
+            $content .= $actions;
+        }
+
+        $content .= "<h1>" . $pub->title . "</h1>\n"
             . $pub->authorsToHtml();
 
-        if ($pub->paper != 'No paper') {
+        if (($pub->paper != 'No paper')
+            && (basename($pub->paper) != 'paper_')) {
             $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()
                 . '">';
 
@@ -112,16 +126,9 @@ class view_publication extends pdHtmlPage {
         if ($bibtex !== false)
         $content .= '<h3>BibTex</h3><pre>' . $bibtex . '</pre><p/>';
 
-        if ($logged_in) {
-            $content .= '<a href="Admin/add_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
-                . 'width="16" border="0" align="middle" /></a>'
-                . '<a href="Admin/delete_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="images/kill.png" title="delete" alt="delete" height="16" '
-                . 'width="16" border="0" align="middle" /></a>';
-        }
+
+        if ($logged_in)
+            $content .= $actions;
 
         $this->contentPre .= $content;
 
