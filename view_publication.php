@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.40 2006/08/01 02:58:06 aicmltec Exp $
+// $Id: view_publication.php,v 1.41 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -154,31 +154,25 @@ class view_publication extends pdHtmlPage {
     }
 
     function venueRowsAdd(&$pub, &$table) {
-        if(is_object($pub->venue)) {
-            $venueStr = "";
-            if ($pub->venue->url != '')
-                $venueStr .= " <a href=\"" . $pub->venue->url
-                    . "\" target=\"_blank\">";
+        $venueStr = "";
+        if ($pub->venue->url != '')
+            $venueStr .= " <a href=\"" . $pub->venue->url
+                . "\" target=\"_blank\">";
 
-            $venueStr .= $pub->venue->name;
-            if ($pub->venue->url != '')
-                $venueStr .= "</a>";
-            $table->addRow(array($pub->venue->type . ':', $venueStr));
+        $venueStr .= $pub->venue->name;
+        if ($pub->venue->url != '')
+            $venueStr .= "</a>";
+        $table->addRow(array($pub->venue->type . ':', $venueStr));
 
-            if($pub->venue->data != ""){
-                $venueStr .= "</td></tr><tr><td width=\"25%\"><div id=\"emph\">";
-                if ($pub->venue->type == "Conference")
-                    $venueStr = "Location:";
-                else if ($pub->venue->type == "Journal")
-                    $venueStr = "Publisher:";
-                else if ($pub->venue->type == "Workshop")
-                    $venueStr = "Associated Conference:";
-                $table->addRow(array($venueStr, $pub->venue->data));
-            }
-        }
-        else {
-            $table->addRow(array('Publication Venue:',
-                                 stripslashes($pub->venue)));
+        if($pub->venue->data != ""){
+            $venueStr .= "</td></tr><tr><td width=\"25%\"><div id=\"emph\">";
+            if ($pub->venue->type == "Conference")
+                $venueStr = "Location:";
+            else if ($pub->venue->type == "Journal")
+                $venueStr = "Publisher:";
+            else if ($pub->venue->type == "Workshop")
+                $venueStr = "Associated Conference:";
+            $table->addRow(array($venueStr, $pub->venue->data));
         }
     }
 

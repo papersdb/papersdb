@@ -39,11 +39,21 @@ class list_author extends pdHtmlPage {
                 unset($cells);
                 $cells[] = '<a href="view_author.php?author_id='
                     . $author_id . '">' . $name . '</a>';
+
+                $cells[] = '<a href="view_author.php?author_id='
+                    . $author_id . '">'
+                    . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
+                    . 'width="16" border="0" align="middle" /></a>';
+
                 if ($logged_in) {
                     $cells[] = '<a href="Admin/add_author.php?author_id='
-                        . $author_id . '">Edit</a>';
+                        . $author_id . '">'
+                        . '<img src="images/pencil.png" title="edit" alt="edit" '
+                        . 'height="16" width="16" border="0" align="middle" /></a>';
                     $cells[] = '<a href="Admin/delete_author.php?author_id='
-                        . $author_id . '">Delete</a>';
+                        . $author_id . '">'
+                        . '<img src="images/kill.png" title="delete" alt="delete" '
+                        . 'height="16" width="16" border="0" align="middle" /></a>';
                 }
 
                 $table->addRow($cells);

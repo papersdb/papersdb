@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.6 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: list_venues.php,v 1.7 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -33,38 +33,42 @@ class list_venues extends pdHtmlPage {
         $table->setAutoGrow(true);
 
         foreach (array_keys($venue_list->list) as $venue_id) {
+            unset($cells);
             $venue->dbLoad($db, $venue_id);
-            $cell1 = '<b>' . $venue->title . '</b><br/><b>'
+            $text = '<b>' . $venue->title . '</b><br/><b>'
                 . ucfirst($venue->type) . '</b>:&nbsp;';
             if ($venue->url != '')
-                $cell1 .= '<a href="' . $venue->url . '" target="_blank">';
-            $cell1 .= $venue->name;
+                $text .= '<a href="' . $venue->url . '" target="_blank">';
+            $text .= $venue->name;
             if ($venue->url != '')
-                $cell1 .= '</a>';
+                $text .= '</a>';
             if ($venue->data != '') {
-                $cell1 .= '<br/>';
+                $text .= '<br/>';
                 if($venue->type == 'conference')
-                    $cell1 .= '<b>Location:&nbsp;</b>';
+                    $text .= '<b>Location:&nbsp;</b>';
                 else if($venue->type == 'journal')
-                    $cell1 .= '<b>Publisher:&nbsp;</b>';
+                    $text .= '<b>Publisher:&nbsp;</b>';
                 else if($venue->type == 'workshop')
-                    $cell1 .= '<b>Associated Conference:&nbsp;</b>';
-                $cell1 .= $venue->data;
+                    $text .= '<b>Associated Conference:&nbsp;</b>';
+                $text .= $venue->data;
             }
             if ($venue->editor != '')
-                $cell1 .= "<br><b>Editor:&nbsp;</b>" . $venue->editor;
+                $text .= "<br><b>Editor:&nbsp;</b>" . $venue->editor;
+
+            $cells[] = $text;
 
             if ($logged_in) {
-                $cell2 = '<a href="Admin/add_venue.php?venue_id='
-                    . $venue->venue_id . '">Edit</a><br/>'
-                    . '<a href="Admin/delete_venue.php?confirm=check&venue_id='
-                    . $venue->venue_id . '">Delete</a>';
-            }
-            else {
-                $cell2 = '';
+                $cells[] = '<a href="Admin/add_venue.php?venue_id='
+                    . $venue->venue_id . '">'
+                    . '<img src="images/pencil.png" title="edit" alt="edit" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
+                $cells[] = '<a href="Admin/delete_venue.php?venue_id='
+                    . $venue->venue_id . '">'
+                    . '<img src="images/kill.png" title="delete" alt="delete" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
             }
 
-            $table->addRow(array($cell1, $cell2));
+            $table->addRow($cells);
         }
 
         // now assign table attributes including highlighting for even and odd

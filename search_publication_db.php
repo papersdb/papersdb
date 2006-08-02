@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.26 2006/08/01 02:58:06 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.27 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -228,7 +228,9 @@ class search_publication_db extends pdHtmlPage {
                                                 'cellspacing' => '0'));
         $searchLinkTable->addRow(
             array('<a href="' . $search_url . '">'
-                  . 'Link to this search</a></div><br/>'));
+                  . '<img src="images/link.png" title="view" alt="view" '
+                  . 'height="16" width="16" border="0" align="top" />'
+                  . ' Link to this search</a></div><br/>'));
 
         $this->contentPre .= $table->toHtml()
             . '<hr/>' . $searchLinkTable->toHtml();

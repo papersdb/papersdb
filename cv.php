@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.9 2006/07/28 22:10:49 aicmltec Exp $
+// $Id: cv.php,v 1.10 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -52,17 +52,11 @@ class cv extends pdHtmlPage {
 
             //  VENUE - Checks to see if its unique or an ID and takes the
             //  right action for each
-            if (is_object($pub->venue)) {
-                if (($pub->venue->name != null)
-                    && ($pub->venue->data != null)) {
-                    $this->contentPre .= ', ' . $pub->venue->type
-                        . ': ' . $pub->venue->name . ', '
-                        . $pub->venue->data;
-                }
-            }
-            else if ($pub->venue != '') {
-                // If no ID exist output the unique venue
-                $this->contentPre .= ', ' . strip_tags($pub->venue);
+            if (($pub->venue->name != null)
+                && ($pub->venue->data != null)) {
+                $this->contentPre .= ', ' . $pub->venue->type
+                    . ': ' . $pub->venue->name . ', '
+                    . $pub->venue->data;
             }
 
             // Additional Information - Outputs the category specific

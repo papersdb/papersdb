@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.33 2006/08/01 02:58:06 aicmltec Exp $
+// $Id: pdPublication.php,v 1.34 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -192,14 +192,17 @@ class pdPublication {
 
         if (($this->venue == null) || ($this->venue == '')) return;
 
-        if (preg_match("/venue_id:<(\d+)>/", $this->venue, $venue_id) == 0)
-            return;
-
-        if ($venue_id[1] == '') return;
-
-        $this->venue_id = $venue_id[1];
+        $venue_str = $this->venue;
         $this->venue = new pdVenue();
-        $this->venue->dbload($db, $this->venue_id);
+
+        if (preg_match("/venue_id:<(\d+)>/", $venue_str, $venue_id)) {
+            $this->venue_id = $venue_id[1];
+            $this->venue->dbload($db, $this->venue_id);
+        }
+        else if (preg_match("/venue_id:<-(\d+)>/", $venue_str, $venue_id)
+                 == 0) {
+            $this->venue->name = $venue_str;
+        }
     }
 
     function authorsToHtml($urlPrefix = null) {
@@ -275,10 +278,10 @@ class pdPublication {
                      'extra_info' => $this->extra_info,
                      'updated'    => date("Y-m-d"));
 
-        if (is_object($this->venue))
+        if ($this->venue->venue_id != '')
             $arr['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
         else
-            $arr['venue'] = $this->venue;
+            $arr['venue'] = $this->venue->name;
 
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
@@ -646,21 +649,16 @@ class pdPublication {
             . '&quot;.</span> ';
 
         //  Venue
-        if(is_object($this->venue)) {
-            if ($this->venue->url != '')
-                $citation .= ' <a href="' . $this->venue->url
-                    . '" target="_blank">';
+        if ($this->venue->url != '')
+            $citation .= ' <a href="' . $this->venue->url
+                . '" target="_blank">';
 
-            $citation .= $this->venue->name;
-            if ($this->venue->url != '')
-                $citation .= '</a>';
+        $citation .= $this->venue->name;
+        if ($this->venue->url != '')
+            $citation .= '</a>';
 
-            if ($this->venue->data != '')
-                $citation .= ', ' . $this->venue->data . ', ';
-        }
-        else if ($this->venue != '') {
-            $citation .= strip_tags($this->venue) . ', ';
-        }
+        if ($this->venue->data != '')
+            $citation .= ', ' . $this->venue->data . ', ';
 
         // Additional Information - Outputs the category specific
         // information if it exists
@@ -701,12 +699,8 @@ class pdPublication {
         $pub_date = split('-', $this->published);
         $venue_short = '';
         $venue_name = '';
-        if (is_object($this->venue)) {
-            $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
-            $venue_name = $this->venue->name;
-        }
-        else
-            $venue_name = $this->venue;
+        $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
+        $venue_name = $this->venue->name;
 
         $auth_count = count($this->authors);
         if ($auth_count > 0) {

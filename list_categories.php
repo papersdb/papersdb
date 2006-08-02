@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.3 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: list_categories.php,v 1.4 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -32,31 +32,36 @@ class list_venues extends pdHtmlPage {
 
         foreach (array_keys($cat_list->list) as $cat_id) {
             unset($fields);
+            unset($cells);
 
             $category = new pdCategory();
             $result = $category->dbLoad($db, $cat_id);
             assert('$result');
 
-            $cell1 = '<b>' . $category->category . '</b><br/>';
+            $cells[] = '<b>' . $category->category . '</b><br/>';
 
             if (count($category->info) > 0) {
                 foreach ($category->info as $info_id => $name) {
                     $fields[] = $name;
                 }
-                $cell1 .= 'Fields: ' . implode(', ', $fields);
+                $cells[] = 'Fields: ' . implode(', ', $fields);
+            }
+            else {
+                $cells[] = '';
             }
 
             if ($logged_in) {
-                $cell2 = '<a href="Admin/add_category.php?cat_id='
-                    . $category->cat_id . '">Edit</a><br/>'
-                    . '<a href="Admin/delete_category.php?cat_id='
-                    . $category->cat_id . '">Delete</a>';
-            }
-            else {
-                $cell2 = '';
+                $cells[] = '<a href="Admin/add_category.php?cat_id='
+                    . $category->cat_id . '">'
+                    . '<img src="images/pencil.png" title="edit" alt="edit" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
+                $cells[] = '<a href="Admin/delete_category.php?cat_id='
+                    . $category->cat_id . '">'
+                    . '<img src="images/kill.png" title="delete" alt="delete" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
             }
 
-            $table->addRow(array($cell1, $cell2));
+            $table->addRow($cells);
         }
 
         // now assign table attributes including highlighting for even and odd

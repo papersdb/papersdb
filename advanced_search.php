@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.38 2006/07/28 19:33:16 aicmltec Exp $
+// $Id: advanced_search.php,v 1.39 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -134,7 +134,7 @@ END;
      * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
-        $form = new HTML_QuickForm('pubForm', 'post',
+        $form = new HTML_QuickForm('pubForm', 'get',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
 

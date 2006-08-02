@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.56 2006/07/27 00:02:18 aicmltec Exp $
+// $Id: add_publication.php,v 1.57 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -519,9 +519,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
         else if ($pub != null) {
             $defaults['cat_id'] = $pub->category->cat_id;
             $defaults['extra_info'] = $pub->extra_info;
-
-            if (is_string($pub->venue))
-                $defaults['venue_name'] = $pub->venue;
+            $defaults['venue_name'] = $pub->venue->name;
         }
 
         $this->setConstants($defaults);

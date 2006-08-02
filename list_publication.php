@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.18 2006/07/12 21:57:25 aicmltec Exp $
+// $Id: list_publication.php,v 1.19 2006/08/02 18:26:35 aicmltec Exp $
 
 /**
  * \file
@@ -66,10 +66,19 @@ class list_publication extends pdHtmlPage {
                     . $pub->pub_id . "'>" . $pub->title . "</a>";
                 $attr[] = '';
                 if ($logged_in) {
-                    $cells[] = "<a href='Admin/add_publication.php?pub_id="
-                        . $pub->pub_id . "'>Edit</a>";
-                    $cells[] = "<a href='Admin/delete_publication.php?pub_id="
-                        . $pub->pub_id . "'>Delete</a>";
+                    $cells[] = '<a href="view_publication.php?pub_id='
+                        . $pub->pub_id . '">'
+                        . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
+                        . 'width="16" border="0" align="middle" /></a>';
+
+                    $cells[] = '<a href="Admin/add_publication.php?pub_id='
+                        . $pub->pub_id . '">'
+                        . '<img src="images/pencil.png" title="edit" alt="edit" '
+                        . 'height="16" width="16" border="0" align="middle" /></a>';
+                    $cells[] = '<a href="Admin/delete_publication.php?pub_id='
+                        . $pub->pub_id . '">'
+                        . '<img src="images/kill.png" title="delete" alt="delete" '
+                        . 'height="16" width="16" border="0" align="middle" /></a>';
                 }
 
                 $table->addRow($cells);
