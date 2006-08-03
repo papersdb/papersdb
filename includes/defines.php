@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.14 2006/08/01 02:58:06 aicmltec Exp $
+// $Id: defines.php,v 1.15 2006/08/03 21:54:48 aicmltec Exp $
 
 /**
  * \file
@@ -31,7 +31,7 @@ define('DB_PASSWD', '');
  *
  * @todo needs to be changed to real database when SW is released
  */
-define('DB_NAME',   'pubDBdev2');
+define('DB_NAME',   'pubDBdev');
 
 /** The path on the fileserver where documents are stored. */
 //define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
@@ -39,6 +39,8 @@ if ($_ENV['HOSTNAME'] == 'levante')
     define('FS_PATH', '/home/nelson/public_html/papersdb');
 else
     define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+
+define('MAINTENANCE', 0);
 
 // required for Database.php
 define( 'DBO_DEBUG', 1 );

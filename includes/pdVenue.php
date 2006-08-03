@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.8 2006/07/11 22:01:03 aicmltec Exp $
+// $Id: pdVenue.php,v 1.9 2006/08/03 21:54:48 aicmltec Exp $
 
 /**
  * \file
@@ -24,6 +24,9 @@ class pdVenue {
     var $data;
     var $editor;
     var $date;
+    var $occurrence;
+    var $venue_table = 'venue';
+
 
     /**
      * Constructor.
@@ -41,11 +44,23 @@ class pdVenue {
     function dbLoad(&$db, $id) {
         assert('is_object($db)');
 
-        $q = $db->selectRow('venue', '*', array('venue_id' => $id),
-                         "pdPublication::dbLoadVenue");
+        $q = $db->selectRow($this->venue_table, '*', array('venue_id' => $id),
+                         "pdVenue::dbLoadVenue");
         if ($q === false) return false;
         $this->load($q);
+
+        $q = $db->select('venue_occur', '*', array('venue_id' => $id),
+                         "pdVenue::dbLoadVenue");
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->occurrence[$r->year] = $r->location;
+            $r = $db->fetchObject($q);
+        }
         return true;
+    }
+
+    function changeTable() {
+        $this->venue_table = 'venue2';
     }
 
     /**
@@ -62,14 +77,38 @@ class pdVenue {
                         'editor'   => $this->editor,
                         'date'     => $this->date);
 
-        if (isset($this->venue_id)) {
-            $db->update('venue', $values, array('venue_id' => $this->venue_id),
-                        'pdUser::dbSave');
+        if ($this->venue_id != '') {
+            $this->dbUpdateOccurrence($db);
+
+            $db->update($this->venue_table,
+                        $values, array('venue_id' => $this->venue_id),
+                        'pdVenue::dbSave');
+            $this->venue_id = $db->insertId();
             return $db->affectedRows();
         }
         else {
-            $db->insert('venue ', $values, 'pdUser::dbSave');
+            $db->insert($this->venue_table, $values, 'pdVenue::dbSave');
+            $this->venue_id = $db->insertId();
+            $this->dbUpdateOccurrence($db);
             return true;
+        }
+    }
+
+    function dbUpdateOccurrence(&$db) {
+        if ($this->venue_table != 'venue2') return;
+
+        if (isset($this->venue_id))
+            $db->delete('venue_occur', array('venue_id' => $this->venue_id),
+                        'pdVenue::dbSave');
+
+        if (count($this->occurrence) > 0) {
+            $arr = array();
+            foreach ($this->occurrence as $year => $location) {
+                array_push($arr, array('venue_id' => $this->venue_id,
+                                       'year' => $year,
+                                       'location' => $location));
+            }
+            $db->insert('venue_occur', $arr, 'pdVenue::dbSave');
         }
     }
 
@@ -78,8 +117,8 @@ class pdVenue {
      */
     function dbDelete (&$db) {
         assert('is_object($db)');
-        $db->delete('venue', array('venue_id' => $this->venue_id),
-                    'pdUser::dbDelete');
+        $db->delete($this->venue_table, array('venue_id' => $this->venue_id),
+                    'pdVenue::dbDelete');
         return $db->affectedRows();
     }
 
@@ -98,12 +137,12 @@ class pdVenue {
                 $this->url = $mixed->url;
             if (isset($mixed->type))
                 $this->type = $mixed->type;
-            if (isset($mixed->data))
-                $this->data = $mixed->data;
             if (isset($mixed->editor))
                 $this->editor = $mixed->editor;
             if (isset($mixed->date))
                 $this->date = $mixed->date;
+
+            $this->processVenueData($mixed->data);
         }
         else if (is_array($mixed)) {
             if (isset($mixed['venue_id']))
@@ -116,14 +155,67 @@ class pdVenue {
                 $this->url = $mixed['url'];
             if (isset($mixed['type']))
                 $this->type = $mixed['type'];
-            if (isset($mixed['data']))
-                $this->data = $mixed['data'];
             if (isset($mixed['editor']))
                 $this->editor = $mixed['editor'];
             if (isset($mixed['date']))
                 $this->date = $mixed['date'];
+
+            $this->processVenueData($mixed['data']);
         }
 
+    }
+
+    function processVenueData($str) {
+        $this->data = $str;
+
+        if (preg_match("/([\w\s-]+)['-](\d+)/", $this->title, $venue_title)) {
+            $year = '';
+            if ($venue_title[2] != '')
+                if ($venue_title[2] > 75)
+                    $year = $venue_title[2] + 1900;
+                else if ($venue_title[2] <= 75)
+                    $year = $venue_title[2] + 2000;
+
+            if ($this->type == 'Conference') {
+                if ($str != '')
+                    $this->occurrence[$year] = $str;
+                else
+                    $this->occurrence[$year] = '';
+            }
+        }
+    }
+
+    function addOccurrence($year, $location) {
+        assert('$year != ""');
+
+        if ($this->type == 'Conference') {
+            if ($location != '')
+                $this->occurrence[$year] = $location;
+            else
+                $this->occurrence[$year] = '';
+        }
+    }
+
+    function toStr() {
+        $str = $this->venue_id . ', '
+            . $this->title . ', '
+            . $this->name . ', '
+            . $this->url . ', '
+            . $this->type . ', '
+            . $this->data . ', '
+            . $this->editor . ', '
+            . $this->date . ', ';
+
+        if (count($this->occurrence) > 0) {
+            foreach ($this->occurrence as $year => $location) {
+                $str .= '(' . $year;
+                if ($location != '')
+                    $str .= ', ' . $location;
+                $str .= ') ';
+            }
+        }
+
+        return $str;
     }
 }
 

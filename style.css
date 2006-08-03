@@ -110,16 +110,16 @@ a:hover { text-decoration: underline; color: #0066FF;}
   text-align: left;
 }
 
-div#highlight {
+#highlight {
   color: red;
   font-size:10px;
 }
 
-div#emph {
+#emph {
   font-weight: bold;
 }
 
-div#small {
+#small {
   font-size:9px;
 }
 

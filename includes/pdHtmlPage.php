@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.22 2006/07/27 22:25:33 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.23 2006/08/03 21:54:48 aicmltec Exp $
 
 /**
  * \file
@@ -73,6 +73,13 @@ class pdHtmlPage {
         $this->pageError       = false;
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
+
+        if (MAINTENANCE == 1) {
+            if (!isset($_GET['test']) || ($_GET['test'] != 1)) {
+                echo 'PapersDB is under maintenance, please check back later';
+                exit;
+            }
+        }
     }
 
     function htmlPageHeader() {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.34 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: pdPublication.php,v 1.35 2006/08/03 21:54:48 aicmltec Exp $
 
 /**
  * \file
@@ -276,12 +276,15 @@ class pdPublication {
                      'keywords'   => $this->keywords,
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
-                     'updated'    => date("Y-m-d"));
+                     'updated'    => date("Y-m-d"),
+                     'venue_id'   => $this->venue_id);
 
-        if ($this->venue->venue_id != '')
+        if ($this->venue->venue_id != '') {
             $arr['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
-        else
+        }
+        else {
             $arr['venue'] = $this->venue->name;
+        }
 
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
@@ -657,7 +660,17 @@ class pdPublication {
         if ($this->venue->url != '')
             $citation .= '</a>';
 
-        if ($this->venue->data != '')
+        $pub_date = split('-', $this->published);
+
+        if ($this->venue->type == 'Conference') {
+            echo '<pre>' . print_r($this, true) . '</pre>';
+
+            if (isset($this->venue->occurrence[$pub_date[0]])) {
+                if ($this->venue->occurrence[$pub_date[0]] != '')
+                    $citation .= ', ' . $this->venue->occurrence[$pub_date[0]];
+            }
+        }
+        else if ($this->venue->data != '')
             $citation .= ', ' . $this->venue->data . ', ';
 
         // Additional Information - Outputs the category specific
@@ -669,7 +682,6 @@ class pdPublication {
             }
 
         $date_str = "";
-        $pub_date = split('-', $this->published);
         if ($pub_date[1] != 0)
             $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
         if ($pub_date[2] != 0)
@@ -677,7 +689,7 @@ class pdPublication {
         if ($pub_date[0] != 0)
             $date_str .= $pub_date[0];
 
-        $citation .= $date_str . '.';
+        $citation .= ', ' . $date_str . '.';
 
         return $citation;
     }
