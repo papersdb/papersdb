@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.58 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: add_publication.php,v 1.59 2006/08/04 20:03:44 aicmltec Exp $
 
 /**
  * \file
@@ -157,9 +157,11 @@ class pubStep1Page extends HTML_QuickForm_Page {
         // Venue
         $venue_list = new pdVenueList($db);
         $options = array(''   => '--- Select a Venue ---',
-                         -2 => 'No Venue',
-                         -3 => 'Unique Venue');
-        $options += $venue_list->list;
+                         -2 => 'No Venue');
+        foreach ($venue_list->list as $id => $title) {
+            if ($title != '')
+                $options[] = $title;
+        }
         $this->addElement('select', 'venue_id',
                           $masterPage->helpTooltip('Publication Venue',
                                                    'venueHelp') . ':',
@@ -245,8 +247,6 @@ class pubStep1Page extends HTML_QuickForm_Page {
 
             if ($pub->venue_id != null)
                 $defaults['venue_id'] = $pub->venue_id;
-            else
-                $defaults['venue_id'] = -3;
 
             if (count($pub->authors) > 0) {
                 foreach ($pub->authors as $author)
@@ -279,11 +279,6 @@ class pubStep2Page extends HTML_QuickForm_Page {
         $this->addElement('header', null, 'Add Publication: Step 2');
 
         $venue_id = $this->controller->exportValue('page1', 'venue_id');
-
-        if ($venue_id == -3) {
-            $this->addElement('textarea', 'venue_name', 'Unique Venue Name:',
-                              array('cols' => 60, 'rows' => 5));
-        }
 
         // category
         $category_list = new pdCatList($db);
@@ -777,10 +772,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
         if ($pub != null) {
             $pub->load($values);
-            if ($values['venue_id'] != -3)
-                $pub->addVenue($db, $values['venue_id']);
-            else
-                $pub->addVenue($db, $values['venue_name']);
+            $pub->addVenue($db, $values['venue_id']);
             $pub->addCategory($db, $values['cat_id']);
         }
         else {
