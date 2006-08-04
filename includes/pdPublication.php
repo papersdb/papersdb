@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.36 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: pdPublication.php,v 1.37 2006/08/04 19:24:20 aicmltec Exp $
 
 /**
  * \file
@@ -24,7 +24,7 @@ define('PD_PUB_DB_LOAD_POINTER',         0x20);
 define('PD_PUB_DB_LOAD_VENUE',           0x40);
 define('PD_PUB_DB_LOAD_ALL',             0x77);
 
-define('NEW_VENUE', 1);
+define('NEW_VENUE', 0);
 
 /**
  *
