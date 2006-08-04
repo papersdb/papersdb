@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.27 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.28 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -104,7 +104,7 @@ class search_publication_db extends pdHtmlPage {
      * Generates results in citation format.
      */
     function searchResultsGenerate($search_url) {
-        global $logged_in;
+        global $access_level;
 
         $db =& dbCreate();
         $countentries = 0;
@@ -208,7 +208,7 @@ class search_publication_db extends pdHtmlPage {
                 . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
                 . 'width="16" border="0" align="middle" /></a>';
 
-            if ($logged_in)
+            if ($access_level > 0)
                 $cell .= '<a href="Admin/add_publication.php?pub_id='
                     . $pub->pub_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
@@ -637,7 +637,7 @@ class search_publication_db extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new search_publication_db();
 echo $page->toHtml();
 

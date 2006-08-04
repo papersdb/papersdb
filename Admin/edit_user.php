@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.9 2006/07/18 22:29:22 aicmltec Exp $
+// $Id: edit_user.php,v 1.10 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -21,11 +21,11 @@ require_once 'includes/pdAuthorList.php';
  */
 class edit_user extends pdHtmlPage {
     function edit_user() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('edit_user');
 
-        if (!$logged_in) {
+        if ($access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -200,7 +200,7 @@ END;
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new edit_user();
 echo $page->toHtml();
 

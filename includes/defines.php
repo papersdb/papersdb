@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.15 2006/08/03 21:54:48 aicmltec Exp $
+// $Id: defines.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,8 @@ define('DB_USER', 'papersdb');
 
 /** The user id accessing the database. */
 define('DB_PASSWD', '');
+
+define('DB_ADMIN', 'papersdb@cs.ualberta.ca');
 
 /**
  * The name of the database.

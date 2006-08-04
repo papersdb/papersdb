@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.19 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: list_publication.php,v 1.20 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/pdPubList.php';
  */
 class list_publication extends pdHtmlPage {
     function list_publication() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('all_publications');
 
@@ -65,7 +65,7 @@ class list_publication extends pdHtmlPage {
                 $cells[] = "<a href='view_publication.php?pub_id="
                     . $pub->pub_id . "'>" . $pub->title . "</a>";
                 $attr[] = '';
-                if ($logged_in) {
+                if ($access_level > 0) {
                     $cells[] = '<a href="view_publication.php?pub_id='
                         . $pub->pub_id . '">'
                         . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
@@ -100,7 +100,7 @@ class list_publication extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($logged_in) {
+            if ($access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -113,7 +113,7 @@ class list_publication extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new list_publication();
 echo $page->toHtml();
 

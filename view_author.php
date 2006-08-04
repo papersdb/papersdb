@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.15 2006/07/19 23:49:12 aicmltec Exp $
+// $Id: view_author.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -24,7 +24,7 @@ require_once 'includes/pdAuthor.php';
  */
 class view_author extends pdHtmlPage {
     function view_author() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('view_authors');
 
@@ -51,7 +51,7 @@ class view_author extends pdHtmlPage {
 
         $this->table =& $this->authTableCreate($auth);
 
-        if ($logged_in) {
+        if ($access_level > 0) {
             $this->contentPost
                 = '<br/><b><a href="Admin/add_author.php?author_id='
                 . $auth->author_id . '">Edit this author</a>&nbsp;&nbsp;&nbsp;'
@@ -129,7 +129,7 @@ class view_author extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new view_author();
 echo $page->toHtml();
 

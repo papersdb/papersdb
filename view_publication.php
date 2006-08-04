@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.41 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: view_publication.php,v 1.42 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -24,7 +24,7 @@ class view_publication extends pdHtmlPage {
     var $pub_id;
 
     function view_publication() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('view_publications');
 
@@ -45,7 +45,7 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
-        if ($logged_in) {
+        if ($access_level > 0) {
             $actions .= '<a href="Admin/add_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -127,7 +127,7 @@ class view_publication extends pdHtmlPage {
         $content .= '<h3>BibTex</h3><pre>' . $bibtex . '</pre><p/>';
 
 
-        if ($logged_in)
+        if ($access_level > 0)
             $content .= $actions;
 
         $this->contentPre .= $content;
@@ -236,7 +236,7 @@ class view_publication extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new view_publication();
 echo $page->toHtml();
 

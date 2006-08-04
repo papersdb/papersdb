@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.7 2006/07/28 22:10:49 aicmltec Exp $
+// $Id: delete_publication.php,v 1.8 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -22,11 +22,11 @@ require_once 'includes/pdPublication.php';
  */
 class delete_publication extends pdHtmlPage {
     function delete_publication() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('delete_publication');
 
-        if (!$logged_in) {
+        if ($access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -89,7 +89,7 @@ class delete_publication extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new delete_publication();
 echo $page->toHtml();
 

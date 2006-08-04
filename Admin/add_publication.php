@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.57 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: add_publication.php,v 1.58 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/jscalendar.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
-        global $logged_in;
+        global $access_level;
 
         $options = array('pub_id');
         foreach ($options as $opt) {
@@ -37,7 +37,10 @@ class add_publication extends pdHtmlPage {
         else
             parent::pdHtmlPage('add_publication');
 
-        if (!$logged_in) {
+        if ($access_level <= 0) {
+            $this->contentPre .= '<pre>'
+                . print_r($_SESSION['user'], true) . '</pre>';
+
             $this->loginError = true;
             return;
         }
@@ -935,7 +938,7 @@ class ActionReset extends HTML_QuickForm_Action {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $db =& dbCreate();
 
 $wizard = new HTML_QuickForm_Controller('pubWizard', true);

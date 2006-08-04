@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.15 2006/07/12 21:47:43 aicmltec Exp $
+// $Id: login.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -18,12 +18,12 @@ class login extends pdHtmlPage {
     var $passwd_hash;
 
     function login() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('login');
         $this->passwd_hash = "aicml";
 
-        if ($logged_in == 1) {
+        if ($access_level > 0) {
             $this->contentPre .= 'You are already logged in as '
                 . $_SESSION['user']->login . '.';
             $this->pageError = true;
@@ -68,7 +68,7 @@ class login extends pdHtmlPage {
                 }
                 $db =& dbCreate();
                 $user = new pdUser();
-                $user->dbLoad($db, stripslashes($values['loginid']));
+                $user->dbLoad($db, $values['loginid']);
 
                 // check passwords match
                 $values['passwd'] = md5(stripslashes($this->passwd_hash
@@ -87,12 +87,16 @@ class login extends pdHtmlPage {
                 $_SESSION['user'] = $user;
                 $db->close();
 
-                $logged_in = 1;
+                $access_level = $_SESSION['user']->access_level;
+
+                if ($access_level == 0) {
+                    $this->contentPre .= 'Your login request has not been '
+                        . 'processed yet.';
+                    return;
+                }
 
                 if (isset( $values['redirect'])) {
                     $this->redirectUrl = $values['redirect'];
-
-                        //'http://' . $_SERVER['HTTP_HOST']
                     $this->redirectTimeout = 0;
                 }
                 else {
@@ -105,8 +109,6 @@ class login extends pdHtmlPage {
                 }
             }
             else if (isset($values['newaccount'])) {
-                // if form has been submitted
-
                 // check if username exists in database.
                 if (!get_magic_quotes_gpc()) {
                     $values['loginid'] = addslashes($values['loginid']);
@@ -152,16 +154,20 @@ class login extends pdHtmlPage {
                                           'name'     => $values['realname']),
                             'login.php');
 
-                $logged_in = 1;
-                $_SESSION['user'] = $user;
+                $access_level = 0;
 
-                $this->contentPre = '<h2>Login created</h1>'
-                    . 'You have succesfully created your new login '
-                    . $_SESSION['user']->login . ' and are now logged in.'
+                mail(DB_ADMIN, 'PapersDB: Login Request',
+                     'User with login ' . $values['loginid'] . ' has requested '
+                     . 'editor access_level for PapersDB.');
+
+                $this->contentPre = '<h2>Login Request Submitted</h1>'
+                    . 'A request to create your login <b>'
+                    . $values['loginid'] . '</b> has been submitted. '
+                    . 'A confirmation email will be sent to <code>'
+                    . $values['email']
+                    . '</code> when your account is ready. '
                     . '<p/>Return to <a href="index.php">main page</a>.';
 
-                $this->redirectUrl = 'http://' . $_SERVER['HTTP_HOST']
-                    . dirname($_SERVER['PHP_SELF']) . '/index.php';
                 $db->close();
             }
         }

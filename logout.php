@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: logout.php,v 1.5 2006/07/25 20:54:57 aicmltec Exp $
+// $Id: logout.php,v 1.6 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -12,9 +12,9 @@ require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 
-if ($logged_in == 0) {
+if ($access_level <= 0) {
 	die('You are not logged in so you cannot log out.');
 }
 

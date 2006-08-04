@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.7 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: list_venues.php,v 1.8 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -17,7 +17,7 @@ require_once 'includes/pdVenue.php';
  */
 class list_venues extends pdHtmlPage {
     function list_venues() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('all_venues');
         $db =& dbCreate();
@@ -57,7 +57,7 @@ class list_venues extends pdHtmlPage {
 
             $cells[] = $text;
 
-            if ($logged_in) {
+            if ($access_level > 0) {
                 $cells[] = '<a href="Admin/add_venue.php?venue_id='
                     . $venue->venue_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -83,7 +83,7 @@ class list_venues extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($logged_in) {
+            if ($access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -97,7 +97,7 @@ class list_venues extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new list_venues();
 echo $page->toHtml();
 

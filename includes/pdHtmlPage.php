@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.23 2006/08/03 21:54:48 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.24 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -256,7 +256,7 @@ class pdHtmlPage {
     }
 
     function navMenu() {
-        global $logged_in;
+        global $access_level;
 
         $url_prefix = '';
         if (isset($this->page_id) && strstr($this->relativeUrl, '/'))
@@ -265,8 +265,9 @@ class pdHtmlPage {
         foreach ($this->page_info as $name => $info) {
             if ($info[2] <= PD_HTML_PAGE_NAV_MENU_NEVER) continue;
 
-            if (($logged_in && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS))
-                || (!$logged_in
+            if ((($access_level > 0)
+                 && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS))
+                || (($access_level == 0)
                     && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
                 if ($name == $this->page_id) {
                     $options[$info[0]] = '';
@@ -321,9 +322,9 @@ class pdHtmlPage {
     }
 
     function pageHeader() {
-        global $logged_in;
+        global $access_level;
 
-        if ($logged_in) {
+        if ($access_level > 0) {
             $status = 'Logged in as: ' . $_SESSION['user']->login;
         }
         else {

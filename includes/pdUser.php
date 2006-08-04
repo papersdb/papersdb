@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.20 2006/07/04 23:11:21 aicmltec Exp $
+// $Id: pdUser.php,v 1.21 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -24,6 +24,8 @@ class pdUser {
     var $email;
     var $comments;
     var $search;
+    var $verified;
+    var $access_level;
     var $collaborators;
     var $author_rank;
 
@@ -38,7 +40,7 @@ class pdUser {
     /**
      *
      */
-    function dbLoad(&$db, $id, $flags = 0) {
+    function dbLoad(&$db, $id) {
         assert('is_object($db)');
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
@@ -138,23 +140,24 @@ class pdUser {
     }
 
     /**
-     * Loads publication data from the object passed in
+     * Loads user data from the object or array passed in
      */
-    function load($obj) {
-        if ($obj == NULL) return;
+    function load($mixed) {
+        $members = array('login', 'password', 'name', 'email', 'comments',
+                         'search', 'verified', 'access_level');
 
-        if (isset($obj->login))
-            $this->login = $obj->login;
-        if (isset($obj->password))
-            $this->password = $obj->password;
-        if (isset($obj->name))
-            $this->name = $obj->name;
-        if (isset($obj->email))
-            $this->email = $obj->email;
-        if (isset($obj->comments))
-            $this->comments = $obj->comments;
-        if (isset($obj->search))
-            $this->search = $obj->search;
+        if (is_object($mixed)) {
+            foreach ($members as $member) {
+                if (isset($mixed->$member))
+                    $this->$member = $mixed->$member;
+            }
+        }
+        else if (is_array($mixed)) {
+            foreach ($members as $member) {
+                if (isset($mixed[$member]))
+                    $this->$member = $mixed[$member];
+            }
+        }
     }
 }
 

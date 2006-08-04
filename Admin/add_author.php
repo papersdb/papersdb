@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.23 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: add_author.php,v 1.24 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -19,11 +19,11 @@ require_once 'includes/pdAuthor.php';
  */
 class add_author extends pdHtmlPage {
     function add_author() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('add_author');
 
-        if (!$logged_in) {
+        if ($access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -228,7 +228,7 @@ JS_END;
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new add_author();
 echo $page->toHtml();
 

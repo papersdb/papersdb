@@ -18,7 +18,7 @@ require_once 'includes/pdAuthorList.php';
  */
 class list_author extends pdHtmlPage {
     function list_author() {
-        global $logged_in;
+        global $access_level;
 
         parent::pdHtmlPage('all_authors');
         $this->db =& dbCreate();
@@ -45,7 +45,7 @@ class list_author extends pdHtmlPage {
                     . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
                     . 'width="16" border="0" align="middle" /></a>';
 
-                if ($logged_in) {
+                if ($access_level > 0) {
                     $cells[] = '<a href="Admin/add_author.php?author_id='
                         . $author_id . '">'
                         . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -75,7 +75,7 @@ class list_author extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($logged_in) {
+            if ($access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -89,7 +89,7 @@ class list_author extends pdHtmlPage {
 }
 
 session_start();
-$logged_in = check_login();
+$access_level = check_login();
 $page = new list_author();
 echo $page->toHtml();
 

@@ -345,7 +345,7 @@ function get_venue_info($venue) {
 }
 
 function quickSearchFormCreate() {
-    $form = new HTML_QuickForm('quickPubForm', 'post',
+    $form = new HTML_QuickForm('quickPubForm', 'get',
                                'search_publication_db.php', '_self',
                                'multipart/form-data');
     $form->addElement('text', 'search', null,

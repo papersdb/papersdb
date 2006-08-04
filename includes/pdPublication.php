@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.35 2006/08/03 21:54:48 aicmltec Exp $
+// $Id: pdPublication.php,v 1.36 2006/08/04 18:00:33 aicmltec Exp $
 
 /**
  * \file
@@ -23,6 +23,8 @@ define('PD_PUB_DB_LOAD_AUTHOR_FULL',     0x10);
 define('PD_PUB_DB_LOAD_POINTER',         0x20);
 define('PD_PUB_DB_LOAD_VENUE',           0x40);
 define('PD_PUB_DB_LOAD_ALL',             0x77);
+
+define('NEW_VENUE', 1);
 
 /**
  *
@@ -189,6 +191,15 @@ class pdPublication {
 
     function dbLoadVenue(&$db) {
         assert("($this->dbLoadFlags & PD_PUB_DB_LOAD_VENUE)");
+
+        if (NEW_VENUE == 1) {
+            if (($this->venue_id == null) || ($this->venue_id == '')
+                || ($this->venue_id == '0')) return;
+
+            $this->venue = new pdVenue();
+            $this->venue->dbload($db, $this->venue_id);
+            return;
+        }
 
         if (($this->venue == null) || ($this->venue == '')) return;
 
@@ -388,28 +399,6 @@ class pdPublication {
                                      'value'   => $this->info[$name]));
                 }
                 $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
-            }
-        }
-    }
-
-    /**
-     * Loads publication data from the object or array passed in
-     */
-    function load(&$mixed) {
-        $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
-                         'published', 'venue', 'extra_info', 'submit',
-                         'updated', 'additional_info', 'category');
-
-        if (is_object($mixed)) {
-            foreach ($members as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach ($members as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
             }
         }
     }
@@ -649,37 +638,40 @@ class pdPublication {
 
         // Title
         $citation .= '. <span id="pub_title">&quot;' . $this->title
-            . '&quot;.</span> ';
-
-        //  Venue
-        if ($this->venue->url != '')
-            $citation .= ' <a href="' . $this->venue->url
-                . '" target="_blank">';
-
-        $citation .= $this->venue->name;
-        if ($this->venue->url != '')
-            $citation .= '</a>';
+            . '&quot;</span>. ';
 
         $pub_date = split('-', $this->published);
 
-        if ($this->venue->type == 'Conference') {
-            echo '<pre>' . print_r($this, true) . '</pre>';
+        //  Venue
+        if (is_object($this->venue)) {
+            if ($this->venue->url != '')
+                $citation .= ' <a href="' . $this->venue->url
+                    . '" target="_blank">';
 
-            if (isset($this->venue->occurrence[$pub_date[0]])) {
-                if ($this->venue->occurrence[$pub_date[0]] != '')
-                    $citation .= ', ' . $this->venue->occurrence[$pub_date[0]];
+            $citation .= $this->venue->name;
+
+            if ($this->venue->url != '')
+                $citation .= '</a>';
+
+            if ($this->venue->type == 'Conference') {
+                if (isset($this->venue->occurrence[$pub_date[0]])) {
+                    if ($this->venue->occurrence[$pub_date[0]] != '')
+                        $citation .= ', ' . $this->venue->occurrence[$pub_date[0]];
+                }
             }
+            else if ($this->venue->data != '')
+                $citation .= ', ' . $this->venue->data;
         }
-        else if ($this->venue->data != '')
-            $citation .= ', ' . $this->venue->data . ', ';
 
         // Additional Information - Outputs the category specific
         // information if it exists
-        if (count($this->info) > 0)
+        if (count($this->info) > 0) {
             foreach ($this->info as $name => $value) {
                 if($value != null)
-                    $$citation .= ", " . $value;
+                    $citation .= ", " . $value;
             }
+            $citation .= '. ';
+        }
 
         $date_str = "";
         if ($pub_date[1] != 0)
@@ -689,7 +681,7 @@ class pdPublication {
         if ($pub_date[0] != 0)
             $date_str .= $pub_date[0];
 
-        $citation .= ', ' . $date_str . '.';
+        $citation .= $date_str . '.';
 
         return $citation;
     }
@@ -766,6 +758,29 @@ class pdPublication {
 
         return $bibtex;
     }
+
+    /**
+     * Loads publication data from the object or array passed in
+     */
+    function load(&$mixed) {
+        $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
+                         'published', 'venue_id', 'venue', 'extra_info',
+                         'submit', 'updated', 'additional_info', 'category');
+
+        if (is_object($mixed)) {
+            foreach ($members as $member) {
+                if (isset($mixed->$member))
+                    $this->$member = $mixed->$member;
+            }
+        }
+        else if (is_array($mixed)) {
+            foreach ($members as $member) {
+                if (isset($mixed[$member]))
+                    $this->$member = $mixed[$member];
+            }
+        }
+    }
+
 }
 
 ?>

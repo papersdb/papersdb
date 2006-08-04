@@ -6,10 +6,10 @@ require_once 'includes/pdUser.php';
 
 function check_login() {
     $passwd_hash = "aicml";
+    $access_level = 0;
 
     if (!isset($_SESSION['user'])) {
-        $logged_in = 0;
-        return $logged_in;
+        return $access_level;
     }
 
     // remember, $_SESSION['password'] will be encrypted.
@@ -33,14 +33,18 @@ function check_login() {
     //compare:
     if ($q->password == $_SESSION['user']->password) {
         // valid password for login
-        $logged_in = 1; // they have correct info in session variables.
+        // they have correct info in session variables.
+
+        if ($_SESSION['user']->verified == 1) {
+            // user is valid
+            $access_level = $_SESSION['user']->access_level;
+        }
     }
     else {
-        $logged_in = 0;
         unset($_SESSION['user']); // kill incorrect session variables.
     }
 
-    return $logged_in;
+    return $access_level;
 }
 
 ?>
