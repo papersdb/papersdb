@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: defines.php,v 1.17 2006/08/04 20:04:42 aicmltec Exp $
 
 /**
  * \file
@@ -33,7 +33,11 @@ define('DB_ADMIN', 'papersdb@cs.ualberta.ca');
  *
  * @todo needs to be changed to real database when SW is released
  */
-define('DB_NAME',   'pubDBdev');
+if ($_ENV['HOSTNAME'] == 'menaik')
+    define('DB_NAME',   'pubDB');
+else
+    define('DB_NAME',   'pubDBdev');
+
 
 /** The path on the fileserver where documents are stored. */
 //define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
