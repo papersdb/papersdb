@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.18 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: add_category.php,v 1.19 2006/08/08 23:03:59 aicmltec Exp $
 
 /**
  * \file
@@ -36,8 +36,8 @@ class add_category extends pdHtmlPage {
         $category = new pdCategory();
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
-            $this->cat_id = intval($_GET['cat_id']);
-            $result = $category->dbLoad($db, $this->cat_id);
+            $cat_id = intval($_GET['cat_id']);
+            $result = $category->dbLoad($db, $cat_id);
 
             if (!$result) {
                 $db->close();
@@ -46,10 +46,17 @@ class add_category extends pdHtmlPage {
             }
         }
 
+        if ($category->cat_id != '')
+            $label = 'Edit Category';
+        else
+            $label = 'Add Category';
+
+        $this->pageTitle = $label;
+
         $form = new HTML_QuickForm('catForm');
 
         $form->addElement('header', null,
-                          $this->helpTooltip('Add Category',
+                          $this->helpTooltip($label,
                                              'addCategoryPageHelp',
                                              'helpHeading'));
 

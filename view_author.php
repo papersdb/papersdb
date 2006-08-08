@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: view_author.php,v 1.17 2006/08/08 23:03:59 aicmltec Exp $
 
 /**
  * \file
@@ -47,17 +47,23 @@ class view_author extends pdHtmlPage {
             return;
         }
 
-        $this->contentPre = '<h3>' . $auth->name . '</h3>';
-
-        $this->table =& $this->authTableCreate($auth);
+        $this->contentPre .= '<h3>' . $auth->name;
 
         if ($access_level > 0) {
-            $this->contentPost
-                = '<br/><b><a href="Admin/add_author.php?author_id='
-                . $auth->author_id . '">Edit this author</a>&nbsp;&nbsp;&nbsp;'
+            $this->contentPre
+                .= '&nbsp;&nbsp;<a href="Admin/add_author.php?author_id='
+                . $auth->author_id . '">'
+                . '<img src="images/pencil.png" title="edit" alt="edit" '
+                . 'height="16" width="16" border="0" align="top" /></a>'
                 . '<a href="Admin/delete_author.php?author_id='
-                . $auth->author_id . '">Delete this author</a></b><br/><br/>';
+                . $auth->author_id . '">'
+                . '<img src="images/kill.png" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
         }
+
+        $this->contentPre .= '</h3>';
+
+        $this->table =& $this->authTableCreate($auth);
 
         $this->db->close();
     }

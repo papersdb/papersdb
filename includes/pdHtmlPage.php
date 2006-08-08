@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.26 2006/08/08 22:14:36 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.27 2006/08/08 23:03:59 aicmltec Exp $
 
 /**
  * \file
@@ -63,6 +63,7 @@ class pdHtmlPage {
             $this->relativeUrl = $this->page_info[$page_id][1];
             $this->loginLevel  = $this->page_info[$page_id][2];
         }
+
         $this->redirectUrl     = $redirectUrl;
         $this->redirectTimeout = 0;
         $this->db              = null;
@@ -225,8 +226,14 @@ class pdHtmlPage {
                                       PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
         'login'              => array('Login or Register', 'login.php',
                                       PD_HTML_PAGE_NAV_MENU_ALWAYS),
-        'home'              => array('Home', 'index.php',
-                                     PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ)
+        'home'               => array('Home', 'index.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'view_publications'  => array('View Publication',
+                                      'view_publication.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'view_authors'       => array('Author Information',
+                                      'view_author.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER)
         );
 
     function htmlHeader() {
@@ -368,14 +375,18 @@ END;
     }
 
     function pageFooter() {
+        if (strstr($this->relativeUrl, '/'))
+            $uofa_logo = '../images/uofa_logo.gif';
+        else
+            $uofa_logo = 'images/uofa_logo.gif';
+
         return <<<END
             <div id="footer">
             For any questions/comments about the Papers Database please e-mail
             <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
             <div class="ualogo">
             <a href="http://www.ualberta.ca">
-            <img src="http://www.cs.ualberta.ca/library/images/uofa_logo.gif"
-            width="162" height="36" alt="University of Alberta Logo" />
+            <img src="{$uofa_logo}" alt="University of Alberta Logo" />
             </a>
             </div>
             <div id="copyright">

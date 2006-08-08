@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.15 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: add_venue.php,v 1.16 2006/08/08 23:03:59 aicmltec Exp $
 
 /**
  * \file
@@ -79,6 +79,8 @@ class add_venue extends pdHtmlPage {
             $label = 'Edit Venue';
         else
             $label = 'Add Venue';
+
+        $this->pageTitle = $label;
 
         if ($venue->type == 'Conference')
             $label .= '&nbsp;<span id="small"><a href="javascript:dataKeep('
