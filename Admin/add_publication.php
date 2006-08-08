@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.59 2006/08/04 20:03:44 aicmltec Exp $
+// $Id: add_publication.php,v 1.60 2006/08/08 20:36:28 aicmltec Exp $
 
 /**
  * \file
@@ -160,7 +160,7 @@ class pubStep1Page extends HTML_QuickForm_Page {
                          -2 => 'No Venue');
         foreach ($venue_list->list as $id => $title) {
             if ($title != '')
-                $options[] = $title;
+                $options[$id] = $title;
         }
         $this->addElement('select', 'venue_id',
                           $masterPage->helpTooltip('Publication Venue',
@@ -648,7 +648,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             'styleCss' => 'calendar.css',
             'language' => 'en',
             'image' => array(
-                'src' => '../calendar.gif',
+                'src' => '../images/calendar.gif',
                 'border' => 0
                 ),
             'setup' => array(
