@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.16 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: login.php,v 1.17 2006/08/08 22:14:36 aicmltec Exp $
 
 /**
  * \file
@@ -34,6 +34,11 @@ class login extends pdHtmlPage {
             $redirect = $_GET['redirect'];
         else
             $redirect = '';
+
+        if (strpos($redirect, 'login.php')) {
+            // never redirect to the login page
+            $redirect = 'index.php';
+        }
 
         $form = new HTML_QuickForm('quickPubForm');
 

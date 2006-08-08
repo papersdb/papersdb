@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.25 2006/08/08 21:26:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.26 2006/08/08 22:14:36 aicmltec Exp $
 
 /**
  * \file
@@ -278,10 +278,15 @@ class pdHtmlPage {
                 else
                     $options[$info[0]] = $info[1];
 
-                // add redirection option to the URL
-                if ($name == 'login') {
-                    $options[$info[0]] .= '?redirect=' . $_SERVER['PHP_SELF']
-                        . '?' . $_SERVER['QUERY_STRING'];
+                // add redirection option to the login URL
+                //
+                // note: only add it if not at the login page
+                if (($name == 'login')
+                    && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
+                    $options[$info[0]] .= '?redirect=' . $_SERVER['PHP_SELF'];
+
+                    if ($_SERVER['QUERY_STRING'] != '')
+                        $options[$info[0]] .= '?' . $_SERVER['QUERY_STRING'];
                 }
             }
         }
