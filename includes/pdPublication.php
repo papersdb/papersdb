@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.39 2006/08/08 21:26:38 aicmltec Exp $
+// $Id: pdPublication.php,v 1.40 2006/08/08 23:17:44 aicmltec Exp $
 
 /**
  * \file
@@ -239,7 +239,22 @@ class pdPublication {
     }
 
     /**
-     * remove all keywords of length 0
+     * removes all extra_info items of length 0
+     */
+    function extraInfoGet() {
+        if (!isset($this->extra_info)) return '';
+
+        $extra_info = explode(";", $this->extra_info);
+
+        foreach ($extra_info as $key => $value) {
+            if ($value == "")
+                unset($extra_info[$key]);
+        }
+        return implode(",", $extra_info);
+    }
+
+    /**
+     * removes all keywords of length 0
      */
     function keywordsGet() {
         if (!isset($this->keywords)) return '';

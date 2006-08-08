@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.43 2006/08/08 21:26:37 aicmltec Exp $
+// $Id: view_publication.php,v 1.44 2006/08/08 23:17:44 aicmltec Exp $
 
 /**
  * \file
@@ -126,7 +126,7 @@ class view_publication extends pdHtmlPage {
 
         $table->addRow(array('Category:', $pub->category->category));
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
-        $this->infoRowsAdd($pub, $table);
+        $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
 
         if (count($pub->extPointer) > 0) {
             $c = 0;
@@ -246,13 +246,6 @@ class view_publication extends pdHtmlPage {
 
                 $table->addRow(array('Linked to:', $intLinkStr));
             }
-        }
-    }
-
-    function infoRowsAdd(&$pub, &$table) {
-        if (!is_array($pub->info)) return;
-        foreach ($pub->info as $name => $value) {
-            $table->addRow(array($name . ":", $value));
         }
     }
 
