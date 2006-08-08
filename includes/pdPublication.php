@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.38 2006/08/04 20:03:45 aicmltec Exp $
+// $Id: pdPublication.php,v 1.39 2006/08/08 21:26:38 aicmltec Exp $
 
 /**
  * \file
@@ -93,6 +93,7 @@ class pdPublication {
 
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
+        assert('$q');
         if ($q === false) return false;
         $this->load($q);
 
@@ -615,7 +616,7 @@ class pdPublication {
         $att = $this->additional_info[$att_num];
 
         if (strpos($att->location, 'uploaded_files/') === false)
-            $result .= '/uploaded_files/' . $this->pub_id . '/';
+            $result .= '/uploaded_files/';
         $result .= $att->location;
 
         return $result;
@@ -625,15 +626,17 @@ class pdPublication {
         $citation = '';
 
         $first = true;
-        foreach ($this->authors as $auth) {
-            if (!$first)
-                $citation .= ', ';
+        if (count($this->authors) > 0) {
+            foreach ($this->authors as $auth) {
+                if (!$first)
+                    $citation .= ', ';
 
-            $citation .= ''
-                . '<a href="./view_author.php?'
-                . 'author_id=' . $auth->author_id . '">'
-                . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
-            $first = false;
+                $citation .= ''
+                    . '<a href="./view_author.php?'
+                    . 'author_id=' . $auth->author_id . '">'
+                    . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
+                $first = false;
+            }
         }
 
         // Title

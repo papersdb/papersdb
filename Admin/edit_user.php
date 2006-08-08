@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.10 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: edit_user.php,v 1.11 2006/08/08 21:26:38 aicmltec Exp $
 
 /**
  * \file
@@ -106,7 +106,7 @@ END;
             $user->email = $values['email'];
 
             unset($user->collaborators);
-            if (isset($values['authors']) && count($values['authors']) > 0) {
+            if (count($values['authors']) > 0) {
                 $auth_list = new pdAuthorList($db);
 
                 foreach ($values['authors'] as $author_id) {

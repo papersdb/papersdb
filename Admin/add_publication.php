@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.60 2006/08/08 20:36:28 aicmltec Exp $
+// $Id: add_publication.php,v 1.61 2006/08/08 21:26:38 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,7 @@ require_once 'includes/pdPubList.php';
 require_once 'includes/authorselect.php';
 require_once 'includes/pdExtraInfoList.php';
 require_once 'includes/jscalendar.php';
+require_once 'includes/pdKeywordsList.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
@@ -38,9 +39,6 @@ class add_publication extends pdHtmlPage {
             parent::pdHtmlPage('add_publication');
 
         if ($access_level <= 0) {
-            $this->contentPre .= '<pre>'
-                . print_r($_SESSION['user'], true) . '</pre>';
-
             $this->loginError = true;
             return;
         }
@@ -215,15 +213,6 @@ class pubStep1Page extends HTML_QuickForm_Page {
                           . ':<br/><div id="small">HTML Enabled</div>',
                           array('cols' => 60, 'rows' => 10));
 
-        $kwGroup[] =& HTML_QuickForm::createElement(
-            'text', 'keywords', null, array('size' => 55, 'maxlength' => 250));
-        $kwGroup[] =& HTML_QuickForm::createElement(
-            'static', 'kwgroup_help', null,
-            '<span style="font-size:10px;">separate using semi-colons (;)</span>');
-        $this->addGroup($kwGroup, 'kwgroup',
-                        $masterPage->helpTooltip('Keywords',
-                                                       'keywordsHelp') . ':',
-                        '<br/>', false);
 
         $this->addRule('dategroup', 'please enter a publication date',
                        'required', null, 'client');
@@ -231,14 +220,16 @@ class pubStep1Page extends HTML_QuickForm_Page {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $buttons[] =& HTML_QuickForm::createElement(
-            'button', 'cancel', 'Cancel',
-            array('onclick' => "javascript:location.href='" . $url . "';"));
-        $buttons[] =& HTML_QuickForm::createElement(
-            'submit', $this->getButtonName('reset'), 'Reset');
-        $buttons[] =& HTML_QuickForm::createElement(
-            'submit', $this->getButtonName('next'), 'Next step >>');
-        $this->addGroup($buttons, 'buttons', '', '&nbsp', false);
+        $this->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'button', 'cancel', 'Cancel',
+                    array('onclick' => "javascript:location.href='" . $url . "';")),
+                HTML_QuickForm::createElement(
+                    'submit', $this->getButtonName('reset'), 'Reset'),
+                HTML_QuickForm::createElement(
+                    'submit', $this->getButtonName('next'), 'Next step >>')),
+            'buttons', '', '&nbsp', false);
 
         if ($pub != null) {
             $defaults = array('title'      => $pub->title,
@@ -277,6 +268,103 @@ class pubStep2Page extends HTML_QuickForm_Page {
         $this->_formBuilt = true;
 
         $this->addElement('header', null, 'Add Publication: Step 2');
+
+        $this->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'text', 'keywords', null,
+                    array('size' => 55, 'maxlength' => 250)),
+                HTML_QuickForm::createElement(
+                    'static', 'kwgroup_help', null,
+                    '<span style="font-size:10px;">separate using semi-colons (;)</span>')),
+
+            'kwgroup', $masterPage->helpTooltip('Keywords',
+                                                'keywordsHelp') . ':',
+            '<br/>', false);
+
+        $keywords = new pdKeywordsList($db);
+
+        if (count($keywords) > 0) {
+            unset($options);
+            foreach ($keywords->list as $kw) {
+                $options[$kw] = $kw;
+            }
+
+            $kwListSelect =& $this->addElement(
+                'advmultiselect', 'keywords_list', null, $options,
+                array('class' => 'pool', 'style' => 'width:150px;'),
+                SORT_ASC);
+
+            $kwListSelect->setLabel(
+                array('Select From Previous Keywords:', 'Selected', 'Available'));
+
+            $kwListSelect->setButtonAttributes('add',
+                                             array('value' => 'Add',
+                                                   'class' => 'inputCommand'));
+            $kwListSelect->setButtonAttributes('remove',
+                                             array('value' => 'Remove',
+                                                   'class' => 'inputCommand'));
+            $kwListSelect->setButtonAttributes('moveup',
+                                             array('class' => 'inputCommand'));
+            $kwListSelect->setButtonAttributes('movedown',
+                                             array('class' => 'inputCommand'));
+
+            // template for a dual multi-select element shape
+            $template = <<<END
+{javascript}
+<table{class}>
+<tr>
+  <th>&nbsp;</th>
+  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
+  <th>&nbsp;</th>
+  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
+</tr>
+<tr>
+  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+  <td valign="top">{selected}</td>
+  <td valign="middle">{add}</td>
+  <td valign="top">{unselected}</td>
+</tr>
+</table>
+{javascript}
+END;
+
+            $kwListSelect->setElementTemplate($template);
+        }
+
+        $this->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'submit', $this->getButtonName('back'), '<< Previous step'),
+                HTML_QuickForm::createElement(
+                    'submit', $this->getButtonName('next'), 'Next step >>')),
+            'buttons', '', '&nbsp', false);
+
+
+        if ($pub != null) {
+            $this->setConstants(array('keywords' => $pub->keywords));
+        }
+    }
+}
+
+class pubStep3Page extends HTML_QuickForm_Page {
+    function buildForm() {
+        $data =& $this->controller->container();
+
+        if (!isset($_SESSION['user']) || !isset($data['db'])
+            || !isset($data['masterPage'])) {
+            return;
+        }
+
+        $db =& $data['db'];
+        assert('$db != null');
+        $masterPage =& $data['masterPage'];
+        assert('$masterPage != null');
+        $pub =& $data['pub'];
+
+        $this->_formBuilt = true;
+
+        $this->addElement('header', null, 'Add Publication: Step 3');
 
         $venue_id = $this->controller->exportValue('page1', 'venue_id');
 
@@ -382,12 +470,54 @@ class pubStep2Page extends HTML_QuickForm_Page {
                           . ':',
                           array('cols' => 60, 'rows' => 5));
 
-        $this->addElement('advcheckbox', 'extra_info_list',
-                          $masterPage->helpTooltip(
-                              'Extra Info From List', 'extraInfoListHelp')
-                          . ':',
-                          'check this box to select extra info from a list',
-                          null, array('no', 'yes'));
+        $extra_info = new pdExtraInfoList($db);
+
+        if (count($extra_info) > 0) {
+            unset($options);
+            foreach ($extra_info->list as $info) {
+                $options[$info] = $info;
+            }
+            $extraInfoSelect =& $this->addElement(
+                'advmultiselect', 'extra_info_from_list', null, $options,
+                array('class' => 'pool', 'style' => 'width:150px;'),
+                SORT_ASC);
+
+            $extraInfoSelect->setLabel(
+                array('Select From Previously Entered:', 'Selected', 'Available'));
+
+            $extraInfoSelect->setButtonAttributes('add',
+                                             array('value' => 'Add',
+                                                   'class' => 'inputCommand'));
+            $extraInfoSelect->setButtonAttributes('remove',
+                                             array('value' => 'Remove',
+                                                   'class' => 'inputCommand'));
+            $extraInfoSelect->setButtonAttributes('moveup',
+                                             array('class' => 'inputCommand'));
+            $extraInfoSelect->setButtonAttributes('movedown',
+                                             array('class' => 'inputCommand'));
+
+            // template for a dual multi-select element shape
+            $template = <<<END
+{javascript}
+<table{class}>
+<tr>
+  <th>&nbsp;</th>
+  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
+  <th>&nbsp;</th>
+  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
+</tr>
+<tr>
+  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+  <td valign="top">{selected}</td>
+  <td valign="middle">{add}</td>
+  <td valign="top">{unselected}</td>
+</tr>
+</table>
+{javascript}
+END;
+
+            $extraInfoSelect->setElementTemplate($template);
+        }
 
         $this->addElement('header', 'link_info', 'Links', null);
 
@@ -525,7 +655,7 @@ class pubStep2Page extends HTML_QuickForm_Page {
 }
 
 
-class pubStep3Page extends HTML_QuickForm_Page {
+class pubStep4Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
 
@@ -542,9 +672,9 @@ class pubStep3Page extends HTML_QuickForm_Page {
 
         $this->_formBuilt = true;
 
-        $this->addElement('header', null, 'Add Publication: Step 3');
+        $this->addElement('header', null, 'Add Publication: Step 4');
 
-        $cat_id = $this->controller->exportValue('page2', 'cat_id');
+        $cat_id = $this->controller->exportValue('page3', 'cat_id');
         if ($cat_id > 0) {
             $category = new pdCategory();
             $result = $category->dbLoad($db, $cat_id);
@@ -563,13 +693,13 @@ class pubStep3Page extends HTML_QuickForm_Page {
         }
 
         $other_attachments
-            = $this->controller->exportValue('page2', 'other_attachments');
+            = $this->controller->exportValue('page3', 'other_attachments');
         if (($cat_id > 0) && ($other_attachments > 0)) {
             $this->addElement('header', null, 'Attachments');
         }
 
-        $add_paper = $this->controller->exportValue('page2', 'add_paper');
-        $change_paper = $this->controller->exportValue('page2', 'change_paper');
+        $add_paper = $this->controller->exportValue('page3', 'add_paper');
+        $change_paper = $this->controller->exportValue('page3', 'change_paper');
         if (($add_paper == 'yes') || ($change_paper == 'yes')){
             $this->addElement('file', 'uploadpaper', 'Paper:',
                               array('size' => 45));
@@ -586,22 +716,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
                               array('size' => 45, 'maxlength' => 250));
         }
 
-        $extra_info_list
-            = $this->controller->exportValue('page2', 'extra_info_list');
-        if ($extra_info_list == "yes") {
-            $this->addElement('header', null, 'Select Extra Information');
-            $extra_info = new pdExtraInfoList($db);
-
-            $c = 0;
-            foreach ($extra_info->list as $info) {
-                $this->addElement('advcheckbox',
-                                  'extra_info_from_list[' . $c . ']',
-                                  null, $info, null, array('', $info));
-                $c++;
-            }
-        }
-
-        $web_links = $this->controller->exportValue('page2', 'web_links');
+        $web_links = $this->controller->exportValue('page3', 'web_links');
         if ($web_links > 0) {
             $this->addElement('header', null, 'Web Links');
 
@@ -624,7 +739,7 @@ class pubStep3Page extends HTML_QuickForm_Page {
             }
         }
 
-        $pub_links = $this->controller->exportValue('page2', 'pub_num_links');
+        $pub_links = $this->controller->exportValue('page3', 'pub_num_links');
         if ($pub_links > 0) {
             $this->addElement('header', null, 'Publication Links');
             $pub_list = new pdPubList($db);
@@ -771,8 +886,14 @@ class ActionProcess extends HTML_QuickForm_Action {
             }
 
         if ($pub != null) {
+            if ($this->debug) {
+                echo 'values<pre>' . print_r($values, true) . '</pre>';
+            }
+
             $pub->load($values);
-            $pub->addVenue($db, $values['venue_id']);
+            if (isset($values['venue_id']) && ($values['venue_id'] != '')
+                && ($values['venue_id'] != '0'))
+                $pub->addVenue($db, $values['venue_id']);
             $pub->addCategory($db, $values['cat_id']);
         }
         else {
@@ -792,6 +913,18 @@ class ActionProcess extends HTML_QuickForm_Action {
                 $pub->addAuthor($db, $author_id);
             }
         }
+
+        if ($values['keywords'] != '')
+            $keywords_arr = array($values['keywords']);
+
+        if (count($values['keywords_list']) > 0)
+            foreach ($values['keywords_list'] as $kw) {
+                if ($kw != '')
+                    $keywords_arr[] = $kw;
+            }
+
+	if (count($keywords_arr) > 0)
+		$pub->keywords = implode('; ', $keywords_arr);
 
         if (count($pub->info) > 0) {
             foreach (array_keys($pub->info) as $name) {
@@ -830,14 +963,17 @@ class ActionProcess extends HTML_QuickForm_Action {
                     $pub->addIntPointer($db, $pub_link);
             }
 
-        $extra_info_arr = array($values['extra_info']);
-        if (isset($values['extra_info_from_list']))
+        if ($values['extra_info'] != '')
+            $extra_info_arr = array($values['extra_info']);
+
+        if (count($values['extra_info_from_list']) > 0)
             foreach ($values['extra_info_from_list'] as $info) {
                 if ($info != '')
                     $extra_info_arr[] = $info;
             }
 
-        $pub->extra_info = implode('; ', $extra_info_arr);
+        if (count($extra_info_arr) > 0)
+		$pub->extra_info = implode('; ', $extra_info_arr);
 
         $path = FS_PATH . '/uploaded_files/';
         if ($values['change_paper'] == 'yes') {
@@ -937,6 +1073,7 @@ $wizard = new HTML_QuickForm_Controller('pubWizard', true);
 $wizard->addPage(new pubStep1Page('page1'));
 $wizard->addPage(new pubStep2Page('page2'));
 $wizard->addPage(new pubStep3Page('page3'));
+$wizard->addPage(new pubStep4Page('page4'));
 
 $wizard->addAction('display', new ActionDisplay());
 $wizard->addAction('process', new ActionProcess());

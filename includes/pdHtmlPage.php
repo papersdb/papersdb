@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.24 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.25 2006/08/08 21:26:38 aicmltec Exp $
 
 /**
  * \file
@@ -326,6 +326,10 @@ class pdHtmlPage {
 
         if ($access_level > 0) {
             $status = 'Logged in as: ' . $_SESSION['user']->login;
+
+            if ($access_level >= 2) {
+                $status .= ', DB : ' . DB_NAME;
+            }
         }
         else {
             $status = 'Not Logged In';

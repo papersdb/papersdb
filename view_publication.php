@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.42 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: view_publication.php,v 1.43 2006/08/08 21:26:37 aicmltec Exp $
 
 /**
  * \file
@@ -70,15 +70,18 @@ class view_publication extends pdHtmlPage {
                 $content .= '<img src="images/pdf.gif" alt="PDF" '
                     . 'height="18" width="17" border="0" align="middle">';
             }
-
-            if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+            else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
                 $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
                     . 'width="17" border="0" align="middle">';
             }
-
-            if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+            else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
                 $content .= '<img src="images/ps.gif" alt="PS" height="18" '
                     . 'width="17" border="0" align="middle">';
+            }
+            else {
+                $name = split('paper_', $pub->paper);
+                if ($name[1] != '')
+                    $content .= $name[1];
             }
             $content .= '</a><br/>';
         }
@@ -94,15 +97,18 @@ class view_publication extends pdHtmlPage {
                     $content .= '<img src="images/pdf.gif" alt="PDF" height="18" '
                         . 'width="17" border="0" align="middle">';
                 }
-
-                if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+                else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
                     $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
                         . 'width="17" border="0" align="middle">';
                 }
-
-                if (preg_match("/\.(ps|PS)$/", $att->location)) {
+                else if (preg_match("/\.(ps|PS)$/", $att->location)) {
                     $content .= '<img src="images/ps.gif" alt="PS" height="18" '
                         . 'width="17" border="0" align="middle">';
+                }
+                else {
+                    $name = split('additional_', $att->location);
+                    if ($name[1] != '')
+                        $content .= $name[1];
                 }
 
                 $add_count++;
@@ -117,7 +123,47 @@ class view_publication extends pdHtmlPage {
                                       'border' => '0',
                                       'cellpadding' => '6',
                                       'cellspacing' => '0'));
+
         $table->addRow(array('Category:', $pub->category->category));
+        $table->addRow(array('Keywords:', $pub->keywordsGet()));
+        $this->infoRowsAdd($pub, $table);
+
+        if (count($pub->extPointer) > 0) {
+            $c = 0;
+            foreach ($pub->extPointer as $name => $url) {
+                if ($c == 0)
+                    $label = 'Web Links:';
+                else
+                    $label = '';
+                $table->addRow(array($label, '<a href="' . $url . '">'
+                                     . $name . '</a>'));
+                $c++;
+            }
+        }
+
+        if (count($pub->intPointer) > 0) {
+            $c = 0;
+            foreach ($pub->intPointer as $int) {
+                if ($c == 0)
+                    $label = 'Publication Links:';
+                else
+                    $label = '';
+                $linked_pub = new pdPublication();
+                $linked_pub->dbLoad($db, $int->value);
+
+                $table->addRow(array($label, '<a href=view_publication?pub_id="'
+                                     . $int->value . '">'
+                                     . $linked_pub->title . '</a>'));
+                $c++;
+            }
+        }
+
+        $updateStr = $this->lastUpdateGet($pub);
+        if ($updateStr != "") {
+            $updateStr ='Last Updated: ' . $updateStr . '<br/>';
+        }
+        $updateStr .= 'Submitted by ' . $pub->submit;
+
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
         $content .= $table->toHtml();
