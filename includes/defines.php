@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.19 2006/08/09 02:07:10 aicmltec Exp $
+// $Id: defines.php,v 1.20 2006/08/09 22:56:28 aicmltec Exp $
 
 /**
  * \file
@@ -37,8 +37,9 @@ else
     define('DB_NAME',   'pubDBdev');
 
 /** The path on the fileserver where documents are stored. */
-//define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
-if ($_ENV['HOSTNAME'] == 'levante')
+if (strpos($_SERVER['PHP_SELF'], '~papersdb'))
+    define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs/');
+else if ($_ENV['HOSTNAME'] == 'levante')
     define('FS_PATH', '/home/nelson/public_html/papersdb');
 else
     define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
