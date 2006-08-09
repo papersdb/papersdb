@@ -1,6 +1,6 @@
 <?php
 
-  // $Id: lib_dbfunctions.php,v 1.8 2006/07/04 23:11:21 aicmltec Exp $
+  // $Id: lib_dbfunctions.php,v 1.9 2006/08/09 22:46:58 aicmltec Exp $
 
   /**
    * \file
@@ -61,8 +61,6 @@ function disconnect_db($link) {
  * \see dbCreate
  */
 function query_db($query) {
-	//$result = mysql_query($query) or die(back_button());
-	// Use this line for debugging
 	$result = mysql_query($query) or die("Query failed : " . mysql_error());
 	return $result;
 }

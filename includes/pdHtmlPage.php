@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.28 2006/08/09 19:10:11 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.29 2006/08/09 22:46:58 aicmltec Exp $
 
 /**
  * \file
@@ -317,7 +317,7 @@ class pdHtmlPage {
                         .= '<li><a href="' . $value . '">' . $key . '</a></li>';
             }
 
-        $form = quickSearchFormCreate();
+        $form = $this->quickSearchFormCreate();
         $renderer = new HTML_QuickForm_Renderer_QuickHtml();
         $form->accept($renderer);
 
@@ -421,6 +421,20 @@ END;
         $form->addElement('submit', 'submit', 'Delete');
         $form->addElement('button', 'cancel', 'Cancel',
                           array('onclick' => 'history.back()'));
+        return $form;
+    }
+
+    function quickSearchFormCreate() {
+        if (strstr($this->relativeUrl, '/'))
+            $script = '../search_publication_db.php';
+        else
+            $script = 'search_publication_db.php';
+
+        $form = new HTML_QuickForm('quickPubForm', 'get', $script);
+        $form->addElement('text', 'search', null,
+                          array('size' => 12, 'maxlength' => 80));
+        $form->addElement('submit', 'Quick', 'Search');
+
         return $form;
     }
 }
