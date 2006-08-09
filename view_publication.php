@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.46 2006/08/09 03:53:40 loyola Exp $
+// $Id: view_publication.php,v 1.47 2006/08/09 19:50:27 aicmltec Exp $
 
 /**
  * \file
@@ -63,57 +63,76 @@ class view_publication extends pdHtmlPage {
 
         if (($pub->paper != 'No paper')
             && (basename($pub->paper) != 'paper_')) {
-            $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()
-                . '">';
 
-            if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                $content .= '<img src="images/pdf.gif" alt="PDF" '
-                    . 'height="18" width="17" border="0" align="middle">';
+            $path = FS_PATH;
+            if (strpos($pub->paper, 'uploaded_files/') === false)
+                $path .= '/uploaded_files/' . $pub->pub_id . '/';
+            $path .= $pub->paper;
+
+            if (file_exists($path)) {
+                $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()
+                    . '">';
+
+                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
+                    $content .= '<img src="images/pdf.gif" alt="PDF" '
+                        . 'height="18" width="17" border="0" align="middle">';
+                }
+                else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+                    $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+                else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+                    $content .= '<img src="images/ps.gif" alt="PS" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+                else {
+                    $name = split('paper_', $pub->paper);
+                    if ($name[1] != '')
+                        $content .= $name[1];
+                }
+                $content .= '</a><br/>';
             }
-            else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                    . 'width="17" border="0" align="middle">';
-            }
-            else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                $content .= '<img src="images/ps.gif" alt="PS" height="18" '
-                    . 'width="17" border="0" align="middle">';
-            }
-            else {
-                $name = split('paper_', $pub->paper);
-                if ($name[1] != '')
-                    $content .= $name[1];
-            }
-            $content .= '</a><br/>';
         }
 
         // Show Additional Materials
         if (count($pub->additional_info) > 0) {
             $add_count = 1;
             foreach ($pub->additional_info as $att) {
-                $content .= 'Other Attachments: <a href="'
-                    . $pub->attachmentGetUrl($add_count - 1) . '">';
 
-                if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                    $content .= '<img src="images/pdf.gif" alt="PDF" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                    $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                else if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                    $content .= '<img src="images/ps.gif" alt="PS" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                else {
-                    $name = split('additional_', $att->location);
-                    if ($name[1] != '')
-                        $content .= $name[1];
-                }
+                $path = FS_PATH;
+                if (strpos($att->location, 'uploaded_files/') === false)
+                    $path .= '/uploaded_files/';
+                $path .= $att->location;
 
-                $add_count++;
+                if (file_exists($path)) {
+                    $content .= 'Other Attachments: <a href="'
+                        . $pub->attachmentGetUrl($add_count - 1) . '">';
+
+                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
+                        $content .= '<img src="images/pdf.gif" alt="PDF" '
+                            . 'height="18" width="17" border="0" '
+                            . 'align="middle">';
+                    }
+                    else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+                        $content .= '<img src="images/ppt.gif" alt="PPT" '
+                            . 'height="18" width="17" border="0" '
+                            . 'align="middle">';
+                    }
+                    else if (preg_match("/\.(ps|PS)$/", $att->location)) {
+                        $content .= '<img src="images/ps.gif" alt="PS" '
+                            . 'height="18" width="17" border="0" '
+                            . 'align="middle">';
+                    }
+                    else {
+                        $name = split('additional_', $att->location);
+                        if ($name[1] != '')
+                            $content .= $name[1];
+                    }
+
+                    $add_count++;
+                }
+                $content .= '</a><br/>';
             }
-            $content .= '</a><br/>';
         }
 
         $content .= '<p/>' . stripslashes(nl2br($pub->abstract)) . '<p/>'

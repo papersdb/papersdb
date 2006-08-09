@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.41 2006/08/09 18:23:10 aicmltec Exp $
+// $Id: pdPublication.php,v 1.42 2006/08/09 19:50:27 aicmltec Exp $
 
 /**
  * \file
@@ -93,7 +93,6 @@ class pdPublication {
 
         $q = $db->selectRow('publication', '*', array('pub_id' => $id),
                             "pdPublication::dbLoad");
-        assert('$q');
         if ($q === false) return false;
         $this->load($q);
 
