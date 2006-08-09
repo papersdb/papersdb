@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.40 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: advanced_search.php,v 1.41 2006/08/09 22:49:11 aicmltec Exp $
 
 /**
  * \file
@@ -137,14 +137,6 @@ END;
         $form = new HTML_QuickForm('pubForm', 'get',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
-
-        $form->addElement('header', null, 'Quick Search');
-        $qsElement[0] =& HTML_QuickForm::createElement(
-            'text', 'search', null, array('size' => 50, 'maxlength' => 250));
-        $qsElement[1] =& HTML_QuickForm::createElement(
-            'submit', 'Quick', 'Search');
-        $form->addGroup($qsElement, 'quicksearch', 'Search for:', '&nbsp;',
-                        false);
 
         $form->addElement('header', null, 'Advanced Search');
         $form->addElement('select', 'cat_id', 'Category:',
