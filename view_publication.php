@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.45 2006/08/09 02:46:41 aicmltec Exp $
+// $Id: view_publication.php,v 1.46 2006/08/09 03:53:40 loyola Exp $
 
 /**
  * \file
@@ -48,7 +48,8 @@ class view_publication extends pdHtmlPage {
         $content .= "<h1>" . $pub->title;
 
         if ($access_level > 0) {
-            $content .= '<a href="Admin/add_publication.php?pub_id='
+            $content
+                .= '&nbsp;&nbsp;<a href="Admin/add_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="images/pencil.png" title="edit" alt="edit" '
                 . 'height="16" width="16" border="0" align="top" /></a>'
@@ -157,15 +158,6 @@ class view_publication extends pdHtmlPage {
             }
         }
 
-        $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
-
-        $updateStr = $this->lastUpdateGet($pub);
-        if ($updateStr != "") {
-            $updateStr ='Last Updated: ' . $updateStr . '<br/>';
-        }
-        $updateStr .= 'Submitted by ' . $pub->submit;
-        $table->addRow(array('&nbsp;', $updateStr));
-
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
         $content .= $table->toHtml();
@@ -178,7 +170,14 @@ class view_publication extends pdHtmlPage {
         if ($access_level > 0)
             $content .= $actions;
 
-        $this->contentPre .= $content;
+        $updateStr = $this->lastUpdateGet($pub);
+        if ($updateStr != '') {
+            $updateStr ='Last Updated: ' . $updateStr . '<br/>';
+        }
+        $updateStr .= 'Submitted by ' . $pub->submit;
+
+        $this->contentPre .= $content . '<span id="small">' . $updateStr
+            . '</span>';
 
         $db->close();
     }
