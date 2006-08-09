@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.11 2006/08/08 21:26:38 aicmltec Exp $
+// $Id: edit_user.php,v 1.12 2006/08/09 03:17:08 loyola Exp $
 
 /**
  * \file
@@ -125,7 +125,7 @@ END;
                                           'cellspacing' => '0'));
             $table->setAutoGrow(true);
 
-            $this->contentPre .= '<h2><b><u>Login Information</u></b></h2>';
+            $this->contentPre .= '<h2>Login Information</h2>';
 
             $defaults = array('name' => $user->name,
                               'email' => $user->email);
@@ -158,10 +158,17 @@ END;
         $db->close();
     }
 
-    function showUser() {
+function showUser() {
         $db =& dbCreate();
         $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($db);
+
+        $this->contentPre .= '<h2>Login Information&nbsp;&nbsp;'
+            . '<a href="edit_user.php?status=edit">'
+            . '<img src="../images/pencil.png" title="edit" '
+            . 'alt="edit" height="16" width="16" border="0" '
+            . 'align="top" /></a>'
+            . '</h2>';
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
@@ -188,10 +195,6 @@ END;
         else {
             $table->addRow(array('Favorite Collaborators:', 'None assigned'));
         }
-        $table->addRow(array(''));
-        $table->addRow(array('<a href="edit_user.php?status=edit">'
-                             . 'Edit this information</a>'),
-                       array('colspan' => 2));
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '30%'));
         $this->table =& $table;
