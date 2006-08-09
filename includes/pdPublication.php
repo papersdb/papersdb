@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.40 2006/08/08 23:17:44 aicmltec Exp $
+// $Id: pdPublication.php,v 1.41 2006/08/09 18:23:10 aicmltec Exp $
 
 /**
  * \file
@@ -266,6 +266,26 @@ class pdPublication {
                 unset($keywords[$key]);
         }
         return implode(",", $keywords);
+    }
+
+    function keywordsSet($keywords) {
+        assert('is_array($keywords)');
+
+        if (count($keywords) == 0) return;
+
+        $words = implode('; ', $keywords);
+        $words = preg_replace("/;\s*;/", ';', $words);
+        $this->keywords = $words;
+    }
+
+    function extraInfoSet($info) {
+        assert('is_array($info)');
+
+        if (count($info) == 0) return;
+
+        $words = implode('; ', $info);
+        $words = preg_replace("/;\s*;/", ';', $words);
+        $this->extra_info = $words;
     }
 
     function dbDelete(&$db) {

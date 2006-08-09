@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.61 2006/08/08 21:26:38 aicmltec Exp $
+// $Id: add_publication.php,v 1.62 2006/08/09 18:23:10 aicmltec Exp $
 
 /**
  * \file
@@ -914,17 +914,13 @@ class ActionProcess extends HTML_QuickForm_Action {
             }
         }
 
-        if ($values['keywords'] != '')
-            $keywords_arr = array($values['keywords']);
+        $keywords_arr = array($values['keywords']);
 
         if (count($values['keywords_list']) > 0)
-            foreach ($values['keywords_list'] as $kw) {
-                if ($kw != '')
-                    $keywords_arr[] = $kw;
-            }
+            $keywords_arr = array_merge($keywords_arr,
+                                        $values['keywords_list']);
 
-	if (count($keywords_arr) > 0)
-		$pub->keywords = implode('; ', $keywords_arr);
+        $pub->keywordsSet($keywords_arr);
 
         if (count($pub->info) > 0) {
             foreach (array_keys($pub->info) as $name) {
@@ -963,17 +959,13 @@ class ActionProcess extends HTML_QuickForm_Action {
                     $pub->addIntPointer($db, $pub_link);
             }
 
-        if ($values['extra_info'] != '')
-            $extra_info_arr = array($values['extra_info']);
+        $extra_info_arr = array($values['extra_info']);
 
         if (count($values['extra_info_from_list']) > 0)
-            foreach ($values['extra_info_from_list'] as $info) {
-                if ($info != '')
-                    $extra_info_arr[] = $info;
-            }
+            $extra_info_arr = array_merge($extra_info_arr,
+                                          $values['extra_info_from_list']);
 
-        if (count($extra_info_arr) > 0)
-		$pub->extra_info = implode('; ', $extra_info_arr);
+        $pub->extraInfoSet($extra_info_arr);
 
         $path = FS_PATH . '/uploaded_files/';
         if ($values['change_paper'] == 'yes') {
