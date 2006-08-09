@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.27 2006/08/08 23:03:59 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.28 2006/08/09 19:10:11 aicmltec Exp $
 
 /**
  * \file
@@ -244,7 +244,15 @@ class pdHtmlPage {
             . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
             . 'lang="en">'
             . '<head>'
-            . '<title>' . $this->pageTitle . '</title>'
+            . '<title>';
+
+        // change the HTML title tag if this is the index page
+        if ($this->pageTitle == 'Home')
+            $result .= 'PapersDB';
+        else
+            $result .= $this->pageTitle;
+
+        $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
             . 'content="text/html; charset=iso-8859-1" />';
 

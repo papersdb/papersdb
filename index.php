@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.24 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: index.php,v 1.25 2006/08/09 19:10:10 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ class indexPage extends pdHtmlPage {
     function indexPage() {
         global $access_level;
 
-        parent::pdHtmlPage('index');
+        parent::pdHtmlPage('home');
         $this->db =& dbCreate();
         $pub_list = new pdPubList($this->db, null, null, -1, true);
 
