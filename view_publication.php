@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.44 2006/08/08 23:17:44 aicmltec Exp $
+// $Id: view_publication.php,v 1.45 2006/08/09 02:46:41 aicmltec Exp $
 
 /**
  * \file
@@ -45,21 +45,20 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
+        $content .= "<h1>" . $pub->title;
+
         if ($access_level > 0) {
-            $actions .= '<a href="Admin/add_publication.php?pub_id='
+            $content .= '<a href="Admin/add_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="images/pencil.png" title="edit" alt="edit" '
-                . 'height="16" width="16" border="0" align="middle" /></a>'
+                . 'height="16" width="16" border="0" align="top" /></a>'
                 . '<a href="Admin/delete_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="images/kill.png" title="delete" alt="delete" '
-                . 'height="16" width="16" border="0" align="middle" /></a>';
-
-            $content .= $actions;
+                . 'height="16" width="16" border="0" align="top" /></a>';
         }
 
-        $content .= "<h1>" . $pub->title . "</h1>\n"
-            . $pub->authorsToHtml();
+        $content .= "</h1>\n" . $pub->authorsToHtml();
 
         if (($pub->paper != 'No paper')
             && (basename($pub->paper) != 'paper_')) {
@@ -158,11 +157,14 @@ class view_publication extends pdHtmlPage {
             }
         }
 
+        $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
+
         $updateStr = $this->lastUpdateGet($pub);
         if ($updateStr != "") {
             $updateStr ='Last Updated: ' . $updateStr . '<br/>';
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
+        $table->addRow(array('&nbsp;', $updateStr));
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
