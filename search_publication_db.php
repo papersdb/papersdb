@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.28 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.29 2006/08/16 17:47:32 aicmltec Exp $
 
 /**
  * \file
@@ -90,7 +90,7 @@ class search_publication_db extends pdHtmlPage {
 
         if($this->option_list->search != "") {
             $this->quickSearch($this->pub_id_array);
-            $this->contentPre .= '<h3> QUICK SEARCH </h3>';
+            $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
         }
         else {
             $this->advancedSearch();
@@ -110,20 +110,7 @@ class search_publication_db extends pdHtmlPage {
         $countentries = 0;
         $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
 
-        $form =& $this->searchFormCreate();
-        $form->setDefaults(array('search' => $input_unsanitized));
-        $renderer = new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
-
         $table = new HTML_Table();
-
-        $data = 'Search: '
-            . $renderer->elementToHtml('search') . ' '
-            . $renderer->elementToHtml('Quick') . ' '
-            . "<a href='advanced_search.php'>"
-            . "<b>Advanced Search</b></a>";
-
-        $table->addRow(array($renderer->toHtml($data)), array('id' => 'emph'));
 
         $cvForm =& $this->cvFormCreate($this->pub_id_array);
         if ($cvForm != null) {

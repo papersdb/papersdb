@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.8 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.9 2006/08/16 17:47:32 aicmltec Exp $
 
 /**
  * \file
@@ -18,19 +18,28 @@ class pdAuthorList {
     /**
      * Constructor.
      */
-    function pdAuthorList(&$db) {
+    function pdAuthorList(&$db, $firstname = null, $lastname = null) {
         assert('is_object($db)');
 
-        $q = $db->select('author', array('author_id', 'name'), '',
-                         "pdAuthorList::dbLoad",
-                         array('ORDER BY' => 'name ASC'));
-        if ($q === false) return;
+        if (($firstname != null) && ($lastname != null)) {
+            $name = '%' . $lastname . ', ' . $firstname[0] . '%';
+            $q = $db->select('author', '*', array('name LIKE ' .
+                                                  $db->addQuotes($name)),
+                             "pdAuthorList::pdAuthorList");
+            if ($q === false) return false;
+        }
+        else {
+            $q = $db->select('author', array('author_id', 'name'), '',
+                             "pdAuthorList::dbLoad",
+                             array('ORDER BY' => 'name ASC'));
+            if ($q === false) return false;
+        }
+
         $r = $db->fetchObject($q);
         while ($r) {
             $this->list[$r->author_id] = $r->name;
             $r = $db->fetchObject($q);
         }
-        assert('is_array($this->list)');
     }
 }
 

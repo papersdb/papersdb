@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.62 2006/08/09 18:23:10 aicmltec Exp $
+// $Id: add_publication.php,v 1.63 2006/08/16 17:47:32 aicmltec Exp $
 
 /**
  * \file
@@ -972,7 +972,6 @@ class ActionProcess extends HTML_QuickForm_Action {
             if (file_exists($path . $pub->paper))
                 unlink($path . $pub->paper);
             $pub->dbUpdatePaper($db, '');
-
         }
 
         if (count($values['remove_att']) > 0) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.24 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: add_author.php,v 1.25 2006/08/16 17:47:32 aicmltec Exp $
 
 /**
  * \file
@@ -112,6 +112,20 @@ class add_author extends pdHtmlPage {
 
         if ($form->validate()) {
             $values = $form->exportValues();
+
+            // check if an author with a similar name already exists
+            $like_authors = new pdAuthorList($db, $values['firstname'],
+                                             $values['lastname']);
+            if (count($like_authors->list) > 0) {
+                $this->contentPre
+                    .= 'The following authors have similar names:<ul>';
+                foreach ($like_authors->list as $auth) {
+                    $this->contentPre .= '<li>' . $auth . '</li>';
+                }
+                $this->contentPre .= '</ul>New author not submitted.';
+                $db->close();
+                return;
+            }
 
             $author = new pdAuthor();
             $author->name = $values['lastname'] . ', ' . $values['firstname'];
