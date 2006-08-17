@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.29 2006/08/16 17:47:32 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.30 2006/08/17 20:34:40 aicmltec Exp $
 
 /**
  * \file
@@ -15,6 +15,7 @@
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
+require_once 'includes/pdSearchParams.php';
 /**
  * Renders the whole page.
  */
@@ -34,7 +35,7 @@ class search_publication_db extends pdHtmlPage {
                                  'keywords',
                                  'startdate',
                                  'enddate');
-    var $option_list;
+    var $search_params;
     var $pub_id_array;
     var $parse_search_add_word_or_next = false;
     var $input;
@@ -67,28 +68,9 @@ class search_publication_db extends pdHtmlPage {
 
         $search_url = $protocol."://".$_SERVER['SERVER_NAME'].$port.$location."?";
 
-        $url_opt = array();
-        foreach ($this->allowed_options as $opt) {
-            if (isset($this->option_list->$opt)
-                && ($this->option_list->$opt != '')) {
-                if ($opt == 'authorselect') {
-                    foreach ($this->option_list->$opt as $key => $value) {
-                        $url_opt[] = $opt .'[' . $key . ']='
-                            . urlencode($value);
-                    }
-                }
-                else {
-                    $url_opt[] = $opt . '='
-                        . urlencode($this->option_list->$opt);
-                }
-            }
-        }
+        $search_url .= $this->search_params->paramsToHtmlQueryStr();
 
-        if (count($url_opt) > 0) {
-            $search_url .= implode("&", $url_opt);
-        }
-
-        if($this->option_list->search != "") {
+        if($this->search_params->search != "") {
             $this->quickSearch($this->pub_id_array);
             $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
         }
@@ -239,26 +221,16 @@ class search_publication_db extends pdHtmlPage {
         else
             $arr =& $_GET;
 
-        $this->option_list = new stdClass; // start off a new (empty) object
-
-        foreach($this->allowed_options as $allowed_opt) {
-            if (isset($arr[$allowed_opt])) {
-                if ($allowed_opt == 'authorselect') {
-                    $this->option_list->$allowed_opt = $arr[$allowed_opt];
-                }
-                else {
-                    $this->option_list->$allowed_opt = $arr[$allowed_opt];
-                }
-            }
-            else if (($allowed_opt == 'startdate')
-                     || ($allowed_opt == 'enddate')) {
-                if (isset($arr['datesGroup']))
-                    $this->option_list->$allowed_opt
-                        = $arr['datesGroup'][$allowed_opt];
-                else
-                    $this->option_list->$allowed_opt = $arr[$allowed_opt];
+        if (isset($arr['datesGroup'])) {
+            foreach(array('startdate', 'enddate') as $d) {
+                if (isset($arr['datesGroup'][$d]))
+                    $arr[$d] = $arr['datesGroup'][$d];
             }
         }
+
+        // not working 100% yet
+        //$this->search_params = new pdSearchParams($arr);
+        //$_SESSION['search_params'] = $this->search_params;
     }
 
     /**
@@ -380,9 +352,9 @@ class search_publication_db extends pdHtmlPage {
      * Performs a quick search.
      */
     function quickSearch() {
-        $this->input = $this->option_list->search;
+        $this->input = $this->search_params->search;
         $quick_search_array
-            = $this->parse_search(stripslashes($this->option_list->search));
+            = $this->parse_search(stripslashes($this->search_params->search));
 
         for ($index1 = 0; $index1 < count($quick_search_array); $index1++) {
             $union_array = NULL;
@@ -471,10 +443,10 @@ class search_publication_db extends pdHtmlPage {
         //
         // if category search found, pass on only the ids found with that match
         // with category
-        if($this->option_list->cat_id != '') {
+        if($this->search_params->cat_id != '') {
             $first_item = false;
             $temporary_array = NULL;
-            $cat_id = $this->option_list->cat_id;
+            $cat_id = $this->search_params->cat_id;
 
             $search_query = "SELECT DISTINCT pub_id FROM pub_cat WHERE cat_id="
                 . quote_smart($cat_id);
@@ -520,11 +492,11 @@ class search_publication_db extends pdHtmlPage {
         //same thing happening as category, just with each of these fields
         for ($a = 0; $a < count($pub_search); $a++) {
             $field = $pub_search[$a];
-            if ($this->option_list->$field != "") {
+            if ($this->search_params->$field != "") {
                 $first_item = false;
                 $this->input .= " ".$_POST[$field];
                 $the_search_array
-                    = $this->parse_search($this->option_list->$field);
+                    = $this->parse_search($this->search_params->$field);
                 for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
                     $union_array = NULL;
                     for ($index2 = 0; $index2 < count($the_search_array[$index1]); $index2++) {
@@ -539,21 +511,21 @@ class search_publication_db extends pdHtmlPage {
 
         // AUTHOR SELECTED SEARCH ---------------------------------------------
         /** \todo this code only handles the first author selected from the list */
-        if (($this->option_list->authorselect[0] != NULL) && ($this->option_list->authortyped == "")) {
+        if (($this->search_params->authorselect[0] != NULL) && ($this->search_params->authortyped == "")) {
             $first_item = false;
             $temporay_array = NULL;
             $search_query = "SELECT DISTINCT pub_id from pub_author "
-                . "WHERE author_id=" . quote_smart($this->option_list->authorselect[0]);
+                . "WHERE author_id=" . quote_smart($this->search_params->authorselect[0]);
             $this->add_to_array($search_query, $temporary_array);
             $this->pub_id_array = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
         }
 
         // AUTHOR TYPED SEARCH ------------------------------------------------
-        if ($this->option_list->authortyped != "") {
+        if ($this->search_params->authortyped != "") {
             $first_item = false;
             $this->input .= " ".$authortyped;
             $temporay_array = NULL;
-            $the_search_array = $this->parse_search($this->option_list->authortyped);
+            $the_search_array = $this->parse_search($this->search_params->authortyped);
             for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
                 $union_array = NULL;
                 for ($index2 = 0; $index2 < count($the_search_array[$index1]); $index2++) {
@@ -574,8 +546,13 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // DATES SEARCH --------------------------------------
-        $startdate =& $this->option_list->startdate;
-        $enddate =& $this->option_list->enddate;
+        $startdate =& $this->search_params->startdate;
+        $enddate =& $this->search_params->enddate;
+
+        if ($enddate == '') {
+            // the user did not enter an end date, default it to today
+            $enddate = date('Y-m-d');
+        }
 
         if (($startdate != $enddate)
             && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $startdate)

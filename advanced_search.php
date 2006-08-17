@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.41 2006/08/09 22:49:11 aicmltec Exp $
+// $Id: advanced_search.php,v 1.42 2006/08/17 20:34:40 aicmltec Exp $
 
 /**
  * \file
@@ -22,6 +22,7 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthorList.php';
+require_once 'includes/pdSearchParams.php';
 require_once 'includes/jscalendar.php';
 
 /**
@@ -31,15 +32,15 @@ class advanced_search extends pdHtmlPage {
     var $cat_list;
     var $category;
     var $auth_list;
-    var $search;
-    var $cat_id;
-    var $title;
-    var $authortyped;
-    var $paper;
-    var $abstract;
-    var $venue;
-    var $keywords;
-    var $authorselect;
+    //var $search;
+    //var $cat_id;
+    //var $title;
+    //var $authortyped;
+    //var $paper;
+    //var $abstract;
+    //var $venue;
+    //var $keywords;
+    //var $authorselect;
 
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
@@ -68,23 +69,31 @@ class advanced_search extends pdHtmlPage {
         $this->category = new pdCategory();
         $this->category->dbLoad($this->db, $this->cat_id);
 
-        $this->createForm();
-        $this->setFormValues();
+        $form =& $this->createForm();
 
-        // NOTE: order is important here: this must be called after creating
-        // the form elements, but before rendering them.
-        $renderer =& $this->form->defaultRenderer();
+        if ($form->validate()) {
+            $values = $form->exportValues();
+        }
+        else {
+            $this->form = $form;
+            $this->setFormValues();
 
-        $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
-        $renderer->setHeaderTemplate(
-            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+            // NOTE: order is important here: this must be called after creating
+            // the form elements, but before rendering them.
+            $renderer =& $this->form->defaultRenderer();
 
-        $this->renderer =& $renderer;
-        $this->form->accept($renderer);
-        $this->javascript();
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
+                . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
+            $this->renderer =& $renderer;
+            $this->form->accept($renderer);
+            $this->javascript();
+        }
+
         $this->db->close();
     }
 
@@ -122,6 +131,9 @@ class advanced_search extends pdHtmlPage {
             location.href
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
                 + qsString;
+        }
+
+        function reset() {
         }
         </script>
 END;
@@ -168,7 +180,8 @@ END;
             'text', 'keywords', null,
             array('size' => 60, 'maxlength' => 250));
         $kwElement[1] =& HTML_QuickForm::createElement(
-            'static', 'auth_label', null, 'seperate using semi-colon (;)');
+            'static', 'auth_label', null,
+            '<span id="small">seperate using semi-colon (;)</span>');
         $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
                         false);
 
@@ -236,39 +249,62 @@ END;
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement('submit', 'Submit', 'Search'),
-                HTML_QuickForm::createElement( 'submit', 'Clear', 'Clear')),
+                HTML_QuickForm::createElement('reset', 'Clear', 'Clear')),
             'buttonsGroup', '', '&nbsp;', false);
-        $this->form =& $form;
+        return $form;
     }
 
     /**
      * Assigns the form's values as per the HTTP GET string.
      */
     function setFormValues() {
-        $defaultValues = array(
-            'search'            => $this->search,
-            'cat_id'            => $this->cat_id,
-            'title'             => $this->title,
-            'authortyped'       => $this->authortyped,
-            'paper'             => $this->paper,
-            'abstract'          => $this->abstract,
-            'venue'             => $this->venue,
-            'keywords'          => $this->keywords);
+        if (isset($_SESSION['search_params'])) {
+            $defaultValues = array(
+                'search'            => $_SESSION['search_params']->search,
+                'cat_id'            => $_SESSION['search_params']->cat_id,
+                'title'             => $_SESSION['search_params']->title,
+                'authortyped'       => $_SESSION['search_params']->authortyped,
+                'paper'             => $_SESSION['search_params']->paper,
+                'abstract'          => $_SESSION['search_params']->abstract,
+                'venue'             => $_SESSION['search_params']->venue,
+                'keywords'          => $_SESSION['search_params']->keywords);
 
-        $defaultValues['datesGroup']['startdate']
-            = $this->datesGroup['startdate'];
-        $defaultValues['datesGroup']['enddate'] = $this->datesGroup['enddate'];
+            $defaultValues['datesGroup']['startdate']
+                = $_SESSION['search_params']->startdate;
+            $defaultValues['datesGroup']['enddate']
+                = $_SESSION['search_params']->enddate;
 
-        if (is_object($this->category) && is_array($this->category->info)) {
-            foreach ($this->category->info as $info) {
-                $defaultValues[strtolower($info->name)] = $_GET[$info->name];
+            if (count($this->authorselect) > 0)
+                $defaultValues['authorselect']
+                    =& $_SESSION['search_params']->authorselect;
+        }
+        else {
+            $defaultValues = array(
+                'search'            => $this->search,
+                'cat_id'            => $this->cat_id,
+                'title'             => $this->title,
+                'authortyped'       => $this->authortyped,
+                'paper'             => $this->paper,
+                'abstract'          => $this->abstract,
+                'venue'             => $this->venue,
+                'keywords'          => $this->keywords);
+
+            $defaultValues['datesGroup']['startdate']
+                = $this->datesGroup['startdate'];
+            $defaultValues['datesGroup']['enddate']
+                = $this->datesGroup['enddate'];
+
+            if (is_object($this->category) && is_array($this->category->info)) {
+                foreach ($this->category->info as $info) {
+                    $defaultValues[strtolower($info->name)] = $_GET[$info->name];
+                }
             }
+
+            if (count($this->authorselect) > 0)
+                $defaultValues['authorselect'] =& $this->authorselect;
         }
 
-        if (count($this->authorselect) > 0)
-            $defaultValues['authorselect'] =& $this->authorselect;
-
-        $this->form->setDefaults($defaultValues);
+        //$this->form->setConstants($defaultValues);
     }
 }
 

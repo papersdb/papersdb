@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.21 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: pdUser.php,v 1.22 2006/08/17 20:34:40 aicmltec Exp $
 
 /**
  * \file
@@ -28,6 +28,7 @@ class pdUser {
     var $access_level;
     var $collaborators;
     var $author_rank;
+    var $search_params;
 
     /**
      * Constructor.
@@ -35,6 +36,8 @@ class pdUser {
     function pdUser($obj = NULL) {
         if (!is_null($obj))
             $this->load($obj);
+
+        $this->search_params = null;
     }
 
     /**

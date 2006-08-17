@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.13 2006/07/20 05:39:33 aicmltec Exp $
+// $Id: authorselect.php,v 1.14 2006/08/17 20:34:40 aicmltec Exp $
 
 /**
  * \file
@@ -11,6 +11,12 @@
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/QuickForm/radio.php';
 
+
+function sortselect($a, $b) {
+    if (strtolower($a['text']) == strtolower($b['text'])) return 0;
+
+    return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;;
+}
 
 class authorselect extends HTML_QuickForm_advmultiselect {
     var $form_name;
@@ -67,15 +73,15 @@ class authorselect extends HTML_QuickForm_advmultiselect {
   <td>&nbsp;</td>
   <td>&nbsp;</td>
   <td>
-    <input name="which_list" value="most_used_authors" type="radio"
-           onclick="buildSelect('most_used_authors')" checked>
-      <label for="most_used_authors">Most Used Authors</label><br/>
+    <input name="which_list" value="author_list" type="radio" id="author_list"
+           onclick="buildSelect('author_list')" checked>
+      <label for="author_list">All Authors</label><br/>
     <input name="which_list" value="favorite_authors" type="radio"
            onclick="buildSelect('favorite_authors')">
       <label for="favorite_authors">Favourite Authors</label><br/>
-    <input name="which_list" value="author_list" type="radio" id="author_list"
-           onclick="buildSelect('author_list')">
-      <label for="author_list">Remaining Authors</label>
+    <input name="which_list" value="most_used_authors" type="radio"
+           onclick="buildSelect('most_used_authors')">
+      <label for="most_used_authors">Most Used Authors</label>
   </td>
 </tr>
 </table>
@@ -161,12 +167,10 @@ END;
                     $arrHtmlHidden[$key] = $option;
                 }
                 else {
-                    if (strpos($option['attr']['value'], 'most_used_authors')
-                        !== false) {
-                        // The item is *unselected* so we want to put it in
-                        // the 'unselected' multi-select
-                        $arrHtmlUnselected[] = $option;
-                    }
+                    // The item is *unselected* so we want to put it in
+                    // the 'unselected' multi-select
+                    $arrHtmlUnselected[] = $option;
+
                     // Add it to the hidden multi-select as 'unselected'
                     $arrHtmlHidden[$append] = $option;
                     $append++;
@@ -178,6 +182,8 @@ END;
         }
 
         // The 'unselected' multi-select which appears on the left
+        uasort($arrHtmlUnselected, sortselect);
+
         $strHtmlUnselected = "<select$attrUnselected>\n";
         if (count($arrHtmlUnselected) > 0) {
             foreach ($arrHtmlUnselected as $data) {
@@ -338,7 +344,7 @@ END;
 
             availAuthors.options.length = 0;
             for (i=0; i < allAuthors.length; i++) {
-                if (allAuthors.options[i].value.match(re)) {
+                if ((list == "author_list") || allAuthors.options[i].value.match(re)) {
                     // do not add those already selected
                     isSelected = false;
                     for (j=0; j < selectedAuthors.length; j++) {
@@ -351,6 +357,7 @@ END;
                     }
                 }
             }
+            {$this->_jsPrefix}sortList(availAuthors, {$this->_jsPrefix}compareText);
         }
 
         function {$jsfuncName}(action) {
