@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.64 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: add_publication.php,v 1.65 2006/08/17 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -824,9 +824,9 @@ class ActionProcess extends HTML_QuickForm_Action {
                 $pub->addVenue($db, $values['venue_id']);
             if ($values['cat_id'] > 0)
                 $pub->addCategory($db, $values['cat_id']);
-
-            $pub->submit = $_SESSION['user']->name;
         }
+
+        $pub->submit = $_SESSION['user']->name;
 
         if (count($values['authors']) > 0) {
             $pub->clearAuthors();

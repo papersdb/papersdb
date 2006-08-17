@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.17 2006/08/08 22:14:36 aicmltec Exp $
+// $Id: login.php,v 1.18 2006/08/17 23:01:08 aicmltec Exp $
 
 /**
  * \file
@@ -161,9 +161,12 @@ class login extends pdHtmlPage {
 
                 $access_level = 0;
 
-                mail(DB_ADMIN, 'PapersDB: Login Request',
-                     'User with login ' . $values['loginid'] . ' has requested '
-                     . 'editor access_level for PapersDB.');
+                // only send email if running the real papersdb
+                if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
+                    mail(DB_ADMIN, 'PapersDB: Login Request',
+                         'User with login ' . $values['loginid']
+                         . ' has requested editor access_level for PapersDB.');
+                }
 
                 $this->contentPre = '<h2>Login Request Submitted</h1>'
                     . 'A request to create your login <b>'

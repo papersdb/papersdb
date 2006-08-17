@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.42 2006/08/09 19:50:27 aicmltec Exp $
+// $Id: pdPublication.php,v 1.43 2006/08/17 23:01:09 aicmltec Exp $
 
 /**
  * \file
@@ -323,7 +323,8 @@ class pdPublication {
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
                      'updated'    => date("Y-m-d"),
-                     'venue_id'   => $this->venue_id);
+                     'venue_id'   => $this->venue_id,
+                     'submit'     => $this->submit);
 
         if ($this->venue->venue_id != '') {
             $arr['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
@@ -337,9 +338,6 @@ class pdPublication {
                         'pdPublication::dbSave');
         }
         else {
-            // only want to keep track of the original user that submitted the
-            // publication
-            $arr['submit'] = $this->submit;
 
             $db->insert('publication', $arr, 'pdPublication::dbSave');
             $this->pub_id = $db->insertId();
