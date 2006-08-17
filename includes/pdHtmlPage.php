@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.29 2006/08/09 22:46:58 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.30 2006/08/17 16:48:55 aicmltec Exp $
 
 /**
  * \file
@@ -266,7 +266,24 @@ class pdHtmlPage {
         else
             $cssFile = 'style.css';
 
-        $result .= '<link rel="stylesheet" href="' . $cssFile . '" /></head>';
+        $result .= '<link rel="stylesheet" href="' . $cssFile . '" />';
+
+        // set up for google analytics
+        //
+        // note this code is added only on the real site
+        if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
+            $result .= '<link rel="stylesheet" href="' . $cssFile . '" />'
+                . '<script src="http://www.google-analytics.com/urchin.js" '
+                . 'type="text/javascript">'
+                . '</script>'
+                . '<script type="text/javascript">'
+                . '_uacct = "UA-584286-1";'
+                . 'urchinTracker();'
+                . '</script>';
+        }
+
+        $result .= '</head>';
+
         return $result;
     }
 
