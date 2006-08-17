@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.33 2006/08/17 18:18:50 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.34 2006/08/17 18:20:36 aicmltec Exp $
 
 /**
  * \file
@@ -118,14 +118,14 @@ class pdHtmlPage {
         //
         // note this code is added only on the real site
         if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-            $result .= '<link rel="stylesheet" href="' . $cssFile . '" />'
-                . '<script src="http://www.google-analytics.com/urchin.js" '
-                . 'type="text/javascript">'
-                . '</script>'
-                . '<script type="text/javascript">'
-                . '_uacct = "UA-584619-1";'
-                . 'urchinTracker();'
-                . '</script>';
+            $result
+                .= '<script src="http://www.google-analytics.com/urchin.js" '
+                . 'type="text/javascript">' . "\n"
+                . '</script>' . "\n"
+                . '<script type="text/javascript">' . "\n"
+                . '_uacct = "UA-584619-1";' . "\n"
+                . 'urchinTracker();' . "\n"
+                . '</script>' . "\n";
         }
 
         $result .= '</body></html>';
