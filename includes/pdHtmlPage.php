@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.30 2006/08/17 16:48:55 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.31 2006/08/17 16:55:48 aicmltec Exp $
 
 /**
  * \file
@@ -277,7 +277,7 @@ class pdHtmlPage {
                 . 'type="text/javascript">'
                 . '</script>'
                 . '<script type="text/javascript">'
-                . '_uacct = "UA-584286-1";'
+                . '_uacct = "UA-584619-1";'
                 . 'urchinTracker();'
                 . '</script>';
         }
