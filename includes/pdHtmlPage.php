@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.35 2006/08/18 19:45:34 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.36 2006/08/18 22:35:32 aicmltec Exp $
 
 /**
  * \file
@@ -297,7 +297,10 @@ class pdHtmlPage {
             if ($info[2] <= PD_HTML_PAGE_NAV_MENU_NEVER) continue;
 
             if ((($access_level > 0)
-                 && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS))
+                 && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS)
+                 && ($info[2] < PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN))
+                || (($access_level >= 2)
+                    && ($info[2] == PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN))
                 || (($access_level == 0)
                     && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
                 if ($name == $this->page_id) {
