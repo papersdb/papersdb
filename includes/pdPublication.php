@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.44 2006/08/18 19:45:34 aicmltec Exp $
+// $Id: pdPublication.php,v 1.45 2006/08/18 21:56:03 aicmltec Exp $
 
 /**
  * \file
@@ -686,8 +686,12 @@ class pdPublication {
 
             $citation .= $this->venue->name;
 
-            if ($this->venue->url != '')
+            if (($this->venue->url != '')
+                || ((strpos($this->venue->name, '<a href=') >= 0)
+                    && (strpos($this->venue->name, '</a>') === false))) {
+                // some venue names don't close the <a href> tag
                 $citation .= '</a>';
+            }
 
             if ($this->venue->type == 'Conference') {
                 if (isset($this->venue->occurrence[$pub_date[0]])) {

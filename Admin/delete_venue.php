@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.6 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: delete_venue.php,v 1.7 2006/08/18 21:56:03 aicmltec Exp $
 
 /**
  * \file
@@ -63,8 +63,13 @@ class delete_venue extends pdHtmlPage {
                 . '</b> successfully removed from database.';
         }
         else {
+            if ($venue->title != '')
+                $disp_name = $venue->title;
+            else
+                $disp_name = $venue->name;
+
             $this->contentPre .= '<h3>Confirm</h3><p/>'
-                . 'Delete Venue <b>' . $venue->title
+                . 'Delete Venue <b>' . $disp_name
                 . '</b> from the database?';
 
             $this->form =& $form;
