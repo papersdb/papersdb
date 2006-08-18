@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.34 2006/08/17 18:20:36 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.35 2006/08/18 19:45:34 aicmltec Exp $
 
 /**
  * \file
@@ -21,6 +21,7 @@ define('PD_HTML_PAGE_NAV_MENU_NEVER',          0);
 define('PD_HTML_PAGE_NAV_MENU_ALWAYS',         1);
 define('PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ',  2);
 define('PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED', 3);
+define('PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN',    4);
 
 
 /**
@@ -83,10 +84,108 @@ class pdHtmlPage {
         }
     }
 
+
+
+    // private date to this class
+    //
+    // used to build the navigation menu and other things.
+    //
+    // kinda kludgey but works
+    //
+    var $page_info = array(
+        'home'               => array('Home', 'index.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'add_publication'    => array('Add Publication',
+                                      'Admin/add_publication.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'add_author'         => array('Add Author',
+                                      'Admin/add_author.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'add_category'       => array('Add Category', 'Admin/add_category.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'delete_publication' => array('Delete Publication',
+                                      'Admin/delete_pbublication.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_author'      => array('Delete Author',
+                                      'Admin/delete_author.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_category'    => array('Delete Category',
+                                      'Admin/delete_category.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_venue'       => array('Delete Venue', 'Admin/delete_venue.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'delete_interest'    => array('Delete Interest',
+                                      'Admin/delete_interest.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'edit_publication'    => array('Edit Publication',
+                                      'Admin/add_publication.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'edit_user'          => array('User Preferences', 'Admin/edit_user.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'advanced_search'    => array('Advanced Search', 'advanced_search.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'search_results'    => array('Search Results',
+                                     'search_publication_db.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'all_publications'   => array('All Publications', 'list_publication.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'all_authors'        => array('All Authors', 'list_author.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
+        'all_categories'     => array('All Categories', 'list_categories.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'all_venues'         => array('All Venues', 'list_venues.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'logout'             => array('Logout', 'logout.php',
+                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
+        'login'              => array('Login or Register', 'login.php',
+                                      PD_HTML_PAGE_NAV_MENU_ALWAYS),
+        'view_publications'  => array('View Publication',
+                                      'view_publication.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'view_authors'       => array('Author Information',
+                                      'view_author.php',
+                                      PD_HTML_PAGE_NAV_MENU_NEVER),
+        'check_attachments'  => array('Check Attachments',
+                                      'diag/check_attachments.php',
+                                      PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN),
+
+        );
+
     function htmlPageHeader() {
-        $result = $this->htmlHeader();
-        $result .= $this->js;
-        $result .= '<body>';
+        $result =
+            "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
+            . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
+            . "\"http://www.w3.org/TR/html4/strict.dtd\">\n"
+            . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
+            . 'lang="en">'
+            . '<head>'
+            . '<title>';
+
+        // change the HTML title tag if this is the index page
+        if ($this->pageTitle == 'Home')
+            $result .= 'PapersDB';
+        else
+            $result .= $this->pageTitle;
+
+        $result .= '</title>'
+            . '<meta http-equiv="Content-Type" '
+            . 'content="text/html; charset=iso-8859-1" />';
+
+        if ($this->redirectUrl != null) {
+            $result .= '<meta http-equiv="refresh" content="5;url='
+                . $this->redirectUrl . '" />';
+        }
+
+        if (strstr($this->relativeUrl, '/'))
+            $cssFile = '../style.css';
+        else
+            $cssFile = 'style.css';
+
+        $result .= '<link rel="stylesheet" href="' . $cssFile . '" /></head>'
+            . $this->js
+            . '<body>';
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
@@ -183,104 +282,6 @@ class pdHtmlPage {
                 $result .= $this->contentPost;
         }
         $result .= $this->htmlPageFooter();
-
-        return $result;
-    }
-
-    // private date to this class
-    //
-    // used to build the navigation menu and other things.
-    //
-    // kinda kludgey but works
-    //
-    var $page_info = array(
-        'add_publication'    => array('Add Publication',
-                                      'Admin/add_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_author'         => array('Add Author',
-                                      'Admin/add_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_category'       => array('Add Category', 'Admin/add_category.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'delete_publication' => array('Delete Publication',
-                                      'Admin/delete_pbublication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_author'      => array('Delete Author',
-                                      'Admin/delete_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_category'    => array('Delete Category',
-                                      'Admin/delete_category.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_venue'       => array('Delete Venue', 'Admin/delete_venue.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_interest'    => array('Delete Interest',
-                                      'Admin/delete_interest.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'edit_publication'    => array('Edit Publication',
-                                      'Admin/add_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'edit_user'          => array('User Preferences', 'Admin/edit_user.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'advanced_search'    => array('Advanced Search', 'advanced_search.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'search_results'    => array('Search Results',
-                                     'search_publication_db.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'all_publications'   => array('All Publications', 'list_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'all_authors'        => array('All Authors', 'list_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'all_categories'     => array('All Categories', 'list_categories.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'all_venues'         => array('All Venues', 'list_venues.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'logout'             => array('Logout', 'logout.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'login'              => array('Login or Register', 'login.php',
-                                      PD_HTML_PAGE_NAV_MENU_ALWAYS),
-        'home'               => array('Home', 'index.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'view_publications'  => array('View Publication',
-                                      'view_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'view_authors'       => array('Author Information',
-                                      'view_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER)
-        );
-
-    function htmlHeader() {
-        $result =
-            "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
-            . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
-            . "\"http://www.w3.org/TR/html4/strict.dtd\">\n"
-            . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
-            . 'lang="en">'
-            . '<head>'
-            . '<title>';
-
-        // change the HTML title tag if this is the index page
-        if ($this->pageTitle == 'Home')
-            $result .= 'PapersDB';
-        else
-            $result .= $this->pageTitle;
-
-        $result .= '</title>'
-            . '<meta http-equiv="Content-Type" '
-            . 'content="text/html; charset=iso-8859-1" />';
-
-        if ($this->redirectUrl != null) {
-            $result .= '<meta http-equiv="refresh" content="5;url='
-                . $this->redirectUrl . '" />';
-        }
-
-        if (strstr($this->relativeUrl, '/'))
-            $cssFile = '../style.css';
-        else
-            $cssFile = 'style.css';
-
-        $result .= '<link rel="stylesheet" href="' . $cssFile . '" /></head>';
 
         return $result;
     }

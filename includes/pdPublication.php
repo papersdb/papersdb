@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.43 2006/08/17 23:01:09 aicmltec Exp $
+// $Id: pdPublication.php,v 1.44 2006/08/18 19:45:34 aicmltec Exp $
 
 /**
  * \file
@@ -521,6 +521,7 @@ class pdPublication {
     }
 
     function dbUpdatePaper(&$db, $paper) {
+        $this->paper = $paper;
         $db->update('publication', array('paper' => $paper),
                     array('pub_id' => $this->pub_id),
                     'pdPublication::updatePaper');
