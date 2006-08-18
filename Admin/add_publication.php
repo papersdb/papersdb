@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.65 2006/08/17 23:01:09 aicmltec Exp $
+// $Id: add_publication.php,v 1.66 2006/08/18 15:35:52 aicmltec Exp $
 
 /**
  * \file
@@ -70,16 +70,20 @@ class add_publication extends pdHtmlPage {
 
         var authorsHelp=
             "This field is to store the author(s) of your document in the "
-            + "database. <p/>"
+            + "database. <br/>"
             + "Select the author(s) for your document from the list on the "
             + "right. You can select multiple authors by holding down the "
-            + "control key and clicking.<p/>"
-            + "Authors have been categorized as: most used, favourite, and "
-            + "remaining. Your most used authors are determined from your "
-            + "history of adding documents to the database. Your favourite "
-            + "authors can be selected in <b>User Preferences</b>. The "
-            + "remaining authors are the ones that fit neither of these "
-            + "previous 2 categories.";
+            + "control key and clicking.<br/>"
+            + "Authors have been categorized as: all authors, favourite, and "
+            + "most used. Your favourite authors can be selected in <b>User "
+            + "Preferences</b>. Your most used authors are determined from "
+            + "your history of adding documents to the database.<br/>"
+            + "If an author is not present in any list, continue adding / "
+            + "modifying the publication. After submitting the changes "
+            + "to the publication, add the new authors (using the "
+            + "corresponding page) and then return to edit this publication "
+            + "and add these new authors."
+            ;
 
         var abstractHelp=
             "Abstract is an area for you to provide an abstract of the document you "
@@ -196,15 +200,23 @@ class pubStep1Page extends HTML_QuickForm_Page {
             asort($most_used_authors);
         }
 
-        $this->addElement('authorselect', 'authors',
-                          $masterPage->helpTooltip('Author(s)',
-                                                   'authorsHelp') . ':',
-                          array('form_name' => $this->_attributes['name'],
-                                'author_list' => $all_authors,
-                                'favorite_authors' => $user->collaborators,
-                                'most_used_authors' => $most_used_authors),
-                          array('class' => 'pool',
-                                'style' => 'width:150px;'));
+        $this->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'static', 'auth_help', null,
+                    '<span id="small">Add new authors after submitting '
+                    . 'changes to this publication</span>'),
+                HTML_QuickForm::createElement(
+                    'authorselect', 'authors', null,
+                    array('form_name' => $this->_attributes['name'],
+                          'author_list' => $all_authors,
+                          'favorite_authors' => $user->collaborators,
+                          'most_used_authors' => $most_used_authors),
+                    array('class' => 'pool',
+                          'style' => 'width:150px;'))),
+            'add_auth_group', $masterPage->helpTooltip('Author(s)',
+                                                       'authorsHelp') . ':',
+            '<br/>', false);
 
         $this->addElement('textarea', 'abstract',
                           $masterPage->helpTooltip('Abstract',
