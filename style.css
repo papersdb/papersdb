@@ -229,6 +229,16 @@ div#footer a:link {
   color: #CCCCCC;
 }
 
+div#footer2 {
+  font-weight:bold;
+  width:800px;
+  padding:0 0;
+  font-size:.7em;
+  text-align:left;
+  background-color: #F2F2F2;
+  color: #FFFFFF;
+}
+
 
 .ualogo {
   line-height : 14px;

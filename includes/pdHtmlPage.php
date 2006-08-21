@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.36 2006/08/18 22:35:32 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.37 2006/08/21 15:57:49 aicmltec Exp $
 
 /**
  * \file
@@ -296,6 +296,12 @@ class pdHtmlPage {
         foreach ($this->page_info as $name => $info) {
             if ($info[2] <= PD_HTML_PAGE_NAV_MENU_NEVER) continue;
 
+            // the first AND statement displays the nav menu links
+            // for someone with edit privilidges
+            //
+            // the second AND takes care of displaying the admin links
+            //
+            // the third and takes care of displaying the guest links
             if ((($access_level > 0)
                  && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS)
                  && ($info[2] < PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN))
@@ -411,6 +417,8 @@ END;
             <div id="footer">
             For any questions/comments about the Papers Database please e-mail
             <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
+            </div>
+            <div id="footer2">
             <div class="ualogo">
             <a href="http://www.ualberta.ca">
             <img src="{$uofa_logo}" alt="University of Alberta Logo" />
