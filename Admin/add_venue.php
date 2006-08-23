@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.17 2006/08/23 20:33:52 aicmltec Exp $
+// $Id: add_venue.php,v 1.18 2006/08/23 20:40:50 aicmltec Exp $
 
 /**
  * \file
@@ -188,14 +188,6 @@ class add_venue extends pdHtmlPage {
 
                     $form->addElement('header', null, 'Occurrence ' . ($i + 1));
                     $form->addElement('text',
-                                      'newOccurrenceYear[' . $i . ']',
-                                      'Year:',
-                                      array('size' => 50, 'maxlength' => 250));
-                    $form->addRule('newOccurrenceYear[' . $i . ']',
-                                   'venue occurrence ' . ($i + 1)
-                                   . ' year cannot be left blank',
-                                   'required', null, 'client');
-                    $form->addElement('text',
                                       'newOccurrenceLocation[' . $i . ']',
                                       'Location:',
                                       array('size' => 50, 'maxlength' => 250));
@@ -260,8 +252,7 @@ class add_venue extends pdHtmlPage {
 
             $venue->deleteOccurrences();
             for ($i = 0; $i < $values['numNewOccurrences']; $i++) {
-                $venue->addOccurrence($values['newOccurrenceYear'][$i],
-                                      $values['newOccurrenceLocation'][$i],
+                $venue->addOccurrence($values['newOccurrenceLocation'][$i],
                                       $values['newOccurrenceDate'][$i],
                                       $values['newOccurrenceUrl'][$i]);
             }
@@ -290,8 +281,6 @@ class add_venue extends pdHtmlPage {
                              'venue_date' => $venue->date);
                 if (isset($_GET['numNewOccurrences'])) {
                     for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
-                        $arr['newOccurrenceYear'][$c]
-                            = $_GET['newOccurrenceYear'][$c];
                         $arr['newOccurrenceLocation'][$c]
                             = $_GET['newOccurrenceLocation'][$c];
                         $arr['newOccurrenceDate'][$c]
@@ -303,7 +292,6 @@ class add_venue extends pdHtmlPage {
                 else if (count($venue->occurrences) > 0) {
                     $c = 0;
                     foreach ($venue->occurrences as $o) {
-                        $arr['newOccurrenceYear'][$c] = $o->year;
                         $arr['newOccurrenceLocation'][$c] = $o->location;
                         $arr['newOccurrenceDate'][$c] = $o->date;
                         $arr['newOccurrenceUrl'][$c] = $o->url;
@@ -405,13 +393,6 @@ class add_venue extends pdHtmlPage {
                     else if (element.name == "numNewOccurrences") {
                         numOccur = parseInt(element.value) - 1;
                         qsArray.push(element.name + "=" + numOccur);
-                    }
-                    else if (element.name.indexOf("newOccurrenceYear") >= 0) {
-                        if (element.name != "newOccurrenceYear[" + num + "]") {
-                            qsArray.push("newOccurrenceYear[" + indexYear + "]="
-                                         + element.value);
-                            indexYear++;
-                        }
                     }
                     else if (element.name.indexOf("newOccurrenceLocation") >= 0) {
                         if (element.name != "newOccurrenceLocation[" + num + "]") {

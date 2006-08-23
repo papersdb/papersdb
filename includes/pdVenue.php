@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.10 2006/08/23 20:33:52 aicmltec Exp $
+// $Id: pdVenue.php,v 1.11 2006/08/23 20:40:50 aicmltec Exp $
 
 /**
  * \file
@@ -99,7 +99,6 @@ class pdVenue {
         $arr = array();
         foreach ($this->occurrences as $o) {
             array_push($arr, array('venue_id' => $this->venue_id,
-                                   'year'     => $o->year,
                                    'location' => $o->location,
                                    'date'     => $o->date,
                                    'url'      => $o->url));
@@ -132,12 +131,11 @@ class pdVenue {
         }
     }
 
-    function addOccurrence($year, $location, $date, $url) {
-        assert('$year != ""');
+    function addOccurrence($location, $date, $url) {
+        assert('$location != ""');
         assert('$this->type == "Conference"');
 
         $o = new stdClass;
-        $o->year = $year;
         $o->location = $location;
         $o->date = $date;
         $o->url = $url;
@@ -161,7 +159,7 @@ class pdVenue {
 
         if (count($this->occurrences) > 0) {
             foreach ($this->occurrences as $o) {
-                $str .= '(' . $o->year;
+                $str .= '(' . $o->date;
                 if ($o->location != '')
                     $str .= ', ' . $o->location;
                 $str .= ') ';
