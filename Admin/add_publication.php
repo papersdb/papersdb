@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.66 2006/08/18 15:35:52 aicmltec Exp $
+// $Id: add_publication.php,v 1.67 2006/08/25 22:09:08 aicmltec Exp $
 
 /**
  * \file
@@ -36,6 +36,10 @@ class add_publication extends pdHtmlPage {
             parent::pdHtmlPage('edit_publication');
         else
             parent::pdHtmlPage('add_publication');
+
+        $this->navMenuItemEnable('add_author', 0);
+        $this->navMenuItemEnable('add_category', 0);
+        $this->navMenuItemEnable('add_venue', 0);
 
         if ($access_level <= 0) {
             $this->loginError = true;

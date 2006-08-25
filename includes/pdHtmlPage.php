@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.37 2006/08/21 15:57:49 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.38 2006/08/25 22:09:08 aicmltec Exp $
 
 /**
  * \file
@@ -10,18 +10,13 @@
 
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
+require_once 'includes/pdNavMenu.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/QuickForm/Controller.php';
 require_once 'HTML/QuickForm/Action/Display.php';
 require_once 'HTML/Table.php';
-
-define('PD_HTML_PAGE_NAV_MENU_NEVER',          0);
-define('PD_HTML_PAGE_NAV_MENU_ALWAYS',         1);
-define('PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ',  2);
-define('PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED', 3);
-define('PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN',    4);
 
 
 /**
@@ -35,7 +30,7 @@ define('PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN',    4);
  */
 class pdHtmlPage {
     var $page_id;
-    var $pageTitle;
+    var $page_title;
     var $relativeUrl;
     var $redirectUrl;
     var $redirectTimeout;
@@ -52,17 +47,20 @@ class pdHtmlPage {
     var $useStdLayout;
     var $hasHelpTooltips;
     var $form_controller;
+    var $nav_menu;
 
     /**
      * Constructor.
      */
     function pdHtmlPage($page_id, $redirectUrl = null, $useStdLayout = true) {
+        $this->nav_menu = new pdNavMenu();
+
         if (($page_id != null) && ($page_id != '')
-            && (isset($this->page_info[$page_id]))) {
+            && (isset($this->nav_menu->nav_items[$page_id]))) {
             $this->page_id     = $page_id;
-            $this->pageTitle   = $this->page_info[$page_id][0];
-            $this->relativeUrl = $this->page_info[$page_id][1];
-            $this->loginLevel  = $this->page_info[$page_id][2];
+            $this->page_title   = $this->nav_menu->nav_items[$page_id]->page_title;
+            $this->relativeUrl = $this->nav_menu->nav_items[$page_id]->url;
+            $this->loginLevel  = $this->nav_menu->nav_items[$page_id]->access_level;
         }
 
         $this->redirectUrl     = $redirectUrl;
@@ -85,74 +83,6 @@ class pdHtmlPage {
     }
 
 
-
-    // private date to this class
-    //
-    // used to build the navigation menu and other things.
-    //
-    // kinda kludgey but works
-    //
-    var $page_info = array(
-        'home'               => array('Home', 'index.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'add_publication'    => array('Add Publication',
-                                      'Admin/add_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_author'         => array('Add Author',
-                                      'Admin/add_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_category'       => array('Add Category', 'Admin/add_category.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'delete_publication' => array('Delete Publication',
-                                      'Admin/delete_pbublication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_author'      => array('Delete Author',
-                                      'Admin/delete_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_category'    => array('Delete Category',
-                                      'Admin/delete_category.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_venue'       => array('Delete Venue', 'Admin/delete_venue.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'delete_interest'    => array('Delete Interest',
-                                      'Admin/delete_interest.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'edit_publication'    => array('Edit Publication',
-                                      'Admin/add_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'edit_user'          => array('User Preferences', 'Admin/edit_user.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'advanced_search'    => array('Advanced Search', 'advanced_search.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'search_results'    => array('Search Results',
-                                     'search_publication_db.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'all_publications'   => array('All Publications', 'list_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'all_authors'        => array('All Authors', 'list_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_NOT_REQ),
-        'all_categories'     => array('All Categories', 'list_categories.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'all_venues'         => array('All Venues', 'list_venues.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'logout'             => array('Logout', 'logout.php',
-                                      PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED),
-        'login'              => array('Login or Register', 'login.php',
-                                      PD_HTML_PAGE_NAV_MENU_ALWAYS),
-        'view_publications'  => array('View Publication',
-                                      'view_publication.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'view_authors'       => array('Author Information',
-                                      'view_author.php',
-                                      PD_HTML_PAGE_NAV_MENU_NEVER),
-        'check_attachments'  => array('Check Attachments',
-                                      'diag/check_attachments.php',
-                                      PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN),
-
-        );
-
     function htmlPageHeader() {
         $result =
             "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
@@ -164,10 +94,10 @@ class pdHtmlPage {
             . '<title>';
 
         // change the HTML title tag if this is the index page
-        if ($this->pageTitle == 'Home')
+        if ($this->page_title == 'Home')
             $result .= 'PapersDB';
         else
-            $result .= $this->pageTitle;
+            $result .= $this->page_title;
 
         $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
@@ -293,8 +223,9 @@ class pdHtmlPage {
         if (isset($this->page_id) && strstr($this->relativeUrl, '/'))
             $url_prefix = '../';
 
-        foreach ($this->page_info as $name => $info) {
-            if ($info[2] <= PD_HTML_PAGE_NAV_MENU_NEVER) continue;
+        foreach ($this->nav_menu->nav_items as $page_id => $item) {
+            if (!$item->enabled || ($item->access_level <= PD_NAV_MENU_NEVER))
+                continue;
 
             // the first AND statement displays the nav menu links
             // for someone with edit privilidges
@@ -303,30 +234,27 @@ class pdHtmlPage {
             //
             // the third and takes care of displaying the guest links
             if ((($access_level > 0)
-                 && ($info[2] > PD_HTML_PAGE_NAV_MENU_ALWAYS)
-                 && ($info[2] < PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN))
+                 && ($item->access_level > PD_NAV_MENU_ALWAYS)
+                 && ($item->access_level < PD_NAV_MENU_LEVEL_ADMIN))
                 || (($access_level >= 2)
-                    && ($info[2] == PD_HTML_PAGE_NAV_MENU_LEVEL_ADMIN))
+                    && ($item->access_level == PD_NAV_MENU_LEVEL_ADMIN))
                 || (($access_level == 0)
-                    && ($info[2] < PD_HTML_PAGE_NAV_MENU_LOGIN_REQUIRED))) {
-                if ($name == $this->page_id) {
-                    $options[$info[0]] = '';
-                }
-                else if (($this->page_id != '')
-                         && (strstr($this->relativeUrl, '/')))
-                    $options[$info[0]] = $url_prefix . $info[1];
+                    && ($item->access_level < PD_NAV_MENU_LOGIN_REQUIRED))) {
+
+                if ($page_id == $this->page_id)
+                    $options[$item->page_title] = '';
                 else
-                    $options[$info[0]] = $info[1];
+                    $options[$item->page_title] = $url_prefix . $item->url;
 
                 // add redirection option to the login URL
                 //
                 // note: only add it if not at the login page
-                if (($name == 'login')
+                if (($page_id == 'login')
                     && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
-                    $options[$info[0]] .= '?redirect=' . $_SERVER['PHP_SELF'];
+                    $options[$item->page_title] .= '?redirect=' . $_SERVER['PHP_SELF'];
 
                     if ($_SERVER['QUERY_STRING'] != '')
-                        $options[$info[0]] .= '?' . $_SERVER['QUERY_STRING'];
+                        $options[$item->page_title] .= '?' . $_SERVER['QUERY_STRING'];
                 }
             }
         }
@@ -463,6 +391,11 @@ END;
         $form->addElement('submit', 'Quick', 'Search');
 
         return $form;
+    }
+
+    function navMenuItemEnable($page_id, $enable) {
+        assert('isset($this->nav_menu->nav_items[$page_id])');
+        $this->nav_menu->nav_items[$page_id] = $enable;
     }
 }
 
