@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.26 2006/08/25 19:00:00 aicmltec Exp $
+// $Id: add_author.php,v 1.27 2006/08/25 19:37:00 aicmltec Exp $
 
 /**
  * \file
@@ -14,6 +14,7 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 
+// this is just a stub, see javascript author_check() for the real code
 function author_check() {
     return true;
 }
@@ -81,6 +82,7 @@ class add_author extends pdHtmlPage {
                           array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
 
         $form->registerRule('author_check', 'callback', 'author_check');
+        // author_check() is actually implemented in javascript
         $form->addRule(array('firstname', 'lastname'),
                        'First and last name: '
                        . 'A similar author already exists in the database',
@@ -254,7 +256,7 @@ class add_author extends pdHtmlPage {
         function author_check(name, num) {
             if (name.length != 2) return false;
 
-            var newAuthorName = name[1] + ", " + name[0][0];
+            var newAuthorName = name[1] + ", " + name[0].substr(0, 1);
             var form = document.forms["authorForm"];
             var authors_in_db = form.elements["authors_in_db"];
             var authName;
