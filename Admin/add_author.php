@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.25 2006/08/16 17:47:32 aicmltec Exp $
+// $Id: add_author.php,v 1.26 2006/08/25 19:00:00 aicmltec Exp $
 
 /**
  * \file
@@ -13,6 +13,10 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
+
+function author_check() {
+    return true;
+}
 
 /**
  * Renders the whole page.
@@ -71,8 +75,17 @@ class add_author extends pdHtmlPage {
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('lastname', 'a last name is required', 'required', null,
                        'client');
-        $form->addRule('firstname', 'the lst name cannot contain punctuation',
-                       'lettersonly', null, 'client');
+
+        $auth_list = new pdAuthorList($db);
+        $form->addElement('select', 'authors_in_db', null, $auth_list->list,
+                          array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
+
+        $form->registerRule('author_check', 'callback', 'author_check');
+        $form->addRule(array('firstname', 'lastname'),
+                       'First and last name: '
+                       . 'A similar author already exists in the database',
+                       'author_check', true, 'client');
+
         $form->addElement('text', 'title',
                           $this->helpTooltip('Title', 'authTitleHelp') . ':',
                           array('size' => 50, 'maxlength' => 250));
@@ -236,6 +249,26 @@ class add_author extends pdHtmlPage {
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
                 + qsString;
         }
+
+        // client side check to make sure new author not already in DB.
+        function author_check(name, num) {
+            if (name.length != 2) return false;
+
+            var newAuthorName = name[1] + ", " + name[0][0];
+            var form = document.forms["authorForm"];
+            var authors_in_db = form.elements["authors_in_db"];
+            var authName;
+
+            newAuthorName = newAuthorName.toLowerCase();
+
+            for (i=0; i < authors_in_db.length; i++) {
+                authName = authors_in_db.options[i].text.toLowerCase();
+                if (authName.indexOf(newAuthorName) >= 0)
+                    return false;
+            }
+            return true;
+        }
+
         </script>
 JS_END;
     }
