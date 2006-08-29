@@ -12,6 +12,7 @@
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthorList.php';
+require_once 'includes/pdAuthor.php';
 
 /**
  * Renders the whole page.
@@ -21,10 +22,10 @@ class list_author extends pdHtmlPage {
         global $access_level;
 
         parent::pdHtmlPage('all_authors');
-        $this->db =& dbCreate();
+        $db =& dbCreate();
 
         // Performing SQL query
-        $auth_list = new pdAuthorList($this->db);
+        $auth_list = new pdAuthorList($db);
 
         $this->contentPre .= "<h2><u>Authors<h2>";
 
@@ -36,9 +37,22 @@ class list_author extends pdHtmlPage {
 
         if (count($auth_list->list) > 0) {
             foreach ($auth_list->list as $author_id => $name) {
+                $author = new pdAuthor();
+                $author->dbLoad($db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
+
                 unset($cells);
-                $cells[] = '<a href="view_author.php?author_id='
+                $info = '<a href="view_author.php?author_id='
                     . $author_id . '">' . $name . '</a>';
+
+                if ($author->title != '')
+                    $info .= '<br/><span id="small">'
+                        . $author->title . '</span>';
+
+                if ($author->organization != '')
+                    $info .= '<br/><span id="small">'
+                        . $author->organization . '</span>';
+
+                $cells[] = $info;
 
                 $cells[] = '<a href="view_author.php?author_id='
                     . $author_id . '">'
@@ -84,7 +98,7 @@ class list_author extends pdHtmlPage {
         }
 
         $this->table =& $table;
-        $this->db->close();
+        $db->close();
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.9 2006/08/16 17:47:32 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.10 2006/08/29 21:15:52 aicmltec Exp $
 
 /**
  * \file
@@ -23,8 +23,8 @@ class pdAuthorList {
 
         if (($firstname != null) && ($lastname != null)) {
             $name = '%' . $lastname . ', ' . $firstname[0] . '%';
-            $q = $db->select('author', '*', array('name LIKE ' .
-                                                  $db->addQuotes($name)),
+            $q = $db->select('author', '*',
+                             array('name LIKE ' . $db->addQuotes($name)),
                              "pdAuthorList::pdAuthorList");
             if ($q === false) return false;
         }
