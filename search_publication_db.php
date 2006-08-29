@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.30 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.31 2006/08/29 16:04:59 aicmltec Exp $
 
 /**
  * \file
@@ -68,6 +68,7 @@ class search_publication_db extends pdHtmlPage {
 
         $search_url = $protocol."://".$_SERVER['SERVER_NAME'].$port.$location."?";
 
+        $this->search_params = new pdSearchParams($_GET);
         $search_url .= $this->search_params->paramsToHtmlQueryStr();
 
         if($this->search_params->search != "") {
