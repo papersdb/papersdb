@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.27 2006/08/25 19:37:00 aicmltec Exp $
+// $Id: add_author.php,v 1.28 2006/08/29 22:04:38 aicmltec Exp $
 
 /**
  * \file
@@ -23,21 +23,20 @@ function author_check() {
  * Renders the whole page.
  */
 class add_author extends pdHtmlPage {
+    var $author_id = null;
+
     function add_author() {
         global $access_level;
-
-        parent::pdHtmlPage('add_author');
-
-        if ($access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
 
         $db =& dbCreate();
         $author = new pdAuthor();
 
-        if (isset($_GET['author_id']) && ($_GET['author_id'] != '')) {
+        if (isset($_GET['author_id']) && ($_GET['author_id'] != ''))
             $this->author_id = intval($_GET['author_id']);
+        else if (isset($_POST['author_id']) && ($_POST['author_id'] != ''))
+            $this->author_id = intval($_POST['author_id']);
+
+        if ($this->author_id != null) {
             $result = $author->dbLoad($db, $this->author_id);
 
             if (!$result) {
@@ -45,6 +44,16 @@ class add_author extends pdHtmlPage {
                 $this->pageError = true;
                 return;
             }
+        }
+
+        if ($this->author_id == null)
+            parent::pdHtmlPage('add_author');
+        else
+            parent::pdHtmlPage('edit_author');
+
+        if ($access_level <= 0) {
+            $this->loginError = true;
+            return;
         }
 
         if (isset($_GET['numNewInterests'])
@@ -61,17 +70,22 @@ class add_author extends pdHtmlPage {
 
         $form = new HTML_QuickForm('authorForm');
 
-        $form->addElement('header', null,
-                          $this->helpTooltip('Add Author',
-                                             'addAuthorPageHelp',
-                                             'helpHeading'));
+        $form->addElement('hidden', 'author_id', $this->author_id);
+
+        if ($this->author_id == null)
+            $form->addElement('header', null,
+                              $this->helpTooltip('Add Author',
+                                                 'addAuthorPageHelp',
+                                                 'helpHeading'));
+        else
+            $form->addElement('header', null, 'Edit Author');
 
         $form->addElement('text', 'firstname', 'First Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('firstname', 'a first name is required', 'required',
                        null, 'client');
         $form->addRule('firstname', 'the first name cannot contain punctuation',
-                       'lettersonly', null, 'client');
+                       'nopunctuation', null, 'client');
         $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('lastname', 'a last name is required', 'required', null,
@@ -115,10 +129,14 @@ class add_author extends pdHtmlPage {
                               'Interest Name ' . ($i + 1) . ':',
                               array('size' => 50, 'maxlength' => 250));
         }
+        if ($this->author_id == null)
+            $button_label = 'Add Author';
+        else
+            $button_label = 'Submit';
 
         $form->addGroup(
             array(
-                HTML_QuickForm::createElement('submit', 'submit', 'Add Author'),
+                HTML_QuickForm::createElement('submit', 'submit', $button_label),
                 HTML_QuickForm::createElement('reset', 'reset', 'Reset')
                 ),
             'submit_group', null, '&nbsp;');
@@ -129,20 +147,25 @@ class add_author extends pdHtmlPage {
             $values = $form->exportValues();
 
             // check if an author with a similar name already exists
-            $like_authors = new pdAuthorList($db, $values['firstname'],
-                                             $values['lastname']);
-            if (count($like_authors->list) > 0) {
-                $this->contentPre
-                    .= 'The following authors have similar names:<ul>';
-                foreach ($like_authors->list as $auth) {
-                    $this->contentPre .= '<li>' . $auth . '</li>';
+            if ($this->author_id == null) {
+                $like_authors = new pdAuthorList($db, $values['firstname'],
+                                                 $values['lastname']);
+                if (count($like_authors->list) > 0) {
+                    $this->contentPre
+                        .= 'The following authors have similar names:<ul>';
+                    foreach ($like_authors->list as $auth) {
+                        $this->contentPre .= '<li>' . $auth . '</li>';
+                    }
+                    $this->contentPre .= '</ul>New author not submitted.';
+                    $db->close();
+                    return;
                 }
-                $this->contentPre .= '</ul>New author not submitted.';
-                $db->close();
-                return;
             }
 
             $author = new pdAuthor();
+            if ($this->author_id != null)
+                $author->author_id = $this->author_id;
+
             $author->name = $values['lastname'] . ', ' . $values['firstname'];
             $author->title = $values['title'];
             $author->email = $values['email'];
@@ -154,10 +177,14 @@ class add_author extends pdHtmlPage {
             $author->dbSave($db);
 
             $this->contentPre .= 'Author "' . $values['firstname'] . ' '
-                . $values['lastname'] . '" succesfully added to the database.'
-                . '<p/>'
-                . '<a href="' . $_SERVER['PHP_SELF'] . '">'
-                . 'Add another new author</a>';
+                . $values['lastname'] . '" ';
+            if ($this->author_id == null)
+                $this->contentPre .= 'succesfully added to the database.'
+                    . '<p/>'
+                    . '<a href="' . $_SERVER['PHP_SELF'] . '">'
+                    . 'Add another new author</a>';
+            else
+                $this->contentPre .= 'modified.';
         }
         else {
             $form->setDefaults($_GET);
@@ -254,11 +281,14 @@ class add_author extends pdHtmlPage {
 
         // client side check to make sure new author not already in DB.
         function author_check(name, num) {
+            var form = document.forms["authorForm"];
+
+            if (form.elements["author_id"].length() > 0) return;
+
             if (name.length != 2) return false;
 
-            var newAuthorName = name[1] + ", " + name[0].substr(0, 1);
-            var form = document.forms["authorForm"];
             var authors_in_db = form.elements["authors_in_db"];
+            var newAuthorName = name[1] + ", " + name[0].substr(0, 1);
             var authName;
 
             newAuthorName = newAuthorName.toLowerCase();
