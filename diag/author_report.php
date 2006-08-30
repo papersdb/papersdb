@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.2 2006/08/30 17:24:10 aicmltec Exp $
+// $Id: author_report.php,v 1.3 2006/08/30 22:42:20 aicmltec Exp $
 
 /**
  * \file
@@ -37,7 +37,8 @@ class author_report extends pdHtmlPage {
                              'Cheng, L',
                              'Southey, F');
 
-    var $pubs;
+    var $pi_pubs;
+    var $pi_pdf_pubs;
 
     function author_report() {
         global $access_level;
@@ -69,11 +70,11 @@ class author_report extends pdHtmlPage {
                     . 'AND f.pub_id=publication.pub_id');
                 $r = $db->fetchObject($q);
                 while ($r) {
-                    if (isset($pubs[$r->pub_id]))
-                        $pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
+                    if (isset($pi_pubs[$r->pub_id]))
+                        $pi_pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
                             . ' and ' . $this->pi_authors[$j];
                     else
-                        $pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
+                        $pi_pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
                             . $this->pi_authors[$j];
                     $r = $db->fetchObject($q);
                 }
@@ -81,11 +82,11 @@ class author_report extends pdHtmlPage {
         }
 
         $this->contentPre .= '<h3>Two PIs</h3>';
-        $this->contentPre .= 'Number of publications: ' . count($pubs)
+        $this->contentPre .= 'Number of publications: ' . count($pi_pubs)
             . '<p/>';
 
         $c = 0;
-        foreach ($pubs as $pub_id => $authors) {
+        foreach ($pi_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
@@ -96,8 +97,6 @@ class author_report extends pdHtmlPage {
                 . '<br/>' . '<span id="small">' . $authors . '</span><p/>';
             $c++;
         }
-
-        unset($pubs);
 
         for ($i = 0; $i < count($this->pi_authors); $i++) {
             for ($j = 0; $j < count($this->pdf_authors); $j++) {
@@ -115,23 +114,27 @@ class author_report extends pdHtmlPage {
                     . 'AND f.pub_id=publication.pub_id');
                 $r = $db->fetchObject($q);
                 while ($r) {
-                    if (isset($pubs[$r->pub_id]))
-                        $pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
-                            . ' and ' . $this->pdf_authors[$j];
-                    else
-                        $pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
-                            . $this->pdf_authors[$j];
+                    // skip if already included in report
+                    if (!isset($pi_pubs[$r->pub_id])) {
+                        if (isset($pi_pdf_pubs[$r->pub_id]))
+                            $pi_pdf_pubs[$r->pub_id] .= '<br/>'
+                                . $this->pi_authors[$i]
+                                . ' and ' . $this->pdf_authors[$j];
+                        else
+                            $pi_pdf_pubs[$r->pub_id] = $this->pi_authors[$i]
+                                . ' and ' . $this->pdf_authors[$j];
+                    }
                     $r = $db->fetchObject($q);
                 }
             }
         }
 
         $this->contentPre .= '<h3>One PI and one PDF</h3>';
-        $this->contentPre .= 'Number of publications: ' . count($pubs)
+        $this->contentPre .= 'Number of publications: ' . count($pi_pdf_pubs)
             . '<p/>';
 
         $c = 0;
-        foreach ($pubs as $pub_id => $authors) {
+        foreach ($pi_pdf_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
