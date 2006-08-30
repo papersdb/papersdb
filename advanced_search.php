@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.42 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: advanced_search.php,v 1.43 2006/08/30 21:59:14 aicmltec Exp $
 
 /**
  * \file
@@ -32,15 +32,15 @@ class advanced_search extends pdHtmlPage {
     var $cat_list;
     var $category;
     var $auth_list;
-    //var $search;
-    //var $cat_id;
-    //var $title;
-    //var $authortyped;
-    //var $paper;
-    //var $abstract;
-    //var $venue;
-    //var $keywords;
-    //var $authorselect;
+    var $search;
+    var $cat_id;
+    var $title;
+    var $authortyped;
+    var $paper;
+    var $abstract;
+    var $venue;
+    var $keywords;
+    var $authorselect;
 
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
@@ -61,40 +61,33 @@ class advanced_search extends pdHtmlPage {
         if (isset($_GET['datesGroup']) && (count($_GET['datesGroup']) > 0))
             $this->datesGroup = $_GET['datesGroup'];
 
-        $this->db =& dbCreate();
+        $db =& dbCreate();
 
-        $this->cat_list = new pdCatList($this->db);
-        $this->auth_list = new pdAuthorList($this->db);
+        $this->cat_list = new pdCatList($db);
+        $this->auth_list = new pdAuthorList($db);
 
         $this->category = new pdCategory();
-        $this->category->dbLoad($this->db, $this->cat_id);
+        $this->category->dbLoad($db, $this->cat_id);
 
         $form =& $this->createForm();
+        $this->form =& $form;
+        $this->setFormValues();
 
-        if ($form->validate()) {
-            $values = $form->exportValues();
-        }
-        else {
-            $this->form = $form;
-            $this->setFormValues();
+        // NOTE: order is important here: this must be called after creating
+        // the form elements, but before rendering them.
+        $renderer =& $form->defaultRenderer();
 
-            // NOTE: order is important here: this must be called after creating
-            // the form elements, but before rendering them.
-            $renderer =& $this->form->defaultRenderer();
+        $renderer->setFormTemplate(
+            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
+            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate(
+            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
 
-            $renderer->setFormTemplate(
-                '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-                . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
-            $renderer->setHeaderTemplate(
-                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-            $this->renderer =& $renderer;
-            $this->form->accept($renderer);
-            $this->javascript();
-        }
-
-        $this->db->close();
+        $form->accept($renderer);
+        $this->renderer =& $renderer;
+        $this->javascript();
+        $db->close();
     }
 
     /**
@@ -294,9 +287,11 @@ END;
             $defaultValues['datesGroup']['enddate']
                 = $this->datesGroup['enddate'];
 
-            if (is_object($this->category) && is_array($this->category->info)) {
+            if (is_object($this->category)
+                && is_array($this->category->info)) {
                 foreach ($this->category->info as $info) {
-                    $defaultValues[strtolower($info->name)] = $_GET[$info->name];
+                    $defaultValues[strtolower($info->name)]
+                        = $_GET[$info->name];
                 }
             }
 
@@ -304,7 +299,7 @@ END;
                 $defaultValues['authorselect'] =& $this->authorselect;
         }
 
-        //$this->form->setConstants($defaultValues);
+        $this->form->setConstants($defaultValues);
     }
 }
 
