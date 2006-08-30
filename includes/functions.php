@@ -89,6 +89,26 @@ function tableHighlightRows(&$table) {
     }
 }
 
+// format text into multiple lines not exceeding 80 characters
+function format80($text) {
+    $lines = explode("\n", $text);
+    foreach($lines as $line) {
+        preg_match("/^(\s+)/", $line, $m);
+        if (strlen($line) > 80) {
+            while (strlen($line) > 80) {
+                $splt = strrpos(substr($line, 0, 80), ' ');
+                $new_lines[] = substr($line, 0, $splt);
+                $line = $m[1] . $m[1] . substr($line, $splt+1);
+            }
+            $new_lines[] = $line;
+        }
+        else
+            $new_lines[] = $line;
+    }
+
+    return implode("\n", $new_lines);
+}
+
 function backtrace() {
     $s = '';
     $MAXSTRLEN = 64;

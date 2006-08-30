@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.47 2006/08/30 20:57:03 aicmltec Exp $
+// $Id: pdPublication.php,v 1.48 2006/08/30 21:59:38 aicmltec Exp $
 
 /**
  * \file
@@ -742,6 +742,7 @@ class pdPublication {
 
     function getBibtex() {
         $bibtex = '';
+
         if ($this->category->category == 'In Conference') {
             $bibtex .= '@inconference{';
         }
@@ -810,7 +811,7 @@ class pdPublication {
 
         $bibtex .= '}';
 
-        return $bibtex;
+        return format80($bibtex);
     }
 
     /**
