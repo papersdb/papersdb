@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.3 2006/08/30 22:42:20 aicmltec Exp $
+// $Id: author_report.php,v 1.4 2006/08/30 22:53:59 aicmltec Exp $
 
 /**
  * \file
@@ -89,7 +89,7 @@ class author_report extends pdHtmlPage {
         foreach ($pi_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
+            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;<a href="../view_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
@@ -137,7 +137,7 @@ class author_report extends pdHtmlPage {
         foreach ($pi_pdf_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
+            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;<a href="../view_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '

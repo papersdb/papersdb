@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.48 2006/08/30 21:59:38 aicmltec Exp $
+// $Id: pdPublication.php,v 1.49 2006/08/30 22:53:59 aicmltec Exp $
 
 /**
  * \file
@@ -655,7 +655,7 @@ class pdPublication {
         return $result;
     }
 
-    function getCitationHtml() {
+    function getCitationHtml($urlPrefix = '.') {
         $citation = '';
 
         $first = true;
@@ -665,7 +665,7 @@ class pdPublication {
                     $citation .= ', ';
 
                 $citation .= ''
-                    . '<a href="./view_author.php?'
+                    . '<a href="' . $urlPrefix . '/view_author.php?'
                     . 'author_id=' . $auth->author_id . '">'
                     . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
                 $first = false;
