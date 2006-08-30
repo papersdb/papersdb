@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.45 2006/08/18 21:56:03 aicmltec Exp $
+// $Id: pdPublication.php,v 1.46 2006/08/30 20:15:57 aicmltec Exp $
 
 /**
  * \file
@@ -294,13 +294,9 @@ class pdPublication {
         if (count($this->additional_info) > 0) {
             $arr = array();
             foreach ($this->additional_info as $info) {
-                $r = $db->selectRow('additional_info', 'add_id',
-                                    array('location' => $info->location,
-                                          'type'     => $info->type),
+                $r = $db->delete('additional_info',
+                                    array('location' => $info->location),
                                     'pdPublication::dbDelete');
-                if ($r !== false)
-                    $db->delete('additional_info', array('add_id' => $r->add_id),
-                                'pdPublication::dbDelete');
             }
         }
 
@@ -384,6 +380,7 @@ class pdPublication {
             $db->insert('additional_info', $arr, 'pdPublication::dbSave');
 
             $arr = array();
+
             foreach ($this->additional_info as $info) {
                 $r = $db->selectRow('additional_info', 'add_id',
                                     array('location' => $info->location,
@@ -527,7 +524,7 @@ class pdPublication {
                     'pdPublication::updatePaper');
     }
 
-    function attachmentsUpdate(&$db, $filename) {
+    function attachmentsUpdate(&$db, $filename, $type) {
         assert('$this->pub_id != null');
 
         $filename = $this->pub_id . '/' . $filename;
@@ -540,7 +537,9 @@ class pdPublication {
                             'pdPublication::attachmentsUpdate');
         if ($r !== false) return;
 
-        $db->insert('additional_info', array('location' => $filename),
+        $db->insert('additional_info',
+                    array('location' => $filename,
+                          'type'     => $type),
                     'pdPublication::attachmentsUpdate');
 
         $add_id = $db->insertId();
@@ -550,10 +549,11 @@ class pdPublication {
                     'pdPublication::attachmentsUpdate');
     }
 
-    function attachmentRemove($filename) {
+    function attachmentRemove(&$db, $filename) {
         assert('$this->pub_id != null');
+        assert('count($this->additional_info) > 0');
 
-        foreach ($pub->additional_info as $k => $o) {
+        foreach ($this->additional_info as $k => $o) {
             if ($o->location == $filename)
                 unset($pub->additional_info[$k]);
         }
@@ -670,47 +670,55 @@ class pdPublication {
                     . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
                 $first = false;
             }
+            $citation .= '. ';
         }
 
         // Title
-        $citation .= '. <span id="pub_title">&quot;' . $this->title
+        $citation .= '<span id="pub_title">&quot;' . $this->title
             . '&quot;</span>. ';
 
         $pub_date = split('-', $this->published);
 
         //  Venue
         if (is_object($this->venue)) {
-            if ($this->venue->url != '')
-                $citation .= ' <a href="' . $this->venue->url
-                    . '" target="_blank">';
+            $v = '';
 
-            $citation .= $this->venue->name;
+            if ($this->venue->url != '')
+                $v .= ' <a href="' . $this->venue->url . '" target="_blank">';
+
+            $v .= $this->venue->name;
 
             if (($this->venue->url != '')
                 || ((strpos($this->venue->name, '<a href=') >= 0)
                     && (strpos($this->venue->name, '</a>') === false))) {
                 // some venue names don't close the <a href> tag
-                $citation .= '</a>';
+                $v .= '</a>';
             }
 
             if ($this->venue->type == 'Conference') {
                 if (isset($this->venue->occurrence[$pub_date[0]])) {
                     if ($this->venue->occurrence[$pub_date[0]] != '')
-                        $citation .= ', ' . $this->venue->occurrence[$pub_date[0]];
+                        $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
                 }
             }
             else if ($this->venue->data != '')
-                $citation .= ', ' . $this->venue->data;
+                $v .= ', ' . $this->venue->data;
+
+            if ($v != '')
+                $citation .= $v . '. ';
         }
 
         // Additional Information - Outputs the category specific
         // information if it exists
         if (count($this->info) > 0) {
+            $info = '';
             foreach ($this->info as $name => $value) {
                 if($value != null)
-                    $citation .= ", " . $value;
+                    $info .= ", " . $value;
             }
-            $citation .= '. ';
+
+            if ($info != '')
+                $citation .= $info . '. ';
         }
 
         $date_str = "";
@@ -721,7 +729,8 @@ class pdPublication {
         if ($pub_date[0] != 0)
             $date_str .= $pub_date[0];
 
-        $citation .= $date_str . '.';
+        if ($date_str != '')
+            $citation .= $date_str . '.';
 
         return $citation;
     }

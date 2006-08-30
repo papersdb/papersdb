@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.47 2006/08/09 19:50:27 aicmltec Exp $
+// $Id: view_publication.php,v 1.48 2006/08/30 20:15:57 aicmltec Exp $
 
 /**
  * \file
@@ -16,6 +16,7 @@
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
+require_once 'includes/pdAttachmentTypesList.php';
 
 /**
  * Renders the whole page.
@@ -95,9 +96,19 @@ class view_publication extends pdHtmlPage {
         }
 
         // Show Additional Materials
+        $att_types = new pdAttachmentTypesList($db);
+
         if (count($pub->additional_info) > 0) {
+            $table = new HTML_Table(array('width' => '350',
+                                          'border' => '0',
+                                          'cellpadding' => '6',
+                                          'cellspacing' => '0'));
+
+            $heading = 'Other Attachments:';
+
             $add_count = 1;
             foreach ($pub->additional_info as $att) {
+                $cell = '';
 
                 $path = FS_PATH;
                 if (strpos($att->location, 'uploaded_files/') === false)
@@ -105,36 +116,45 @@ class view_publication extends pdHtmlPage {
                 $path .= $att->location;
 
                 if (file_exists($path)) {
-                    $content .= 'Other Attachments: <a href="'
+                    $name = split('additional_', $att->location);
+
+                    $cell .= '<a href="'
                         . $pub->attachmentGetUrl($add_count - 1) . '">';
 
                     if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                        $content .= '<img src="images/pdf.gif" alt="PDF" '
+                        $cell .= '<img src="images/pdf.gif" alt="PDF" '
                             . 'height="18" width="17" border="0" '
                             . 'align="middle">';
                     }
                     else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                        $content .= '<img src="images/ppt.gif" alt="PPT" '
+                        $cell .= '<img src="images/ppt.gif" alt="PPT" '
                             . 'height="18" width="17" border="0" '
                             . 'align="middle">';
                     }
                     else if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                        $content .= '<img src="images/ps.gif" alt="PS" '
+                        $cell .= '<img src="images/ps.gif" alt="PS" '
                             . 'height="18" width="17" border="0" '
                             . 'align="middle">';
                     }
                     else {
-                        $name = split('additional_', $att->location);
                         if ($name[1] != '')
-                            $content .= $name[1];
+                            $cell .= $name[1];
                     }
+
+                    $cell .= '</a>';
+
+                    if (in_array($att->type, $att_types->list))
+                        $cell .= '&nbsp;[' . $att->type . ']';
 
                     $add_count++;
                 }
-                $content .= '</a><br/>';
+
+                $table->addRow(array($heading, $cell));
+                $heading = '';
             }
         }
 
+        $content .= $table->toHtml();
         $content .= '<p/>' . stripslashes(nl2br($pub->abstract)) . '<p/>'
             . '<h3>Citation</h3>' . $pub->getCitationHtml(). '<p/>';
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.67 2006/08/25 22:09:08 aicmltec Exp $
+// $Id: add_publication.php,v 1.68 2006/08/30 20:15:57 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,7 @@ require_once 'includes/pdPubList.php';
 require_once 'includes/pdExtraInfoList.php';
 require_once 'includes/authorselect.php';
 require_once 'includes/jscalendar.php';
+require_once 'includes/pdAttachmentTypesList.php';
 
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
@@ -643,14 +644,18 @@ class pubStep3Page extends HTML_QuickForm_Page {
                               array('size' => 45));
         }
 
+        $att_types = new pdAttachmentTypesList($db);
+
         for ($i = 0; $i < $other_attachments; $i++) {
             $att_num = $i + 1;
 
             if ($pub != null)
                 $att_num += count($pub->additional_info);
 
-            $this->addElement('file', 'other_attachments' . $i,
-                              'Attachment ' . $att_num . ':',
+            $this->addElement('select', 'other_attachments_type' . $i,
+                              'Attachment ' . $att_num . ':', $att_types->list);
+
+            $this->addElement('file', 'other_attachments' . $i, null,
                               array('size' => 45, 'maxlength' => 250));
         }
 
@@ -916,7 +921,7 @@ class ActionProcess extends HTML_QuickForm_Action {
                 if ($value == 'yes') {
                     if (file_exists($path . $file))
                         unlink($path . $file);
-                    $pub->attachmentRemove($file);
+                    $pub->attachmentRemove($db, $file);
                 }
             }
         }
@@ -960,15 +965,19 @@ class ActionProcess extends HTML_QuickForm_Action {
 
                     $element->moveUploadedFile($path, $basename);
                     chmod($filename, 0777);
-                    $pub->attachmentsUpdate($db, $basename);
+                    $pub->attachmentsUpdate(
+                        $db, $basename, $values['other_attachments_type'. $i]);
                 }
             }
         }
 
         $masterPage->contentPre
             .= 'The following publication was submitted successfully:<p/>'
-            . '<a href="../view_publication.php?pub_id=' . $pub->pub_id
-            . '">' . $pub->title . '</a>';
+            . $pub->getCitationHtml()
+            . '&nbsp;<a href="../view_publication.php?pub_id='
+            . $pub->pub_id . '">'
+            . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
+            . 'width="16" border="0" align="middle" /></a>';
 
         if ($this->debug) {
             $masterPage->contentPre
