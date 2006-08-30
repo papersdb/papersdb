@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.2 2006/08/29 22:04:38 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.3 2006/08/30 17:00:08 aicmltec Exp $
 
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
@@ -95,7 +95,9 @@ class pdNavMenu {
         'check_attachments'  => array('Check Attachments',
                                       'diag/check_attachments.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),
-
+        'author_report'      => array('Author Report',
+                                      'diag/author_report.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN)
         );
 
     function pdNavMenu() {
