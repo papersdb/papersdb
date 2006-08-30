@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.1 2006/08/30 17:00:08 aicmltec Exp $
+// $Id: author_report.php,v 1.2 2006/08/30 17:24:10 aicmltec Exp $
 
 /**
  * \file
@@ -31,7 +31,7 @@ class author_report extends pdHtmlPage {
                              'Kirshner, S',
                              'Price, R',
                              'Ringlstetter, C',
-                             'Wang, S',
+                             'Wang, Shaojun',
                              'Zheng, T',
                              'Zinkevich, M',
                              'Cheng, L',
@@ -57,7 +57,7 @@ class author_report extends pdHtmlPage {
             for ($j = $i + 1; $j < count($this->pi_authors); $j++) {
 
                 $q = $db->query(
-                    'SELECT publication.pub_id FROM'
+                    'SELECT publication.pub_id FROM '
                     . '(SELECT pub_id, name FROM pub_author, author '
                     . 'WHERE name like \'%' . $this->pi_authors[$i]
                     . '%\' AND pub_author.author_id=author.author_id) as c, '
@@ -70,7 +70,7 @@ class author_report extends pdHtmlPage {
                 $r = $db->fetchObject($q);
                 while ($r) {
                     if (isset($pubs[$r->pub_id]))
-                        $pubs[$r->pub_id] .= ' ' . $this->pi_authors[$i]
+                        $pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
                             . ' and ' . $this->pi_authors[$j];
                     else
                         $pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
@@ -87,19 +87,23 @@ class author_report extends pdHtmlPage {
         $c = 0;
         foreach ($pubs as $pub_id => $authors) {
             $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id, PD_PUB_DB_LOAD_BASIC);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->title . '<br/>'
-                . '<span id="small">' . $authors . '</span><p/>';
+            $pub->dbLoad($db, $pub_id);
+            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
+                . '&nbsp;<a href="../view_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
+                . 'width="16" border="0" align="middle" /></a>'
+                . '<br/>' . '<span id="small">' . $authors . '</span><p/>';
             $c++;
         }
 
         unset($pubs);
 
         for ($i = 0; $i < count($this->pi_authors); $i++) {
-            for ($j = $i; $j < count($this->pdf_authors); $j++) {
+            for ($j = 0; $j < count($this->pdf_authors); $j++) {
 
                 $q = $db->query(
-                    'SELECT publication.pub_id FROM'
+                    'SELECT publication.pub_id FROM '
                     . '(SELECT pub_id, name FROM pub_author, author '
                     . 'WHERE name like \'%' . $this->pi_authors[$i]
                     . '%\' AND pub_author.author_id=author.author_id) as c, '
@@ -112,7 +116,7 @@ class author_report extends pdHtmlPage {
                 $r = $db->fetchObject($q);
                 while ($r) {
                     if (isset($pubs[$r->pub_id]))
-                        $pubs[$r->pub_id] .= ' ' . $this->pi_authors[$i]
+                        $pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
                             . ' and ' . $this->pdf_authors[$j];
                     else
                         $pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
@@ -129,9 +133,13 @@ class author_report extends pdHtmlPage {
         $c = 0;
         foreach ($pubs as $pub_id => $authors) {
             $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id, PD_PUB_DB_LOAD_BASIC);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->title . '<br/>'
-                . '<span id="small">' . $authors . '</span><p/>';
+            $pub->dbLoad($db, $pub_id);
+            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml()
+                . '&nbsp;<a href="../view_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
+                . 'width="16" border="0" align="middle" /></a>'
+                . '<br/>' . '<span id="small">' . $authors . '</span><p/>';
             $c++;
         }
 
