@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.48 2006/08/30 20:15:57 aicmltec Exp $
+// $Id: view_publication.php,v 1.49 2006/08/30 20:18:06 aicmltec Exp $
 
 /**
  * \file
@@ -152,9 +152,10 @@ class view_publication extends pdHtmlPage {
                 $table->addRow(array($heading, $cell));
                 $heading = '';
             }
+
+            $content .= $table->toHtml();
         }
 
-        $content .= $table->toHtml();
         $content .= '<p/>' . stripslashes(nl2br($pub->abstract)) . '<p/>'
             . '<h3>Citation</h3>' . $pub->getCitationHtml(). '<p/>';
 
