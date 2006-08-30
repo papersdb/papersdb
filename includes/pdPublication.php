@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.46 2006/08/30 20:15:57 aicmltec Exp $
+// $Id: pdPublication.php,v 1.47 2006/08/30 20:57:03 aicmltec Exp $
 
 /**
  * \file
@@ -677,18 +677,31 @@ class pdPublication {
         $citation .= '<span id="pub_title">&quot;' . $this->title
             . '&quot;</span>. ';
 
+        // Additional Information - Outputs the category specific
+        // information if it exists
+        if (count($this->info) > 0) {
+            $info = '';
+            foreach ($this->info as $name => $value) {
+                if($value != null)
+                    $info .= ", " . $value;
+            }
+        }
+
         $pub_date = split('-', $this->published);
 
         //  Venue
         if (is_object($this->venue)) {
             $v = '';
 
-            if ($this->venue->url != '')
+            if (($this->venue->url != '') && ($this->venue->url != 'http://'))
                 $v .= ' <a href="' . $this->venue->url . '" target="_blank">';
 
-            $v .= $this->venue->name;
+            if ($this->venue->name != '')
+                $v .= $this->venue->name;
+            else
+                $v .= $this->venue->title;
 
-            if (($this->venue->url != '')
+            if ((($this->venue->url != '') && ($this->venue->url != 'http://'))
                 || ((strpos($this->venue->name, '<a href=') >= 0)
                     && (strpos($this->venue->name, '</a>') === false))) {
                 // some venue names don't close the <a href> tag
@@ -705,20 +718,12 @@ class pdPublication {
                 $v .= ', ' . $this->venue->data;
 
             if ($v != '')
-                $citation .= $v . '. ';
-        }
-
-        // Additional Information - Outputs the category specific
-        // information if it exists
-        if (count($this->info) > 0) {
-            $info = '';
-            foreach ($this->info as $name => $value) {
-                if($value != null)
-                    $info .= ", " . $value;
-            }
+                $citation .= $v;
 
             if ($info != '')
-                $citation .= $info . '. ';
+                $citation .= $info;
+
+            $citation .= ', ';
         }
 
         $date_str = "";
