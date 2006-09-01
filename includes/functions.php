@@ -135,41 +135,7 @@ function backtrace() {
             else
             {
                 $v = (string) @$v;
-
-
-function get_venue_info($venue) {
- $output = "";
- $temp_array = split("venue_id:<", $venue);
-	 if($temp_array[1] != ""){
-		$temp_array = split(">", $temp_array[1]);
-		$venue_id = $temp_array[0];
-		$venue_query = "SELECT * FROM venue WHERE venue_id=$venue_id";
-		$venue_result = query_db($venue_query);
-		$venue_line = mysql_fetch_array($venue_result, MYSQL_ASSOC);
-		$venue_name = $venue_line[name];
-		$venue_url = $venue_line[url];
-		$venue_type = $venue_line[type];
-		$venue_data = $venue_line[data];
-		$output .= "<b>".$venue_type.":&nbsp;</b>";
-		if($venue_url != "")
-			$output .= " <a href=\"".$venue_url."\" target=\"_blank\">";
-		$output .= $venue_name;
-		if($venue_url != "")
-			$output .= "</a>";
-		if($venue_data != ""){
-			$output .= "</td></tr><tr><td>";
-			if($venue_type == "Conference")
-				$output .= "<b>Location:&nbsp;</b>";
-			else if($venue_type == "Journal")
-				$output .= "<b>Publisher:&nbsp;</b>";
-			else if($venue_type == "Workshop")
-				$output .= "<b>Associated Conference:&nbsp;</b>";
-			$output .= $venue_data;
-		}
-	}
-	else $output .= "<b>Publication Venue:</b>".$venue;
-	return $output;
-}                $str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
+                $str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
                 if (strlen($v) > $MAXSTRLEN) $str .= '...';
                 $args[] = "\"".$str."\"";
             }

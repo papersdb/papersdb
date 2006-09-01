@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.31 2006/08/29 16:04:59 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.32 2006/09/01 14:50:03 aicmltec Exp $
 
 /**
  * \file
@@ -66,10 +66,8 @@ class search_publication_db extends pdHtmlPage {
         else
             $location = substr($_SERVER['REQUEST_URI'], 0,  $position);
 
-        $search_url = $protocol."://".$_SERVER['SERVER_NAME'].$port.$location."?";
-
-        $this->search_params = new pdSearchParams($_GET);
-        $search_url .= $this->search_params->paramsToHtmlQueryStr();
+        $search_url = $protocol . '://' . $_SERVER['SERVER_NAME'] . $port
+            . $location . '?' . $this->search_params->paramsToHtmlQueryStr();
 
         if($this->search_params->search != "") {
             $this->quickSearch($this->pub_id_array);
@@ -229,9 +227,8 @@ class search_publication_db extends pdHtmlPage {
             }
         }
 
-        // not working 100% yet
-        //$this->search_params = new pdSearchParams($arr);
-        //$_SESSION['search_params'] = $this->search_params;
+        $this->search_params = new pdSearchParams($arr);
+        $_SESSION['search_params'] = $this->search_params;
     }
 
     /**

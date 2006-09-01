@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.43 2006/08/30 21:59:14 aicmltec Exp $
+// $Id: advanced_search.php,v 1.44 2006/09/01 14:50:03 aicmltec Exp $
 
 /**
  * \file
@@ -29,6 +29,7 @@ require_once 'includes/jscalendar.php';
  * Renders the whole page.
  */
 class advanced_search extends pdHtmlPage {
+    var $form_name = 'pubForm';
     var $cat_list;
     var $category;
     var $auth_list;
@@ -41,6 +42,7 @@ class advanced_search extends pdHtmlPage {
     var $venue;
     var $keywords;
     var $authorselect;
+    var $selected_authors;
 
     function advanced_search() {
         parent::pdHtmlPage('advanced_search');
@@ -58,9 +60,6 @@ class advanced_search extends pdHtmlPage {
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
 
-        if (isset($_GET['datesGroup']) && (count($_GET['datesGroup']) > 0))
-            $this->datesGroup = $_GET['datesGroup'];
-
         $db =& dbCreate();
 
         $this->cat_list = new pdCatList($db);
@@ -72,6 +71,12 @@ class advanced_search extends pdHtmlPage {
         $form =& $this->createForm();
         $this->form =& $form;
         $this->setFormValues();
+
+        if (isset($_SESSION['search_params']))
+            $this->selected_authors = ':'
+                . implode(':', $_SESSION['search_params']->authorselect)
+                . ':';
+
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
@@ -91,55 +96,13 @@ class advanced_search extends pdHtmlPage {
     }
 
     /**
-     * Outputs the java script used by the page.
-     */
-    function javascript() {
-        $this->js = <<<END
-
-            <script language="JavaScript" type="text/JavaScript">
-            window.name="search_publication.php";
-
-        function dataKeep(num) {
-            var qsArray = new Array();
-            var qsString = "";
-
-            for (i = 0; i < document.forms["pubForm"].elements.length; i++) {
-                var element = document.forms["pubForm"].elements[i];
-                if ((element.value != "") && (element.value != null)
-                    && (element.type != "submit")) {
-
-                    if (element.type == "checkbox") {
-                        if (element.checked) {
-                            qsArray.push(element.name + "=" + element.value);
-                        }
-                    } else {
-                        qsArray.push(element.name + "=" + element.value);
-                    }
-                }
-            }
-            if (qsArray.length > 0) {
-                qsString = qsArray.join("&");
-                qsString.replace(" ", "%20");
-            }
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + qsString;
-        }
-
-        function reset() {
-        }
-        </script>
-END;
-    }
-
-    /**
      * Creates the from used on this page. The renderer is then used to
      * display the form correctly on the page.
      *
      * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
-        $form = new HTML_QuickForm('pubForm', 'get',
+        $form = new HTML_QuickForm($this->form_name, 'get',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
 
@@ -237,12 +200,15 @@ END;
                     array('readonly' => '1', 'id' => 'enddate', 'size' => 10)),
                 HTML_QuickForm::createElement(
                     'jscalendar', 'enddate_calendar', null, $enddate_options)),
-            'datesGroup', 'Published between:', '&nbsp;');
+            null, 'Published between:', '&nbsp;');
 
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement('submit', 'Submit', 'Search'),
-                HTML_QuickForm::createElement('reset', 'Clear', 'Clear')),
+                HTML_QuickForm::createElement('reset', 'Clear', 'Clear'),
+                HTML_QuickForm::createElement(
+                    'button', 'fill_last', 'Use Previous Search Terms',
+                    array('onClick' => 'lastSearchUse();'))),
             'buttonsGroup', '', '&nbsp;', false);
         return $form;
     }
@@ -251,55 +217,108 @@ END;
      * Assigns the form's values as per the HTTP GET string.
      */
     function setFormValues() {
-        if (isset($_SESSION['search_params'])) {
-            $defaultValues = array(
-                'search'            => $_SESSION['search_params']->search,
-                'cat_id'            => $_SESSION['search_params']->cat_id,
-                'title'             => $_SESSION['search_params']->title,
-                'authortyped'       => $_SESSION['search_params']->authortyped,
-                'paper'             => $_SESSION['search_params']->paper,
-                'abstract'          => $_SESSION['search_params']->abstract,
-                'venue'             => $_SESSION['search_params']->venue,
-                'keywords'          => $_SESSION['search_params']->keywords);
+        $defaultValues = array(
+            'search'            => $this->search,
+            'cat_id'            => $this->cat_id,
+            'title'             => $this->title,
+            'authortyped'       => $this->authortyped,
+            'paper'             => $this->paper,
+            'abstract'          => $this->abstract,
+            'venue'             => $this->venue,
+            'keywords'          => $this->keywords,
+            'startdate'         => $this->startdate,
+            'enddate'           => $this->enddate);
 
-            $defaultValues['datesGroup']['startdate']
-                = $_SESSION['search_params']->startdate;
-            $defaultValues['datesGroup']['enddate']
-                = $_SESSION['search_params']->enddate;
-
-            if (count($this->authorselect) > 0)
-                $defaultValues['authorselect']
-                    =& $_SESSION['search_params']->authorselect;
-        }
-        else {
-            $defaultValues = array(
-                'search'            => $this->search,
-                'cat_id'            => $this->cat_id,
-                'title'             => $this->title,
-                'authortyped'       => $this->authortyped,
-                'paper'             => $this->paper,
-                'abstract'          => $this->abstract,
-                'venue'             => $this->venue,
-                'keywords'          => $this->keywords);
-
-            $defaultValues['datesGroup']['startdate']
-                = $this->datesGroup['startdate'];
-            $defaultValues['datesGroup']['enddate']
-                = $this->datesGroup['enddate'];
-
-            if (is_object($this->category)
-                && is_array($this->category->info)) {
-                foreach ($this->category->info as $info) {
-                    $defaultValues[strtolower($info->name)]
-                        = $_GET[$info->name];
-                }
+        if (is_object($this->category)
+            && is_array($this->category->info)) {
+            foreach ($this->category->info as $info) {
+                $defaultValues[strtolower($info->name)]
+                    = $_GET[$info->name];
             }
-
-            if (count($this->authorselect) > 0)
-                $defaultValues['authorselect'] =& $this->authorselect;
         }
+
+        if (count($this->authorselect) > 0)
+            $defaultValues['authorselect'] =& $this->authorselect;
 
         $this->form->setConstants($defaultValues);
+    }
+
+    /**
+     * Outputs the java script used by the page.
+     */
+    function javascript() {
+        $this->js = <<<END
+
+            <script language="JavaScript" type="text/JavaScript">
+            window.name="search_publication.php";
+
+        function dataKeep(num) {
+            var form = document.forms["{$this->form_name}"];
+            var qsArray = new Array();
+            var qsString = "";
+
+            for (i = 0; i < form.elements.length; i++) {
+                var element = form.elements[i];
+                if ((element.value != "") && (element.value != null)
+                    && (element.type != "button")
+                    && (element.type != "submit")) {
+
+                    if (element.type == "checkbox") {
+                        if (element.checked) {
+                            qsArray.push(element.name + "=" + element.value);
+                        }
+                    } else if (element.type == "select-multiple"){
+                        var select_name = element.name;
+                        if (select_name.indexOf("[]") > 0) {
+                            select_name = select_name.substr(0, select_name.length - 2);
+                        }
+
+                        var count = 0;
+                        for (i=0; i < element.length; i++) {
+                            if (element.options[i].selected) {
+                                qsArray.push(select_name + "[" + count + "]=" + element.options[i].value);
+                                count++;
+                            }
+                        }
+                    } else {
+                        qsArray.push(element.name + "=" + element.value);
+                    }
+                }
+            }
+            if (qsArray.length > 0) {
+                qsString = qsArray.join("&");
+                qsString.replace(" ", "%20");
+            }
+            location.href
+                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
+                + qsString;
+        }
+
+        function lastSearchUse() {
+            var form = document.forms["{$this->form_name}"];
+            var authorselect = form.elements["authorselect[]"];
+            var selected_authors = "{$this->selected_authors}";
+
+            form.cat_id.value      = "{$_SESSION['search_params']->cat_id}";
+            form.title.value       = "{$_SESSION['search_params']->title}";
+            form.authortyped.value = "{$_SESSION['search_params']->authortyped}";
+            form.paper.value       = "{$_SESSION['search_params']->paper}";
+            form.abstract.value    = "{$_SESSION['search_params']->abstract}";
+            form.venue.value       = "{$_SESSION['search_params']->venue}";
+            form.keywords.value    = "{$_SESSION['search_params']->keywords}";
+            form.startdate.value   = "{$_SESSION['search_params']->startdate}";
+            form.enddate.value     = "{$_SESSION['search_params']->enddate}";
+
+            for (var i =0; i < authorselect.length; i++) {
+                authorselect.options[i].selected = false;
+                if (selected_authors.indexOf(":" + authorselect.options[i].value + ":") >= 0) {
+                    authorselect.options[i].selected = true;
+                }
+            }
+            dataKeep(0);
+        }
+        </script>
+END;
     }
 }
 
