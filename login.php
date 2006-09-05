@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.20 2006/08/23 02:03:14 aicmltec Exp $
+// $Id: login.php,v 1.21 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -20,6 +20,7 @@ class login extends pdHtmlPage {
     function login() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('login');
         $this->passwd_hash = "aicml";
 

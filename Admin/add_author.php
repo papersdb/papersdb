@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.28 2006/08/29 22:04:38 aicmltec Exp $
+// $Id: add_author.php,v 1.29 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -24,6 +24,7 @@ function author_check() {
  */
 class add_author extends pdHtmlPage {
     var $author_id = null;
+    var $numNewInterests = 0;
 
     function add_author() {
         global $access_level;
@@ -31,10 +32,19 @@ class add_author extends pdHtmlPage {
         $db =& dbCreate();
         $author = new pdAuthor();
 
-        if (isset($_GET['author_id']) && ($_GET['author_id'] != ''))
-            $this->author_id = intval($_GET['author_id']);
-        else if (isset($_POST['author_id']) && ($_POST['author_id'] != ''))
-            $this->author_id = intval($_POST['author_id']);
+        $arr = null;
+        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+            $arr =& $_GET;
+        }
+        else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $arr =& $_POST;
+        }
+
+        $valid_parms = array('author_id', 'numNewInterests');
+        foreach ($valid_parms as $parm) {
+            if (isset($arr[$parm]))
+                $this->$parm = $arr[$parm];
+        }
 
         if ($this->author_id != null) {
             $result = $author->dbLoad($db, $this->author_id);
@@ -54,18 +64,6 @@ class add_author extends pdHtmlPage {
         if ($access_level <= 0) {
             $this->loginError = true;
             return;
-        }
-
-        if (isset($_GET['numNewInterests'])
-            && ($_GET['numNewInterests'] != '')) {
-            $newInterests =  intval($_GET['numNewInterests']);
-        }
-        else if (isset($_POST['numNewInterests'])
-            && ($_POST['numNewInterests'] != '')) {
-            $newInterests =  intval($_POST['numNewInterests']);
-        }
-        else {
-            $newInterests = 0;
         }
 
         $form = new HTML_QuickForm('authorForm');
@@ -117,65 +115,145 @@ class add_author extends pdHtmlPage {
         $interests = new pdAuthInterests($db);
 
         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
-            . ($newInterests+1) .')">[Add Interest]</a></div>';
+            . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
         $form->addElement('select', 'interests',
                           'Interests:' . $ref,
                           $interests->list,
-                          array('multiple' => 'multiple', 'size' => 10));
+                          array('multiple' => 'multiple', 'size' => 15));
 
-        for ($i = 0; $i < $newInterests; $i++) {
+        for ($i = 0; $i < $this->numNewInterests; $i++) {
             $form->addElement('text', 'newInterests['.$i.']',
                               'Interest Name ' . ($i + 1) . ':',
                               array('size' => 50, 'maxlength' => 250));
         }
-        if ($this->author_id == null)
-            $button_label = 'Add Author';
-        else
-            $button_label = 'Submit';
 
-        $form->addGroup(
-            array(
-                HTML_QuickForm::createElement('submit', 'submit', $button_label),
-                HTML_QuickForm::createElement('reset', 'reset', 'Reset')
-                ),
-            'submit_group', null, '&nbsp;');
+        if ($_SESSION['state'] == 'pub_add') {
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $next_page = substr($_SERVER['PHP_SELF'], 0, $pos)
+                . 'papersdb/Admin/add_pub2.php';
 
-        $form->addElement('hidden', 'numNewInterests', $newInterests);
+            $form->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'button', 'prev_step', '<< Previous Step',
+                        array('onClick' => "location.href='"
+                              . $next_page . "';")),
+                    HTML_QuickForm::createElement(
+                        'reset', 'reset', 'Reset'),
+                    HTML_QuickForm::createElement(
+                        'submit', 'add_another',
+                        'Submit and Add Antother Author'),
+                    HTML_QuickForm::createElement(
+                        'submit', 'next_step', 'Next Step >>'),
+                    ),
+                null, null, '&nbsp;');
+        }
+        else {
+            if ($this->author_id == null)
+                $button_label = 'Add Author';
+            else
+                $button_label = 'Submit';
+
+            $form->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'submit', 'submit', $button_label),
+                    HTML_QuickForm::createElement(
+                        'reset', 'reset', 'Reset')
+                    ),
+                null, null, '&nbsp;');
+        }
+
+        $form->addElement('hidden', 'numNewInterests', $this->numNewInterests);
+
+        $this->form =& $form;
+        $this->db =& $db;
 
         if ($form->validate()) {
-            $values = $form->exportValues();
+            $this->processForm();
+        }
+        else {
+            $this->renderForm();
+        }
+        $db->close();
+    }
 
-            // check if an author with a similar name already exists
-            if ($this->author_id == null) {
-                $like_authors = new pdAuthorList($db, $values['firstname'],
-                                                 $values['lastname']);
-                if (count($like_authors->list) > 0) {
-                    $this->contentPre
-                        .= 'The following authors have similar names:<ul>';
-                    foreach ($like_authors->list as $auth) {
-                        $this->contentPre .= '<li>' . $auth . '</li>';
-                    }
-                    $this->contentPre .= '</ul>New author not submitted.';
-                    $db->close();
-                    return;
+    function renderForm() {
+        $db =& $this->db;
+        $form =& $this->form;
+
+        $form->setDefaults($_GET);
+
+        if ($author->author_id != '')
+            $form->setDefaults($author->asArray());
+
+        if (($_SESSION['state'] == 'pub_add') && isset($_SESSION['new_pub'])) {
+            $new_pub =& $_SESSION['new_pub'];
+
+            $this->contentPre .= '<h3>Publication Information</h3>'
+                . $new_pub->getCitationHtml('..', false) . '<p/>';
+        }
+
+        $renderer =& $form->defaultRenderer();
+
+        $renderer->setFormTemplate(
+            '<table width="100%" border="0" cellpadding="3" '
+            . 'cellspacing="2" bgcolor="#CCCC99">'
+            . '<form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate(
+            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
+        $form->accept($renderer);
+        $this->renderer =& $renderer;
+        $this->javascript();
+    }
+
+    function processForm() {
+        $db =& $this->db;
+        $form =& $this->form;
+        $values = $form->exportValues();
+
+        // check if an author with a similar name already exists
+        if ($this->author_id == null) {
+            $like_authors = new pdAuthorList($db, $values['firstname'],
+                                             $values['lastname']);
+            if (count($like_authors->list) > 0) {
+                $this->contentPre
+                    .= 'The following authors have similar names:<ul>';
+                foreach ($like_authors->list as $auth) {
+                    $this->contentPre .= '<li>' . $auth . '</li>';
                 }
+                $this->contentPre .= '</ul>New author not submitted.';
+                $db->close();
+                return;
             }
+        }
 
-            $author = new pdAuthor();
-            if ($this->author_id != null)
-                $author->author_id = $this->author_id;
+        $author = new pdAuthor();
+        if ($this->author_id != null)
+            $author->author_id = $this->author_id;
 
-            $author->name = $values['lastname'] . ', ' . $values['firstname'];
-            $author->title = $values['title'];
-            $author->email = $values['email'];
-            $author->organization = $values['organization'];
-            $author->webpage = $values['webpage'];
-            $author->interests = array_merge($values['interests'],
-                                             $values['newInterests']);
+        $author->name = $values['lastname'] . ', ' . $values['firstname'];
+        $author->title = $values['title'];
+        $author->email = $values['email'];
+        $author->organization = $values['organization'];
+        $author->webpage = $values['webpage'];
+        $author->interests = array_merge($values['interests'],
+                                         $values['newInterests']);
 
-            $author->dbSave($db);
+        $author->dbSave($db);
 
+        if ($_SESSION['state'] == 'pub_add') {
+            $new_pub =& $_SESSION['new_pub'];
+            $new_pub->addAuthor($db, $author->author_id);
+
+            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
+            if (isset($values['add_another']))
+                header('Location: add_author.php');
+        }
+        else {
             $this->contentPre .= 'Author "' . $values['firstname'] . ' '
                 . $values['lastname'] . '" ';
             if ($this->author_id == null)
@@ -186,26 +264,6 @@ class add_author extends pdHtmlPage {
             else
                 $this->contentPre .= 'modified.';
         }
-        else {
-            $form->setDefaults($_GET);
-            if ($author->author_id != '')
-                $form->setDefaults($author->asArray());
-
-            $renderer =& $form->defaultRenderer();
-
-            $renderer->setFormTemplate(
-                '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-                . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
-            $renderer->setHeaderTemplate(
-                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-            $form->accept($renderer);
-            $this->form =& $form;
-            $this->renderer =& $renderer;
-            $this->javascript();
-        }
-        $db->close();
     }
 
     function javascript() {
@@ -262,7 +320,7 @@ class add_author extends pdHtmlPage {
                     else if (element.name == "numNewInterests") {
                         qsArray.push(element.name + "=" + num);
                     }
-                    else {
+                    else  if (element.name == "authors_in_db[]") {
                         qsArray.push(element.name + "=" + element.value);
                     }
                 }
@@ -283,7 +341,7 @@ class add_author extends pdHtmlPage {
         function author_check(name, num) {
             var form = document.forms["authorForm"];
 
-            if (form.elements["author_id"].length() > 0) return;
+            if (form.elements["author_id"].length > 0) return;
 
             if (name.length != 2) return false;
 
@@ -300,7 +358,6 @@ class add_author extends pdHtmlPage {
             }
             return true;
         }
-
         </script>
 JS_END;
     }

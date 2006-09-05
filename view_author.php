@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.17 2006/08/08 23:03:59 aicmltec Exp $
+// $Id: view_author.php,v 1.18 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -26,6 +26,7 @@ class view_author extends pdHtmlPage {
     function view_author() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('view_authors');
 
         if (!isset($_GET['author_id'])) {

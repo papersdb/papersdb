@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.8 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: delete_publication.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -24,6 +24,7 @@ class delete_publication extends pdHtmlPage {
     function delete_publication() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('delete_publication');
 
         if ($access_level <= 0) {

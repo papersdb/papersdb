@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.20 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: list_publication.php,v 1.21 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -24,6 +24,7 @@ class list_publication extends pdHtmlPage {
     function list_publication() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('all_publications');
 
         $this->db =& dbCreate();

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.68 2006/08/30 20:15:57 aicmltec Exp $
+// $Id: add_publication.php,v 1.69 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,7 @@ class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
         global $access_level;
 
+        $_SESSION['state'] = 'pub_add';
         $options = array('pub_id');
         foreach ($options as $opt) {
             if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
@@ -38,9 +39,9 @@ class add_publication extends pdHtmlPage {
         else
             parent::pdHtmlPage('add_publication');
 
-        $this->navMenuItemEnable('add_author', 0);
-        $this->navMenuItemEnable('add_category', 0);
-        $this->navMenuItemEnable('add_venue', 0);
+        $this->navMenuItemDisplay('add_author', 0);
+        $this->navMenuItemDisplay('add_category', 0);
+        $this->navMenuItemDisplay('add_venue', 0);
 
         if ($access_level <= 0) {
             $this->loginError = true;
@@ -100,7 +101,7 @@ class add_publication extends pdHtmlPage {
             "Specify auxiliary information, to help classify this publication. "
             + "Eg, &quot;with student&quot; or &quot;best paper&quot;, etc. Note "
             + "that, by default, this information will NOT be shown when this "
-            + "document is presented. Separate using semicolons(;).";
+            + "document is presented. Separate using semiolons(;).";
 
         var extraInfoListHelp=
             "Select extra information from entries already in the database.";

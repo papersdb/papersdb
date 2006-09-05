@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.49 2006/08/30 22:53:59 aicmltec Exp $
+// $Id: pdPublication.php,v 1.50 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -235,6 +235,18 @@ class pdPublication {
         }
         $authorsStr .= '</ul>';
         return $authorsStr;
+    }
+
+    // returns the author ids as an array
+    function authorsToArray() {
+        $result = array();
+
+        if (!isset($this->authors)) return $result;
+
+        foreach ($this->authors as $author) {
+            $result[] = $author->author_id;
+        }
+        return $result;
     }
 
     /**
@@ -655,7 +667,7 @@ class pdPublication {
         return $result;
     }
 
-    function getCitationHtml($urlPrefix = '.') {
+    function getCitationHtml($urlPrefix = '.', $author_links = true) {
         $citation = '';
 
         $first = true;
@@ -664,10 +676,14 @@ class pdPublication {
                 if (!$first)
                     $citation .= ', ';
 
-                $citation .= ''
-                    . '<a href="' . $urlPrefix . '/view_author.php?'
-                    . 'author_id=' . $auth->author_id . '">'
-                    . $auth->firstname[0] . '. ' . $auth->lastname . '</a>';
+                if ($author_links)
+                    $citation .= ''
+                        . '<a href="' . $urlPrefix . '/view_author.php?'
+                        . 'author_id=' . $auth->author_id . '">';
+                $citation .= $auth->firstname[0] . '. ' . $auth->lastname;
+
+                if ($author_links)
+                    $citation .= '</a>';
                 $first = false;
             }
             $citation .= '. ';

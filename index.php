@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.25 2006/08/09 19:10:10 aicmltec Exp $
+// $Id: index.php,v 1.26 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -20,6 +20,8 @@ require_once 'includes/pdPubList.php';
 class indexPage extends pdHtmlPage {
     function indexPage() {
         global $access_level;
+
+        pubSessionInit();
 
         parent::pdHtmlPage('home');
         $this->db =& dbCreate();

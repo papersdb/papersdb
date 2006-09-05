@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.1 2006/08/18 19:45:34 aicmltec Exp $
+// $Id: check_attachments.php,v 1.2 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -21,6 +21,7 @@ class check_attachments extends pdHtmlPage {
     function check_attachments() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('check_attachments');
 
         if ($access_level <= 1) {

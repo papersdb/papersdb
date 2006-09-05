@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.4 2006/08/30 22:53:59 aicmltec Exp $
+// $Id: author_report.php,v 1.5 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -43,6 +43,7 @@ class author_report extends pdHtmlPage {
     function author_report() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('author_report');
 
         if ($access_level <= 1) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.5 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: delete_interest.php,v 1.6 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,7 @@ class delete_interest extends pdHtmlPage {
     function delete_interest() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('delete_interest');
 
         if ($access_level <= 0) {

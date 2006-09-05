@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.19 2006/08/08 23:03:59 aicmltec Exp $
+// $Id: add_category.php,v 1.20 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,7 @@ class add_category extends pdHtmlPage {
     function add_category() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('add_category');
 
         if ($access_level <= 0) {

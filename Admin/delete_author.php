@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.10 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: delete_author.php,v 1.11 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,7 @@ class delete_author extends pdHtmlPage {
     function delete_author() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('delete_author');
 
         if ($access_level <= 0) {

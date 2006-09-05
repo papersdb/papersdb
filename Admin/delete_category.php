@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.8 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: delete_category.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -26,6 +26,7 @@ class delete_category extends pdHtmlPage {
     function delete_category() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('delete_category');
 
         if ($access_level <= 0) {

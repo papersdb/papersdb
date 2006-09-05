@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.7 2006/08/18 21:56:03 aicmltec Exp $
+// $Id: delete_venue.php,v 1.8 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -23,6 +23,7 @@ class delete_venue extends pdHtmlPage {
     function delete_venue() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('delete_category');
 
         if ($access_level <= 0) {

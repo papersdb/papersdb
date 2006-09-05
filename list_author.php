@@ -21,6 +21,7 @@ class list_author extends pdHtmlPage {
     function list_author() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('all_authors');
         $db =& dbCreate();
 

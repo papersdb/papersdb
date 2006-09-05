@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.44 2006/09/01 14:50:03 aicmltec Exp $
+// $Id: advanced_search.php,v 1.45 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -45,6 +45,7 @@ class advanced_search extends pdHtmlPage {
     var $selected_authors;
 
     function advanced_search() {
+        pubSessionInit();
         parent::pdHtmlPage('advanced_search');
 
         if(isset($_GET['search']) && ($_GET['search'] != ''))

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.8 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: list_venues.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,7 @@ class list_venues extends pdHtmlPage {
     function list_venues() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('all_venues');
         $db =& dbCreate();
 

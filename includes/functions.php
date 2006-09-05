@@ -109,6 +109,12 @@ function format80($text) {
     return implode("\n", $new_lines);
 }
 
+function pubSessionInit() {
+    $_SESSION['state'] = null;
+    $_SESSION['selected_authors'] = null;
+    $_SESSION['new_pub'] = null;
+}
+
 function backtrace() {
     $s = '';
     $MAXSTRLEN = 64;

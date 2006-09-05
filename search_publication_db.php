@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.32 2006/09/01 14:50:03 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.33 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -41,6 +41,7 @@ class search_publication_db extends pdHtmlPage {
     var $input;
 
     function search_publication_db() {
+        pubSessionInit();
         parent::pdHtmlPage('search_results');
         $this->optionsGet();
 

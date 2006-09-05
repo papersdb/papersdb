@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.3 2006/08/30 17:00:08 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.4 2006/09/05 22:59:51 aicmltec Exp $
 
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
@@ -13,13 +13,16 @@ class pdNavMenuItem {
     var $page_title;
     var $url;
     var $access_level;
+    var $display;
     var $enabled;
 
-    function pdNavMenuItem($id, $page_title, $url, $access_level, $enabled) {
+    function pdNavMenuItem($id, $page_title, $url, $access_level,
+                           $display = 1, $enabled = 1) {
         $this->id           = $id;
-        $this->page_title    = $page_title;
+        $this->page_title   = $page_title;
         $this->url          = $url;
         $this->access_level = $access_level;
+        $this->display      = $display;
         $this->enabled      = $enabled;
     }
 };
@@ -38,7 +41,7 @@ class pdNavMenu {
         'home'               => array('Home', 'index.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'add_publication'    => array('Add Publication',
-                                      'Admin/add_publication.php',
+                                      'Admin/add_pub1.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'add_author'         => array('Add Author',
                                       'Admin/add_author.php',
@@ -103,7 +106,7 @@ class pdNavMenu {
     function pdNavMenu() {
         foreach ($this->nav_items_init as $id => $item) {
             $this->nav_items[$id]
-                = new pdNavMenuItem($id, $item[0], $item[1], $item[2], 1);
+                = new pdNavMenuItem($id, $item[0], $item[1], $item[2]);
         }
     }
 }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.12 2006/08/09 03:17:08 loyola Exp $
+// $Id: edit_user.php,v 1.13 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -23,6 +23,7 @@ class edit_user extends pdHtmlPage {
     function edit_user() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('edit_user');
 
         if ($access_level <= 0) {

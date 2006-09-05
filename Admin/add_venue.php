@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.18 2006/08/23 20:40:50 aicmltec Exp $
+// $Id: add_venue.php,v 1.19 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -39,6 +39,7 @@ class add_venue extends pdHtmlPage {
     function add_venue() {
         global $access_level;
 
+        pubSessionInit();
         parent::pdHtmlPage('add_venue');
 
         if ($access_level <= 0) {

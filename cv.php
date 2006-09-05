@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.10 2006/08/02 18:26:35 aicmltec Exp $
+// $Id: cv.php,v 1.11 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -21,6 +21,7 @@ require_once 'includes/pdPublication.php';
  */
 class cv extends pdHtmlPage {
     function cv() {
+        pubSessionInit();
         parent::pdHtmlPage('cv', null, false);
 
         if (!isset($_POST['pub_ids'])) {

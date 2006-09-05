@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.38 2006/08/25 22:09:08 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.39 2006/09/05 22:59:51 aicmltec Exp $
 
 /**
  * \file
@@ -31,10 +31,10 @@ require_once 'HTML/Table.php';
 class pdHtmlPage {
     var $page_id;
     var $page_title;
-    var $relativeUrl;
+    var $relative_url;
     var $redirectUrl;
     var $redirectTimeout;
-    var $loginLevel;
+    var $login_level;
     var $db;
     var $loginError;
     var $pageError;
@@ -52,16 +52,28 @@ class pdHtmlPage {
     /**
      * Constructor.
      */
-    function pdHtmlPage($page_id, $redirectUrl = null, $useStdLayout = true) {
+    function pdHtmlPage($page_id, $title = null, $relative_url = null,
+                        $login_level = PD_NAV_MENU_NEVER,
+                        $useStdLayout = true) {
         $this->nav_menu = new pdNavMenu();
 
         if (($page_id != null) && ($page_id != '')
             && (isset($this->nav_menu->nav_items[$page_id]))) {
-            $this->page_id     = $page_id;
-            $this->page_title   = $this->nav_menu->nav_items[$page_id]->page_title;
-            $this->relativeUrl = $this->nav_menu->nav_items[$page_id]->url;
-            $this->loginLevel  = $this->nav_menu->nav_items[$page_id]->access_level;
+            $this->page_id = $page_id;
+            $this->page_title
+                = $this->nav_menu->nav_items[$page_id]->page_title;
+            $this->relative_url = $this->nav_menu->nav_items[$page_id]->url;
+            $this->login_level
+                = $this->nav_menu->nav_items[$page_id]->access_level;
         }
+        else {
+            $this->page_title   = $title;
+            $this->relative_url = $relative_url;
+            $this->login_level  = $login_level;
+        }
+
+        if ($urlPrefix != null)
+            $this->urlPrefix = $urlPrefix;
 
         $this->redirectUrl     = $redirectUrl;
         $this->redirectTimeout = 0;
@@ -89,9 +101,9 @@ class pdHtmlPage {
             . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
             . "\"http://www.w3.org/TR/html4/strict.dtd\">\n"
             . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
-            . 'lang="en">'
-            . '<head>'
-            . '<title>';
+            . "lang=\"en\">\n"
+            . "<head>\n"
+            . "<title>\n";
 
         // change the HTML title tag if this is the index page
         if ($this->page_title == 'Home')
@@ -101,25 +113,26 @@ class pdHtmlPage {
 
         $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
-            . 'content="text/html; charset=iso-8859-1" />';
+            . 'content="text/html; charset=iso-8859-1" />' . "\n";
 
         if ($this->redirectUrl != null) {
             $result .= '<meta http-equiv="refresh" content="5;url='
-                . $this->redirectUrl . '" />';
+                . $this->redirectUrl . '" />' . "\n";
         }
 
-        if (strstr($this->relativeUrl, '/'))
+        if (strstr($this->relative_url, '/'))
             $cssFile = '../style.css';
         else
             $cssFile = 'style.css';
 
-        $result .= '<link rel="stylesheet" href="' . $cssFile . '" /></head>'
+        $result .= '<link rel="stylesheet" href="' . $cssFile . '" />' . "\n"
+            . "</head>\n"
             . $this->js
-            . '<body>';
+            . "\n<body>\n";
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
-            $result .= $this->navMenu($this->page_id);
+            $result .= $this->navMenu();
             $result .= '<div id="content">';
         }
 
@@ -133,7 +146,7 @@ class pdHtmlPage {
         }
 
         if ($this->hasHelpTooltips) {
-            if (strstr($this->relativeUrl, '/'))
+            if (strstr($this->relative_url, '/'))
                 $jsFile = '../wz_tooltip.js';
             else
                 $jsFile = 'wz_tooltip.js';
@@ -220,11 +233,11 @@ class pdHtmlPage {
         global $access_level;
 
         $url_prefix = '';
-        if (isset($this->page_id) && strstr($this->relativeUrl, '/'))
+        if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
 
         foreach ($this->nav_menu->nav_items as $page_id => $item) {
-            if (!$item->enabled || ($item->access_level <= PD_NAV_MENU_NEVER))
+            if (!$item->display || ($item->access_level <= PD_NAV_MENU_NEVER))
                 continue;
 
             // the first AND statement displays the nav menu links
@@ -241,7 +254,7 @@ class pdHtmlPage {
                 || (($access_level == 0)
                     && ($item->access_level < PD_NAV_MENU_LOGIN_REQUIRED))) {
 
-                if ($page_id == $this->page_id)
+                if (($page_id == $this->page_id) || !$item->enabled)
                     $options[$item->page_title] = '';
                 else
                     $options[$item->page_title] = $url_prefix . $item->url;
@@ -336,7 +349,7 @@ END;
     }
 
     function pageFooter() {
-        if (strstr($this->relativeUrl, '/'))
+        if (strstr($this->relative_url, '/'))
             $uofa_logo = '../images/uofa_logo.gif';
         else
             $uofa_logo = 'images/uofa_logo.gif';
@@ -380,7 +393,7 @@ END;
     }
 
     function quickSearchFormCreate() {
-        if (strstr($this->relativeUrl, '/'))
+        if (strstr($this->relative_url, '/'))
             $script = '../search_publication_db.php';
         else
             $script = 'search_publication_db.php';
@@ -393,9 +406,14 @@ END;
         return $form;
     }
 
+    function navMenuItemDisplay($page_id, $enable) {
+        assert('isset($this->nav_menu->nav_items[$page_id])');
+        $this->nav_menu->nav_items[$page_id]->display = $enable;
+    }
+
     function navMenuItemEnable($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
-        $this->nav_menu->nav_items[$page_id] = $enable;
+        $this->nav_menu->nav_items[$page_id]->enabled = $enable;
     }
 }
 
