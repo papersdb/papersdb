@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.39 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.40 2006/09/06 22:36:58 aicmltec Exp $
 
 /**
  * \file
@@ -301,10 +301,12 @@ class pdHtmlPage {
     }
 
     function errorMessage() {
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
         return '<br/>'
-            . '<h4>There was a problem handling your request.'
-            . '<br/>Please go back and try again.</h4>'
-            . '<br/>';
+            . '<h4>An error has occurred</h4><br/>'
+            . 'Please return to the <a href="' . $url . '">main page<a>.';
     }
 
     function pageHeader() {

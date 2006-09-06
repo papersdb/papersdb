@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.1 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_pub1.php,v 1.2 2006/09/06 22:36:58 aicmltec Exp $
 
 /**
  * \file
@@ -35,28 +35,36 @@ class add_pub1 extends pdHtmlPage {
                 $$opt = null;
         }
 
+        if (isset($_SESSION['pub'])) {
+            $pub =& $_SESSION['pub'];
+        }
+        else if ($pub_id != '') {
+            $pub = new pdPublication();
+            $result = $pub->dbLoad($db, $pub_id);
+            assert('$result');
+            $_SESSION['pub'] =& $pub;
+        }
+        else {
+            $pub = new pdPublication();
+            $_SESSION['pub'] =& $pub;
+        }
+
         if ($pub != null)
             parent::pdHtmlPage('edit_publication');
         else
             parent::pdHtmlPage('add_publication');
-
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
 
         if ($access_level <= 0) {
             $this->loginError = true;
             return;
         }
 
-        $db =& dbCreate();
+        $this->navMenuItemEnable('add_publication', 0);
+        $this->navMenuItemDisplay('add_author', 0);
+        $this->navMenuItemDisplay('add_category', 0);
+        $this->navMenuItemDisplay('add_venue', 0);
 
-        if (isset($_GET['pub_id']) && ($_GET['pub_id'] != '')) {
-            $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $_GET['pub_id']);
-            assert('$result');
-        }
+        $db =& dbCreate();
 
         $form = new HTML_QuickForm('add_pub2');
         $form->addElement('header', null, 'Add Publication');
@@ -114,42 +122,8 @@ class add_pub1 extends pdHtmlPage {
                     'submit', 'next', 'Next step >>')),
             'buttons', '', '&nbsp', false);
 
-        if ($pub != null) {
-            $defaults = array('title'      => $pub->title,
-                              'abstract'   => $pub->abstract,
-                              'keywords'   => $pub->keywords);
-
-            if ($pub->venue_id != null)
-                $defaults['venue_id'] = $pub->venue_id;
-
-            if (count($pub->authors) > 0) {
-                foreach ($pub->authors as $author)
-                    $defaults['authors'][] = $author->author_id;
-            }
-
-            $this->setConstants(array('keywords' => $pub->keywords));
-
-            $this->setConstants($defaults);
-        }
-
         $this->db =& $db;
         $this->form =& $form;
-
-        if (($_SESSION['state'] == 'pub_add')
-            && isset($_SESSION["selected_authors"])) {
-            $auth_list = explode(',', $_SESSION['selected_authors']);
-
-            if (count($auth_list) > 0) {
-                $this->contentPre .= 'Authors selected so far:<br/><ul>';
-
-                foreach ($auth_list as $auth_id) {
-                    $sel_auth = new pdAuthor();
-                    $sel_auth->dbLoad($db, $auth_id);
-                    $this->contentPre .= '<li>' . $sel_auth->name . '</li>';
-                }
-                $this->contentPre .= '</ul>';
-            }
-        }
 
         if ($form->validate()) {
             $this->processForm();
@@ -165,15 +139,23 @@ class add_pub1 extends pdHtmlPage {
     function renderForm() {
         $defaults = array();
 
-        if (isset($_SESSION['new_pub'])) {
-            $pub =& $_SESSION['new_pub'];
-            $defaults['title'] = $pub->title;
-            $defaults['venue_id'] = $pub->venue_id;
-            $defaults['abstract'] = $pub->abstract;
-            $defaults['keywords'] = $pub->keywords;
+        if (isset($_SESSION['pub'])) {
+            $pub =& $_SESSION['pub'];
+
+            $defaults = array('title'    => $pub->title,
+                              'abstract' => $pub->abstract,
+                              'keywords' => $pub->keywords,
+                              'venue_id' => $pub->venue_id);
         }
 
         $this->form->setDefaults($defaults);
+
+        if (isset($_SESSION['pub']) && ($_SESSION['pub']->title != '')) {
+            $pub =& $_SESSION['pub'];
+
+            $this->contentPre .= '<h3>Publication Information</h3>'
+                . $pub->getCitationHtml('..', false) . '<p/>';
+        }
 
         $renderer =& $this->form->defaultRenderer();
 
@@ -203,26 +185,18 @@ class add_pub1 extends pdHtmlPage {
 
         $values = $this->form->exportValues();
 
-        if ($pub != null) {
-            if ($this->debug) {
-                echo 'values<pre>' . print_r($values, true) . '</pre>';
-            }
+        $pub =& $_SESSION['pub'];
+        assert('$pub != null');
 
-            $pub->load($values);
-            if (isset($values['venue_id']) && ($values['venue_id'] != '')
-                && ($values['venue_id'] != '0'))
-                $pub->addVenue($db, $values['venue_id']);
-            $pub->addCategory($db, $values['cat_id']);
-        }
-        else {
-            $pub = new pdPublication();
-            $pub->load($values);
-            if ($values['venue_id'] > 0)
-                $pub->addVenue($db, $values['venue_id']);
+        if ($this->debug) {
+            echo 'values<pre>' . print_r($values, true) . '</pre>';
         }
 
+        $pub->load($values);
         $_SESSION['state'] = 'pub_add';
-        $_SESSION['new_pub'] =& $pub;
+
+        if (isset($values['venue_id']) && ($values['venue_id'] > 0))
+            $pub->addVenue($db, $values['venue_id']);
 
         if ($this->debug)
             $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';

@@ -111,8 +111,7 @@ function format80($text) {
 
 function pubSessionInit() {
     $_SESSION['state'] = null;
-    $_SESSION['selected_authors'] = null;
-    $_SESSION['new_pub'] = null;
+    $_SESSION['pub'] = null;
 }
 
 function backtrace() {

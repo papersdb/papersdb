@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.50 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.51 2006/09/06 22:36:58 aicmltec Exp $
 
 /**
  * \file
@@ -237,18 +237,6 @@ class pdPublication {
         return $authorsStr;
     }
 
-    // returns the author ids as an array
-    function authorsToArray() {
-        $result = array();
-
-        if (!isset($this->authors)) return $result;
-
-        foreach ($this->authors as $author) {
-            $result[] = $author->author_id;
-        }
-        return $result;
-    }
-
     /**
      * removes all extra_info items of length 0
      */
@@ -460,18 +448,33 @@ class pdPublication {
             $result = $this->venue->dbLoad($db, $mixed);
             assert('$result');
             $this->venue_id = $this->venue->venue_id;
+
+            $this->category = new pdCategory();
+            if ($this->venue->type == 'Conference') {
+                $result = $this->category->dbLoad($db, null, 'In Conference');
+                assert('$result');
+            }
+            else if ($this->venue->type == 'Workshop') {
+                $result = $this->category->dbLoad($db, null, 'In Workshop');
+                assert('$result');
+            }
+            else if ($this->venue->type == 'Journal') {
+                $result = $this->category->dbLoad($db, null, 'In Journal');
+                assert('$result');
+            }
             return;
         }
 
-        if (!is_string($mixed))  return;
-        $this->venue = $mixed;
+        // should never get here since venues must now always be objects or
+        // venue_ids
+        assert('false');
     }
 
     function addCategory(&$db, $mixed) {
         if (is_object($mixed)) {
             $this->category = $mixed;
         }
-        else if (is_string($mixed)) {
+        else if (is_numeric($mixed)) {
             if (($this->category != null)
                 && ($this->category->cat_id == $mixed)) return;
 
@@ -693,10 +696,10 @@ class pdPublication {
         $citation .= '<span id="pub_title">&quot;' . $this->title
             . '&quot;</span>. ';
 
-        // Additional Information - Outputs the category specific
-        // information if it exists
+        // Additional Information - Outputs the category specific information
+        // if it exists
+        $info = '';
         if (count($this->info) > 0) {
-            $info = '';
             foreach ($this->info as $name => $value) {
                 if($value != null)
                     $info .= ", " . $value;
@@ -706,9 +709,8 @@ class pdPublication {
         $pub_date = split('-', $this->published);
 
         //  Venue
+        $v = '';
         if (is_object($this->venue)) {
-            $v = '';
-
             if (($this->venue->url != '') && ($this->venue->url != 'http://'))
                 $v .= ' <a href="' . $this->venue->url . '" target="_blank">';
 
@@ -732,17 +734,9 @@ class pdPublication {
             }
             else if ($this->venue->data != '')
                 $v .= ', ' . $this->venue->data;
-
-            if ($v != '')
-                $citation .= $v;
-
-            if ($info != '')
-                $citation .= $info;
-
-            $citation .= ', ';
         }
 
-        $date_str = "";
+        $date_str = '';
         if ($pub_date[1] != 0)
             $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
         if ($pub_date[2] != 0)
@@ -751,6 +745,15 @@ class pdPublication {
             $date_str .= $pub_date[0];
 
         if ($date_str != '')
+            $citation .= $date_str . '.';
+
+        if (($v != '') && ($info != '') && ($date_str != ''))
+            $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
+        if (($v != '') && ($info == '') && ($date_str != ''))
+            $citation .= $v . ', ' . $date_str . '.';
+        if (($v != '') && ($info == '') && ($date_str == ''))
+            $citation .= $v . '.';
+        if (($v == '') && ($info == '') && ($date_str != ''))
             $citation .= $date_str . '.';
 
         return $citation;

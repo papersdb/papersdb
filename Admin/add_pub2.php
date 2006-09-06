@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.1 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_pub2.php,v 1.2 2006/09/06 22:36:58 aicmltec Exp $
 
 /**
  * \file
@@ -24,11 +24,19 @@ class add_pub2 extends pdHtmlPage {
     function add_pub2() {
         global $access_level;
 
-        assert('$_SESSION["state"] == "pub_add"');
-
         parent::pdHtmlPage('add_publication', 'Select Authors',
                            'Admin/add_pub2.php',
                            PD_NAV_MENU_LEVEL_ADMIN);
+
+        if ($access_level <= 1) {
+            $this->loginError = true;
+            return;
+        }
+
+        if ($_SESSION['state'] != 'pub_add') {
+            $this->pageError = true;
+            return;
+        }
 
         $this->navMenuItemEnable('add_publication', 0);
         $this->navMenuItemDisplay('add_author', 0);
@@ -78,7 +86,7 @@ class add_pub2 extends pdHtmlPage {
                                 'favorite_authors' => $user->collaborators,
                                 'most_used_authors' => $most_used_authors),
                           array('class' => 'pool',
-                                'style' => 'width:150px;height=500px'));
+                                'style' => 'width:150px;height:200px;'));
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
@@ -108,29 +116,23 @@ class add_pub2 extends pdHtmlPage {
     }
 
     function renderForm() {
+        assert('isset($_SESSION["pub"])');
+
         $db =& $this->db;
         $form =& $this->form;
+        $pub =& $_SESSION['pub'];
 
         $defaults = array();
 
-        if (isset($_SESSION['new_pub'])) {
-            $new_pub =& $_SESSION['new_pub'];
-            $auth_list =& $new_pub->authorsToArray();
-
-            if (count($auth_list) > 0) {
-                foreach ($auth_list as $auth_id)
-                    $defaults['authors'][] = $auth_id;
-            }
+        if (count($pub->authors) > 0) {
+            foreach ($pub->authors as $author)
+                $defaults['authors'][] = $author->author_id;
         }
 
         $form->setDefaults($defaults);
 
-        if (isset($_SESSION['new_pub'])) {
-            $new_pub =& $_SESSION['new_pub'];
-
-            $this->contentPre .= '<h3>Publication Information</h3>'
-                . $new_pub->title . '<p/>';
-        }
+        $this->contentPre .= '<h3>Publication Information</h3>'
+            . $pub->getCitationHtml('', false) . '<p/>';
 
         $renderer =& $form->defaultRenderer();
 
@@ -143,13 +145,14 @@ class add_pub2 extends pdHtmlPage {
 
         $form->accept($renderer);
         $this->renderer =& $renderer;
-        $this->javascript();
     }
 
     function processForm() {
+        assert('isset($_SESSION["pub"])');
+
         $db =& $this->db;
         $form =& $this->form;
-        $new_pub =& $_SESSION['new_pub'];
+        $pub =& $_SESSION['pub'];
 
         $values = $form->exportValues();
 
@@ -158,11 +161,11 @@ class add_pub2 extends pdHtmlPage {
                 $pos = strpos($author, ':');
                 if ($pos !== false) {
                     $values['authors'][$index] = substr($author, $pos + 1);
-                    $new_pub->addAuthor($db, $values['authors'][$index]);
+                    $pub->addAuthor($db, $values['authors'][$index]);
                 }
             }
 
-            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
+            //$this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
         }
 
         if (isset($values['add_new_author']))
@@ -171,11 +174,6 @@ class add_pub2 extends pdHtmlPage {
             header('Location: add_pub1.php');
         else
             header('Location: add_pub3.php');
-    }
-
-    function javascript() {
-        $this->js = <<<JS_END
-JS_END;
     }
 }
 

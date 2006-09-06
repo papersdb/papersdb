@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.29 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_author.php,v 1.30 2006/09/06 22:36:58 aicmltec Exp $
 
 /**
  * \file
@@ -188,11 +188,11 @@ class add_author extends pdHtmlPage {
         if ($author->author_id != '')
             $form->setDefaults($author->asArray());
 
-        if (($_SESSION['state'] == 'pub_add') && isset($_SESSION['new_pub'])) {
-            $new_pub =& $_SESSION['new_pub'];
+        if (($_SESSION['state'] == 'pub_add') && isset($_SESSION['pub'])) {
+            $pub =& $_SESSION['pub'];
 
             $this->contentPre .= '<h3>Publication Information</h3>'
-                . $new_pub->getCitationHtml('..', false) . '<p/>';
+                . $pub->getCitationHtml('..', false) . '<p/>';
         }
 
         $renderer =& $form->defaultRenderer();
@@ -246,8 +246,8 @@ class add_author extends pdHtmlPage {
         $author->dbSave($db);
 
         if ($_SESSION['state'] == 'pub_add') {
-            $new_pub =& $_SESSION['new_pub'];
-            $new_pub->addAuthor($db, $author->author_id);
+            $pub =& $_SESSION['pub'];
+            $pub->addAuthor($db, $author->author_id);
 
             $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
             if (isset($values['add_another']))
