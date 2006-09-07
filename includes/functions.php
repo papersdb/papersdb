@@ -110,8 +110,11 @@ function format80($text) {
 }
 
 function pubSessionInit() {
-    $_SESSION['state'] = null;
-    $_SESSION['pub'] = null;
+    unset($_SESSION['state']);
+    unset($_SESSION['pub']);
+    unset($_SESSION['paper']);
+    unset($_SESSION['attachments']);
+    unset($_SESSION['att_types']);
 }
 
 function backtrace() {

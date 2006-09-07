@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.51 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: pdPublication.php,v 1.52 2006/09/07 22:08:19 aicmltec Exp $
 
 /**
  * \file
@@ -743,9 +743,6 @@ class pdPublication {
             $date_str .= $pub_date[2] . ', ';
         if ($pub_date[0] != 0)
             $date_str .= $pub_date[0];
-
-        if ($date_str != '')
-            $citation .= $date_str . '.';
 
         if (($v != '') && ($info != '') && ($date_str != ''))
             $citation .= $v . ', ' . $info . ', ' . $date_str . '.';

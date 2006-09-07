@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.1 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: add_pub4.php,v 1.2 2006/09/07 22:08:19 aicmltec Exp $
 
 /**
  * \file
@@ -15,6 +15,7 @@ require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdExtraInfoList.php';
+require_once 'includes/pdAttachmentTypesList.php';
 
 /**
  * Renders the whole page.
@@ -46,21 +47,43 @@ class add_pub4 extends pdHtmlPage {
         $db =& $this->db;
         $pub =& $_SESSION['pub'];
 
-        $options = array('remove_paper', 'num_att', 'remove_att');
-        foreach ($options as $opt) {
-            if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
-                $$opt = $_GET[$opt];
-            else if (isset($_POST[$opt]) && ($_POST[$opt] != ''))
-                $$opt = $_POST[$opt];
-            else if ($opt == 'num_att')
-                $$opt = 0;
-            else
-                $$opt = null;
-        }
-
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
+        //$this->contentPre .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
 
         $form = new HTML_QuickForm('add_pub4');
+        $this->form =& $form;
+        $this->formAddAttachments();
+        $this->formAddWebLinks();
+
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'submit', 'prev_step', '<< Previous Step'),
+                HTML_QuickForm::createElement(
+                    'submit', 'next_step', 'Next Step >>')),
+            'buttons', '', '&nbsp', false);
+
+
+        if ($form->validate()) {
+            $this->processForm();
+        }
+        else {
+            $this->renderForm();
+        }
+        $this->db->close();
+    }
+
+    function formAddAttachments() {
+        $db =& $this->db;
+        $form =& $this->form;
+        $pub =& $_SESSION['pub'];
+
+        $num_att = count($_SESSION['attachments']);
+
+        if ($num_att == 0) {
+            if (count($pub->additional_info) > 0)
+                $num_att = count($pub->additional_info);
+        }
 
         $form->addElement('header', null, 'Attachments');
 
@@ -75,79 +98,145 @@ class add_pub4 extends pdHtmlPage {
                 HTML_QuickForm::createElement(
                     'static', 'assigned_paper', null, $filename),
                 HTML_QuickForm::createElement(
-                    'button', 'remove_paper', 'Remove Paper',
-                    array('onclick' => 'removePaper();'))
+                    'submit', 'remove_paper', 'Remove Paper')
                     ),
-                null, 'Current Paper:', '&nbsp', false);
+                null, $this->helpTooltip('Current Paper', 'paperAtt') . ':',
+                '&nbsp', false);
         }
         else {
             unset($_SESSION['paper']);
-            $form->addElement('file', 'uploadpaper', 'Paper:',
+            $form->addElement('file', 'uploadpaper',
+                              $this->helpTooltip('Paper', 'paperAtt') . ':',
                               array('size' => 45));
         }
 
+        $att_types = new pdAttachmentTypesList($db);
         $form->addElement('hidden', 'num_att', $num_att);
-
-        // remove the attachments first
-        if (count($remove_att) > 0) {
-            foreach (array_keys($remove_att) as $key) {
-                if (isset($_SESSION['attachments'][$key]))
-                    unset($_SESSION['attachments'][$key]);
-            }
-
-            // reindex
-            $_SESSION['attachments'] = array_values($_SESSION['attachments']);
-        }
 
         for ($i = 0; $i < $num_att; $i++) {
             unset($filename);
 
-            if (isset($_SESSION['attachments'][$i]))
+            if (isset($_SESSION['attachments'][$i])) {
                 $filename = $_SESSION['attachments'][$i]['name'];
-            else if ($pub->additional_info[$i] != '')
-                $filename = $pub->additional_info[$i];
+                $att_type = $_SESSION['att_types'][$i];
+            }
+            else if ($pub->additional_info[$i] != '') {
+                $filename = $pub->additional_info[$i]->location;
+                $att_type = $_SESSION['att_types'][$i]->type;
+            }
 
             if ($filename != '') {
                 $form->addGroup(
                     array(
                         HTML_QuickForm::createElement(
-                            'static', 'assigned_att' . $i, null, $filename),
+                            'static', 'att_type' . $i, null, '['.$att_type.']'),
                         HTML_QuickForm::createElement(
-                            'button', 'remove_att' . $i, 'Remove Attachment',
-                            array('onclick'
-                                  => 'removeAttachment(' . $i . ');'))
+                            'static', 'attachment' . $i, null, $filename),
+                        HTML_QuickForm::createElement(
+                            'submit', 'remove_att' . $i, 'Remove Attachment')
                         ),
-                    null, 'Attachment ' . ($i + 1) . ':', '&nbsp', false);
-            }
-            else {
-                unset($_SESSION['attachments'][$i]);
-                $form->addElement('file', 'attachment' . $i,
-                                  'Attachment ' . ($i + 1) . ':',
-                                  array('size' => 45));
+                    null, 'Attachment ' . ($i + 1) . ':', '&nbsp;', false);
             }
         }
 
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                    'submit', 'prev_step', '<< Previous Step'),
+                    'select', 'new_att_type', null, $att_types->list),
                 HTML_QuickForm::createElement(
-                    'button', 'add_att' . $i, 'Add Attachment',
-                    array('onclick' =>
-                          'dataKeep(' . ($num_att + 1) . ');')),
-                HTML_QuickForm::createElement(
-                    'submit', 'next_step', 'Next Step >>')),
-            'buttons', '', '&nbsp', false);
+                    'file', 'new_att', null, array('size' => 35))
+                ),
+            'new_att_group', 'Attachment ' . ($num_att + 1) . ':', '&nbsp;',
+            false);
 
-        $this->form =& $form;
+        $form->addElement('submit', 'add_att', 'Add Attachment');
+    }
 
-        if ($form->validate()) {
-            $this->processForm();
+    function formAddWebLinks() {
+        $db =& $this->db;
+        $form =& $this->form;
+        $pub =& $_SESSION['pub'];
+
+        $options = array('num_web_links', 'num_pub_links');
+        foreach ($options as $opt) {
+            if (isset($_SESSION[$opt]) && is_numeric($_SESSION[$opt]))
+                $$opt = $_SESSION[$opt];
+            else
+                $$opt = 0;
+        }
+
+        $form->addElement('header', 'link_info', 'Links', null);
+
+        $label = $this->helpTooltip('Web Links', 'extLinks') . ':';
+
+        // get here only if the publication already has links assigned
+        if (count($pub->extPointer) == 0) {
+            $form->addElement('static', 'web_link_label', $label, 'none');
         }
         else {
-            $this->renderForm();
+            $c = 0;
+            foreach ($pub->extPointer as $text => $link) {
+                if (strpos($link, 'http://') !== false)
+                    $value = '<a href="' . $link . '">' . $text . '</a>';
+                else
+                    $value = $link;
+                $form->addGroup(
+                    array(
+                        HTML_QuickForm::createElement(
+                            'static', 'curr_web_links[' . $text
+                            . ':' . $link . ']', $label,
+                            $value),
+                        HTML_QuickForm::createElement(
+                            'advcheckbox',
+                            'remove_curr_web_links[' . $text
+                            . ':' . $link . ']',
+                            null, 'check to remove',
+                            null, array('no', 'yes'))),
+                    'curr_web_links_group', $label, '&nbsp;', false);
+                $label = '';
+                $c++;
+            }
         }
-        $this->db->close();
+
+        $form->addElement('submit', 'add_web_links', 'Add Web Link');
+        $form->addElement('hidden', 'num_web_links', $num_web_links);
+
+        // publication links
+        $label = $this->helpTooltip('Publication Links', 'pubLinks') . ':';
+
+        if (count($pub->intPointer) == 0) {
+            $form->addElement('static', 'pub_link_label', $label, 'none');
+        }
+        else {
+            $c = 0;
+            foreach ($pub->intPointer as $int) {
+                $intPub = new pdPublication();
+                $result = $intPub->dbLoad($db, $int->value);
+                if ($result) {
+                    $pubLinkstr = '<a href="' . $url
+                        . 'view_publication.php?pub_id=' . $int->value
+                        . '">' . $intPub->title . '</a>';
+
+                    $form->addGroup(
+                        array(
+                            HTML_QuickForm::createElement(
+                                'static', 'curr_pub_links['
+                                . $int->value, $label . ']',
+                                $pubLinkstr),
+                            HTML_QuickForm::createElement(
+                                'advcheckbox',
+                                'remove_curr_pub_links[' . $int->value . ']',
+                                null, 'check to remove',
+                                null, array('no', 'yes'))),
+                        'curr_pub_links_group', $label, '<br/>', false);
+                    $label = '';
+                    $c++;
+                }
+            }
+        }
+
+        $form->addElement('submit', 'add_pub_links', 'Add Publication Link');
+        $form->addElement('hidden', 'num_pub_links', $num_pub_links);
     }
 
     function renderForm() {
@@ -192,37 +281,58 @@ class add_pub4 extends pdHtmlPage {
             $_SESSION['paper'] =  $element->getValue();
         }
 
-        for ($i = 0; $i < $values['num_att']; $i++) {
-            $element =& $form->getElement('attachment' . $i);
-
-            if (!isset($element->message) && ($element->isUploadedFile())) {
-                echo "here<br/>";
-                $_SESSION['attachments'][$i] =  $element->getValue();
+        $group =& $form->getElement('new_att_group');
+        $elements =& $group->getElements();
+        foreach ($elements as $element) {
+            if (($element->getName() == 'new_att')
+                && $element->isUploadedFile()) {
+                $_SESSION['attachments'][] =  $element->getValue();
+                $_SESSION['att_types'][] =  $values['new_att_type'];
             }
         }
 
-        $this->contentPre .= 'att<pre>' . print_r($_SESSION, true) . '</pre>';
-        //$this->contentPre .= 'values<pre>' . print_r($values, true) . '</pre>';
+        for ($i = 0; $i < $values['num_att']; $i++) {
+            if (isset($values['remove_att' . $i])) {
+                unset($_SESSION['attachments'][$i]);
 
-        //if (isset($values['prev_step']))
-        //    header('Location: add_pub3.php');
-        //else
-        //    header('Location: add_pub5.php');
+                // reindex
+                $_SESSION['attachments']
+                    = array_values($_SESSION['attachments']);
+                $_SESSION['num_att'] = count($_SESSION['attachments']);
+                header('Location: add_pub4.php');
+                return;
+            }
+        }
+
+        //$this->contentPre .= 'element<pre>' . print_r($form, true) . '</pre>';
+        //$this->contentPre .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
+        //$this->contentPre .= 'values<pre>' . print_r($values, true) . '</pre>';
+        //return;
+
+        if (isset($values['add_att'])) {
+            header('Location: add_pub4.php');
+        }
+        else if (isset($values['remove_paper'])) {
+            unset($_SESSION['paper']);
+            header('Location: add_pub4.php');
+        }
+        else if (isset($values['add_web_links'])) {
+            $_SESSION['num_web_links'] = $values['num_web_links'] + 1;
+            header('Location: add_pub4.php');
+        }
+        else if (isset($values['add_pub_links'])) {
+            $_SESSION['num_pub_links'] = $values['num_pub_links'] + 1;
+            header('Location: add_pub4.php');
+        }
+        else if (isset($values['prev_step']))
+            header('Location: add_pub3.php');
+        else
+            header('Location: add_pub5.php');
     }
 
     function javascript() {
         $this->js = <<<JS_END
             <script language="JavaScript" type="text/JavaScript">
-
-        var categoryHelp=
-            "Category describes the type of document that you are submitting "
-            + "to the site. For examplethis could be a journal entry, a book "
-            + "chapter, etc.<br/><br/>"
-            + "Please use the drop down menu to select an appropriate "
-            + "category to classify your paper. If you cannot find an "
-            + "appropriate category you can select 'Add New Category' from "
-            + "the drop down menu and you will be asked for the new category "
-            + "information on a subsequent page.<br/><br/>";
 
         var paperAtt =
             "Attach a postscript, PDF, or other version of the publication.";
@@ -281,19 +391,6 @@ class add_pub4 extends pdHtmlPage {
                 = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
                 + qsString;
         }
-
-        function removePaper() {
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + "remove_paper=yes";
-        }
-
-        function removeAttachment(num) {
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + "remove_att[" + num + "]=yes";
-        }
-
         </script>
 JS_END;
     }
