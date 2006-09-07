@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.2 2006/09/07 22:08:19 aicmltec Exp $
+// $Id: add_pub4.php,v 1.3 2006/09/07 22:21:41 aicmltec Exp $
 
 /**
  * \file
@@ -78,6 +78,7 @@ class add_pub4 extends pdHtmlPage {
         $form =& $this->form;
         $pub =& $_SESSION['pub'];
 
+        $this->contentPre .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         $num_att = count($_SESSION['attachments']);
 
         if ($num_att == 0) {
@@ -294,11 +295,12 @@ class add_pub4 extends pdHtmlPage {
         for ($i = 0; $i < $values['num_att']; $i++) {
             if (isset($values['remove_att' . $i])) {
                 unset($_SESSION['attachments'][$i]);
+                unset($_SESSION['att_types'][$i]);
 
                 // reindex
                 $_SESSION['attachments']
                     = array_values($_SESSION['attachments']);
-                $_SESSION['num_att'] = count($_SESSION['attachments']);
+                $_SESSION['att_types'] = array_values($_SESSION['att_types']);
                 header('Location: add_pub4.php');
                 return;
             }
