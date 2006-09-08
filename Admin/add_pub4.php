@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.4 2006/09/08 16:30:40 aicmltec Exp $
+// $Id: add_pub4.php,v 1.5 2006/09/08 17:14:04 loyola Exp $
 
 /**
  * \file
@@ -161,36 +161,47 @@ class add_pub4 extends pdHtmlPage {
 
         $form->addElement('header', 'link_info', 'Links', null);
 
-        $label = $this->helpTooltip('Web Links', 'extLinks') . ':';
-        $c = 0;
-        foreach ($pub->extPointer as $text => $link) {
-            if (strpos($link, 'http://') !== false)
-                $value = '<a href="' . $link . '">' . $text . '</a>';
-            else
-                $value = $link;
-            $form->addGroup(
-                array(
-                    HTML_QuickForm::createElement(
-                        'static', 'curr_web_links[' . $text
-                        . ':' . $link . ']', $label,
-                        $value),
-                    HTML_QuickForm::createElement(
-                        'advcheckbox',
-                        'remove_curr_web_links[' . $text
-                        . ':' . $link . ']',
-                        null, 'check to remove',
-                        null, array('no', 'yes'))),
-                'curr_web_links_group', $label, '&nbsp;', false);
-            $label = '';
-            $c++;
+        if (count($pub->extPointer) > 0) {
+            $c = 0;
+            foreach (array_keys($pub->extPointer) as $text) {
+                $form->addGroup(
+                    array(
+                        HTML_QuickForm::createElement(
+                            'text', 'curr_web_link_text' . $c, null,
+                            array('size' => 30, 'maxlength' => 250)),
+                        HTML_QuickForm::createElement(
+                            'static', 'web_links_help', null, ':'),
+                        HTML_QuickForm::createElement(
+                            'text', 'curr_web_link_url' . $c, null,
+                            array('size' => 30, 'maxlength' => 250)),
+                        HTML_QuickForm::createElement(
+                            'submit', 'remove_web_link' . $c, 'Remove')
+                        ),
+                    'curr_web_links_group',
+                    $this->helpTooltip('Web Link ' . ($c+1), 'extLinks') . ':',
+                    '&nbsp;', false);
+                $label = '';
+                $c++;
+            }
         }
 
-        $form->addElement('text', 'new_web_link',
-                          'Web Link ' . ($num_web_links + 1) . ':',
-                          array('size' => 55));
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'text', 'new_web_link_text', null,
+                    array('size' => 30, 'maxlength' => 250)),
+                HTML_QuickForm::createElement(
+                    'static', 'web_links_help', null, ':'),
+                HTML_QuickForm::createElement(
+                    'text', 'new_web_link_url', null,
+                    array('size' => 30, 'maxlength' => 250))
+                ),
+            'new_web_links_group', 'New Web Link :', '&nbsp;', false);
 
         $form->addElement('submit', 'add_web_link', 'Add Web Link');
         $form->addElement('hidden', 'num_web_links', $num_web_links);
+
+        $this->contentPost .= 'pub<pre>' . print_r($pub, true) . '</pre>';
 
         // publication links
         $num_pub_links = count($pub->intPointer);
@@ -239,6 +250,15 @@ class add_pub4 extends pdHtmlPage {
         $pub =& $_SESSION['pub'];
 
         $defaults = array();
+
+        if (count($pub->extPointer) > 0) {
+            $c = 0;
+            foreach ($pub->extPointer as $text => $url) {
+                $defaults['curr_web_link_text' . $c] = $text;
+                $defaults['curr_web_link_url' . $c] = $url;
+                $c++;
+            }
+        }
 
         $form->setDefaults($defaults);
 
@@ -297,10 +317,23 @@ class add_pub4 extends pdHtmlPage {
             }
         }
 
+        if (($values['new_web_link_text'] != '')
+            && ($values['new_web_link_url'] != '')) {
+            $pub->addWebLink($values['new_web_link_text'],
+                             $values['new_web_link_url'] );
+        }
+
+        for ($i = 0; $i < $values['num_web_links']; $i++) {
+            if (isset($values['remove_web_link' . $i])) {
+                $pub->delWebLink($values['new_web_link_text']);
+                return;
+            }
+        }
+
         //$this->contentPre .= 'element<pre>' . print_r($form, true) . '</pre>';
         //$this->contentPre .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
-        //$this->contentPre .= 'values<pre>' . print_r($values, true) . '</pre>';
-        //return;
+        $this->contentPre .= 'values<pre>' . print_r($values, true) . '</pre>';
+        return;
 
         if (isset($values['add_att'])) {
             header('Location: add_pub4.php');
@@ -310,12 +343,9 @@ class add_pub4 extends pdHtmlPage {
             header('Location: add_pub4.php');
         }
         else if (isset($values['add_web_link'])) {
-            $pub->addWebLink($db, $values['new_web_link'.$e],
-                                $values['web_links_url'.$e]);
             header('Location: add_pub4.php');
         }
         else if (isset($values['add_pub_links'])) {
-            $_SESSION['num_pub_links'] = $values['num_pub_links'] + 1;
             header('Location: add_pub4.php');
         }
         else if (isset($values['prev_step']))

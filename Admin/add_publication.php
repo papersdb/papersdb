@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.70 2006/09/08 16:30:40 aicmltec Exp $
+// $Id: add_publication.php,v 1.71 2006/09/08 17:14:04 loyola Exp $
 
 /**
  * \file
@@ -884,8 +884,8 @@ class ActionProcess extends HTML_QuickForm_Action {
         }
 
         for ($e = 0; $e < $values['web_links']; $e++) {
-            $pub->addWebLink($db, $values['web_links_text'.$e],
-                                $values['web_links_url'.$e]);
+            $pub->addWebLink($values['web_links_text'.$e],
+                             $values['web_links_url'.$e]);
         }
 
         if (count($values['remove_curr_pub_links']) > 0) {

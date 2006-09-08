@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.53 2006/09/08 16:30:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.54 2006/09/08 17:14:04 loyola Exp $
 
 /**
  * \file
@@ -524,8 +524,12 @@ class pdPublication {
         $this->authors[] = $author;
     }
 
-    function addWebLink(&$db, $name, $url) {
+    function addWebLink($name, $url) {
         $this->extPointer[$name] = $url;
+    }
+
+    function delWebLink($name) {
+        unset($this->extPointer[$name]);
     }
 
     function addIntPointer(&$db, $pub_id) {
