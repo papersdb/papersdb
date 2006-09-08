@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.3 2006/09/07 22:21:41 aicmltec Exp $
+// $Id: add_pub4.php,v 1.4 2006/09/08 16:30:40 aicmltec Exp $
 
 /**
  * \file
@@ -53,7 +53,7 @@ class add_pub4 extends pdHtmlPage {
         $form = new HTML_QuickForm('add_pub4');
         $this->form =& $form;
         $this->formAddAttachments();
-        $this->formAddWebLinks();
+        $this->formAddLinks();
 
         $form->addGroup(
             array(
@@ -78,7 +78,6 @@ class add_pub4 extends pdHtmlPage {
         $form =& $this->form;
         $pub =& $_SESSION['pub'];
 
-        $this->contentPre .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         $num_att = count($_SESSION['attachments']);
 
         if ($num_att == 0) {
@@ -153,56 +152,48 @@ class add_pub4 extends pdHtmlPage {
         $form->addElement('submit', 'add_att', 'Add Attachment');
     }
 
-    function formAddWebLinks() {
+    function formAddLinks() {
         $db =& $this->db;
         $form =& $this->form;
         $pub =& $_SESSION['pub'];
 
-        $options = array('num_web_links', 'num_pub_links');
-        foreach ($options as $opt) {
-            if (isset($_SESSION[$opt]) && is_numeric($_SESSION[$opt]))
-                $$opt = $_SESSION[$opt];
-            else
-                $$opt = 0;
-        }
+        $num_web_links = count($pub->extPointer);
 
         $form->addElement('header', 'link_info', 'Links', null);
 
         $label = $this->helpTooltip('Web Links', 'extLinks') . ':';
-
-        // get here only if the publication already has links assigned
-        if (count($pub->extPointer) == 0) {
-            $form->addElement('static', 'web_link_label', $label, 'none');
-        }
-        else {
-            $c = 0;
-            foreach ($pub->extPointer as $text => $link) {
-                if (strpos($link, 'http://') !== false)
-                    $value = '<a href="' . $link . '">' . $text . '</a>';
-                else
-                    $value = $link;
-                $form->addGroup(
-                    array(
-                        HTML_QuickForm::createElement(
-                            'static', 'curr_web_links[' . $text
-                            . ':' . $link . ']', $label,
-                            $value),
-                        HTML_QuickForm::createElement(
-                            'advcheckbox',
-                            'remove_curr_web_links[' . $text
-                            . ':' . $link . ']',
-                            null, 'check to remove',
-                            null, array('no', 'yes'))),
-                    'curr_web_links_group', $label, '&nbsp;', false);
-                $label = '';
-                $c++;
-            }
+        $c = 0;
+        foreach ($pub->extPointer as $text => $link) {
+            if (strpos($link, 'http://') !== false)
+                $value = '<a href="' . $link . '">' . $text . '</a>';
+            else
+                $value = $link;
+            $form->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'static', 'curr_web_links[' . $text
+                        . ':' . $link . ']', $label,
+                        $value),
+                    HTML_QuickForm::createElement(
+                        'advcheckbox',
+                        'remove_curr_web_links[' . $text
+                        . ':' . $link . ']',
+                        null, 'check to remove',
+                        null, array('no', 'yes'))),
+                'curr_web_links_group', $label, '&nbsp;', false);
+            $label = '';
+            $c++;
         }
 
-        $form->addElement('submit', 'add_web_links', 'Add Web Link');
+        $form->addElement('text', 'new_web_link',
+                          'Web Link ' . ($num_web_links + 1) . ':',
+                          array('size' => 55));
+
+        $form->addElement('submit', 'add_web_link', 'Add Web Link');
         $form->addElement('hidden', 'num_web_links', $num_web_links);
 
         // publication links
+        $num_pub_links = count($pub->intPointer);
         $label = $this->helpTooltip('Publication Links', 'pubLinks') . ':';
 
         if (count($pub->intPointer) == 0) {
@@ -318,8 +309,9 @@ class add_pub4 extends pdHtmlPage {
             unset($_SESSION['paper']);
             header('Location: add_pub4.php');
         }
-        else if (isset($values['add_web_links'])) {
-            $_SESSION['num_web_links'] = $values['num_web_links'] + 1;
+        else if (isset($values['add_web_link'])) {
+            $pub->addWebLink($db, $values['new_web_link'.$e],
+                                $values['web_links_url'.$e]);
             header('Location: add_pub4.php');
         }
         else if (isset($values['add_pub_links'])) {

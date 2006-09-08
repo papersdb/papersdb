@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.69 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_publication.php,v 1.70 2006/09/08 16:30:40 aicmltec Exp $
 
 /**
  * \file
@@ -884,7 +884,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         }
 
         for ($e = 0; $e < $values['web_links']; $e++) {
-            $pub->addExtPointer($db, $values['web_links_text'.$e],
+            $pub->addWebLink($db, $values['web_links_text'.$e],
                                 $values['web_links_url'.$e]);
         }
 
