@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.50 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: view_publication.php,v 1.51 2006/09/09 01:03:07 aicmltec Exp $
 
 /**
  * \file
@@ -169,9 +169,9 @@ class view_publication extends pdHtmlPage {
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
         $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
 
-        if (count($pub->extPointer) > 0) {
+        if (count($pub->web_links) > 0) {
             $c = 0;
-            foreach ($pub->extPointer as $name => $url) {
+            foreach ($pub->web_links as $name => $url) {
                 if ($c == 0)
                     $label = 'Web Links:';
                 else
@@ -182,9 +182,9 @@ class view_publication extends pdHtmlPage {
             }
         }
 
-        if (count($pub->intPointer) > 0) {
+        if (count($pub->pub_links) > 0) {
             $c = 0;
-            foreach ($pub->intPointer as $int) {
+            foreach ($pub->pub_links as $int) {
                 if ($c == 0)
                     $label = 'Publication Links:';
                 else
@@ -264,10 +264,10 @@ class view_publication extends pdHtmlPage {
         }
     }
 
-    function extPointerRowsAdd(&$pub, &$table) {
-        if (count($pub->extPointer) == 0) return;
+    function web_linksRowsAdd(&$pub, &$table) {
+        if (count($pub->web_links) == 0) return;
 
-        foreach ($pub->extPointer as $name => $value) {
+        foreach ($pub->web_links as $name => $value) {
             if (strpos($value, 'http://') !== false)
                 $cell = '<a href="' . $value . '">' . $value . '</a>';
             else
@@ -276,10 +276,10 @@ class view_publication extends pdHtmlPage {
         }
     }
 
-    function intPointerRowsAdd(&$db, &$pub, &$table) {
-        if (count($pub->intPointer) == 0) return;
+    function pub_linksRowsAdd(&$db, &$pub, &$table) {
+        if (count($pub->pub_links) == 0) return;
 
-        foreach ($pub->intPointer as $int) {
+        foreach ($pub->pub_links as $int) {
             $intPub = new pdPublication();
             $result = $intPub->dbLoad($db, $int->value);
             if ($result) {

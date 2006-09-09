@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.2 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: add_pub1.php,v 1.3 2006/09/09 01:03:07 aicmltec Exp $
 
 /**
  * \file
@@ -111,6 +111,10 @@ class add_pub1 extends pdHtmlPage {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
+
+        $form->addElement('date', 'pub_date', 'Date:',
+                          array('format' => 'YM', 'minYear' => '1995'));
+
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
@@ -137,16 +141,21 @@ class add_pub1 extends pdHtmlPage {
     }
 
     function renderForm() {
-        $defaults = array();
+        assert('isset($_SESSION["pub"])');
 
-        if (isset($_SESSION['pub'])) {
-            $pub =& $_SESSION['pub'];
+        $db =& $this->db;
+        $form =& $this->form;
+        $pub =& $_SESSION['pub'];
 
-            $defaults = array('title'    => $pub->title,
+        $defaults = array('title'    => $pub->title,
                               'abstract' => $pub->abstract,
                               'keywords' => $pub->keywords,
                               'venue_id' => $pub->venue_id);
-        }
+
+        $date = explode('-', $pub->published);
+
+        $defaults['pub_date']['Y'] = $date[0];
+        $defaults['pub_date']['M'] = $date[1];
 
         $this->form->setDefaults($defaults);
 
@@ -181,18 +190,20 @@ class add_pub1 extends pdHtmlPage {
     }
 
     function processForm() {
+        assert('isset($_SESSION["pub"])');
         $db =& $this->db;
-
-        $values = $this->form->exportValues();
-
+        $form =& $this->form;
         $pub =& $_SESSION['pub'];
-        assert('$pub != null');
+
+        $values = $form->exportValues();
 
         if ($this->debug) {
             echo 'values<pre>' . print_r($values, true) . '</pre>';
         }
 
         $pub->load($values);
+        $pub->published = $values['pub_date']['Y'] . '-'
+            .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
         if (isset($values['venue_id']) && ($values['venue_id'] > 0))

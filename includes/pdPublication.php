@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.54 2006/09/08 17:14:04 loyola Exp $
+// $Id: pdPublication.php,v 1.55 2006/09/09 01:03:07 aicmltec Exp $
 
 /**
  * \file
@@ -46,8 +46,8 @@ class pdPublication {
     var $updated;
     var $info;
     var $category;
-    var $intPointer;
-    var $extPointer;
+    var $pub_links;
+    var $web_links;
     var $dbLoadFlags;
     var $additional_info; // these are the additional attached files
 
@@ -76,8 +76,8 @@ class pdPublication {
         $this->updated = null;
         $this->info = null;
         $this->category = null;
-        $this->intPointer = null;
-        $this->extPointer = null;
+        $this->pub_links = null;
+        $this->web_links = null;
         $this->dbLoadFlags = null;
     }
 
@@ -166,7 +166,7 @@ class pdPublication {
                              "pdPublication::dbLoad");
             $r = $db->fetchObject($q);
             while ($r) {
-                $this->intPointer[] = $r;
+                $this->pub_links[] = $r->value;
                 $r = $db->fetchObject($q);
             }
 
@@ -176,7 +176,7 @@ class pdPublication {
             if ($q) {
                 $r = $db->fetchObject($q);
                 while ($r) {
-                    $this->extPointer[$r->name] = $r->value;
+                    $this->web_links[$r->name] = $r->value;
                     $r = $db->fetchObject($q);
                 }
             }
@@ -342,8 +342,8 @@ class pdPublication {
         $db->delete('pointer', array('pub_id' => $this->pub_id),
                     'pdPublication::dbDelete');
         $arr = array();
-        if (count($this->extPointer) > 0)
-            foreach ($this->extPointer as $text => $link) {
+        if (count($this->web_links) > 0)
+            foreach ($this->web_links as $text => $link) {
                 if (strpos($link, 'http://') === false)
                     $link = 'http://' . $link;
 
@@ -353,12 +353,12 @@ class pdPublication {
                                        'value'  => $link));
             }
 
-        if (count($this->intPointer ) > 0)
-            foreach ($this->intPointer as $value) {
+        if (count($this->pub_links ) > 0)
+            foreach ($this->pub_links as $pub_id) {
                 array_push($arr, array('pub_id' => $this->pub_id,
                                        'type'   => 'int',
                                        'name'   => '-',
-                                       'value'  => $value));
+                                       'value'  => $pub_id));
             }
 
         $db->insert('pointer', $arr, 'pdPublication::dbSave');
@@ -525,15 +525,15 @@ class pdPublication {
     }
 
     function addWebLink($name, $url) {
-        $this->extPointer[$name] = $url;
+        $this->web_links[$name] = $url;
     }
 
     function delWebLink($name) {
-        unset($this->extPointer[$name]);
+        unset($this->web_links[$name]);
     }
 
-    function addIntPointer(&$db, $pub_id) {
-        $this->intPointer[] = $pub_id;
+    function addPubLink($pub_id) {
+        $this->pub_links[] = $pub_id;
     }
 
     function dbUpdatePaper(&$db, $paper) {
@@ -592,18 +592,21 @@ class pdPublication {
     }
 
     function webLinkRemove($text, $link) {
-        if (count($this->extPointer) == 0) return;
+        if (count($this->web_links) == 0) return;
 
-        unset($this->extPointer[$text]);
+        unset($this->web_links[$text]);
     }
 
-    function pubLinkRemove($pub_id) {
-        if (count($this->intPointer) == 0) return;
+    function delPubLink($pub_id) {
+        if (count($this->pub_links) == 0) return;
 
-        foreach ($this->intPointer as $key => $obj) {
-            if ($obj->value == $pub_id)
-                unset($this->intPointer[$key]);
+        foreach ($this->pub_links as $key => $link_pub_id) {
+            if ($link_pub_id == $pub_id)
+                unset($this->pub_links[$key]);
         }
+
+        // reindex
+        $this->pub_links = array_values($this->pub_links);
     }
 
     function deleteFiles() {
@@ -743,8 +746,6 @@ class pdPublication {
         $date_str = '';
         if ($pub_date[1] != 0)
             $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
-        if ($pub_date[2] != 0)
-            $date_str .= $pub_date[2] . ', ';
         if ($pub_date[0] != 0)
             $date_str .= $pub_date[0];
 

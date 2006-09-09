@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.71 2006/09/08 17:14:04 loyola Exp $
+// $Id: add_publication.php,v 1.72 2006/09/09 01:03:07 aicmltec Exp $
 
 /**
  * \file
@@ -474,9 +474,9 @@ END;
         else {
             $label = $masterPage->helpTooltip('Web Links', 'extLinks') . ':';
 
-            if (count($pub->extPointer) > 0) {
+            if (count($pub->web_links) > 0) {
                 $c = 0;
-                foreach ($pub->extPointer as $text => $link) {
+                foreach ($pub->web_links as $text => $link) {
                     if (strpos($link, 'http://') !== false)
                         $value = '<a href="' . $link . '">' . $text . '</a>';
                     else
@@ -513,10 +513,10 @@ END;
             // publication links
             $label = $masterPage->helpTooltip('Publication Links',
                                               'pubLinks') . ':';
-            if (count($pub->intPointer) > 0) {
+            if (count($pub->pub_links) > 0) {
 
                 $c = 0;
-                foreach ($pub->intPointer as $int) {
+                foreach ($pub->pub_links as $int) {
                     $intPub = new pdPublication();
                     $result = $intPub->dbLoad($db, $int->value);
                     if ($result) {
@@ -891,7 +891,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         if (count($values['remove_curr_pub_links']) > 0) {
             foreach ($values['remove_curr_pub_links'] as $key => $value) {
                 if ($value == 'yes') {
-                    $pub->pubLinkRemove($key);
+                    $pub->delPubLink($key);
                 }
             }
         }
@@ -899,7 +899,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         if (count($values['pub_links']) > 0)
             foreach ($values['pub_links'] as $pub_link) {
                 if ($pub_link != '')
-                    $pub->addIntPointer($db, $pub_link);
+                    $pub->addPubLink($pub_link);
             }
 
         $extra_info_arr = array($values['extra_info']);
