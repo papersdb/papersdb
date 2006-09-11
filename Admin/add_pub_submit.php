@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_finish.php,v 1.3 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.1 2006/09/11 22:51:38 aicmltec Exp $
 
 /**
  * \file
@@ -20,14 +20,14 @@ require_once 'includes/pdAttachmentTypesList.php';
 /**
  * Renders the whole page.
  */
-class add_pub_finish extends pdHtmlPage {
-    var $debug = 1;
+class add_pub_submit extends pdHtmlPage {
+    var $debug = 0;
 
-    function add_pub_finish() {
+    function add_pub_submit() {
         global $access_level;
 
         parent::pdHtmlPage('add_publication', 'Select Authors',
-                           'Admin/add_pub_finish.php',
+                           'Admin/add_pub_submit.php',
                            PD_NAV_MENU_LEVEL_ADMIN);
 
         if ($access_level <= 1) {
@@ -62,7 +62,7 @@ class add_pub_finish extends pdHtmlPage {
             for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
                 assert('isset($_SESSION["att_types"][$i])');
 
-                echo 'add_pub_finish.php here<br/>';
+                echo 'add_pub_submit.php here<br/>';
 
                 if (strpos(basename($_SESSION['attachments'][$i]),
                             'additional_') === false) {
@@ -95,7 +95,7 @@ class add_pub_finish extends pdHtmlPage {
 
 session_start();
 $access_level = check_login();
-$page = new add_pub_finish();
+$page = new add_pub_submit();
 echo $page->toHtml();
 
 

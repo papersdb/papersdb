@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.8 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_pub4.php,v 1.9 2006/09/11 22:51:38 aicmltec Exp $
 
 /**
  * \file
@@ -59,8 +59,6 @@ class add_pub4 extends pdHtmlPage {
                         = $pub->additional_info[$i]->type;
                 }
         }
-
-        $this->contentPost .= '_SESS<pre>' . print_r($_SESSION, true) . '</pre>';
 
         if ($this->debug) {
             $this->contentPost
@@ -417,7 +415,7 @@ class add_pub4 extends pdHtmlPage {
         else if (isset($values['prev_step']))
             header('Location: add_pub3.php');
         else
-            header('Location: add_pub_finish.php');
+            header('Location: add_pub_submit.php');
     }
 
     function javascript() {

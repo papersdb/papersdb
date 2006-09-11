@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.74 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_publication.php,v 1.75 2006/09/11 22:51:38 aicmltec Exp $
 
 /**
  * \file
@@ -516,23 +516,23 @@ END;
             if (count($pub->pub_links) > 0) {
 
                 $c = 0;
-                foreach ($pub->pub_links as $int) {
+                foreach ($pub->pub_links as $link_pub_id) {
                     $intPub = new pdPublication();
-                    $result = $intPub->dbLoad($db, $int->value);
+                    $result = $intPub->dbLoad($db, $link_pub_id);
                     if ($result) {
                         $pubLinkstr = '<a href="' . $url
-                            . 'view_publication.php?pub_id=' . $int->value
+                            . 'view_publication.php?pub_id=' . $link_pub_id
                             . '">' . $intPub->title . '</a>';
 
                         $this->addGroup(
                             array(
                                 HTML_QuickForm::createElement(
                                     'static', 'curr_pub_links['
-                                    . $int->value, $label . ']',
+                                    . $link_pub_id, $label . ']',
                                     $pubLinkstr),
                                 HTML_QuickForm::createElement(
                                     'advcheckbox',
-                                    'remove_curr_pub_links[' . $int->value . ']',
+                                    'remove_curr_pub_links[' . $link_pub_id . ']',
                                     null, 'check to remove',
                                     null, array('no', 'yes'))),
                             'curr_pub_links_group', $label, '<br/>', false);
