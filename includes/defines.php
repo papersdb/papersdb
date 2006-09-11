@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.21 2006/08/09 22:57:23 aicmltec Exp $
+// $Id: defines.php,v 1.22 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -43,6 +43,8 @@ else if ($_ENV['HOSTNAME'] == 'levante')
     define('FS_PATH', '/home/nelson/public_html/papersdb');
 else
     define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+
+define('FS_PATH_UPLOAD', FS_PATH . '/uploaded_files/');
 
 define('MAINTENANCE', 0);
 

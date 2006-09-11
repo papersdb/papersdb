@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_finish.php,v 1.1 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: add_pub_finish.php,v 1.2 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class add_pub_finish extends pdHtmlPage {
-    var $debug = 1;
+    var $debug = 0;
 
     function add_pub_finish() {
         global $access_level;
@@ -48,42 +48,32 @@ class add_pub_finish extends pdHtmlPage {
         $this->db =& dbCreate();
         $db =& $this->db;
         $pub =& $_SESSION['pub'];
+        $user =& $_SESSION['user'];
+
+        $pub->submit = $user->name;
 
         $pub->dbSave($db);
 
         // deal with paper
-        if (isset($_SESSION['paper'])) {
-            $path = FS_PATH . '/uploaded_files/';
-            $pub_path = $path . $pub->pub_id;
-
-            $e = explode('_', $_SESSION['paper']);
-            $basename = 'paper_' . $e[1];
-            $filename = $pub_path . '/' . $basename;
-
-            $this->contentPre .= 'basename: ' . $basename . '<br/>'
-                . 'filename: ' . $filename . '<br/>'
-                . 'tmp_name: ' . $_SESSION['paper'] . '<br/>';
-
-            // create the publication's path if it does not exist
-            if (!file_exists($path)) {
-                mkdir($path, 0777);
-                // mkdir permissions with 0777 does not seem to work
-                chmod($path, 0777);
+        $pub->paperSave($db, $_SESSION['paper']);
+        if (count( $_SESSION['attachments']) > 0)
+            for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
+                assert('isset($_SESSION["att_types"][$i])');
+                $pub->attSave($db, $_SESSION['attachments'][$i],
+                              $_SESSION['att_types'][$i]);
             }
 
-            if (rename($path . $_SESSION['paper'], $filename)) {
-                chmod($filename, 0777);
-                $pub->dbUpdatePaper($db, $basename);
-            }
-            else
-                $this->contentPre .= 'Could not upload paper.<br/>';
-        }
 
         if ($this->debug) {
             $this->contentPre
                 .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         }
 
+        $this->contentPre .= 'The following publication has been added to '
+            . 'the database:<p/>'
+            . $pub->getCitationHtml();
+
+        pubSessionInit();
         $this->db->close();
     }
 

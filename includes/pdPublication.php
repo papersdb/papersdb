@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.55 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: pdPublication.php,v 1.56 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -536,14 +536,14 @@ class pdPublication {
         $this->pub_links[] = $pub_id;
     }
 
-    function dbUpdatePaper(&$db, $paper) {
+    function paperDbUpdate(&$db, $paper) {
         $this->paper = $paper;
         $db->update('publication', array('paper' => $paper),
                     array('pub_id' => $this->pub_id),
                     'pdPublication::updatePaper');
     }
 
-    function attachmentsUpdate(&$db, $filename, $type) {
+    function attDbUpdate(&$db, $filename, $type) {
         assert('$this->pub_id != null');
 
         $filename = $this->pub_id . '/' . $filename;
@@ -553,19 +553,19 @@ class pdPublication {
         // check if already in database
         $r = $db->selectRow('additional_info', 'add_id',
                             array('location' => $filename),
-                            'pdPublication::attachmentsUpdate');
+                            'pdPublication::attDbUpdate');
         if ($r !== false) return;
 
         $db->insert('additional_info',
                     array('location' => $filename,
                           'type'     => $type),
-                    'pdPublication::attachmentsUpdate');
+                    'pdPublication::attDbUpdate');
 
         $add_id = $db->insertId();
 
         $db->insert('pub_add', array('pub_id' => $this->pub_id,
                                      'add_id' => $add_id),
-                    'pdPublication::attachmentsUpdate');
+                    'pdPublication::attDbUpdate');
     }
 
     function attachmentRemove(&$db, $filename) {
@@ -707,10 +707,7 @@ class pdPublication {
         // if it exists
         $info = '';
         if (count($this->info) > 0) {
-            foreach ($this->info as $name => $value) {
-                if($value != null)
-                    $info .= ", " . $value;
-            }
+            $info = implode(', ', array_values($this->info));
         }
 
         $pub_date = split('-', $this->published);
@@ -833,6 +830,74 @@ class pdPublication {
         $bibtex .= '}';
 
         return format80($bibtex);
+    }
+
+    function paperFilenameGet() {
+        if (($this->pub_id == '') || ($this->paper == 'No Paper')) return null;
+
+        return FS_PATH_UPLOAD . $this->pub_id . '/' . basename($this->paper);
+    }
+
+    function paperSave($db, $papername) {
+        assert('is_object($db)');
+        assert('$this->pub_id != ""');
+
+        if (!isset($papername) || ($papername == $pub->paper))  return;
+
+        $user =& $_SESSION['user'];
+
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+
+        $basename = 'paper_' . basename($papername, '.' . $user->login);
+        $filename = $pub_path . $basename;
+
+        // create the publication's path if it does not exist
+        if (!file_exists($pub_path)) {
+            mkdir($pub_path, 0777);
+            // mkdir permissions with 0777 does not seem to work
+            chmod($pub_path, 0777);
+        }
+
+        if (rename($papername, $filename)) {
+            chmod($filename, 0777);
+            $this->paperDbUpdate($db, $basename);
+        }
+    }
+
+    function attFilenameGet($num) {
+        if ($this->pub_id == '') return null;
+
+        assert('$num < count($this->additional_info)');
+
+        return FS_PATH_UPLOAD . $this->pub_id . '/'
+            . basename($this->additional_info[$num]);
+    }
+
+    function attSave($db, $att_name, $att_type) {
+        assert('is_object($db)');
+        assert('$this->pub_id != ""');
+
+        if (!isset($att_name)
+            || ($att_name == $this->additional_info[$num]))  return;
+
+        $user =& $_SESSION['user'];
+
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+
+        $basename = 'additional_' . basename($att_name, '.' . $user->login);
+        $filename = $pub_path . $basename;
+
+        // create the publication's path if it does not exist
+        if (!file_exists($pub_path)) {
+            mkdir($pub_path, 0777);
+            // mkdir permissions with 0777 does not seem to work
+            chmod($pub_path, 0777);
+        }
+
+        if (rename($att_name, $filename)) {
+            chmod($filename, 0777);
+            $this->attDbUpdate($db, $basename, $att_type);
+        }
     }
 
     /**

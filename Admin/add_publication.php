@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.72 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: add_publication.php,v 1.73 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -914,7 +914,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         if ($values['change_paper'] == 'yes') {
             if (file_exists($path . $pub->paper))
                 unlink($path . $pub->paper);
-            $pub->dbUpdatePaper($db, '');
+            $pub->paperDbUpdate($db, '');
         }
 
         if (count($values['remove_att']) > 0) {
@@ -945,7 +945,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
             $element->moveUploadedFile($path, $basename);
             chmod($filename, 0777);
-            $pub->dbUpdatePaper($db, $basename);
+            $pub->paperDbUpdate($db, $basename);
         }
 
         if ($values['other_attachments'] > 0) {
@@ -966,7 +966,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
                     $element->moveUploadedFile($path, $basename);
                     chmod($filename, 0777);
-                    $pub->attachmentsUpdate(
+                    $pub->attDbUpdate(
                         $db, $basename, $values['other_attachments_type'. $i]);
                 }
             }

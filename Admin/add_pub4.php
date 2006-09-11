@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.6 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: add_pub4.php,v 1.7 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -36,7 +36,7 @@ class add_pub4 extends pdHtmlPage {
         }
 
         if ($_SESSION['state'] != 'pub_add') {
-            $this->pageError = true;
+            header('Location: add_pub1.php');
             return;
         }
 
@@ -49,10 +49,18 @@ class add_pub4 extends pdHtmlPage {
         $db =& $this->db;
         $pub =& $_SESSION['pub'];
 
+        // initialize attachments
+        if (!isset($_SESSION['paper']) && !isset($_SESSION['attachments'])) {
+            $_SESSION['paper'] = $pub->paperFilenameGet();
+            if (count($pub->additional_info) > 0)
+                for ($i = 0; $i < count($pub->additional_info); $i++) {
+                    $_SESSION['attachments'][$i] = $pub->attFilenameGet($i);
+                }
+        }
+
         if ($this->debug) {
-            $this->contentPre
-                .= '<pre>' . print_r($this, true) . '</pre>'
-                . 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
+            $this->contentPost
+                .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         }
 
         $form = new HTML_QuickForm('add_pub4');
@@ -83,24 +91,15 @@ class add_pub4 extends pdHtmlPage {
         $db =& $this->db;
         $form =& $this->form;
         $pub =& $_SESSION['pub'];
+        $user =& $_SESSION['user'];
 
         $num_att = count($_SESSION['attachments']);
-
-        if ($num_att == 0) {
-            if (count($pub->additional_info) > 0)
-                $num_att = count($pub->additional_info);
-        }
 
         $form->addElement('header', null, 'Attachments');
 
         if (isset($_SESSION['paper'])) {
-            $e = explode('_', $_SESSION['paper']);
-            $filename = $e[1];
-        }
-        else if ($pub->paper != 'No Paper')
-            $filename = $pub->paper;
+            $filename = basename($_SESSION['paper'], '.'.$user->login);
 
-        if ($filename != '') {
             $form->addGroup(
                 array(
                 HTML_QuickForm::createElement(
@@ -124,14 +123,9 @@ class add_pub4 extends pdHtmlPage {
         for ($i = 0; $i < $num_att; $i++) {
             unset($filename);
 
-            if (isset($_SESSION['attachments'][$i])) {
-                $filename = $_SESSION['attachments'][$i]['name'];
-                $att_type = $_SESSION['att_types'][$i];
-            }
-            else if ($pub->additional_info[$i] != '') {
-                $filename = $pub->additional_info[$i]->location;
-                $att_type = $_SESSION['att_types'][$i]->type;
-            }
+            $filename = basename($_SESSION['attachments'][$i],
+                                 '.' . $user->login);
+            $att_type = $_SESSION['att_types'][$i];
 
             if ($filename != '') {
                 $form->addGroup(
@@ -315,13 +309,12 @@ class add_pub4 extends pdHtmlPage {
         $user =& $_SESSION['user'];
 
         $values = $form->exportValues();
-        $path = FS_PATH . '/uploaded_files/';
 
         $element =& $form->getElement('uploadpaper');
         if (!isset($element->message) && ($element->isUploadedFile())) {
-            $basename = $user->login . '_' . $_FILES['uploadpaper']['name'];
-            $element->moveUploadedFile($path, $basename);
-            $_SESSION['paper'] = $basename;
+            $basename = $_FILES['uploadpaper']['name'] . '.' . $user->login;
+            $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
+            $_SESSION['paper'] = FS_PATH_UPLOAD . $basename;
         }
 
         $group =& $form->getElement('new_att_group');
@@ -329,14 +322,29 @@ class add_pub4 extends pdHtmlPage {
         foreach ($elements as $element) {
             if (($element->getName() == 'new_att')
                 && $element->isUploadedFile()) {
-                $element->moveUploadedFile($path, $basename);
-                $_SESSION['attachments'][] =  $element->getValue();
+                $basename = $_FILES['new_att']['name'] . '.' . $user->login;
+                $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
+                $_SESSION['attachments'][] =  FS_PATH_UPLOAD . $basename;
                 $_SESSION['att_types'][] =  $values['new_att_type'];
             }
         }
 
+        if (isset($values['remove_paper'])) {
+            // check if this is a temporary file
+            if (strpos($_SESSION['paper'], $user->login))
+                unlink($_SESSION['paper']);
+
+            unset($_SESSION['paper']);
+            header('Location: add_pub4.php');
+            return;
+        }
+
         for ($i = 0; $i < $values['num_att']; $i++) {
             if (isset($values['remove_att' . $i])) {
+                // check if this is a temporary file
+                if (strpos($_SESSION['attachments'][$i], $user->login))
+                    unlink($_SESSION['attachments'][$i]);
+
                 unset($_SESSION['attachments'][$i]);
                 unset($_SESSION['att_types'][$i]);
 
@@ -380,32 +388,10 @@ class add_pub4 extends pdHtmlPage {
                 .= 'element<pre>' . print_r($form, true) . '</pre>'
                 . 'sess<pre>' . print_r($_SESSION, true) . '</pre>'
                 . 'values<pre>' . print_r($values, true) . '</pre>';
-            return;
+            //return;
         }
 
         if (isset($values['add_att'])) {
-            header('Location: add_pub4.php');
-        }
-        else if (isset($values['remove_paper'])) {
-            // check if this paper is in the database or has not been sumitted
-            // yet
-            if (isset($_SESSION['paper'])) {
-                $filename = FS_PATH . '/uploaded_files/' . $_SESSION['paper'];
-                if (file_exists($filename))
-                    unlink($filename);
-                unset($_SESSION['paper']);
-            }
-            else if ($pub->paper != '') {
-                assert('$pub->pub_id != ""');
-
-                $filename = FS_PATH . '/uploaded_files/' . $pub->pub_id
-                    . basename($pub->paper);
-                if (file_exists($filename)) {
-                    unlink($filename);
-                    $pub->dbUpdatePaper($db, '');
-                }
-            }
-
             header('Location: add_pub4.php');
         }
         else if (isset($values['add_web_link'])) {

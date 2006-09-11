@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.1 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: add_pub3.php,v 1.2 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -35,7 +35,7 @@ class add_pub3 extends pdHtmlPage {
         }
 
         if ($_SESSION['state'] != 'pub_add') {
-            $this->pageError = true;
+            header('Location: add_pub1.php');
             return;
         }
 
@@ -132,10 +132,16 @@ class add_pub3 extends pdHtmlPage {
             $extraInfoSelect->setElementTemplate($this->templateGet());
         }
 
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
                     'submit', 'prev_step', '<< Previous Step'),
+                HTML_QuickForm::createElement(
+                    'button', 'cancel', 'Cancel',
+                    array('onclick' => "location.href='" . $url . "';")),
                 HTML_QuickForm::createElement(
                     'submit', 'next_step', 'Next Step >>')),
             'buttons', '', '&nbsp', false);

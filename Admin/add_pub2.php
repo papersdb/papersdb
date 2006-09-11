@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.2 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: add_pub2.php,v 1.3 2006/09/11 20:00:09 aicmltec Exp $
 
 /**
  * \file
@@ -34,7 +34,7 @@ class add_pub2 extends pdHtmlPage {
         }
 
         if ($_SESSION['state'] != 'pub_add') {
-            $this->pageError = true;
+            header('Location: add_pub1.php');
             return;
         }
 
