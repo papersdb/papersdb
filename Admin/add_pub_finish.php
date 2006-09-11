@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_finish.php,v 1.2 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: add_pub_finish.php,v 1.3 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class add_pub_finish extends pdHtmlPage {
-    var $debug = 0;
+    var $debug = 1;
 
     function add_pub_finish() {
         global $access_level;
@@ -31,7 +31,7 @@ class add_pub_finish extends pdHtmlPage {
                            PD_NAV_MENU_LEVEL_ADMIN);
 
         if ($access_level <= 1) {
-            $this->loginError = true;
+            header('Location: add_pub1.php');
             return;
         }
 
@@ -55,23 +55,37 @@ class add_pub_finish extends pdHtmlPage {
         $pub->dbSave($db);
 
         // deal with paper
-        $pub->paperSave($db, $_SESSION['paper']);
-        if (count( $_SESSION['attachments']) > 0)
+        if (strpos(basename($_SESSION['paper']), 'paper_') === false)
+            $pub->paperSave($db, $_SESSION['paper']);
+
+        if (count($_SESSION['attachments']) > 0)
             for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
                 assert('isset($_SESSION["att_types"][$i])');
-                $pub->attSave($db, $_SESSION['attachments'][$i],
-                              $_SESSION['att_types'][$i]);
+
+                echo 'add_pub_finish.php here<br/>';
+
+                if (strpos(basename($_SESSION['attachments'][$i]),
+                            'additional_') === false) {
+                    $pub->attSave($db, $_SESSION['attachments'][$i],
+                                  $_SESSION['att_types'][$i]);
+                }
             }
 
+        if (count($_SESSION['removed_atts']) > 0)
+            foreach ($_SESSION['removed_atts'] as $filename)
+                $pub->attRemove($db, $filename);
 
         if ($this->debug) {
-            $this->contentPre
+            $this->contentPost
                 .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         }
 
         $this->contentPre .= 'The following publication has been added to '
             . 'the database:<p/>'
-            . $pub->getCitationHtml();
+            . $pub->getCitationHtml()
+            . '<a href="../view_publication.php?pub_id=' . $pub->pub_id . '">'
+            . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
+            . 'width="16" border="0" align="middle" /></a>';
 
         pubSessionInit();
         $this->db->close();

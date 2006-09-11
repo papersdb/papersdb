@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.4 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.5 2006/09/11 22:22:37 aicmltec Exp $
 
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
@@ -65,7 +65,7 @@ class pdNavMenu {
                                       'Admin/delete_interest.php',
                                       PD_NAV_MENU_NEVER),
         'edit_publication'   => array('Edit Publication',
-                                      'Admin/add_publication.php',
+                                      'Admin/add_pub1.php',
                                       PD_NAV_MENU_NEVER),
         'edit_author'        => array('Edit Author',
                                       'Admin/add_author.php',

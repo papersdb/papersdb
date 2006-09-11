@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.2 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: add_pub3.php,v 1.3 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -160,18 +160,18 @@ class add_pub3 extends pdHtmlPage {
     function renderForm() {
         $db =& $this->db;
         $form =& $this->form;
+        $pub =& $_SESSION['pub'];
 
         $defaults = $_GET;
 
-        if (isset($_SESSION['pub'])) {
-            $pub =& $_SESSION['pub'];
+        $this->contentPre .= '<h3>Publication Information</h3>'
+            . $pub->getCitationHtml('..', false) . '<p/>';
 
-            $this->contentPre .= '<h3>Publication Information</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>';
+        $defaults = array('cat_id'     => $pub->category->cat_id,
+                          'extra_info' => $pub->extra_info);
 
-            $defaults = array('cat_id'     => $pub->category->cat_id,
-                              'extra_info' => $pub->extra_info);
-        }
+        if (count($pub->info) > 0)
+            $defaults = array_merge($defaults, $pub->info);
 
         $form->setDefaults($defaults);
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.7 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: add_pub4.php,v 1.8 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -55,8 +55,12 @@ class add_pub4 extends pdHtmlPage {
             if (count($pub->additional_info) > 0)
                 for ($i = 0; $i < count($pub->additional_info); $i++) {
                     $_SESSION['attachments'][$i] = $pub->attFilenameGet($i);
+                    $_SESSION['att_types'][$i]
+                        = $pub->additional_info[$i]->type;
                 }
         }
+
+        $this->contentPost .= '_SESS<pre>' . print_r($_SESSION, true) . '</pre>';
 
         if ($this->debug) {
             $this->contentPost
@@ -69,10 +73,16 @@ class add_pub4 extends pdHtmlPage {
         $this->formAddWebLinks();
         $this->formAddPubLinks();
 
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
                     'submit', 'prev_step', '<< Previous Step'),
+                HTML_QuickForm::createElement(
+                    'button', 'cancel', 'Cancel',
+                    array('onclick' => "location.href='" . $url . "';")),
                 HTML_QuickForm::createElement(
                     'submit', 'finish', 'Finish')),
             'buttons', null, '&nbsp', false);
@@ -97,8 +107,9 @@ class add_pub4 extends pdHtmlPage {
 
         $form->addElement('header', null, 'Attachments');
 
-        if (isset($_SESSION['paper'])) {
-            $filename = basename($_SESSION['paper'], '.'.$user->login);
+        if (isset($_SESSION['paper']) && ($_SESSION['paper'] != 'none')) {
+            $filename = basename($_SESSION['paper'], '.' . $user->login);
+            $filename = str_replace('paper_', '', $filename);;
 
             $form->addGroup(
                 array(
@@ -111,7 +122,6 @@ class add_pub4 extends pdHtmlPage {
                 '&nbsp', false);
         }
         else {
-            unset($_SESSION['paper']);
             $form->addElement('file', 'uploadpaper',
                               $this->helpTooltip('Paper', 'paperAtt') . ':',
                               array('size' => 45));
@@ -123,8 +133,8 @@ class add_pub4 extends pdHtmlPage {
         for ($i = 0; $i < $num_att; $i++) {
             unset($filename);
 
-            $filename = basename($_SESSION['attachments'][$i],
-                                 '.' . $user->login);
+            $filename = basename($_SESSION['attachments'][$i],                                 '.' . $user->login);
+            $filename = str_replace('additional_', '', $filename);
             $att_type = $_SESSION['att_types'][$i];
 
             if ($filename != '') {
@@ -331,10 +341,10 @@ class add_pub4 extends pdHtmlPage {
 
         if (isset($values['remove_paper'])) {
             // check if this is a temporary file
-            if (strpos($_SESSION['paper'], $user->login))
+            if (strpos($_SESSION['paper'], '.' . $user->login) !== false)
                 unlink($_SESSION['paper']);
 
-            unset($_SESSION['paper']);
+            $_SESSION['paper'] = 'none';
             header('Location: add_pub4.php');
             return;
         }
@@ -342,8 +352,11 @@ class add_pub4 extends pdHtmlPage {
         for ($i = 0; $i < $values['num_att']; $i++) {
             if (isset($values['remove_att' . $i])) {
                 // check if this is a temporary file
-                if (strpos($_SESSION['attachments'][$i], $user->login))
+                if (strpos($_SESSION['attachments'][$i], $user->login) !== false)
                     unlink($_SESSION['attachments'][$i]);
+
+                if (strpos($_SESSION['attachments'][$i], 'additional_') !== false)
+                    $_SESSION['removed_atts'][] = $_SESSION['attachments'][$i];
 
                 unset($_SESSION['attachments'][$i]);
                 unset($_SESSION['att_types'][$i]);
@@ -352,6 +365,7 @@ class add_pub4 extends pdHtmlPage {
                 $_SESSION['attachments']
                     = array_values($_SESSION['attachments']);
                 $_SESSION['att_types'] = array_values($_SESSION['att_types']);
+
                 header('Location: add_pub4.php');
                 return;
             }

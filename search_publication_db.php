@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.33 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.34 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -178,7 +178,7 @@ class search_publication_db extends pdHtmlPage {
                 . 'width="16" border="0" align="middle" /></a>';
 
             if ($access_level > 0)
-                $cell .= '<a href="Admin/add_publication.php?pub_id='
+                $cell .= '<a href="Admin/add_pub1.php?pub_id='
                     . $pub->pub_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
                     . 'width="16" border="0" align="middle" /></a>';

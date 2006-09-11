@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.73 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: add_publication.php,v 1.74 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -922,7 +922,7 @@ class ActionProcess extends HTML_QuickForm_Action {
                 if ($value == 'yes') {
                     if (file_exists($path . $file))
                         unlink($path . $file);
-                    $pub->attachmentRemove($db, $file);
+                    $pub->attRemove($db, $file);
                 }
             }
         }

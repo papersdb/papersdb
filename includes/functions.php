@@ -115,6 +115,7 @@ function pubSessionInit() {
     unset($_SESSION['paper']);
     unset($_SESSION['attachments']);
     unset($_SESSION['att_types']);
+    unset($_SESSION['removed_atts']);
 }
 
 function backtrace() {

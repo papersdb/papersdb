@@ -1,13 +1,13 @@
 <?php ;
 
-// $Id: add_category.php,v 1.20 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_category.php,v 1.21 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
  *
  * \brief This is the form portion of adding/editing a category.
  *
- * The changes in the database actually are made in add_publication.php.  This
+ * The changes in the database actually are made in add_pub1.php.  This
  * is so when the category is added to the database the publication a user is
  * working in is then updated with that category available to them.
  */

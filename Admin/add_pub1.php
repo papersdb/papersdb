@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.3 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: add_pub1.php,v 1.4 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -35,6 +35,8 @@ class add_pub1 extends pdHtmlPage {
                 $$opt = null;
         }
 
+        $db =& dbCreate();
+
         if (isset($_SESSION['pub'])) {
             $pub =& $_SESSION['pub'];
         }
@@ -63,8 +65,6 @@ class add_pub1 extends pdHtmlPage {
         $this->navMenuItemDisplay('add_author', 0);
         $this->navMenuItemDisplay('add_category', 0);
         $this->navMenuItemDisplay('add_venue', 0);
-
-        $db =& dbCreate();
 
         $form = new HTML_QuickForm('add_pub2');
         $form->addElement('header', null, 'Add Publication');

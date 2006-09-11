@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.51 2006/09/09 01:03:07 aicmltec Exp $
+// $Id: view_publication.php,v 1.52 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -51,7 +51,7 @@ class view_publication extends pdHtmlPage {
 
         if ($access_level > 0) {
             $content
-                .= '&nbsp;&nbsp;<a href="Admin/add_publication.php?pub_id='
+                .= '&nbsp;&nbsp;<a href="Admin/add_pub1.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="images/pencil.png" title="edit" alt="edit" '
                 . 'height="16" width="16" border="0" align="top" /></a>'

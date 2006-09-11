@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.56 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: pdPublication.php,v 1.57 2006/09/11 22:22:37 aicmltec Exp $
 
 /**
  * \file
@@ -548,7 +548,8 @@ class pdPublication {
 
         $filename = $this->pub_id . '/' . $filename;
 
-        $pub->additional_info[] = $filename;
+        $pub->additional_info[] = arr2obj(array('location' => $filename,
+                                                'type'     => $type));
 
         // check if already in database
         $r = $db->selectRow('additional_info', 'add_id',
@@ -568,18 +569,20 @@ class pdPublication {
                     'pdPublication::attDbUpdate');
     }
 
-    function attachmentRemove(&$db, $filename) {
+    function attRemove(&$db, $filename) {
         assert('$this->pub_id != null');
         assert('count($this->additional_info) > 0');
 
         foreach ($this->additional_info as $k => $o) {
-            if ($o->location == $filename)
+            if (basename($o->location) == basename($filename)) {
+                $dbfilename = $o->location;
                 unset($pub->additional_info[$k]);
+            }
         }
 
         $r = $db->selectRow('additional_info', 'add_id',
-                            array('location' => $filename),
-                            'pdPublication::attachmentRemove');
+                            array('location' => $dbfilename),
+                            'pdPublication::attRemove');
         if ($r === false) return;
 
         $db->delete('pub_add', array('add_id' => $r->add_id,
@@ -587,7 +590,7 @@ class pdPublication {
                     'pdPublication::dbSave');
 
         $db->delete('additional_info', array('add_id' => $r->add_id),
-                    'pdPublication::attachmentRemove');
+                    'pdPublication::attRemove');
 
     }
 
@@ -833,7 +836,8 @@ class pdPublication {
     }
 
     function paperFilenameGet() {
-        if (($this->pub_id == '') || ($this->paper == 'No Paper')) return null;
+        if (($this->pub_id == '') || ($this->paper == 'No Paper')
+            || ($this->paper == '')) return null;
 
         return FS_PATH_UPLOAD . $this->pub_id . '/' . basename($this->paper);
     }
@@ -842,7 +846,11 @@ class pdPublication {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
-        if (!isset($papername) || ($papername == $pub->paper))  return;
+        if (!isset($papername) || (strpos($papername, 'paper_') >= 0)) return;
+
+        $basename = 'paper_' . basename($papername, '.' . $user->login);
+
+        if ($basename == basename($pub->paper))  return;
 
         $user =& $_SESSION['user'];
 
@@ -870,15 +878,23 @@ class pdPublication {
         assert('$num < count($this->additional_info)');
 
         return FS_PATH_UPLOAD . $this->pub_id . '/'
-            . basename($this->additional_info[$num]);
+            . basename($this->additional_info[$num]->location);
     }
 
     function attSave($db, $att_name, $att_type) {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
-        if (!isset($att_name)
-            || ($att_name == $this->additional_info[$num]))  return;
+        if (($att_name == '') || ($att_type == '')
+            || (strpos($att_name, 'additional_') !== false)) return;
+
+        // make sure this attachment is not already in the list
+        $basename = 'additional_' . basename($att_name, '.' . $user->login);
+
+        if (count($this->additional_info) > 0)
+            foreach ($this->additional_info as $att)
+                if ($att_name == basename($att->location))
+                    return;
 
         $user =& $_SESSION['user'];
 
