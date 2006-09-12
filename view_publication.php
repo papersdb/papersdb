@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.52 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: view_publication.php,v 1.53 2006/09/12 19:06:19 aicmltec Exp $
 
 /**
  * \file
@@ -22,6 +22,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class view_publication extends pdHtmlPage {
+    var $debug = 1;
     var $pub_id;
 
     function view_publication() {
@@ -45,6 +46,10 @@ class view_publication extends pdHtmlPage {
         if (!$result) {
             $this->contentPre .= 'Publication does not exist';
             return;
+        }
+
+        if ($this->debug) {
+            $this->contentPost .= 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
         $content .= "<h1>" . $pub->title;
@@ -176,24 +181,25 @@ class view_publication extends pdHtmlPage {
                     $label = 'Web Links:';
                 else
                     $label = '';
-                $table->addRow(array($label, '<a href="' . $url . '">'
-                                     . $name . '</a>'));
+                $table->addRow(array($label, '<a href="' . $url . '" '
+                                     . 'target="_blank">' . $name . '</a>'));
                 $c++;
             }
         }
 
         if (count($pub->pub_links) > 0) {
             $c = 0;
-            foreach ($pub->pub_links as $int) {
+            foreach ($pub->pub_links as $link_pub_id) {
                 if ($c == 0)
                     $label = 'Publication Links:';
                 else
                     $label = '';
                 $linked_pub = new pdPublication();
-                $linked_pub->dbLoad($db, $int->value);
+                $linked_pub->dbLoad($db, $link_pub_id);
 
-                $table->addRow(array($label, '<a href=view_publication?pub_id="'
-                                     . $int->value . '">'
+                $table->addRow(array($label, '<a href="view_publication.php?'
+                                     . 'pub_id=' . $linked_pub->pub_id . '" '
+                                     . ' target="_blank">'
                                      . $linked_pub->title . '</a>'));
                 $c++;
             }
@@ -221,86 +227,6 @@ class view_publication extends pdHtmlPage {
             . '</span>';
 
         $db->close();
-    }
-
-    function additional2Html(&$pub) {
-        if(count($pub->additional_info) == 0) return "No Additional Materials";
-
-        $additionalMaterials = "";
-        $add_count = 0;
-        $temp = "";
-        foreach ($pub->additional_info as $info) {
-            $temp = split('additional_', $info->location);
-            $additionalMaterials .= '<a href="'
-                . $pub->attachmentGetUrl($add_count) . '">'
-                . "<i><b>".$temp[1]."</b></i>";
-
-            $additionalMaterials .= "</a><br/>";
-            $add_count++;
-        }
-        return $additionalMaterials;
-    }
-
-    function venueRowsAdd(&$pub, &$table) {
-        $venueStr = "";
-        if ($pub->venue->url != '')
-            $venueStr .= " <a href=\"" . $pub->venue->url
-                . "\" target=\"_blank\">";
-
-        $venueStr .= $pub->venue->name;
-        if ($pub->venue->url != '')
-            $venueStr .= "</a>";
-        $table->addRow(array($pub->venue->type . ':', $venueStr));
-
-        if($pub->venue->data != ""){
-            $venueStr .= "</td></tr><tr><td width=\"25%\"><div id=\"emph\">";
-            if ($pub->venue->type == "Conference")
-                $venueStr = "Location:";
-            else if ($pub->venue->type == "Journal")
-                $venueStr = "Publisher:";
-            else if ($pub->venue->type == "Workshop")
-                $venueStr = "Associated Conference:";
-            $table->addRow(array($venueStr, $pub->venue->data));
-        }
-    }
-
-    function web_linksRowsAdd(&$pub, &$table) {
-        if (count($pub->web_links) == 0) return;
-
-        foreach ($pub->web_links as $name => $value) {
-            if (strpos($value, 'http://') !== false)
-                $cell = '<a href="' . $value . '">' . $value . '</a>';
-            else
-                $cell = $value;
-            $table->addRow(array($name . ':', $cell));
-        }
-    }
-
-    function pub_linksRowsAdd(&$db, &$pub, &$table) {
-        if (count($pub->pub_links) == 0) return;
-
-        foreach ($pub->pub_links as $int) {
-            $intPub = new pdPublication();
-            $result = $intPub->dbLoad($db, $int->value);
-            if ($result) {
-                $intLinkStr = '<a href="view_publication.php?pub_id='
-                    . $int->value . '">' . $intPub->title . '</a>';
-
-                $table->addRow(array('Linked to:', $intLinkStr));
-            }
-        }
-    }
-
-    function publishDateGet(&$pub) {
-        $string = "";
-        $published = split("-",$pub->published);
-        if($published[1] != 00)
-            $string .= date("F", mktime (0,0,0,$published[1]))." ";
-        if($published[2] != 00)
-            $string .= $published[2].", ";
-        if($published[0] != 0000)
-            $string .= $published[0];
-        return $string;
     }
 
     function lastUpdateGet(&$pub) {

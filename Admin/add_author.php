@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.30 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: add_author.php,v 1.31 2006/09/12 19:06:19 aicmltec Exp $
 
 /**
  * \file
@@ -249,9 +249,10 @@ class add_author extends pdHtmlPage {
             $pub =& $_SESSION['pub'];
             $pub->addAuthor($db, $author->author_id);
 
-            $this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
             if (isset($values['add_another']))
                 header('Location: add_author.php');
+            else
+                header('Location: add_pub2.php');
         }
         else {
             $this->contentPre .= 'Author "' . $values['firstname'] . ' '

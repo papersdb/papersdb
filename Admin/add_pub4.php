@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.9 2006/09/11 22:51:38 aicmltec Exp $
+// $Id: add_pub4.php,v 1.10 2006/09/12 19:06:19 aicmltec Exp $
 
 /**
  * \file
@@ -107,7 +107,7 @@ class add_pub4 extends pdHtmlPage {
 
         if (isset($_SESSION['paper']) && ($_SESSION['paper'] != 'none')) {
             $filename = basename($_SESSION['paper'], '.' . $user->login);
-            $filename = str_replace('paper_', '', $filename);;
+            $filename = str_replace('paper_', '', $filename);
 
             $form->addGroup(
                 array(

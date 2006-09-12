@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.57 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: pdPublication.php,v 1.58 2006/09/12 19:06:19 aicmltec Exp $
 
 /**
  * \file
@@ -708,9 +708,12 @@ class pdPublication {
 
         // Additional Information - Outputs the category specific information
         // if it exists
-        $info = '';
+        $info_arr = array();
         if (count($this->info) > 0) {
-            $info = implode(', ', array_values($this->info));
+            foreach ($this->info as $i)
+                if ($i != '')
+                    $info_arr[] = $i;
+            $info = implode(', ', $info_arr);
         }
 
         $pub_date = split('-', $this->published);
@@ -734,10 +737,9 @@ class pdPublication {
             }
 
             if ($this->venue->type == 'Conference') {
-                if (isset($this->venue->occurrence[$pub_date[0]])) {
-                    if ($this->venue->occurrence[$pub_date[0]] != '')
-                        $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
-                }
+                if (isset($this->venue->occurrence[$pub_date[0]])
+                    && ($this->venue->occurrence[$pub_date[0]] != ''))
+                    $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
             }
             else if ($this->venue->data != '')
                 $v .= ', ' . $this->venue->data;
@@ -846,7 +848,8 @@ class pdPublication {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
-        if (!isset($papername) || (strpos($papername, 'paper_') >= 0)) return;
+        if (!isset($papername) || (strpos($papername, 'paper_') !== false))
+            return;
 
         $basename = 'paper_' . basename($papername, '.' . $user->login);
 

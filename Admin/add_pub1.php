@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.4 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_pub1.php,v 1.5 2006/09/12 19:06:19 aicmltec Exp $
 
 /**
  * \file
@@ -113,7 +113,7 @@ class add_pub1 extends pdHtmlPage {
 
 
         $form->addElement('date', 'pub_date', 'Date:',
-                          array('format' => 'YM', 'minYear' => '1995'));
+                          array('format' => 'YM', 'minYear' => '1990'));
 
         $form->addGroup(
             array(
@@ -148,9 +148,9 @@ class add_pub1 extends pdHtmlPage {
         $pub =& $_SESSION['pub'];
 
         $defaults = array('title'    => $pub->title,
-                              'abstract' => $pub->abstract,
-                              'keywords' => $pub->keywords,
-                              'venue_id' => $pub->venue_id);
+                          'abstract' => $pub->abstract,
+                          'keywords' => $pub->keywords,
+                          'venue_id' => $pub->venue_id);
 
         $date = explode('-', $pub->published);
 
