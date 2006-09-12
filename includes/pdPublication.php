@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.58 2006/09/12 19:06:19 aicmltec Exp $
+// $Id: pdPublication.php,v 1.59 2006/09/12 19:17:57 aicmltec Exp $
 
 /**
  * \file
@@ -779,9 +779,11 @@ class pdPublication {
             return false;
 
         $pub_date = split('-', $this->published);
-        $venue_short = '';
-        $venue_name = '';
-        $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
+        if ($this->venue->title != '')
+            $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
+        else
+            $venue_short = '';
+
         $venue_name = $this->venue->name;
 
         $auth_count = count($this->authors);
@@ -792,12 +794,10 @@ class pdPublication {
             else if ($auth_count > 2)
                 $bibtex .= '+al';
 
-            if ($this->category->category == 'In Book')
-                $bibtex .= ':' . $pub_date[0];
-            else if ($venue_short != '')
+            if ($venue_short != '')
                 $bibtex .= ':' . $venue_short;
 
-            $bibtex .= "\n" . '  author = {';
+            $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
 
             $arr = array();
             foreach ($this->authors as $auth) {
