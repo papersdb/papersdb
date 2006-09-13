@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.41 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.42 2006/09/13 20:57:05 aicmltec Exp $
 
 /**
  * \file
@@ -351,10 +351,13 @@ END;
     }
 
     function pageFooter() {
-        if (strstr($this->relative_url, '/'))
-            $uofa_logo = '../images/uofa_logo.gif';
-        else
-            $uofa_logo = 'images/uofa_logo.gif';
+        $uofa_logo = 'images/uofa_logo.gif';
+        $aicml_logo = 'images/aicml.png';
+
+        if (strstr($this->relative_url, '/')) {
+            $uofa_logo = '../' . $uofa_logo;
+            $aicml_logo = '../' . $aicml_logo;
+        }
 
         return <<<END
             <div id="footer">
@@ -362,17 +365,28 @@ END;
             <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
             </div>
             <div id="footer2">
-            <div class="ualogo">
+            <table width="800px">
+            <tr>
+            <td>
             <a href="http://www.ualberta.ca">
             <img src="{$uofa_logo}" alt="University of Alberta Logo" />
             </a>
-            </div>
-            <div id="copyright">
+            </td>
+            <td>
+            <a href="http://kingman.cs.ualberta.ca/">
+            <img src="{$aicml_logo}" alt="AICML Logo" />
+            </a>
+            </td>
+            <td>
+            <span id="copyright">
             <ul>
-            <li>Copyright &copy; 2002-2006</li>
-                                     </ul>
-                                     </div>
-                                     </div>
+            <li>&copy; 2002-2006</li>
+                           </ul>
+                           </span>
+                           </td>
+                           </tr>
+                           </table>
+                           </div>
 
 END;
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.13 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: edit_user.php,v 1.14 2006/09/13 20:57:05 aicmltec Exp $
 
 /**
  * \file
@@ -46,17 +46,18 @@ class edit_user extends pdHtmlPage {
 
         $form = new HTML_QuickForm('pubForm');
 
-        $form->addElement('hidden', 'login', $user->login);
+        $form->addElement('static', 'login', 'Login:', $user->login);
         $form->addElement('hidden', 'status', 'edit');
-        $form->addElement('text', 'name', null,
+        $form->addElement('text', 'name', 'Name:',
                           array('size' => 50, 'maxlength' => 100));
-        $form->addElement('text', 'email', null,
+        $form->addElement('text', 'email', 'E-mail:',
                           array('size' => 50, 'maxlength' => 100));
 
         $auth_list = new pdAuthorList($db);
         assert('is_array($auth_list->list)');
 
-        $authSelect =& $form->addElement('advmultiselect', 'authors', null,
+        $authSelect =& $form->addElement('advmultiselect', 'authors',
+                                         'Favourite Collaborators',
                                          $auth_list->list,
                                          array('class' => 'pool',
                                                'style' => 'width:150px;'),
@@ -120,12 +121,6 @@ END;
             $this->contentPre .= 'Change to user information submitted.';
         }
         else {
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
             $this->contentPre .= '<h2>Login Information</h2>';
 
             $defaults = array('name' => $user->name,
@@ -136,23 +131,18 @@ END;
 
             $form->setDefaults($defaults);
 
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
+
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" '
+                . 'cellspacing="2" bgcolor="#CCCC99">'
+                . '<form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
             $form->accept($renderer);
 
-            $table->addRow(array('Login:', $user->login));
-            $table->addRow(array('Name:',
-                                 $renderer->elementToHtml('name')));
-            $table->addRow(array('E-mail:',
-                                 $renderer->elementToHtml('email')));
-            $table->addRow(array('Favorite Collaborators:',
-                                 $renderer->elementToHtml('authors')));
-            $table->addRow(array($renderer->elementToHtml('Submit')),
-                           array('colspan' => 2));
-
-            $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '30%'));
-
-            $this->table =& $table;
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
