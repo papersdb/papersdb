@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.43 2006/09/13 21:08:15 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.44 2006/09/13 21:59:44 aicmltec Exp $
 
 /**
  * \file
@@ -344,7 +344,7 @@ class pdHtmlPage {
             </div>
 
             <div id="header">
-            <h1>Papers Database</h1>
+            <h1>PapersDB</h1>
             </div>
 
 END;
