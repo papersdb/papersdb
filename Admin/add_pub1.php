@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.8 2006/09/13 22:12:34 aicmltec Exp $
+// $Id: add_pub1.php,v 1.9 2006/09/13 22:31:52 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/jscalendar.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
 class add_pub1 extends pdHtmlPage {
-    var $debug = 0;
+    var $debug = 1;
 
     function add_pub1() {
         global $access_level;
@@ -43,7 +43,12 @@ class add_pub1 extends pdHtmlPage {
         else if ($pub_id != '') {
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id);
-            assert('$result');
+            if (!$result) {
+                $this->pageError = true;
+                $db->close();
+                return;
+            }
+
             $_SESSION['pub'] =& $pub;
         }
         else {
@@ -58,6 +63,7 @@ class add_pub1 extends pdHtmlPage {
 
         if ($access_level <= 0) {
             $this->loginError = true;
+            $db->close();
             return;
         }
 
@@ -77,8 +83,8 @@ class add_pub1 extends pdHtmlPage {
                        null, 'client');
 
         // Venue
-        $venue_sel1 = array('All Types', 'Journals', 'Conferences',
-                            'Workshops');
+        $venue_sel1 = array('All Venues', 'Journal', 'Conference',
+                            'Workshop');
         $venues = array(new pdVenueList($db),
                         new pdVenueList($db, 'Journal'),
                         new pdVenueList($db, 'Conference'),
@@ -157,18 +163,28 @@ class add_pub1 extends pdHtmlPage {
         $form =& $this->form;
         $pub =& $_SESSION['pub'];
 
+        switch ($pub->venue->type) {
+            case 'Journal':    $type = 1; break;
+            case 'Conference': $type = 2; break;
+            case 'Workshop':   $type = 3; break;
+            default: $type = 0;
+
+        }
+
         $defaults = array('title'    => $pub->title,
                           'abstract' => $pub->abstract,
                           'keywords' => $pub->keywords,
-                          'venue_id' => $pub->venue_id);
-
-        $defaults['venue_id'][0] = 0;
-        $defaults['venue_id'][1] = $pub->venue_id;
+                          'venue_id' => array($type, $pub->venue_id));
 
         $date = explode('-', $pub->published);
 
         $defaults['pub_date']['Y'] = $date[0];
         $defaults['pub_date']['M'] = $date[1];
+
+        if ($this->debug) {
+            $this->contentPost
+                .= 'defaults<pre>' . print_r($defaults, true) . '</pre>';
+        }
 
         $this->form->setDefaults($defaults);
 
