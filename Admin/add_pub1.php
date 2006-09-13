@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.6 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: add_pub1.php,v 1.7 2006/09/13 22:06:53 aicmltec Exp $
 
 /**
  * \file
@@ -77,7 +77,8 @@ class add_pub1 extends pdHtmlPage {
                        null, 'client');
 
         // Venue
-        $venue_sel1 = array('All', 'Journal', 'Conference', 'Workshop');
+        $venue_sel1 = array('All Types', 'Journals', 'Conferences',
+                            'Workshops');
         $venues = array(new pdVenueList($db),
                         new pdVenueList($db, 'Journal'),
                         new pdVenueList($db, 'Conference'),
@@ -212,7 +213,7 @@ class add_pub1 extends pdHtmlPage {
         $_SESSION['state'] = 'pub_add';
 
         if (isset($values['venue_id']) && ($values['venue_id'] > 0))
-            $pub->addVenue($db, $values['venue_id']);
+            $pub->addVenue($db, $values['venue_id'][1]);
 
         if ($this->debug)
             $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';
