@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.2 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.3 2006/09/13 22:40:55 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class add_pub_submit extends pdHtmlPage {
-    var $debug = 0;
+    var $debug = 1;
 
     function add_pub_submit() {
         global $access_level;
@@ -77,7 +77,7 @@ class add_pub_submit extends pdHtmlPage {
 
         if ($this->debug) {
             $this->contentPost
-                .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
+                .= 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
         $this->contentPre .= 'The following publication has been added to '
