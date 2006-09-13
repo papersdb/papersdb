@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.7 2006/09/13 22:06:53 aicmltec Exp $
+// $Id: add_pub1.php,v 1.8 2006/09/13 22:12:34 aicmltec Exp $
 
 /**
  * \file
@@ -142,7 +142,11 @@ class add_pub1 extends pdHtmlPage {
             $this->renderForm();
         }
 
-        //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
+        if ($this->debug) {
+            $this->contentPost
+                .= 'values<pre>' . print_r($pub, true) . '</pre>';
+        }
+
         $db->close();
     }
 
@@ -157,6 +161,9 @@ class add_pub1 extends pdHtmlPage {
                           'abstract' => $pub->abstract,
                           'keywords' => $pub->keywords,
                           'venue_id' => $pub->venue_id);
+
+        $defaults['venue_id'][0] = 0;
+        $defaults['venue_id'][1] = $pub->venue_id;
 
         $date = explode('-', $pub->published);
 
