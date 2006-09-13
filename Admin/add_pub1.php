@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.5 2006/09/12 19:06:19 aicmltec Exp $
+// $Id: add_pub1.php,v 1.6 2006/09/13 16:36:40 aicmltec Exp $
 
 /**
  * \file
@@ -77,17 +77,22 @@ class add_pub1 extends pdHtmlPage {
                        null, 'client');
 
         // Venue
-        $venue_list = new pdVenueList($db);
-        $options = array(''   => '--- Select a Venue ---',
-                         -2 => 'No Venue');
-        foreach ($venue_list->list as $id => $title) {
-            if ($title != '')
-                $options[$id] = $title;
-        }
-        $form->addElement('select', 'venue_id',
-                          $this->helpTooltip('Venue', 'venueHelp') . ':',
-                          $options,
-                          array('onchange' => 'datakeep();'));
+        $venue_sel1 = array('All', 'Journal', 'Conference', 'Workshop');
+        $venues = array(new pdVenueList($db),
+                        new pdVenueList($db, 'Journal'),
+                        new pdVenueList($db, 'Conference'),
+                        new pdVenueList($db, 'Workshop'));
+
+        $venue_sel2[0] = array('' => '--Select Venue--') + $venues[0]->list;
+        $venue_sel2[1] = array('' => '--Select Venue--') + $venues[1]->list;
+        $venue_sel2[2] = array('' => '--Select Venue--') + $venues[2]->list;
+        $venue_sel2[3] = array('' => '--Select Venue--') + $venues[3]->list;
+
+        $sel =& $form->addElement(
+            'hierselect', 'venue_id',
+            $this->helpTooltip('Venue', 'venueHelp') . ':',
+            array('style' => 'width: 450px'), '<br/>');
+        $sel->setOptions(array($venue_sel1, $venue_sel2));
 
         $form->addElement('textarea', 'abstract',
                           $this->helpTooltip('Abstract',

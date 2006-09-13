@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.45 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: advanced_search.php,v 1.46 2006/09/13 16:36:40 aicmltec Exp $
 
 /**
  * \file
@@ -108,12 +108,14 @@ class advanced_search extends pdHtmlPage {
                                    '_self', 'multipart/form-data');
 
         $form->addElement('header', null, 'Advanced Search');
+        $form->addElement('text', 'title', 'Title:',
+                          array('size' => 60, 'maxlength' => 250));
+        $form->addElement('text', 'venue', 'Venue:',
+                          array('size' => 60, 'maxlength' => 250));
         $form->addElement('select', 'cat_id', 'Category:',
                           array('' => '-- All Categories --')
                           + $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
-        $form->addElement('text', 'title', 'Title:',
-                          array('size' => 60, 'maxlength' => 250));
 
         $authElement[0] =& HTML_QuickForm::createElement(
             'text', 'authortyped', null,
@@ -129,8 +131,6 @@ class advanced_search extends pdHtmlPage {
         $form->addElement('text', 'paper', 'Paper filename:',
                           array('size' => 60, 'maxlength' => 250));
         $form->addElement('text', 'abstract', 'Abstract:',
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'venue', 'Venue:',
                           array('size' => 60, 'maxlength' => 250));
 
         $kwElement[0] =& HTML_QuickForm::createElement(

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.3 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_pub3.php,v 1.4 2006/09/13 16:36:40 aicmltec Exp $
 
 /**
  * \file
@@ -142,6 +142,8 @@ class add_pub3 extends pdHtmlPage {
                 HTML_QuickForm::createElement(
                     'button', 'cancel', 'Cancel',
                     array('onclick' => "location.href='" . $url . "';")),
+                HTML_QuickForm::createElement(
+                    'reset', 'reset', 'Reset'),
                 HTML_QuickForm::createElement(
                     'submit', 'next_step', 'Next Step >>')),
             'buttons', '', '&nbsp', false);

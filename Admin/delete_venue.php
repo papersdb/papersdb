@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.8 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: delete_venue.php,v 1.9 2006/09/13 16:36:40 aicmltec Exp $
 
 /**
  * \file
@@ -14,6 +14,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
+require_once 'includes/pdPublication.php';
 
 
 /**
@@ -47,6 +48,29 @@ class delete_venue extends pdHtmlPage {
         $result = $venue->dbLoad($db, $venue_id);
         if (!$result) {
             $this->pageError = true;
+            $db->close();
+            return;
+        }
+
+        $q = $db->select('publication', 'pub_id',
+                         array('venue_id' => $venue_id),
+                         "delete_venue::delete_venue");
+
+        if ($db->numRows($q) > 0) {
+            $this->contentPre .= 'Cannot delete venue.<p/>'
+                . 'The venue is used by the following '
+                . 'publications:' . "\n"
+                . '<ul>';
+
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $pub = new pdPublication();
+                $pub->dbLoad($db, $r->pub_id);
+                $this->contentPre
+                    .= '<li>' . $pub->getCitationHtml() . '</li>';
+                $r = $db->fetchObject($q);
+            }
+            $this->contentPre .= '</ul>';
             $db->close();
             return;
         }

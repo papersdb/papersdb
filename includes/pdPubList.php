@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.7 2006/07/05 21:05:47 aicmltec Exp $
+// $Id: pdPubList.php,v 1.8 2006/09/13 16:36:40 aicmltec Exp $
 
 /**
  * \file
@@ -48,8 +48,7 @@ class pdPubList {
         else
             $order = 'title ASC';
 
-        $q = $db->select(array('publication'), '*', '',
-                         "pdPubList::allPubsDbLoad",
+        $q = $db->select('publication', '*', '', "pdPubList::allPubsDbLoad",
                          array('ORDER BY' => $order));
         $r = $db->fetchObject($q);
         assert('($r !== false)');
