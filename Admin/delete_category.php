@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: delete_category.php,v 1.10 2006/09/13 16:46:32 aicmltec Exp $
 
 /**
  * \file
@@ -18,6 +18,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdPubList.php';
+require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
@@ -45,6 +46,39 @@ class delete_category extends pdHtmlPage {
         }
 
         $db =& dbCreate();
+
+        $category = new pdCategory();
+        $result = $category->dbLoad($db, $cat_id);
+        if (!$result) {
+            $this->pageError = true;
+            $db->close();
+            return;
+        }
+
+        $q = $db->select('pub_cat', 'pub_id',
+                         array('cat_id' => $cat_id),
+                         "delete_category::delete_category");
+
+        if ($db->numRows($q) > 0) {
+            $this->contentPre .= 'Cannot delete category <b>'
+                . $category->category . '</b>.<p/>'
+                . 'The category is used by the following '
+                . 'publications:' . "\n"
+                . '<ul>';
+
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $pub = new pdPublication();
+                $pub->dbLoad($db, $r->pub_id);
+                $this->contentPre
+                    .= '<li>' . $pub->getCitationHtml() . '</li>';
+                $r = $db->fetchObject($q);
+            }
+            $this->contentPre .= '</ul>';
+            $db->close();
+            return;
+        }
+
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'cat_id', $cat_id);
 
@@ -53,14 +87,6 @@ class delete_category extends pdHtmlPage {
 
         if ($form->validate()) {
             $values = $form->exportValues();
-
-            $category = new pdCategory();
-            $result = $category->dbLoad($db, $values['cat_id']);
-            if (!$result) {
-                $this->pageError = true;
-                $db->close();
-                return;
-            }
 
             $pub_list = new pdPubList($db, null, $this->cat_id);
 

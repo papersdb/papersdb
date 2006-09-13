@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.9 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: delete_venue.php,v 1.10 2006/09/13 16:46:32 aicmltec Exp $
 
 /**
  * \file
@@ -57,7 +57,8 @@ class delete_venue extends pdHtmlPage {
                          "delete_venue::delete_venue");
 
         if ($db->numRows($q) > 0) {
-            $this->contentPre .= 'Cannot delete venue.<p/>'
+            $this->contentPre .= 'Cannot delete venue <b>'
+                . $venue->name . '</b>.<p/>'
                 . 'The venue is used by the following '
                 . 'publications:' . "\n"
                 . '<ul>';
