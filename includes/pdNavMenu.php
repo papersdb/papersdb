@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.5 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.6 2006/09/13 20:26:16 aicmltec Exp $
 
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
@@ -70,8 +70,6 @@ class pdNavMenu {
         'edit_author'        => array('Edit Author',
                                       'Admin/add_author.php',
                                       PD_NAV_MENU_NEVER),
-        'edit_user'          => array('User Preferences', 'Admin/edit_user.php',
-                                      PD_NAV_MENU_LOGIN_REQUIRED),
         'advanced_search'    => array('Advanced Search', 'advanced_search.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'search_results'    => array('Search Results',
@@ -89,6 +87,9 @@ class pdNavMenu {
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'login'              => array('Login or Register', 'login.php',
                                       PD_NAV_MENU_ALWAYS),
+        'edit_user'          => array('User Preferences',
+                                      'Admin/edit_user.php',
+                                      PD_NAV_MENU_LOGIN_REQUIRED),
         'view_publications'  => array('View Publication',
                                       'view_publication.php',
                                       PD_NAV_MENU_NEVER),

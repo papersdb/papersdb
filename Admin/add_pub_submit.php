@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.1 2006/09/11 22:51:38 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.2 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -73,7 +73,7 @@ class add_pub_submit extends pdHtmlPage {
 
         if (count($_SESSION['removed_atts']) > 0)
             foreach ($_SESSION['removed_atts'] as $filename)
-                $pub->attRemove($db, $filename);
+                $pub->dbAttRemove($db, $filename);
 
         if ($this->debug) {
             $this->contentPost

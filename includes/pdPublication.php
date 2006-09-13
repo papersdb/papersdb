@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.59 2006/09/12 19:17:57 aicmltec Exp $
+// $Id: pdPublication.php,v 1.60 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -59,26 +59,6 @@ class pdPublication {
 
         if (isset($obj))
             $this->load($obj);
-    }
-
-    function makeNull() {
-        $this->pub_id = null;
-        $this->title = null;
-        $this->paper = null;
-        $this->abstract = null;
-        $this->keywords = null;
-        $this->published = null;
-        $this->venue = null;
-        $this->venue_id = null;
-        $this->authors = null;
-        $this->extra_info = null;
-        $this->submit = null;
-        $this->updated = null;
-        $this->info = null;
-        $this->category = null;
-        $this->pub_links = null;
-        $this->web_links = null;
-        $this->dbLoadFlags = null;
     }
 
     /**
@@ -192,99 +172,11 @@ class pdPublication {
     function dbLoadVenue(&$db) {
         assert("($this->dbLoadFlags & PD_PUB_DB_LOAD_VENUE)");
 
-        if (NEW_VENUE == 1) {
-            if (($this->venue_id == null) || ($this->venue_id == '')
-                || ($this->venue_id == '0')) return;
+        if (($this->venue_id == null) || ($this->venue_id == '')
+            || ($this->venue_id == '0')) return;
 
-            $this->venue = new pdVenue();
-            $this->venue->dbload($db, $this->venue_id);
-            return;
-        }
-
-        if (($this->venue == null) || ($this->venue == '')) return;
-
-        $venue_str = $this->venue;
         $this->venue = new pdVenue();
-
-        if (preg_match("/venue_id:<(\d+)>/", $venue_str, $venue_id)) {
-            $this->venue_id = $venue_id[1];
-            $this->venue->dbload($db, $this->venue_id);
-        }
-        else if (preg_match("/venue_id:<-(\d+)>/", $venue_str, $venue_id)
-                 == 0) {
-            $this->venue->name = $venue_str;
-        }
-    }
-
-    function authorsToHtml($urlPrefix = null) {
-        if (!isset($this->authors)) return null;
-
-        if ($urlPrefix == null) $urlPrefix = '.';
-
-        $authorsStr = '<ul>';
-        foreach ($this->authors as $author) {
-            $authorsStr .= '<li><a href="' . $urlPrefix
-                . '/view_author.php?author_id='
-                . $author->author_id . '" target="_self">'
-                . $author->firstname . ' ' . $author->lastname . '</a>';
-
-            if ($author->organization != '')
-                $authorsStr .= ', ' . $author->organization;
-
-            $authorsStr .= '</li>';
-        }
-        $authorsStr .= '</ul>';
-        return $authorsStr;
-    }
-
-    /**
-     * removes all extra_info items of length 0
-     */
-    function extraInfoGet() {
-        if (!isset($this->extra_info)) return '';
-
-        $extra_info = explode(";", $this->extra_info);
-
-        foreach ($extra_info as $key => $value) {
-            if ($value == "")
-                unset($extra_info[$key]);
-        }
-        return implode(",", $extra_info);
-    }
-
-    /**
-     * removes all keywords of length 0
-     */
-    function keywordsGet() {
-        if (!isset($this->keywords)) return '';
-
-        $keywords = explode(";", $this->keywords);
-
-        foreach ($keywords as $key => $value) {
-            if ($value == "")
-                unset($keywords[$key]);
-        }
-        return implode(",", $keywords);
-    }
-
-    function keywordsSet($keywords) {
-        assert('is_array($keywords)');
-
-        if (count($keywords) == 0) return;
-
-        $words = implode('; ', $keywords);
-        $words = preg_replace("/;\s*;/", ';', $words);
-        $this->keywords = $words;
-    }
-
-    function extraInfoSet($info) {
-        assert('is_array($info)');
-
-        if (count($info) == 0) return;
-
-        $words = implode('; ', $info);
-        $words = preg_replace("/;\s*;/", ';', $words);
-        $this->extra_info = $words;
+        $this->venue->dbload($db, $this->venue_id);
     }
 
     function dbDelete(&$db) {
@@ -306,7 +198,6 @@ class pdPublication {
                         'pdPublication::dbDelete');
         }
         $this->deleteFiles();
-        $this->makeNull();
     }
 
     function dbSave(&$db) {
@@ -321,13 +212,6 @@ class pdPublication {
                      'updated'    => date("Y-m-d"),
                      'venue_id'   => $this->venue_id,
                      'submit'     => $this->submit);
-
-        if ($this->venue->venue_id != '') {
-            $arr['venue'] = 'venue_id:<' . $this->venue->venue_id . '>';
-        }
-        else {
-            $arr['venue'] = $this->venue->name;
-        }
 
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
@@ -433,6 +317,128 @@ class pdPublication {
         }
     }
 
+    function dbAttUpdate(&$db, $filename, $type) {
+        assert('$this->pub_id != null');
+
+        $filename = $this->pub_id . '/' . $filename;
+
+        $pub->additional_info[] = arr2obj(array('location' => $filename,
+                                                'type'     => $type));
+
+        // check if already in database
+        $r = $db->selectRow('additional_info', 'add_id',
+                            array('location' => $filename),
+                            'pdPublication::dbAttUpdate');
+        if ($r !== false) return;
+
+        $db->insert('additional_info',
+                    array('location' => $filename,
+                          'type'     => $type),
+                    'pdPublication::dbAttUpdate');
+
+        $add_id = $db->insertId();
+
+        $db->insert('pub_add', array('pub_id' => $this->pub_id,
+                                     'add_id' => $add_id),
+                    'pdPublication::dbAttUpdate');
+    }
+
+    function dbAttRemove(&$db, $filename) {
+        assert('$this->pub_id != null');
+        assert('count($this->additional_info) > 0');
+
+        foreach ($this->additional_info as $k => $o) {
+            if (basename($o->location) == basename($filename)) {
+                $dbfilename = $o->location;
+                unset($pub->additional_info[$k]);
+            }
+        }
+
+        $r = $db->selectRow('additional_info', 'add_id',
+                            array('location' => $dbfilename),
+                            'pdPublication::dbAttRemove');
+        if ($r === false) return;
+
+        $db->delete('pub_add', array('add_id' => $r->add_id,
+                                     'pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+
+        $db->delete('additional_info', array('add_id' => $r->add_id),
+                    'pdPublication::dbAttRemove');
+
+    }
+
+    function authorsToHtml($urlPrefix = null) {
+        if (!isset($this->authors)) return null;
+
+        if ($urlPrefix == null) $urlPrefix = '.';
+
+        $authorsStr = '<ul>';
+        foreach ($this->authors as $author) {
+            $authorsStr .= '<li><a href="' . $urlPrefix
+                . '/view_author.php?author_id='
+                . $author->author_id . '" target="_self">'
+                . $author->firstname . ' ' . $author->lastname . '</a>';
+
+            if ($author->organization != '')
+                $authorsStr .= ', ' . $author->organization;
+
+            $authorsStr .= '</li>';
+        }
+        $authorsStr .= '</ul>';
+        return $authorsStr;
+    }
+
+    /**
+     * removes all extra_info items of length 0
+     */
+    function extraInfoGet() {
+        if (!isset($this->extra_info)) return '';
+
+        $extra_info = explode(";", $this->extra_info);
+
+        foreach ($extra_info as $key => $value) {
+            if ($value == "")
+                unset($extra_info[$key]);
+        }
+        return implode(",", $extra_info);
+    }
+
+    /**
+     * removes all keywords of length 0
+     */
+    function keywordsGet() {
+        if (!isset($this->keywords)) return '';
+
+        $keywords = explode(";", $this->keywords);
+
+        foreach ($keywords as $key => $value) {
+            if ($value == "")
+                unset($keywords[$key]);
+        }
+        return implode(",", $keywords);
+    }
+
+    function keywordsSet($keywords) {
+        assert('is_array($keywords)');
+
+        if (count($keywords) == 0) return;
+
+        $words = implode('; ', $keywords);
+        $words = preg_replace("/;\s*;/", ';', $words);
+        $this->keywords = $words;
+    }
+
+    function extraInfoSet($info) {
+        assert('is_array($info)');
+
+        if (count($info) == 0) return;
+
+        $words = implode('; ', $info);
+        $words = preg_replace("/;\s*;/", ';', $words);
+        $this->extra_info = $words;
+    }
+
     function addVenue(&$db, $mixed) {
         if (is_object($mixed)) {
             $this->venue = $mixed;
@@ -482,8 +488,10 @@ class pdPublication {
             $result = $this->category->dbLoad($db, $mixed);
             assert('$result');
         }
-        else
-            return;
+        else {
+            // should never happen
+            assert('false');
+        }
 
         if (is_array($this->category->info)) {
             foreach ($this->category->info as $info_id => $name) {
@@ -529,7 +537,8 @@ class pdPublication {
     }
 
     function delWebLink($name) {
-        unset($this->web_links[$name]);
+        if (isset($this->web_links[$name]))
+            unset($this->web_links[$name]);
     }
 
     function addPubLink($pub_id) {
@@ -543,64 +552,13 @@ class pdPublication {
                     'pdPublication::updatePaper');
     }
 
-    function attDbUpdate(&$db, $filename, $type) {
-        assert('$this->pub_id != null');
-
-        $filename = $this->pub_id . '/' . $filename;
-
-        $pub->additional_info[] = arr2obj(array('location' => $filename,
-                                                'type'     => $type));
-
-        // check if already in database
-        $r = $db->selectRow('additional_info', 'add_id',
-                            array('location' => $filename),
-                            'pdPublication::attDbUpdate');
-        if ($r !== false) return;
-
-        $db->insert('additional_info',
-                    array('location' => $filename,
-                          'type'     => $type),
-                    'pdPublication::attDbUpdate');
-
-        $add_id = $db->insertId();
-
-        $db->insert('pub_add', array('pub_id' => $this->pub_id,
-                                     'add_id' => $add_id),
-                    'pdPublication::attDbUpdate');
-    }
-
-    function attRemove(&$db, $filename) {
-        assert('$this->pub_id != null');
-        assert('count($this->additional_info) > 0');
-
-        foreach ($this->additional_info as $k => $o) {
-            if (basename($o->location) == basename($filename)) {
-                $dbfilename = $o->location;
-                unset($pub->additional_info[$k]);
-            }
-        }
-
-        $r = $db->selectRow('additional_info', 'add_id',
-                            array('location' => $dbfilename),
-                            'pdPublication::attRemove');
-        if ($r === false) return;
-
-        $db->delete('pub_add', array('add_id' => $r->add_id,
-                                     'pub_id' => $this->pub_id),
-                    'pdPublication::dbSave');
-
-        $db->delete('additional_info', array('add_id' => $r->add_id),
-                    'pdPublication::attRemove');
-
-    }
-
     function webLinkRemove($text, $link) {
         if (count($this->web_links) == 0) return;
 
         unset($this->web_links[$text]);
     }
 
-    function delPubLink($pub_id) {
+    function pubLinkRemove($pub_id) {
         if (count($this->pub_links) == 0) return;
 
         foreach ($this->pub_links as $key => $link_pub_id) {
@@ -615,41 +573,23 @@ class pdPublication {
     function deleteFiles() {
         assert('$this->pub_id != null');
 
-        if (strpos($this->paper, 'uploaded_files/') === false) {
-            $pub_path = FS_PATH . '/uploaded_files/' . $this->pub_id . '/';
-            $filepath = $pub_path . $this->paper;
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+        $filepath = $pub_path . basename($this->paper);
 
-            if (file_exists($filepath))
-                unlink($filepath);
+        if (file_exists($filepath))
+            unlink($filepath);
 
-            if (count($this->additional_info) > 0) {
-                foreach ($this->additional_info as $att) {
-                    $filepath = FS_PATH . '/uploaded_files/' . $att->location;
+        if (count($this->additional_info) > 0) {
+            foreach ($this->additional_info as $att) {
+                $filepath = $pub_path . basename($att->location);
 
-                    if (file_exists($filepath))
-                        unlink($filepath);
-                }
+                if (file_exists($filepath))
+                    unlink($filepath);
             }
-
-            if (file_exists($pub_path))
-                rmdir($pub_path);
         }
-        else {
-            // previous way of keeping track of attachments
 
-            if (file_exists(FS_PATH . $this->paper))
-                unlink(FS_PATH . $this->paper);
-
-            if (count($this->additional_info) > 0) {
-                foreach ($this->additional_info as $att) {
-                    if (file_exists(FS_PATH . $att->location))
-                        unlink(FS_PATH . $att->location);
-                }
-            }
-
-            if (file_exists(FS_PATH . '/uploaded_files/' . $this->pub_id))
-                rmdir(FS_PATH . '/uploaded_files/' . $this->pub_id);
-        }
+        if (file_exists($pub_path))
+            rmdir($pub_path);
     }
 
     function paperAttGetUrl() {
@@ -915,7 +855,7 @@ class pdPublication {
 
         if (rename($att_name, $filename)) {
             chmod($filename, 0777);
-            $this->attDbUpdate($db, $basename, $att_type);
+            $this->dbAttUpdate($db, $basename, $att_type);
         }
     }
 

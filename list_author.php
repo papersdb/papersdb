@@ -28,7 +28,7 @@ class list_author extends pdHtmlPage {
         // Performing SQL query
         $auth_list = new pdAuthorList($db);
 
-        $this->contentPre .= "<h2><u>Authors<h2>";
+        $this->contentPre .= "<h1>Authors</h1>";
 
         $table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',

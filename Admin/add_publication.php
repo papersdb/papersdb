@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.75 2006/09/11 22:51:38 aicmltec Exp $
+// $Id: add_publication.php,v 1.76 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -891,7 +891,7 @@ class ActionProcess extends HTML_QuickForm_Action {
         if (count($values['remove_curr_pub_links']) > 0) {
             foreach ($values['remove_curr_pub_links'] as $key => $value) {
                 if ($value == 'yes') {
-                    $pub->delPubLink($key);
+                    $pub->pubLinkRemove($key);
                 }
             }
         }
@@ -922,7 +922,7 @@ class ActionProcess extends HTML_QuickForm_Action {
                 if ($value == 'yes') {
                     if (file_exists($path . $file))
                         unlink($path . $file);
-                    $pub->attRemove($db, $file);
+                    $pub->dbAttRemove($db, $file);
                 }
             }
         }
@@ -966,7 +966,7 @@ class ActionProcess extends HTML_QuickForm_Action {
 
                     $element->moveUploadedFile($path, $basename);
                     chmod($filename, 0777);
-                    $pub->attDbUpdate(
+                    $pub->dbAttUpdate(
                         $db, $basename, $values['other_attachments_type'. $i]);
                 }
             }

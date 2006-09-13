@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.54 2006/09/12 19:17:57 aicmltec Exp $
+// $Id: view_publication.php,v 1.55 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -211,7 +211,7 @@ class view_publication extends pdHtmlPage {
 
         $bibtex = $pub->getBibtex();
         if ($bibtex !== false)
-        $content .= '<h3>BibTex</h3><pre>' . $bibtex . '</pre><p/>';
+        $content .= '<h3>BibTeX</h3><pre>' . $bibtex . '</pre><p/>';
 
 
         if ($access_level > 0)

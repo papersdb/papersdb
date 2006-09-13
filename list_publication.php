@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.22 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: list_publication.php,v 1.23 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -41,7 +41,7 @@ class list_publication extends pdHtmlPage {
             $pub_list = new pdPubList($this->db);
         }
 
-        $this->contentPre = '<h2><b><u>Publications';
+        $this->contentPre = '<h1>Publications';
 
         if (isset($_GET['author_id'])) {
             $auth = new pdAuthor();
@@ -51,7 +51,7 @@ class list_publication extends pdHtmlPage {
             $this->contentPre .= " by " . $auth->name;
         }
 
-        $this->contentPre .= "</u></b></h2>\n";
+        $this->contentPre .= "</h1>\n";
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',

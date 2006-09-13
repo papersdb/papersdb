@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.40 2006/09/06 22:36:58 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.41 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -277,7 +277,7 @@ class pdHtmlPage {
         if (is_array($options))
             foreach ($options as $key => $value) {
                 if ($value == '')
-                    $result .= '<li>' . $key . '</li>';
+                    $result .= '<li class="selected">' . $key . '</li>';
                 else
                     $result
                         .= '<li><a href="' . $value . '">' . $key . '</a></li>';

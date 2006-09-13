@@ -117,10 +117,23 @@ a:hover { text-decoration: underline; color: #0066FF;}
 
 #emph {
   font-weight: bold;
+  color: #006633;
 }
 
 #small {
   font-size:9px;
+}
+
+h1 {
+  color: #006633;
+}
+
+h2 {
+  color: #006633;
+}
+
+h3 {
+  color: #006633;
 }
 
 td#emph {
@@ -154,59 +167,71 @@ div#field:hover {
 div#header {
   height:40px;
   width:800px;
-  background-color: #EAE9DA;
+  background: #EAE9DA;
   color: #006633;
 }
 
 div#header h1 {
+  font-size: 1.5em;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   text-align: center;
   margin-top:0px;
 }
 
 div#nav {
-  background-color: #EBEBEB;
-  position:absolute;
-  left:0px;
-  top:85px;
+  clear: left;
+  float: left;
   width:180px;
-  padding:0 0 .4em 0;
-  margin:0 0 0 0;
-  font-weight:bold;
+  margin: 10px 10px 10px 0;
+  padding: 3px 5px 0 0;
+  font-size: 0.9em;
   border-top: 3px solid #006633;
   border-bottom: 2px solid #006633;
 }
 
-div#nav h2 {
-  margin: 0;
-  padding: 4px 9px 3px 9px;
-  color: #FFFFCC;
-  text-transform: uppercase;
-  font-size: .9em;
-  font-weight: normal;
-  line-height: 0.9em;
-  background-color: #336633;
-  border: none;
-}
-
 div#nav ul {
-  margin: 0 0 12px 0;
   list-style: none;
+  width:180px;
+  margin: 0 0 20px 0;
+  padding: 0;
+  font-size: 1.1em;
 }
 
 div#nav li {
-  margin-bottom:.1em;
-  list-style: none;
-  /* text-indent: -3em; */
-  text-indent: 0;
-  font-weight:bold;
-  line-height: 1.3em;
+  margin-bottom: 4px;
 }
+
+div#nav li.selected {
+  font-weight: bold;
+  height: 20px;
+  background: #CCCC99;
+  color: #006633;
+  padding: 0 0 0 10px;
+  border-left: 4px solid #006633;
+}
+
+div#nav li a {
+  font-weight: bold;
+  height: 20px;
+  text-decoration: none;
+  color: #006633;
+  display: block;
+  padding: 0 0 0 10px;
+  background: #f4f4f4;
+  border-left: 4px solid #cccccc;
+}
+
+div#nav li a:hover {
+  background: #CCCC99;
+  color: #006633;
+  border-left: 4px solid #006633;
+}
+
 
 div#content {
   margin-top:8px;
   margin-left:200px;
-  min-height: 380px;
+  min-height: 500px;
   margin-bottom: 5px;
   padding-top: 3px;
   padding-bottom: 3px;

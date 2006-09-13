@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.11 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: add_pub4.php,v 1.12 2006/09/13 20:26:16 aicmltec Exp $
 
 /**
  * \file
@@ -391,7 +391,7 @@ class add_pub4 extends pdHtmlPage {
 
         for ($i = 0; $i < $values['num_pub_links']; $i++) {
             if (isset($values['remove_pub_link' . $i])) {
-                $pub->delPubLink($values['curr_pub_link' . $i]);
+                $pub->pubLinkRemove($values['curr_pub_link' . $i]);
                 header('Location: add_pub4.php');
                 return;
             }
