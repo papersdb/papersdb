@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.14 2006/09/13 20:57:05 aicmltec Exp $
+// $Id: edit_user.php,v 1.15 2006/09/13 21:08:15 aicmltec Exp $
 
 /**
  * \file
@@ -56,13 +56,13 @@ class edit_user extends pdHtmlPage {
         $auth_list = new pdAuthorList($db);
         assert('is_array($auth_list->list)');
 
-        $authSelect =& $form->addElement('advmultiselect', 'authors',
-                                         'Favourite Collaborators',
+        $authSelect =& $form->addElement('advmultiselect', 'authors', null,
                                          $auth_list->list,
                                          array('class' => 'pool',
                                                'style' => 'width:150px;'),
                                          SORT_ASC);
-        $authSelect->setLabel(array('Authors:', 'Selected', 'Available'));
+        $authSelect->setLabel(array('Favourite Authors:', 'Selected',
+                                    'Available'));
 
         $authSelect->setButtonAttributes('add',
                                          array('value' => 'Add',

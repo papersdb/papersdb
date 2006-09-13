@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.42 2006/09/13 20:57:05 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.43 2006/09/13 21:08:15 aicmltec Exp $
 
 /**
  * \file
@@ -380,7 +380,7 @@ END;
             <td>
             <span id="copyright">
             <ul>
-            <li>&copy; 2002-2006</li>
+            <li>Copyright &copy; 2002-2006</li>
                            </ul>
                            </span>
                            </td>

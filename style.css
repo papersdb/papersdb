@@ -69,9 +69,9 @@ td#large {font-size:1.3em;}
 td#standard {font-size:1em;}
 td#small {font-size: .5em;}
 
-a:link { text-decoration: underline; color: #000099;}
-a:visited { text-decoration: underline; color: #000099;}
-a:hover { text-decoration: underline; color: #0066FF;}
+a:link { text-decoration: underline; color: #006633;}
+a:visited { text-decoration: underline; color: #669933;}
+a:hover { text-decoration: underline; color: #666600;}
 
 .help a:link { text-decoration: none; color: #000000;}
 .help a:visited { text-decoration: none; color: #000000;}
@@ -298,7 +298,7 @@ div#footer2 {
 }
 
 #pub_title {
-  color: #3300cc;
+  color: #006633;
   font-weight: bold;
   margin: 0;
   padding: 0;
