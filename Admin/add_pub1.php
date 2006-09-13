@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.9 2006/09/13 22:31:52 aicmltec Exp $
+// $Id: add_pub1.php,v 1.10 2006/09/13 22:40:55 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/jscalendar.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
 class add_pub1 extends pdHtmlPage {
-    var $debug = 1;
+    var $debug = 0;
 
     function add_pub1() {
         global $access_level;
@@ -235,7 +235,7 @@ class add_pub1 extends pdHtmlPage {
             .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
-        if (isset($values['venue_id']) && ($values['venue_id'] > 0))
+        if (isset($values['venue_id'][1]) && ($values['venue_id'][1] > 0))
             $pub->addVenue($db, $values['venue_id'][1]);
 
         if ($this->debug)

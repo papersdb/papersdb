@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.55 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: view_publication.php,v 1.56 2006/09/13 22:40:55 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class view_publication extends pdHtmlPage {
-    var $debug = 0;
+    var $debug = 1;
     var $pub_id;
 
     function view_publication() {

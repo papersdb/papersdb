@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.60 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: pdPublication.php,v 1.61 2006/09/13 22:40:55 aicmltec Exp $
 
 /**
  * \file
@@ -210,7 +210,7 @@ class pdPublication {
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
                      'updated'    => date("Y-m-d"),
-                     'venue_id'   => $this->venue_id,
+                     'venue_id'   => $this->venue->venue_id,
                      'submit'     => $this->submit);
 
         if (isset($this->pub_id)) {

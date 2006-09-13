@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.3 2006/09/13 22:40:55 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.4 2006/09/13 22:42:55 aicmltec Exp $
 
 /**
  * \file
@@ -21,7 +21,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * Renders the whole page.
  */
 class add_pub_submit extends pdHtmlPage {
-    var $debug = 1;
+    var $debug = 0;
 
     function add_pub_submit() {
         global $access_level;
