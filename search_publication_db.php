@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.34 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.35 2006/09/14 20:28:49 aicmltec Exp $
 
 /**
  * \file
@@ -27,6 +27,7 @@ class search_publication_db extends pdHtmlPage {
     var $allowed_options = array('search',
                                  'cat_id',
                                  'title',
+                                 'author_myself',
                                  'authortyped',
                                  'authorselect',
                                  'paper',
@@ -317,18 +318,16 @@ class search_publication_db extends pdHtmlPage {
     /**
      * adds the queried pub_ids to the array, checking for repeats as well
      */
-    function add_to_array($query, &$thearray)
-    {
-        $search_result = query_db($query);
-        while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC))
-        {
-            $found = false;
-            for($e = 0; $e < count($thearray); $e++)
-                if($thearray[$e] == $search_array['pub_id'])
-                    $found = true;
+    function add_to_array($query, &$thearray) {
+        if ($thearray == null)
+            $thearray = array();
 
-            if(!$found)
-                $thearray[] = $search_array['pub_id'];
+        $search_result = query_db($query);
+        $result = array();
+
+        while ($row = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+            if (!in_array($row['pub_id'], $thearray))
+                array_push($thearray, $row['pub_id']);
         }
     }
 
@@ -509,14 +508,22 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // AUTHOR SELECTED SEARCH ---------------------------------------------
-        /** \todo this code only handles the first author selected from the list */
-        if (($this->search_params->authorselect[0] != NULL) && ($this->search_params->authortyped == "")) {
-            $first_item = false;
-            $temporay_array = NULL;
-            $search_query = "SELECT DISTINCT pub_id from pub_author "
-                . "WHERE author_id=" . quote_smart($this->search_params->authorselect[0]);
-            $this->add_to_array($search_query, $temporary_array);
-            $this->pub_id_array = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
+        if (count($this->search_params->authorselect) > 0) {
+            echo '<pre>' . print_r($this->search_params->authorselect, true) . '</pre>';
+
+            foreach ($this->search_params->authorselect as $auth_id) {
+                if ($auth_id != NULL) {
+                    $first_item = false;
+                    $temporay_array = NULL;
+                    $search_query = "SELECT DISTINCT pub_id from pub_author "
+                        . "WHERE author_id=" . quote_smart($auth_id);
+                    $this->add_to_array($search_query, $temporary_array);
+                    $this->pub_id_array = $this->keep_the_intersect(
+                        $temporary_array, $this->pub_id_array);
+
+                    echo 'temp<pre>' . print_r($temporary_array, true) . '</pre>';
+                }
+            }
         }
 
         // AUTHOR TYPED SEARCH ------------------------------------------------

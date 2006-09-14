@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.22 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: pdUser.php,v 1.23 2006/09/14 20:28:49 aicmltec Exp $
 
 /**
  * \file
@@ -29,6 +29,7 @@ class pdUser {
     var $collaborators;
     var $author_rank;
     var $search_params;
+    var $author_id;
 
     /**
      * Constructor.
@@ -53,6 +54,7 @@ class pdUser {
         if (!isset($this->login)) return;
 
         $this->collaboratorsDbLoad($db);
+        $this->authorIdGet($db);
         return true;
     }
 
@@ -140,6 +142,20 @@ class pdUser {
                     unset($this->author_rank[$id]);
             }
         }
+    }
+
+    function authorIdGet(&$db) {
+        $name = explode(' ', $this->name);
+        $count = count($name);
+        $author_name = $name[$count - 1] . ', ' . $name[0];
+
+        $q = $db->selectRow('author', 'author_id',
+                            array('name' => $author_name),
+                            "pdAuthor::dbLoad");
+
+        if ($q === false) return;
+
+        $this->author_id = $q->author_id;
     }
 
     /**

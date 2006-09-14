@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.46 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: advanced_search.php,v 1.47 2006/09/14 20:28:49 aicmltec Exp $
 
 /**
  * \file
@@ -30,9 +30,9 @@ require_once 'includes/jscalendar.php';
  */
 class advanced_search extends pdHtmlPage {
     var $form_name = 'pubForm';
+    var $db;
     var $cat_list;
     var $category;
-    var $auth_list;
     var $search;
     var $cat_id;
     var $title;
@@ -62,9 +62,9 @@ class advanced_search extends pdHtmlPage {
             $this->authorselect = $_GET['authorselect'];
 
         $db =& dbCreate();
+        $this->db =& $db;
 
         $this->cat_list = new pdCatList($db);
-        $this->auth_list = new pdAuthorList($db);
 
         $this->category = new pdCategory();
         $this->category->dbLoad($db, $this->cat_id);
@@ -103,6 +103,10 @@ class advanced_search extends pdHtmlPage {
      * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
+        global $access_level;
+
+        $db =& $this->db;
+
         $form = new HTML_QuickForm($this->form_name, 'get',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
@@ -117,15 +121,30 @@ class advanced_search extends pdHtmlPage {
                           + $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
 
-        $authElement[0] =& HTML_QuickForm::createElement(
+        $auth_list = new pdAuthorList($db);
+
+        if ($access_level > 0) {
+            $user =& $_SESSION['user'];
+
+            $this->contentPost .= '<pre>' . print_r($user, true) . '</pre>';
+
+            $authElements[] =& HTML_QuickForm::createElement(
+                'advcheckbox', 'author_myself',
+                null, 'myself', null, array('', $user->author_id));
+
+            unset($auth_list->list[$user->author_id]);
+        }
+
+        $authElements[] =& HTML_QuickForm::createElement(
             'text', 'authortyped', null,
             array('size' => 60, 'maxlength' => 250));
-        $authElement[1] =& HTML_QuickForm::createElement(
+        $authElements[] =& HTML_QuickForm::createElement(
             'static', 'auth_label', null, 'or select from list');
-        $authElement[2] =& HTML_QuickForm::createElement(
-            'select', 'authorselect', null, $this->auth_list->list,
+        $authElements[] =& HTML_QuickForm::createElement(
+            'select', 'authorselect', null, $auth_list->list,
             array('multiple' => 'multiple', 'size' => 10));
-        $form->addGroup($authElement, 'authors', 'Authors:', '<br/>',
+
+        $form->addGroup($authElements, 'authors', 'Authors:', '<br/>',
                         false);
 
         $form->addElement('text', 'paper', 'Paper filename:',
