@@ -86,7 +86,7 @@ a:hover { text-decoration: underline; color: #666600;}
   padding: 0;
   width: 800px;
   height: 15px;
-  background-color: #CCCC99;
+  background-image:url('statusbar.png');
 }
 
 #statusbar table {
@@ -95,13 +95,12 @@ a:hover { text-decoration: underline; color: #666600;}
 
 #statusbar table tr td {
   font-size: .45em;
-  color: #000000;
+  color: #444444;
   font-weight: bold;
   text-align: right;
 }
 
 #titlebar {
-  /* margin: 0 auto; */
   padding: 0;
   width: 800px;
   height: 20px;
@@ -167,7 +166,7 @@ div#field:hover {
 div#header {
   height:40px;
   width:800px;
-  background: #EAE9DA;
+  background-image:url('header.png');
   color: #006633;
 }
 
