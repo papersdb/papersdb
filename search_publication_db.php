@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.36 2006/09/15 15:15:09 loyola Exp $
+// $Id: search_publication_db.php,v 1.37 2006/09/15 16:55:27 aicmltec Exp $
 
 /**
  * \file
@@ -20,22 +20,7 @@ require_once 'includes/pdSearchParams.php';
  * Renders the whole page.
  */
 class search_publication_db extends pdHtmlPage {
-    /**
-     * These are the only options allowed by this script. These can be passed
-     * by either GET or POST methods.
-     */
-    var $allowed_options = array('search',
-                                 'cat_id',
-                                 'title',
-                                 'author_myself',
-                                 'authortyped',
-                                 'authorselect',
-                                 'paper',
-                                 'abstract',
-                                 'venue',
-                                 'keywords',
-                                 'startdate',
-                                 'enddate');
+    var $debug = 0;
     var $search_params;
     var $pub_id_array;
     var $parse_search_add_word_or_next = false;
@@ -45,6 +30,10 @@ class search_publication_db extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('search_results');
         $this->optionsGet();
+
+        if ($this->debug) {
+            $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+        }
 
         $link = connect_db();
         $pub_id_count = 0;
@@ -411,7 +400,8 @@ class search_publication_db extends pdHtmlPage {
                     }
                 }
             }
-            $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
+            $this->pub_id_array = array_intersect($this->pub_id_array,
+                                                  $union_array);
         }
         // All results from quick search are in $this->pub_id_array
         return $this->pub_id_array;
@@ -421,14 +411,11 @@ class search_publication_db extends pdHtmlPage {
      * Performs and advanced search.
      */
     function advancedSearch() {
-        $first_item = true;
-
         // CATEGORY SEARCH ----------------------------------------------------
         //
         // if category search found, pass on only the ids found with that match
         // with category
         if($this->search_params->cat_id != '') {
-            $first_item = false;
             $temporary_array = NULL;
             $cat_id = $this->search_params->cat_id;
 
@@ -439,8 +426,7 @@ class search_publication_db extends pdHtmlPage {
 
             //then we only keep the common ids between both arrays
             $this->pub_id_array
-                = array_intersect($temporary_array,
-                                            $this->pub_id_array);
+                = array_intersect($this->pub_id_array, $temporary_array);
 
             // Search category related fields
             $info_query = "SELECT DISTINCT info.info_id, info.name "
@@ -460,7 +446,7 @@ class search_publication_db extends pdHtmlPage {
                         . " AND value LIKE " . quote_smart("%".$info_name."%");
                     $this->add_to_array($search_query, $temporary_array);
                     $this->pub_id_array
-                        = array_intersect($temporary_array, $this->pub_id_array);
+                        = array_intersect($this->pub_id_array, $temporary_array);
                 }
             }
 
@@ -477,7 +463,6 @@ class search_publication_db extends pdHtmlPage {
         for ($a = 0; $a < count($pub_search); $a++) {
             $field = $pub_search[$a];
             if ($this->search_params->$field != "") {
-                $first_item = false;
                 $this->input .= " ".$_POST[$field];
                 $the_search_array
                     = $this->parse_search($this->search_params->$field);
@@ -488,32 +473,38 @@ class search_publication_db extends pdHtmlPage {
                         $search_query = "SELECT DISTINCT pub_id from publication WHERE " . $field . " LIKE " . quote_smart("%".$term."%");
                         $this->add_to_array($search_query, $union_array);
                     }
-                    $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
+                    $this->pub_id_array = array_intersect($this->pub_id_array,
+                                                          $union_array);
                 }
             }
         }
 
-        // AUTHOR SELECTED SEARCH ---------------------------------------------
-        if (count($this->search_params->authorselect) > 0) {
-            foreach ($this->search_params->authorselect as $auth_id) {
-                $first_item = false;
-                $temporary_array = array();
+        // MYSELF or AUTHOR SELECTED SEARCH ------------------------------------
+        $authors = array();
+        $author_pubs = array();
+
+        if (count($this->search_params->authorselect) > 0)
+            array_push($authors, $this->search_params->authorselect);
+
+        if (($this->search_params->author_myself != '')
+            && ($_SESSION['user']->author_id != ''))
+            array_push($authors, $_SESSION['user']->author_id);
+
+        if (count($authors) > 0) {
+            foreach ($authors as $auth_id) {
                 $search_query = "SELECT DISTINCT pub_id from pub_author "
                     . "WHERE author_id=" . quote_smart($auth_id);
-                $this->add_to_array($search_query, $temporary_array);
-                $this->pub_id_array = array_intersect(
-                    $temporary_array, $this->pub_id_array);
+                $this->add_to_array($search_query, $author_pubs);
             }
         }
 
-        // AUTHOR TYPED SEARCH ------------------------------------------------
+
+        // AUTHOR TYPED SEARCH --------------------------------------
         if ($this->search_params->authortyped != "") {
-            $first_item = false;
             $this->input .= " ".$authortyped;
-            $temporay_array = NULL;
             $the_search_array = $this->parse_search($this->search_params->authortyped);
+
             for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
-                $union_array = NULL;
                 for ($index2 = 0; $index2 < count($the_search_array[$index1]); $index2++) {
                     $term = $the_search_array[$index1][$index2];
                     $search_query = "SELECT DISTINCT author_id from author "
@@ -524,12 +515,21 @@ class search_publication_db extends pdHtmlPage {
                         $author_id = $search_array['author_id'];
                         $search_query = "SELECT pub_id from pub_author "
                             . "WHERE author_id=" . quote_smart($author_id);
-                        $this->add_to_array($search_query, $union_array);
+                        $this->add_to_array($search_query, $author_pubs);
                     }
                 }
-                $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
             }
         }
+
+        if (count($author_pubs) > 0)
+            $this->pub_id_array = array_intersect($this->pub_id_array,
+                                                  $author_pubs);
+
+        if ($this->debug) {
+            $this->contentPost .= '<pre>' . print_r($author_pubs, true) . '</pre>';
+            $this->contentPost .= '<pre>' . print_r($this->pub_id_array, true) . '</pre>';
+        }
+
 
         // DATES SEARCH --------------------------------------
         $startdate =& $this->search_params->startdate;
@@ -551,7 +551,8 @@ class search_publication_db extends pdHtmlPage {
                 quote_smart($startdate)
                 . " AND " . quote_smart($enddate);
             $this->add_to_array($search_query, $temporary_array);
-            $this->pub_id_array = array_intersect($temporary_array, $this->pub_id_array);
+            $this->pub_id_array = array_intersect($this->pub_id_array,
+                                                  $temporary_array);
         }
 
         return $this->pub_id_array;

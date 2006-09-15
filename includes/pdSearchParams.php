@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.1 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.2 2006/09/15 16:55:27 aicmltec Exp $
 
 /**
  * \file
@@ -25,6 +25,7 @@ class pdSearchParams {
     var $params = array('search',
                         'cat_id',
                         'title',
+                        'author_myself',
                         'authortyped',
                         'authorselect',
                         'paper',
@@ -37,6 +38,7 @@ class pdSearchParams {
     var $search;
     var $cat_id;
     var $title;
+    var $author_myself;
     var $authortyped;
     var $authorselect;
     var $paper;

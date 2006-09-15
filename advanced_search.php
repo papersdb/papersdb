@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.47 2006/09/14 20:28:49 aicmltec Exp $
+// $Id: advanced_search.php,v 1.48 2006/09/15 16:55:27 aicmltec Exp $
 
 /**
  * \file
@@ -29,6 +29,7 @@ require_once 'includes/jscalendar.php';
  * Renders the whole page.
  */
 class advanced_search extends pdHtmlPage {
+    var $debug = 0;
     var $form_name = 'pubForm';
     var $db;
     var $cat_list;
@@ -58,6 +59,10 @@ class advanced_search extends pdHtmlPage {
             if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
                 $this->$opt = stripslashes($_GET[$opt]);
 
+        if ($this->debug) {
+            $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+        }
+
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
 
@@ -73,7 +78,7 @@ class advanced_search extends pdHtmlPage {
         $this->form =& $form;
         $this->setFormValues();
 
-        if (isset($_SESSION['search_params']))
+        if (count($_SESSION['search_params']->authorselect) > 0)
             $this->selected_authors = ':'
                 . implode(':', $_SESSION['search_params']->authorselect)
                 . ':';
@@ -106,6 +111,7 @@ class advanced_search extends pdHtmlPage {
         global $access_level;
 
         $db =& $this->db;
+        $user = null;
 
         $form = new HTML_QuickForm($this->form_name, 'get',
                                    'search_publication_db.php',
@@ -123,15 +129,8 @@ class advanced_search extends pdHtmlPage {
 
         $auth_list = new pdAuthorList($db);
 
-        if ($access_level > 0) {
+        if (($access_level > 0) && ($_SESSION['user']->author_id != '')) {
             $user =& $_SESSION['user'];
-
-            $this->contentPost .= '<pre>' . print_r($user, true) . '</pre>';
-
-            $authElements[] =& HTML_QuickForm::createElement(
-                'advcheckbox', 'author_myself',
-                null, 'myself', null, array('', $user->author_id));
-
             unset($auth_list->list[$user->author_id]);
         }
 
@@ -143,6 +142,12 @@ class advanced_search extends pdHtmlPage {
         $authElements[] =& HTML_QuickForm::createElement(
             'select', 'authorselect', null, $auth_list->list,
             array('multiple' => 'multiple', 'size' => 10));
+
+        if ($user != null) {
+            $authElements[] =& HTML_QuickForm::createElement(
+                'checkbox', 'author_myself',
+                null, 'myself', null, array('', $user->author_id));
+        }
 
         $form->addGroup($authElements, 'authors', 'Authors:', '<br/>',
                         false);
@@ -224,11 +229,12 @@ class advanced_search extends pdHtmlPage {
 
         $form->addGroup(
             array(
-                HTML_QuickForm::createElement('submit', 'Submit', 'Search'),
                 HTML_QuickForm::createElement('reset', 'Clear', 'Clear'),
                 HTML_QuickForm::createElement(
-                    'button', 'fill_last', 'Use Previous Search Terms',
-                    array('onClick' => 'lastSearchUse();'))),
+                    'button', 'fill_last', 'Load Previous Search Terms',
+                    array('onClick' => 'lastSearchUse();')),
+                HTML_QuickForm::createElement('submit', 'Submit', 'Search')
+                ),
             'buttonsGroup', '', '&nbsp;', false);
         return $form;
     }
@@ -281,6 +287,7 @@ class advanced_search extends pdHtmlPage {
                 var element = form.elements[i];
                 if ((element.value != "") && (element.value != null)
                     && (element.type != "button")
+                    && (element.type != "reset")
                     && (element.type != "submit")) {
 
                     if (element.type == "checkbox") {
@@ -328,6 +335,10 @@ class advanced_search extends pdHtmlPage {
             form.keywords.value    = "{$_SESSION['search_params']->keywords}";
             form.startdate.value   = "{$_SESSION['search_params']->startdate}";
             form.enddate.value     = "{$_SESSION['search_params']->enddate}";
+
+            if ("{$_SESSION['search_params']->author_myself}" == "1") {
+                form.author_myself.checked = true;
+            }
 
             for (var i =0; i < authorselect.length; i++) {
                 authorselect.options[i].selected = false;
