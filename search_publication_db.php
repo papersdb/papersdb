@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.37 2006/09/15 16:55:27 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.38 2006/09/15 19:17:31 aicmltec Exp $
 
 /**
  * \file
@@ -22,7 +22,7 @@ require_once 'includes/pdSearchParams.php';
 class search_publication_db extends pdHtmlPage {
     var $debug = 0;
     var $search_params;
-    var $pub_id_array;
+    var $result_pubs;
     var $parse_search_add_word_or_next = false;
     var $input;
 
@@ -39,9 +39,9 @@ class search_publication_db extends pdHtmlPage {
         $pub_id_count = 0;
 
         // We start as the result being every pub_id
-        $this->pub_id_array = NULL;
+        $this->result_pubs = NULL;
         $search_query = "SELECT DISTINCT pub_id FROM publication";
-        $this->add_to_array($search_query, $this->pub_id_array);
+        $this->add_to_array($search_query, $this->result_pubs);
 
         $s = (empty($_SERVER["HTTPS"])
               ? '' : ($_SERVER["HTTPS"] == "on") ? "s" : "");
@@ -61,142 +61,19 @@ class search_publication_db extends pdHtmlPage {
             . $location . '?' . $this->search_params->paramsToHtmlQueryStr();
 
         if($this->search_params->search != "") {
-            $this->quickSearch($this->pub_id_array);
-            $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
+            $this->quickSearch($this->result_pubs);
         }
         else {
             $this->advancedSearch();
         }
 
-        $this->searchResultsGenerate($search_url);
+        $_SESSION['search_url'] = $search_url;
+        $_SESSION['search_results'] = $this->result_pubs;
 
+        if (!$this->debug) {
+            header('Location: search_results.php');
+        }
     }
-
-    /**
-     * Generates results in citation format.
-     */
-    function searchResultsGenerate($search_url) {
-        global $access_level;
-
-        $db =& dbCreate();
-        $countentries = 0;
-        $input_unsanitized = str_replace("\'", "", stripslashes($this->input));
-
-        $table = new HTML_Table();
-
-        $cvForm =& $this->cvFormCreate($this->pub_id_array);
-        if ($cvForm != null) {
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-            $cvForm->accept($renderer);
-            $table->addRow(array($renderer->toHtml()));
-        }
-
-        $this->contentPre .= $table->toHtml();
-
-        if ($this->pub_id_array == null) {
-            $this->contentPre
-                .= '<br><h3>Your search did not generate any results.</h3>';
-            return;
-        }
-
-        $table = new HTML_Table(array('class' => 'nomargins',
-                                      'width' => '100%'));
-
-        $b = 0;
-        foreach ($this->pub_id_array as $pub_id) {
-            $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
-
-            $pubTable = new HTML_Table();
-
-            $citation = $pub->getCitationHtml();
-
-            // Show Paper
-            if ($pub->paper != 'No paper') {
-                $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
-
-                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                    $citation .= '<img src="images/pdf.gif" alt="PDF" '
-                        . 'height="18" width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                $citation .= '</a>';
-            }
-
-            // Show Additional Materials
-            if (count($pub->additional_info) > 0) {
-                $add_count = 1;
-                foreach ($pub->additional_info as $att) {
-                    $citation .= '<a href="'
-                        . $pub->attachmentGetUrl($add_count - 1) . '">';
-
-                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                        $citation .= '<img src="images/pdf.gif" alt="PDF" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                        $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                        $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    $add_count++;
-                }
-            }
-
-            $pubTable->addRow(array($citation));
-
-            $indexTable = new HTML_Table();
-
-            $cell = ($b + 1)
-                . '<br/><a href="view_publication.php?pub_id=' . $pub->pub_id . '">'
-                . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
-                . 'width="16" border="0" align="middle" /></a>';
-
-            if ($access_level > 0)
-                $cell .= '<a href="Admin/add_pub1.php?pub_id='
-                    . $pub->pub_id . '">'
-                    . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
-                    . 'width="16" border="0" align="middle" /></a>';
-
-            $indexTable->addRow(array($cell), array('nowrap'));
-
-            $table->addRow(array($indexTable->toHtml(), $pubTable->toHtml()));
-            $b++;
-        }
-
-        tableHighlightRows($table);
-
-        $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
-                                                'border' => '0',
-                                                'cellpadding' => '0',
-                                                'cellspacing' => '0'));
-        $searchLinkTable->addRow(
-            array('<a href="' . $search_url . '">'
-                  . '<img src="images/link.png" title="view" alt="view" '
-                  . 'height="16" width="16" border="0" align="top" />'
-                  . ' Link to this search</a></div><br/>'));
-
-        $this->contentPre .= $table->toHtml()
-            . '<hr/>' . $searchLinkTable->toHtml();
-
-        $db->close();
-    }
-
 
     /**
      * Retrieves the allowed options from an array. Note that this function
@@ -400,11 +277,11 @@ class search_publication_db extends pdHtmlPage {
                     }
                 }
             }
-            $this->pub_id_array = array_intersect($this->pub_id_array,
+            $this->result_pubs = array_intersect($this->result_pubs,
                                                   $union_array);
         }
-        // All results from quick search are in $this->pub_id_array
-        return $this->pub_id_array;
+        // All results from quick search are in $this->result_pubs
+        return $this->result_pubs;
     }
 
     /**
@@ -425,8 +302,8 @@ class search_publication_db extends pdHtmlPage {
             $this->add_to_array($search_query, $temporary_array);
 
             //then we only keep the common ids between both arrays
-            $this->pub_id_array
-                = array_intersect($this->pub_id_array, $temporary_array);
+            $this->result_pubs
+                = array_intersect($this->result_pubs, $temporary_array);
 
             // Search category related fields
             $info_query = "SELECT DISTINCT info.info_id, info.name "
@@ -445,8 +322,8 @@ class search_publication_db extends pdHtmlPage {
                         . " AND info_id=" . quote_smart($info_id)
                         . " AND value LIKE " . quote_smart("%".$info_name."%");
                     $this->add_to_array($search_query, $temporary_array);
-                    $this->pub_id_array
-                        = array_intersect($this->pub_id_array, $temporary_array);
+                    $this->result_pubs
+                        = array_intersect($this->result_pubs, $temporary_array);
                 }
             }
 
@@ -473,7 +350,7 @@ class search_publication_db extends pdHtmlPage {
                         $search_query = "SELECT DISTINCT pub_id from publication WHERE " . $field . " LIKE " . quote_smart("%".$term."%");
                         $this->add_to_array($search_query, $union_array);
                     }
-                    $this->pub_id_array = array_intersect($this->pub_id_array,
+                    $this->result_pubs = array_intersect($this->result_pubs,
                                                           $union_array);
                 }
             }
@@ -484,7 +361,7 @@ class search_publication_db extends pdHtmlPage {
         $author_pubs = array();
 
         if (count($this->search_params->authorselect) > 0)
-            array_push($authors, $this->search_params->authorselect);
+            $authors += $this->search_params->authorselect;
 
         if (($this->search_params->author_myself != '')
             && ($_SESSION['user']->author_id != ''))
@@ -496,6 +373,9 @@ class search_publication_db extends pdHtmlPage {
                     . "WHERE author_id=" . quote_smart($auth_id);
                 $this->add_to_array($search_query, $author_pubs);
             }
+        }
+        if ($this->debug) {
+            $this->contentPost .= 'authors<pre>' . print_r($authors, true) . '</pre>';
         }
 
 
@@ -522,12 +402,12 @@ class search_publication_db extends pdHtmlPage {
         }
 
         if (count($author_pubs) > 0)
-            $this->pub_id_array = array_intersect($this->pub_id_array,
+            $this->result_pubs = array_intersect($this->result_pubs,
                                                   $author_pubs);
 
         if ($this->debug) {
-            $this->contentPost .= '<pre>' . print_r($author_pubs, true) . '</pre>';
-            $this->contentPost .= '<pre>' . print_r($this->pub_id_array, true) . '</pre>';
+            $this->contentPost .= 'author<pre>' . print_r($author_pubs, true) . '</pre>';
+            $this->contentPost .= 'result<pre>' . print_r($this->result_pubs, true) . '</pre>';
         }
 
 
@@ -551,36 +431,22 @@ class search_publication_db extends pdHtmlPage {
                 quote_smart($startdate)
                 . " AND " . quote_smart($enddate);
             $this->add_to_array($search_query, $temporary_array);
-            $this->pub_id_array = array_intersect($this->pub_id_array,
+            $this->result_pubs = array_intersect($this->result_pubs,
                                                   $temporary_array);
         }
 
-        return $this->pub_id_array;
-    }
-
-    /**
-     *
-     */
-    function searchFormCreate() {
-        $form = new HTML_QuickForm('pubForm', 'post',
-                                   'search_publication_db.php',
-                                   '_self', 'multipart/form-data');
-        $form->addElement('text', 'search', null,
-                          array('size' => 45, 'maxlength' => 250));
-        $form->addElement('submit', 'Quick', 'Search');
-
-        return $form;
+        return $this->result_pubs;
     }
 
     /**
      *
      */
     function cvFormCreate() {
-        if ($this->pub_id_array == null) return;
+        if ($this->result_pubs == null) return;
 
         $form = new HTML_QuickForm('cvForm', 'post', 'cv.php', '_blank',
                                    'multipart/form-data');
-        $form->addElement('hidden', 'pub_ids', implode(",", $this->pub_id_array));
+        $form->addElement('hidden', 'pub_ids', implode(",", $this->result_pubs));
         $form->addElement('submit', 'submit', 'Output these results to CV format');
 
         return $form;

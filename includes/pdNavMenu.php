@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.6 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.7 2006/09/15 19:17:31 aicmltec Exp $
 
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
@@ -73,8 +73,8 @@ class pdNavMenu {
         'advanced_search'    => array('Advanced Search', 'advanced_search.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'search_results'    => array('Search Results',
-                                     'search_publication_db.php',
-                                      PD_NAV_MENU_NEVER),
+                                     'search_results.php',
+                                      PD_NAV_MENU_LOGIN_NOT_REQ),
         'all_publications'   => array('All Publications', 'list_publication.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'all_authors'        => array('All Authors', 'list_author.php',

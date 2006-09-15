@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.21 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: login.php,v 1.22 2006/09/15 19:17:31 aicmltec Exp $
 
 /**
  * \file
@@ -43,22 +43,27 @@ class login extends pdHtmlPage {
 
         $form = new HTML_QuickForm('quickPubForm');
 
-        $form->addElement('text', 'loginid', null,
+        $form->addElement('header', 'login_header', 'Login');
+
+        $form->addElement('text', 'loginid', 'Login:',
                           array('size' => 25, 'maxlength' => 40));
         $form->addRule('loginid', 'login cannot be empty', 'required',
                        null, 'client');
-        $form->addElement('password', 'passwd', null,
+        $form->addElement('password', 'passwd', 'Password:',
                           array('size' => 25, 'maxlength' => 40));
         $form->addRule('passwd', 'password cannot be empty', 'required',
                        null, 'client');
         $form->addElement('submit', 'login', 'Login');
-        $form->addElement('password', 'passwd_again', null,
+
+        $form->addElement('header', 'new_users', 'New Users Only');
+
+        $form->addElement('password', 'passwd_again', 'Confirm Password:',
                           array('size' => 25, 'maxlength' => 40));
-        $form->addElement('text', 'email', null,
+        $form->addElement('text', 'email', 'email:',
                           array('size' => 25, 'maxlength' => 80));
         $form->addRule('email', 'invalid email address', 'email', null,
                        'client');
-        $form->addElement('text', 'realname', null,
+        $form->addElement('text', 'realname', 'Real Name:',
                           array('size' => 25, 'maxlength' => 80));
         $form->addElement('submit', 'newaccount', 'Create new account');
 
@@ -91,6 +96,10 @@ class login extends pdHtmlPage {
                 //register session variables and set last login time.
                 $values['loginid'] = stripslashes($values['loginid']);
                 $_SESSION['user'] = $user;
+
+                // reset search results
+                searchSessionInit();
+
                 $db->close();
 
                 $access_level = $_SESSION['user']->access_level;
@@ -185,33 +194,22 @@ class login extends pdHtmlPage {
         }
         else {
             // if form hasn't been submitted
-            $this->contentPre = '<h2>Create new account or log in</h2>';
+            $this->contentPre = '<h2>Log In or Create a New Account</h2>';
 
-            $renderer = new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
+
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" '
+                . 'cellspacing="2" bgcolor="#CCCC99">'
+                . '<form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
             $form->accept($renderer);
-
-            $table = new HTML_Table(array('width' => '600',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
-            $table->addRow(array('Login:', $renderer->elementToHtml('loginid')));
-            $table->addRow(array('Password:', $renderer->elementToHtml('passwd'),
-                                 $renderer->elementToHtml('login')));
-            $table->addRow();
-            $table->addRow(array('Confirm Password:',
-                                 $renderer->elementToHtml('passwd_again'),
-                                 '(new users only)'));
-            $table->addRow(array('email:', $renderer->elementToHtml('email')));
-            $table->addRow(array('Real Name:', $renderer->elementToHtml('realname'),
-                                 $renderer->elementToHtml('newaccount')));
-
-            $table->updateColAttributes(0, array('id' => 'emph'));
 
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->table =& $table;
         }
     }
 }

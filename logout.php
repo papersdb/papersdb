@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: logout.php,v 1.6 2006/08/04 18:00:33 aicmltec Exp $
+// $Id: logout.php,v 1.7 2006/09/15 19:17:31 aicmltec Exp $
 
 /**
  * \file
@@ -19,6 +19,7 @@ if ($access_level <= 0) {
 }
 
 unset($_SESSION['user']);
+searchSessionInit();
 
 // kill session variables
 $_SESSION = array(); // reset session array

@@ -118,6 +118,12 @@ function pubSessionInit() {
     unset($_SESSION['removed_atts']);
 }
 
+function searchSessionInit() {
+    unset($_SESSION['search_results']);
+    unset($_SESSION['search_url']);
+    unset($_SESSION['search_params']);
+}
+
 function backtrace() {
     $s = '';
     $MAXSTRLEN = 64;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.44 2006/09/13 21:59:44 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.45 2006/09/15 19:17:31 aicmltec Exp $
 
 /**
  * \file
@@ -254,8 +254,16 @@ class pdHtmlPage {
                 || (($access_level == 0)
                     && ($item->access_level < PD_NAV_MENU_LOGIN_REQUIRED))) {
 
-                if (($page_id == $this->page_id) || !$item->enabled)
+                // only display search results if a search was performed
+                if (($page_id == 'search_results')
+                    && !isset($_SESSION['search_results'])
+                    && !isset($_SESSION['search_url'])) {
+                    continue;
+                }
+
+                if (($page_id == $this->page_id) || !$item->enabled) {
                     $options[$item->page_title] = '';
+                }
                 else
                     $options[$item->page_title] = $url_prefix . $item->url;
 
