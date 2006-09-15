@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.27 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: index.php,v 1.28 2006/09/15 23:08:05 aicmltec Exp $
 
 /**
  * \file
@@ -24,8 +24,8 @@ class indexPage extends pdHtmlPage {
         pubSessionInit();
 
         parent::pdHtmlPage('home');
-        $this->db =& dbCreate();
-        $pub_list = new pdPubList($this->db, array('sort_by_updated' => true));
+        $db =& dbCreate();
+        $pub_list = new pdPubList($db, array('sort_by_updated' => true));
 
         $this->contentPre = 'Recent Additions:<ul>';
         $stringlength = 0;
@@ -44,7 +44,7 @@ class indexPage extends pdHtmlPage {
                 . '<b>' . $pub->title . '</b></a></li>';
         }
         $this->contentPre .= '</ul>';
-        $this->db->close();
+        $db->close();
     }
 }
 

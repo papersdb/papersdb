@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.9 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: pdPubList.php,v 1.10 2006/09/15 23:08:05 aicmltec Exp $
 
 /**
  * \file
@@ -25,11 +25,6 @@ class pdPubList {
     function pdPubList(&$db, $options = null) {
         assert('is_object($db)');
 
-        if ($options == null){
-            $this->allPubsDbLoad($db, $options['sort_by_updated']);
-            return;
-        }
-
         if ($options['author_id'] != '') {
             $this->authorPubsDbLoad($db, $author_id, $options['num_to_load']);
         }
@@ -38,6 +33,10 @@ class pdPubList {
         }
         else if (is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
+        }
+        else {
+            $this->allPubsDbLoad($db, $options['sort_by_updated']);
+            return;
         }
     }
 
@@ -55,12 +54,11 @@ class pdPubList {
         $q = $db->select('publication', '*', '', "pdPubList::allPubsDbLoad",
                          array('ORDER BY' => $order));
         $r = $db->fetchObject($q);
-        assert('($r !== false)');
         while ($r) {
-            $pub = new pdPublication($r);
-            $this->list[] =& $pub;
+            $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
+        assert('is_array($this->list)');
     }
 
     /**
