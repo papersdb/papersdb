@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.23 2006/09/14 20:28:49 aicmltec Exp $
+// $Id: pdUser.php,v 1.24 2006/09/15 20:19:42 aicmltec Exp $
 
 /**
  * \file
@@ -30,6 +30,7 @@ class pdUser {
     var $author_rank;
     var $search_params;
     var $author_id;
+    var $venue_ids;
 
     /**
      * Constructor.
@@ -55,6 +56,7 @@ class pdUser {
 
         $this->collaboratorsDbLoad($db);
         $this->authorIdGet($db);
+        $this->venueIdsGet($db);
         return true;
     }
 
@@ -145,6 +147,7 @@ class pdUser {
     }
 
     function authorIdGet(&$db) {
+        assert('$this->name != ""');
         $name = explode(' ', $this->name);
         $count = count($name);
         $author_name = $name[$count - 1] . ', ' . $name[0];
@@ -156,6 +159,29 @@ class pdUser {
         if ($q === false) return;
 
         $this->author_id = $q->author_id;
+    }
+
+    function venueIdsGet(&$db) {
+        assert('$this->name != ""');
+        unset($this->venue_ids);
+
+        $q = $db->select(array('publication', 'venue'),
+                         array('DISTINCT publication.venue_id',
+                               'venue.title',
+                               'venue.name'),
+                         array('publication.submit' => $this->name,
+                               'publication.venue_id=venue.venue_id'),
+                         "pdAuthor::dbLoad",
+                         array( 'ORDER BY' => 'venue.title'));
+
+        if ($q === false) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            if ($r->title != '')
+                $this->venue_ids[$r->venue_id] = $r->title;
+            $r = $db->fetchObject($q);
+        }
     }
 
     /**
