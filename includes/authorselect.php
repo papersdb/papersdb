@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.14 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: authorselect.php,v 1.15 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -15,7 +15,7 @@ require_once 'HTML/QuickForm/radio.php';
 function sortselect($a, $b) {
     if (strtolower($a['text']) == strtolower($b['text'])) return 0;
 
-    return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;;
+    return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;
 }
 
 class authorselect extends HTML_QuickForm_advmultiselect {

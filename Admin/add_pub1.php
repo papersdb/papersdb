@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.11 2006/09/15 20:19:42 aicmltec Exp $
+// $Id: add_pub1.php,v 1.12 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -95,6 +95,7 @@ class add_pub1 extends pdHtmlPage {
         $venue_sel2[2] = array('' => '--Select Venue--') + $venues[2]->list;
         $venue_sel2[3] = array('' => '--Select Venue--') + $venues[3]->list;
 
+        // add 'Used by me' to venue selection
         $user =& $_SESSION['user'];
         $user->venueIdsGet($db);
         if (count($user->venue_ids) > 0) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.61 2006/09/13 22:40:55 aicmltec Exp $
+// $Id: pdPublication.php,v 1.62 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -880,7 +880,12 @@ class pdPublication {
             }
         }
     }
+}
 
+function pubsTitleSort($a , $b) {
+    if (strtolower($a->title) == strtolower($b->title)) return 0;
+
+    return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
 }
 
 ?>

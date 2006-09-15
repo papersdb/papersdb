@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.23 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: list_publication.php,v 1.24 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -34,7 +34,9 @@ class list_publication extends pdHtmlPage {
             // that author
             //
             // This is used when viewing an author.
-            $pub_list = new pdPubList($this->db, $_GET['author_id']);
+            $pub_list
+                = new pdPubList($this->db, array('author_id'
+                                                 => $_GET['author_id']));
         }
         else {
             // Otherwise just get all publications

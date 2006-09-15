@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.8 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: pdPubList.php,v 1.9 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -22,18 +22,22 @@ class pdPubList {
     /**
      * Constructor.
      */
-    function pdPubList(&$db, $author_id = null, $cat_id = null, $numToLoad = -1,
-                       $sortByUpdated = false) {
+    function pdPubList(&$db, $options = null) {
         assert('is_object($db)');
 
-        if ($author_id != null) {
-            $this->authorPubsDbLoad($db, $author_id, $numToLoad);
+        if ($options == null){
+            $this->allPubsDbLoad($db, $options['sort_by_updated']);
+            return;
         }
-        else if ($cat_id != null) {
-            $this->categoryPubsDbLoad($db, $cat_id, $numToLoad);
+
+        if ($options['author_id'] != '') {
+            $this->authorPubsDbLoad($db, $author_id, $options['num_to_load']);
         }
-        else {
-            $this->allPubsDbLoad($db, $sortByUpdated);
+        else if ($options['cat_id'] != '') {
+            $this->categoryPubsDbLoad($db, $cat_id, $options['num_to_load']);
+        }
+        else if (is_array($options['pub_ids'])){
+            $this->arrayPubsDBLoad($db, $options['pub_ids']);
         }
     }
 
@@ -54,7 +58,7 @@ class pdPubList {
         assert('($r !== false)');
         while ($r) {
             $pub = new pdPublication($r);
-            $this->list[] = $pub;
+            $this->list[] =& $pub;
             $r = $db->fetchObject($q);
         }
     }
@@ -142,6 +146,33 @@ class pdPubList {
             if ($pub->pub_id == $pub_id) return $pub->title;
         }
         return null;
+    }
+
+    function arrayPubsDBLoad(&$db, &$pub_ids) {
+        assert('is_object($db)');
+        assert('is_array($pub_ids)');
+
+        if (count($pub_ids) == 0) return;
+
+        foreach ($pub_ids as $pub_id) {
+            $q = $db->selectRow('publication', '*', array('pub_id' => $pub_id),
+                                "pdPubList::arrayPubsDBLoad",
+                                array('ORDER BY' => 'title ASC'));
+
+            if ($q === false) continue;
+
+            $this->list[] = new pdPublication($q);
+        }
+
+        uasort($this->list, pubsTitleSort);
+    }
+
+    function toPubIdList() {
+        $result = array();
+        foreach ($this->list as $pub) {
+            array_push($resutl, $pub->pub_id);
+        }
+        return $result;
     }
 }
 

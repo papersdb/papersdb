@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.1 2006/09/15 20:23:09 aicmltec Exp $
+// $Id: search_results.php,v 1.2 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -10,6 +10,7 @@
 
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
+require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.
@@ -32,37 +33,35 @@ class search_results extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
-        $result_pubs =& $_SESSION['search_results'];
-        $search_url =& $_SESSION['search_url'];
-
-        $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
-
-        $table = new HTML_Table();
-
-        $cvForm =& $this->cvFormCreate($result_pubs);
-        if ($cvForm != null) {
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
-            $cvForm->accept($renderer);
-            $table->addRow(array($renderer->toHtml()));
-        }
-
-        $this->contentPre .= $table->toHtml();
-
-        if ($result_pubs == null) {
+        if (count($_SESSION['search_results']) == 0) {
             $this->contentPre
                 .= '<br/><h3>Your search did not generate any results.</h3>';
             return;
         }
 
+        $db =& dbCreate();
+        $search_url =& $_SESSION['search_url'];
+
+        $pubs = new pdPubList($db, array('pub_ids'
+                                         => $_SESSION['search_results']));
+
+        $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
+
+        $cvForm =& $this->cvFormCreate($_SESSION['search_results']);
+        if ($cvForm != null) {
+            $renderer =& $cvForm->defaultRenderer();
+            $cvForm->accept($renderer);
+        }
+
+        $this->contentPre .= $renderer->toHtml();
+
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '100%'));
 
         $b = 0;
-        foreach ($result_pubs as $pub_id) {
-            $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
-
+        foreach ($pubs->list as $pub) {
+            // get all info for this pub
+            $pub->dbload($db, $pub->pub_id);
             $pubTable = new HTML_Table();
 
             $citation = $pub->getCitationHtml();
@@ -156,7 +155,7 @@ class search_results extends pdHtmlPage {
     /**
      *
      */
-    function cvFormCreate() {
+    function cvFormCreate(&$result_pubs) {
         if ($result_pubs == null) return;
 
         $form = new HTML_QuickForm('cvForm', 'post', 'cv.php', '_blank',

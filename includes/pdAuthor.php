@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.13 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.14 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -136,7 +136,9 @@ class pdAuthor {
         }
 
         if ($numToLoad > 0) {
-            $this->pub_list = new pdPubList($db, $this->author_id, $numToLoad);
+            $this->pub_list
+                = new pdPubList($db, array('author_id' => $this->author_id,
+                                           'num_to_load' => $numToLoad));
         }
     }
 

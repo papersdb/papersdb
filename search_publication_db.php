@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.38 2006/09/15 19:17:31 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.39 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -67,12 +67,14 @@ class search_publication_db extends pdHtmlPage {
             $this->advancedSearch();
         }
 
-        $_SESSION['search_url'] = $search_url;
         $_SESSION['search_results'] = $this->result_pubs;
+        $_SESSION['search_url'] = $search_url;
 
-        if (!$this->debug) {
-            header('Location: search_results.php');
+        if ($this->debug) {
+            return;
         }
+
+        header('Location: search_results.php');
     }
 
     /**

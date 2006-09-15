@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.10 2006/09/13 16:46:32 aicmltec Exp $
+// $Id: delete_category.php,v 1.11 2006/09/15 22:10:39 aicmltec Exp $
 
 /**
  * \file
@@ -88,7 +88,7 @@ class delete_category extends pdHtmlPage {
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $pub_list = new pdPubList($db, null, $this->cat_id);
+            $pub_list = new pdPubList($db, array('cat_id' => $this->cat_id));
 
             if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
                 $this->contentPre .= '<b>Deletion Failed</b><p/>'
