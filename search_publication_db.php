@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.35 2006/09/14 20:28:49 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.36 2006/09/15 15:15:09 loyola Exp $
 
 /**
  * \file
@@ -329,21 +329,7 @@ class search_publication_db extends pdHtmlPage {
             if (!in_array($row['pub_id'], $thearray))
                 array_push($thearray, $row['pub_id']);
         }
-    }
-
-    /**
-     * return an array that consists of elements that exist in both arrays
-     */
-    function keep_the_intersect($array1, $array2)
-    {
-        $intersect_array = NULL;
-        $count = 0;
-        for($a = 0; $a < count($array1); $a++)
-            for($b = 0; $b < count($array2); $b++)
-                if($array1[$a] == $array2[$b])
-                    $intersect_array[$count++] = $array1[$a];
-
-        return $intersect_array;
+        mysql_free_result($search_result);
     }
 
     /**
@@ -425,7 +411,7 @@ class search_publication_db extends pdHtmlPage {
                     }
                 }
             }
-            $this->pub_id_array = $this->keep_the_intersect($union_array, $this->pub_id_array);
+            $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
         }
         // All results from quick search are in $this->pub_id_array
         return $this->pub_id_array;
@@ -453,7 +439,7 @@ class search_publication_db extends pdHtmlPage {
 
             //then we only keep the common ids between both arrays
             $this->pub_id_array
-                = $this->keep_the_intersect($temporary_array,
+                = array_intersect($temporary_array,
                                             $this->pub_id_array);
 
             // Search category related fields
@@ -474,7 +460,7 @@ class search_publication_db extends pdHtmlPage {
                         . " AND value LIKE " . quote_smart("%".$info_name."%");
                     $this->add_to_array($search_query, $temporary_array);
                     $this->pub_id_array
-                        = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
+                        = array_intersect($temporary_array, $this->pub_id_array);
                 }
             }
 
@@ -502,27 +488,21 @@ class search_publication_db extends pdHtmlPage {
                         $search_query = "SELECT DISTINCT pub_id from publication WHERE " . $field . " LIKE " . quote_smart("%".$term."%");
                         $this->add_to_array($search_query, $union_array);
                     }
-                    $this->pub_id_array = $this->keep_the_intersect($union_array, $this->pub_id_array);
+                    $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
                 }
             }
         }
 
         // AUTHOR SELECTED SEARCH ---------------------------------------------
         if (count($this->search_params->authorselect) > 0) {
-            echo '<pre>' . print_r($this->search_params->authorselect, true) . '</pre>';
-
             foreach ($this->search_params->authorselect as $auth_id) {
-                if ($auth_id != NULL) {
-                    $first_item = false;
-                    $temporay_array = NULL;
-                    $search_query = "SELECT DISTINCT pub_id from pub_author "
-                        . "WHERE author_id=" . quote_smart($auth_id);
-                    $this->add_to_array($search_query, $temporary_array);
-                    $this->pub_id_array = $this->keep_the_intersect(
-                        $temporary_array, $this->pub_id_array);
-
-                    echo 'temp<pre>' . print_r($temporary_array, true) . '</pre>';
-                }
+                $first_item = false;
+                $temporary_array = array();
+                $search_query = "SELECT DISTINCT pub_id from pub_author "
+                    . "WHERE author_id=" . quote_smart($auth_id);
+                $this->add_to_array($search_query, $temporary_array);
+                $this->pub_id_array = array_intersect(
+                    $temporary_array, $this->pub_id_array);
             }
         }
 
@@ -547,7 +527,7 @@ class search_publication_db extends pdHtmlPage {
                         $this->add_to_array($search_query, $union_array);
                     }
                 }
-                $this->pub_id_array = $this->keep_the_intersect($union_array, $this->pub_id_array);
+                $this->pub_id_array = array_intersect($union_array, $this->pub_id_array);
             }
         }
 
@@ -571,7 +551,7 @@ class search_publication_db extends pdHtmlPage {
                 quote_smart($startdate)
                 . " AND " . quote_smart($enddate);
             $this->add_to_array($search_query, $temporary_array);
-            $this->pub_id_array = $this->keep_the_intersect($temporary_array, $this->pub_id_array);
+            $this->pub_id_array = array_intersect($temporary_array, $this->pub_id_array);
         }
 
         return $this->pub_id_array;
