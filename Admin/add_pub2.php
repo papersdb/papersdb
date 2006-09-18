@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.3 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: add_pub2.php,v 1.4 2006/09/18 17:38:44 aicmltec Exp $
 
 /**
  * \file
@@ -28,7 +28,7 @@ class add_pub2 extends pdHtmlPage {
                            'Admin/add_pub2.php',
                            PD_NAV_MENU_LEVEL_ADMIN);
 
-        if ($access_level <= 1) {
+        if ($access_level < 1) {
             $this->loginError = true;
             return;
         }
@@ -42,11 +42,6 @@ class add_pub2 extends pdHtmlPage {
         $this->navMenuItemDisplay('add_author', 0);
         $this->navMenuItemDisplay('add_category', 0);
         $this->navMenuItemDisplay('add_venue', 0);
-
-        if ($access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
 
         $this->db =& dbCreate();
         $db =& $this->db;

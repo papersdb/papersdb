@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.4 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: add_pub3.php,v 1.5 2006/09/18 17:38:44 aicmltec Exp $
 
 /**
  * \file
@@ -29,7 +29,7 @@ class add_pub3 extends pdHtmlPage {
                            'Admin/add_pub3.php',
                            PD_NAV_MENU_LEVEL_ADMIN);
 
-        if ($access_level <= 1) {
+        if ($access_level < 1) {
             $this->loginError = true;
             return;
         }
