@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.10 2006/09/15 23:08:05 aicmltec Exp $
+// $Id: pdPubList.php,v 1.11 2006/09/20 15:54:19 aicmltec Exp $
 
 /**
  * \file
@@ -25,11 +25,16 @@ class pdPubList {
     function pdPubList(&$db, $options = null) {
         assert('is_object($db)');
 
+        if (!isset($options['num_to_load']))
+            $options['num_to_load'] = -1;
+
         if ($options['author_id'] != '') {
-            $this->authorPubsDbLoad($db, $author_id, $options['num_to_load']);
+            $this->authorPubsDbLoad($db, $options['author_id'],
+                                    $options['num_to_load']);
         }
         else if ($options['cat_id'] != '') {
-            $this->categoryPubsDbLoad($db, $cat_id, $options['num_to_load']);
+            $this->categoryPubsDbLoad($db, $options['cat_id'],
+                                      $options['num_to_load']);
         }
         else if (is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
