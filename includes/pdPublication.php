@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.62 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: pdPublication.php,v 1.63 2006/09/21 19:54:36 aicmltec Exp $
 
 /**
  * \file
@@ -50,6 +50,7 @@ class pdPublication {
     var $web_links;
     var $dbLoadFlags;
     var $additional_info; // these are the additional attached files
+    var $user;
 
     /**
      * Constructor.
@@ -206,6 +207,7 @@ class pdPublication {
         $arr = array('title'      => $this->title,
                      'paper'      => $this->paper,
                      'abstract'   => $this->abstract,
+                     'user'       => $this->user,
                      'keywords'   => $this->keywords,
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
@@ -864,7 +866,7 @@ class pdPublication {
      */
     function load(&$mixed) {
         $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
-                         'published', 'venue_id', 'venue', 'extra_info',
+                         'user', 'published', 'venue_id', 'venue', 'extra_info',
                          'submit', 'updated', 'additional_info', 'category');
 
         if (is_object($mixed)) {

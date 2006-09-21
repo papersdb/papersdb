@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.12 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: add_pub1.php,v 1.13 2006/09/21 19:54:36 aicmltec Exp $
 
 /**
  * \file
@@ -110,8 +110,7 @@ class add_pub1 extends pdHtmlPage {
         $sel->setOptions(array($venue_sel1, $venue_sel2));
 
         $form->addElement('textarea', 'abstract',
-                          $this->helpTooltip('Abstract',
-                                                         'abstractHelp')
+                          $this->helpTooltip('Abstract', 'abstractHelp')
                           . ':<br/><div id="small">HTML Enabled</div>',
                           array('cols' => 60, 'rows' => 10));
 
@@ -127,6 +126,10 @@ class add_pub1 extends pdHtmlPage {
             'kwgroup', $this->helpTooltip('Keywords',
                                                 'keywordsHelp') . ':',
             '<br/>', false);
+
+        $form->addElement('textarea', 'user',
+                          $this->helpTooltip('User Info:', 'userInfoHelp'),
+                          array('cols' => 60, 'rows' => 2));
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
@@ -182,6 +185,7 @@ class add_pub1 extends pdHtmlPage {
         $defaults = array('title'    => $pub->title,
                           'abstract' => $pub->abstract,
                           'keywords' => $pub->keywords,
+                          'user'     => $pub->user,
                           'venue_id' => array($type, $pub->venue_id));
 
         $date = explode('-', $pub->published);
@@ -293,6 +297,9 @@ class add_pub1 extends pdHtmlPage {
             + "like: medical imaging; robotics; data mining.<br/><br/>"
             + "Please enter keywords used to describe your paper, each "
             + "keyword should be seperated by a semicolon.";
+
+        var userInfoHelp
+            = "A place for the user to enter his/her own information";
         </script>
 JS_END;
     }

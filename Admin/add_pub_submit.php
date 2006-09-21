@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.4 2006/09/13 22:42:55 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.5 2006/09/21 19:54:36 aicmltec Exp $
 
 /**
  * \file
@@ -61,8 +61,6 @@ class add_pub_submit extends pdHtmlPage {
         if (count($_SESSION['attachments']) > 0)
             for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
                 assert('isset($_SESSION["att_types"][$i])');
-
-                echo 'add_pub_submit.php here<br/>';
 
                 if (strpos(basename($_SESSION['attachments'][$i]),
                             'additional_') === false) {

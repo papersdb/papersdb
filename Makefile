@@ -1,9 +1,14 @@
 # This makefile generates the documentation for PapersDB.
 
+PHPDOCUMENTOR_PATH := $(HOME)/apps/PhpDocumentor-1.3.0
+PHPDOCUMENTOR := $(PHPDOCUMENTOR_PATH)/phpdoc
+
+DIRS := $(patsubst ./%,%,$(shell find . -type d))
+
 .PHONY: doc
 
-doc: doxygen.cfg
-	doxygen doxygen.cfg
+docs: default.ini phpDocumentor.ini
+	$(PHPDOCUMENTOR) -c default.ini
 
 clean:
-	$(RM) -r doc/html
+	$(RM) -r doc
