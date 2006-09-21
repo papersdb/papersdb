@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.57 2006/09/13 22:42:55 aicmltec Exp $
+// $Id: view_publication.php,v 1.58 2006/09/21 19:54:36 aicmltec Exp $
 
 /**
  * \file
@@ -173,6 +173,7 @@ class view_publication extends pdHtmlPage {
         $table->addRow(array('Category:', $pub->category->category));
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
         $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
+        $table->addRow(array('User Info:', $pub->user));
 
         if (count($pub->web_links) > 0) {
             $c = 0;
