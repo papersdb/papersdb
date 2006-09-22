@@ -1,15 +1,18 @@
 <?php ;
 
-// $Id: add_author.php,v 1.31 2006/09/12 19:06:19 aicmltec Exp $
+// $Id: add_author.php,v 1.32 2006/09/22 17:07:11 aicmltec Exp $
 
 /**
- * \file
+ * Creates a form for adding or editing author information.
  *
- * \brief This is the form portion for adding or editing author information.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/**
+ * Include the base class.
+ */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
@@ -21,6 +24,8 @@ function author_check() {
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class add_author extends pdHtmlPage {
     var $author_id = null;

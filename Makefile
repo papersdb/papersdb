@@ -5,7 +5,7 @@ PHPDOCUMENTOR := $(PHPDOCUMENTOR_PATH)/phpdoc
 
 DIRS := $(patsubst ./%,%,$(shell find . -type d))
 
-.PHONY: doc
+.PHONY: docs
 
 docs: default.ini phpDocumentor.ini
 	$(PHPDOCUMENTOR) -c default.ini

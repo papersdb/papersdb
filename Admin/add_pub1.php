@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.13 2006/09/21 19:54:36 aicmltec Exp $
+// $Id: add_pub1.php,v 1.14 2006/09/22 17:07:11 aicmltec Exp $
 
 /**
  * \file
@@ -138,16 +138,19 @@ class add_pub1 extends pdHtmlPage {
         $form->addElement('date', 'pub_date', 'Date:',
                           array('format' => 'YM', 'minYear' => '1990'));
 
-        $form->addGroup(
-            array(
-                HTML_QuickForm::createElement(
-                    'button', 'cancel', 'Cancel',
-                    array('onclick' => "location.href='" . $url . "';")),
-                HTML_QuickForm::createElement(
-                    'reset', 'reset', 'Reset'),
-                HTML_QuickForm::createElement(
-                    'submit', 'next', 'Next step >>')),
-            'buttons', '', '&nbsp', false);
+        $buttons[] = HTML_QuickForm::createElement(
+            'button', 'cancel', 'Cancel',
+            array('onclick' => "location.href='" . $url . "';"));
+        $buttons[] = HTML_QuickForm::createElement(
+            'reset', 'reset', 'Reset');
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'next', 'Next step >>');
+
+        if ($pub->pub_id != '')
+            $buttons[] = HTML_QuickForm::createElement(
+                'submit', 'finish', 'Finish');
+
+        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
         $this->db =& $db;
         $this->form =& $form;
@@ -252,6 +255,8 @@ class add_pub1 extends pdHtmlPage {
 
         if ($this->debug)
             $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+        else if (isset($values['finish']))
+            header('Location: add_pub_submit.php');
         else
             header('Location: add_pub2.php');
     }

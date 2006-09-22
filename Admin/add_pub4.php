@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.13 2006/09/18 17:38:44 aicmltec Exp $
+// $Id: add_pub4.php,v 1.14 2006/09/22 17:07:11 aicmltec Exp $
 
 /**
  * \file
@@ -88,12 +88,11 @@ class add_pub4 extends pdHtmlPage {
             'buttons', null, '&nbsp', false);
 
 
-        if ($form->validate()) {
+        if ($form->validate())
             $this->processForm();
-        }
-        else {
+        else
             $this->renderForm();
-        }
+
         $this->db->close();
     }
 

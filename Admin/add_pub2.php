@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.4 2006/09/18 17:38:44 aicmltec Exp $
+// $Id: add_pub2.php,v 1.5 2006/09/22 17:07:11 aicmltec Exp $
 
 /**
  * \file
@@ -45,6 +45,7 @@ class add_pub2 extends pdHtmlPage {
 
         $this->db =& dbCreate();
         $db =& $this->db;
+        $pub =& $_SESSION['pub'];
 
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 
@@ -86,18 +87,21 @@ class add_pub2 extends pdHtmlPage {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $form->addGroup(
-            array(
-                HTML_QuickForm::createElement(
-                    'submit', 'prev_step', '<< Previous Step'),
-                HTML_QuickForm::createElement(
-                    'button', 'cancel', 'Cancel',
-                    array('onclick' => "location.href='" . $url . "';")),
-                HTML_QuickForm::createElement(
-                    'submit', 'add_new_author', 'Add Author not in DB'),
-                HTML_QuickForm::createElement(
-                    'submit', 'next_step', 'Next Step >>')),
-            'buttons', '', '&nbsp', false);
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'prev_step', '<< Previous Step');
+        $buttons[] = HTML_QuickForm::createElement(
+            'button', 'cancel', 'Cancel',
+            array('onclick' => "location.href='" . $url . "';"));
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'add_new_author', 'Add Author not in DB');
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'next_step', 'Next Step >>');
+
+        if ($pub->pub_id != '')
+            $buttons[] = HTML_QuickForm::createElement(
+                'submit', 'finish', 'Finish');
+
+        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
         $this->form =& $form;
 
