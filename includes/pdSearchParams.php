@@ -1,21 +1,18 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.2 2006/09/15 16:55:27 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Storage and retrieval of user data to / from the database.
  *
- * \brief Storage and retrieval of user data to / from the database.
- *
- *
+ * @package PapersDB
  */
 
-require_once 'pdAuthorList.php';
-
 /**
- *
- * \brief Class for storage and retrieval of user to / from the
+ * Class for storage and retrieval of user to / from the
  * database.
+ *
+ * @package PapersDB
  */
 class pdSearchParams {
     /**

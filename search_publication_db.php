@@ -1,23 +1,27 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.39 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.40 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Takes info from either advanced_search.php or the navigation menu.
+ * Takes info from either advanced_search.php or the navigation menu.
  *
  * This takes the search query input and then searches the database and then
  * displays the results.
  *
  * \note register_globals is assumed to be turned off.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdSearchParams.php';
+
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class search_publication_db extends pdHtmlPage {
     var $debug = 0;

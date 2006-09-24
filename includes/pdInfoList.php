@@ -1,16 +1,17 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.3 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: pdInfoList.php,v 1.4 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Class to retrieve information table data.
  *
- * \brief
- *
+ * @package PapersDB
  */
 
 /**
- * \brief
+ * The class retrieves data from the information table.
+ *
+ * @package PapersDB
  */
 class pdInfoList {
     var $list;

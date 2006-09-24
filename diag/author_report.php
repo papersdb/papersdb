@@ -1,21 +1,24 @@
 <?php ;
 
-// $Id: author_report.php,v 1.5 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: author_report.php,v 1.6 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Script that reports the publications with two PI's and also one PI and one
+ * PDF.
  *
- * \brief Script that reports the publications whose attachments are not
- * on the file server.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class author_report extends pdHtmlPage {
     var $pi_authors = array('Szepesvari, C',

@@ -1,15 +1,16 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.14 2006/09/22 17:07:11 aicmltec Exp $
+// $Id: add_pub1.php,v 1.15 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * This page is the form for adding/editing a publication.
  *
- * \brief This page is the form for adding/editing a publication.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requires the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdCatList.php';
@@ -21,6 +22,11 @@ require_once 'includes/authorselect.php';
 require_once 'includes/jscalendar.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
+/**
+ * Renders the whole page.
+ *
+ * @package PapersDB
+ */
 class add_pub1 extends pdHtmlPage {
     var $debug = 0;
 

@@ -1,21 +1,24 @@
 <?php ;
 
 /**
- * \file
- *
- * \brief Lists all the authors in the database.
+ * Lists all the authors in the database.
  *
  * Makes each author a link to it's own seperate page. If a user is logged in,
  * he/she has the option of adding a new author, editing any of the authors and
  * deleting any of the authors.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdAuthor.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class list_author extends pdHtmlPage {
     function list_author() {

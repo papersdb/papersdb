@@ -1,15 +1,14 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.14 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.15 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Storage and retrieval of author data to / from the database.
  *
- * \brief Storage and retrieval of publication data to / from the database.
- *
- *
+ * @package PapersDB
  */
 
+/** Requries classes to access the database. */
 require_once 'pdPubList.php';
 require_once 'pdAuthInterests.php';
 
@@ -22,9 +21,9 @@ define('PD_AUTHOR_DB_LOAD_ALL',       0xF);
 
 
 /**
+ *Class for storage and retrieval of publications to / from the database.
  *
- * \brief Class for storage and retrieval of publications to / from the
- * database.
+ * @package PapersDB
  */
 class pdAuthor {
     var $author_id;

@@ -1,20 +1,21 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.11 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: delete_category.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Deletes a category from the database.
+ * Deletes a category from the database.
  *
  * Much like delete_author.php, this page confirms that the user would like to
  * delete the category. Then makes sure no current publications are using that
  * category, if some are, it lists them. If no publications are using that
  * category, then it is removed from the database.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdPubList.php';
@@ -22,6 +23,8 @@ require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class delete_category extends pdHtmlPage {
     function delete_category() {

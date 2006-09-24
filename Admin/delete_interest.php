@@ -1,25 +1,28 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.6 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: delete_interest.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Deletes author interests from the database.
+ * Deletes author interests from the database.
  *
  * This page won't be used often, but is necessary in order to remove any
  * author interests that were added by mistake or aren't being used at all. It
  * is just a simple form that selects the interest you would like to delete,
  * and then removes it from the database.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class delete_interest extends pdHtmlPage {
     function delete_interest() {

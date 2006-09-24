@@ -1,15 +1,17 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.1 2006/08/30 20:15:57 aicmltec Exp $
+// $Id: pdAttachmentTypesList.php,v 1.2 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Queries the databse for the different attachment types allowed.
  *
- * \brief
+ * @package PapersDB
  */
 
 /**
- * \brief
+ * Queries the databse for the different attachment types allowed.
+ *
+ * @package PapersDB
  */
 class pdAttachmentTypesList {
     var $list;

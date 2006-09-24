@@ -1,13 +1,14 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.45 2006/09/15 19:17:31 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.46 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Contains a base class for all view pages.
  *
- * \brief
+ * @package PapersDB
  */
 
+/** Requries classes to build the navigation menu. */
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 require_once 'includes/pdNavMenu.php';
@@ -20,13 +21,15 @@ require_once 'HTML/Table.php';
 
 
 /**
- * \brief Base class for all HTML pages in PapersDB.
+ * Base class for all HTML pages in PapersDB.
  *
  * Page can be made up of:
  *   - form
  *   - renderer
  *   - table
  *   - form controller
+ *
+ * @package PapersDB
  */
 class pdHtmlPage {
     var $page_id;

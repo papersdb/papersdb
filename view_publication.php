@@ -1,25 +1,28 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.59 2006/09/21 19:56:28 aicmltec Exp $
+// $Id: view_publication.php,v 1.60 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief View Publication
+ * View Publication
  *
  * Given a publication id number this page shows most of the information about
  * the publication. It does not display the extra information which is hidden
  * and used only for the search function. It provides links to all the authors
  * that are included. If a user is logged in, then there is an option to edit
  * or delete the current publication.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class view_publication extends pdHtmlPage {
     var $debug = 0;

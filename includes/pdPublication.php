@@ -1,15 +1,14 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.63 2006/09/21 19:54:36 aicmltec Exp $
+// $Id: pdPublication.php,v 1.64 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Storage and retrieval of publication data to / from the database.
  *
- * \brief Storage and retrieval of publication data to / from the database.
- *
- *
+ * @package PapersDB
  */
 
+/** Requires author, category and venue classes. */
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdVenue.php';
@@ -27,9 +26,10 @@ define('PD_PUB_DB_LOAD_ALL',             0x77);
 define('NEW_VENUE', 1);
 
 /**
- *
- * \brief Class for storage and retrieval of publications to / from the
+ * Class for storage and retrieval of publications to / from the
  * database.
+ *
+ * @package PapersDB
  */
 class pdPublication {
     var $pub_id;

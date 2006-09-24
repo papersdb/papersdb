@@ -1,15 +1,16 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.5 2006/09/22 17:07:11 aicmltec Exp $
+// $Id: add_pub2.php,v 1.6 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * This is the form portion for adding or editing author information.
  *
- * \brief This is the form portion for adding or editing author information.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
@@ -17,6 +18,8 @@ require_once 'includes/authorselect.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class add_pub2 extends pdHtmlPage {
     var $author_id = null;

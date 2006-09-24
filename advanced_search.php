@@ -1,11 +1,9 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.48 2006/09/15 16:55:27 aicmltec Exp $
+// $Id: advanced_search.php,v 1.49 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Performs advanced searches on publication information in the
+ * Performs advanced searches on publication information in the
  * database.
  *
  * It is mainly only forms, with little data being read from the database. It
@@ -16,8 +14,11 @@
  *
  * \note Follows coding standards from
  * http://pear.php.net/manual/en/standards.php.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
@@ -27,6 +28,8 @@ require_once 'includes/jscalendar.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class advanced_search extends pdHtmlPage {
     var $debug = 0;

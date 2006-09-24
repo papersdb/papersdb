@@ -1,19 +1,18 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.11 2006/08/23 20:40:50 aicmltec Exp $
+// $Id: pdVenue.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Storage and retrieval of venue data to / from the database.
  *
- * \brief Storage and retrieval of venue data to / from the database.
- *
- *
+ * @package PapersDB
  */
 
 /**
- *
- * \brief Class for storage and retrieval of venue to / from the
+ * Class for storage and retrieval of venue to / from the
  * database.
+ *
+ * @package PapersDB
  */
 class pdVenue {
     var $venue_id;

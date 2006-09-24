@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.32 2006/09/22 17:07:11 aicmltec Exp $
+// $Id: add_author.php,v 1.33 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -10,9 +10,7 @@
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
-/**
- * Include the base class.
- */
+/** Requries the base class and classes to access author information. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';

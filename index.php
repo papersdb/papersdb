@@ -1,21 +1,24 @@
 <?php ;
 
-// $Id: index.php,v 1.28 2006/09/15 23:08:05 aicmltec Exp $
+// $Id: index.php,v 1.29 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Main page for PapersDB.
+ * Main page for PapersDB.
  *
  * Main page for public access, provides a login, and a function that selects
  * the most recent publications added.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class indexPage extends pdHtmlPage {
     function indexPage() {

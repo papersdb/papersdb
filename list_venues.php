@@ -1,19 +1,22 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: list_venues.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * This page displays all venues.
  *
- * \brief This page displays all venues.
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class list_venues extends pdHtmlPage {
     function list_venues() {

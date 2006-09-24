@@ -1,13 +1,14 @@
 <?php ;
 
-// $Id: logout.php,v 1.7 2006/09/15 19:17:31 aicmltec Exp $
+// $Id: logout.php,v 1.8 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Allows a user to log out of the system.
  *
- * \brief Allows a user to log out of the system.
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/functions.php';
 require_once 'includes/check_login.php';
 

@@ -1,15 +1,17 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.6 2006/09/13 16:36:40 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Contains class to retrieve a list of venues.
  *
- * \brief
+ * @package PapersDB
  */
 
 /**
- * \brief
+ * Class that build a list of venues.
+ *
+ * @package PapersDB
  */
 class pdVenueList {
     var $list;

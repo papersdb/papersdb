@@ -1,21 +1,22 @@
-<?php
+<?php ;
 
-  // $Id: lib_dbfunctions.php,v 1.9 2006/08/09 22:46:58 aicmltec Exp $
+// $Id: lib_dbfunctions.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
 
-  /**
-   * \file
-   *
-   * \brief DB connection is only hard coded here and in lib_functions.
-   *
-   * \note IMPORTANT
-   *
-   * At present, the files are stored at:
-   *	$FS_PATH/uploaded_files/{pub_id}
-   *
-   * The naming scheme is:
-   *	{paper/additional}_{name_of_file}.file_extension
-   */
+/**
+ * DB connection is only hard coded here and in lib_functions.
+ *
+ * \note IMPORTANT
+ *
+ * At present, the files are stored at:
+ *	$FS_PATH/uploaded_files/{pub_id}
+ *
+ * The naming scheme is:
+ *	{paper/additional}_{name_of_file}.file_extension
+ *
+ * @package PapersDB
+ */
 
+/** Requires the global defines and the class that accesses the databse. */
 require_once "defines.php";
 require_once 'Database.php';
 

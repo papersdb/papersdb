@@ -1,23 +1,26 @@
 <?php ;
 
-// $Id: cv.php,v 1.11 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: cv.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief  This file outputs all the search results given to it in a CV format.
+ * This file outputs all the search results given to it in a CV format.
  *
  * This is mainly for the authors needing to publish there CV.  Given the ID
  * numbers of the publications, it extracts the information from the database
  * and outputs the data in a certain format.  Input: $_POST['pub_ids'] - a
  * string file of the publication ids seperated by commas Output: CV Format
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class cv extends pdHtmlPage {
     function cv() {

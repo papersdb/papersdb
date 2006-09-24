@@ -1,15 +1,17 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.2 2006/08/17 20:34:40 aicmltec Exp $
+// $Id: pdExtraInfoList.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Retrieves the extra information items from the database.
  *
- * \brief
+ * @package PapersDB
  */
 
 /**
- * \brief
+ * Class to retrieve the extra information items from the database.
+ *
+ * @package PapersDB
  */
 class pdExtraInfoList {
     var $list;

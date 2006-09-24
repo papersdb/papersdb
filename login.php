@@ -1,18 +1,21 @@
 <?php ;
 
-// $Id: login.php,v 1.22 2006/09/15 19:17:31 aicmltec Exp $
+// $Id: login.php,v 1.23 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Allows a user to log into the system.
  *
- * \brief Allows a user to log into the system.
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class login extends pdHtmlPage {
     var $passwd_hash;

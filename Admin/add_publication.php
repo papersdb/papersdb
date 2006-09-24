@@ -1,15 +1,16 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.76 2006/09/13 20:26:16 aicmltec Exp $
+// $Id: add_publication.php,v 1.77 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * This page is the form for adding/editing a publication.
  *
- * \brief This page is the form for adding/editing a publication.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdCatList.php';
@@ -21,6 +22,11 @@ require_once 'includes/authorselect.php';
 require_once 'includes/jscalendar.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
+/**
+ * Renders the whole page.
+ *
+ * @package PapersDB
+ */
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
         global $access_level;
@@ -144,6 +150,11 @@ JS_END;
     }
 }
 
+/**
+ * Renders the form.
+ *
+ * @package PapersDB
+ */
 class pubStep1Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
@@ -278,6 +289,11 @@ class pubStep1Page extends HTML_QuickForm_Page {
     }
 }
 
+/**
+ * Renders the form.
+ *
+ * @package PapersDB
+ */
 class pubStep2Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
@@ -594,8 +610,11 @@ END;
     }
 }
 
-
-class pubStep3Page extends HTML_QuickForm_Page {
+/**
+ * Renders the form.
+ *
+ * @package PapersDB
+ */class pubStep3Page extends HTML_QuickForm_Page {
     function buildForm() {
         $data =& $this->controller->container();
 
@@ -757,6 +776,11 @@ class pubStep3Page extends HTML_QuickForm_Page {
     }
 }
 
+/**
+ * Renders the whole page.
+ *
+ * @package PapersDB
+ */
 class ActionDisplay extends HTML_QuickForm_Action_Display {
     var $debug = 0;
 
@@ -808,6 +832,11 @@ class ActionDisplay extends HTML_QuickForm_Action_Display {
     }
 }
 
+/**
+ * Renders the whole page.
+ *
+ * @package PapersDB
+ */
 class ActionProcess extends HTML_QuickForm_Action {
     var $debug = 0;
 
@@ -992,6 +1021,11 @@ class ActionProcess extends HTML_QuickForm_Action {
     }
 }
 
+/**
+ * Handles the reset action.
+ *
+ * @package PapersDB
+ */
 class ActionReset extends HTML_QuickForm_Action {
     function perform(&$page, $actionName) {
         if ($actionName == 'reset') {

@@ -1,17 +1,16 @@
 <?php ;
 
 /**
- * \file
- *
- * \brief Common functions used by all pages.
+ * Common functions used by all pages.
  *
  * These functions are used throughout the pages and are here to save on time
- * and complexity. Each function is pretty straight forward.
+ * and complexity.
+ *
+ * @package PapersDB
  */
 
+/** Requires DB functions and Table classes. */
 require_once 'lib_dbfunctions.php';
-require_once 'HTML/QuickForm.php';
-require_once "HTML/QuickForm/Renderer/QuickHtml.php";
 require_once 'HTML/Table.php';
 
 $relative_files_path = "uploaded_files/";
@@ -46,6 +45,9 @@ function isValid($string){
 	return "";
 }
 
+/**
+ * Strips slashes and adds quotes if the value passed in is numeric or null.
+ */
 function quote_smart($value) {
 	// Stripslashes
 	if (get_magic_quotes_gpc()) {
@@ -59,7 +61,7 @@ function quote_smart($value) {
 }
 
 /**
- *
+ * Converts an array into an object.
  */
 function arr2obj($arg_array) {
     $tmp = new stdClass; // start off a new (empty) object
@@ -76,20 +78,24 @@ function arr2obj($arg_array) {
     return $tmp; // return the object!
 }
 
+/**
+ * Highlights each row of a table using the 'even' and 'odd' CSS classes.
+ * The table passed in must be a Pear HTML_Table.
+ */
 function tableHighlightRows(&$table) {
     assert('is_object($table)');
 
     for ($i = 0; $i < $table->getRowCount(); $i++) {
-        if ($i & 1) {
+        if ($i & 1)
             $table->updateRowAttributes($i, array('class' => 'even'), true);
-        }
-        else {
+        else
             $table->updateRowAttributes($i, array('class' => 'odd'), true);
-        }
     }
 }
 
-// format text into multiple lines not exceeding 80 characters
+/**
+ * format text into multiple lines not exceeding 80 characters
+ */
 function format80($text) {
     $lines = explode("\n", $text);
     foreach($lines as $line) {
@@ -109,6 +115,9 @@ function format80($text) {
     return implode("\n", $new_lines);
 }
 
+/**
+ * Initializes a publication add / edit session.
+ */
 function pubSessionInit() {
     unset($_SESSION['state']);
     unset($_SESSION['pub']);
@@ -118,55 +127,18 @@ function pubSessionInit() {
     unset($_SESSION['removed_atts']);
 }
 
+/**
+ * Initializes a search session.
+ */
 function searchSessionInit() {
     unset($_SESSION['search_results']);
     unset($_SESSION['search_url']);
     unset($_SESSION['search_params']);
 }
 
-function backtrace() {
-    $s = '';
-    $MAXSTRLEN = 64;
-
-    $s = '<pre align=left>';
-    $traceArr = debug_backtrace();
-
-    //print_r($traceArr);
-
-    array_shift($traceArr);
-    $tabs = sizeof($traceArr)-1;
-    foreach($traceArr as $arr) {
-        for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
-        $tabs -= 1;
-        $s .= '<font face="Courier New,Courier">';
-        if (isset($arr['class'])) $s .= $arr['class'].'.';
-        $args = array();
-        if(!empty($arr['args'])) foreach($arr['args'] as $v)
-        {
-            if (is_null($v)) $args[] = 'null';
-            else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
-            else if (is_object($v)) $args[] = 'Object:'.get_class($v);
-            else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
-            else
-            {
-                $v = (string) @$v;
-                $str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
-                if (strlen($v) > $MAXSTRLEN) $str .= '...';
-                $args[] = "\"".$str."\"";
-            }
-        }
-        $s .= $arr['function'].'('.implode(', ',$args).')</font>';
-        $Line = (isset($arr['line'])? $arr['line'] : "unknown");
-        $File = (isset($arr['file'])? $arr['file'] : "unknown");
-        $s .= sprintf("<font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
-                      $Line, $File, $File);
-        $s .= "\n";
-    }
-    $s .= '</pre>';
-    return $s;
-}
-
-// user defined error handling function
+/**
+ * Use our own error handling function.
+ */
 function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     if (PHP_VERSION >= 5)
         if ($errno >= E_STRICT) return;

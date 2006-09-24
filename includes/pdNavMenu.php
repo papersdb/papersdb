@@ -1,13 +1,25 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.7 2006/09/15 19:17:31 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.8 2006/09/24 21:21:42 aicmltec Exp $
 
+/**
+ * Contains the class that builds the navigation menu.
+ *
+ * @package PapersDB
+ */
+
+/** Flags used when loading information from the database. */
 define('PD_NAV_MENU_NEVER',          0);
 define('PD_NAV_MENU_ALWAYS',         1);
 define('PD_NAV_MENU_LOGIN_NOT_REQ',  2);
 define('PD_NAV_MENU_LOGIN_REQUIRED', 3);
 define('PD_NAV_MENU_LEVEL_ADMIN',    4);
 
+/**
+ * Class for a navigation menu item.
+ *
+ * @package PapersDB
+ */
 class pdNavMenuItem {
     var $id;
     var $page_title;
@@ -27,7 +39,11 @@ class pdNavMenuItem {
     }
 };
 
-
+/**
+ * Class that builds the navigation menu.
+ *
+ * @package PapersDB
+ */
 class pdNavMenu {
     var $nav_items;
 

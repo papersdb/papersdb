@@ -1,13 +1,15 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.15 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: authorselect.php,v 1.16 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Custom HTML_QuickForm element that allows a user to select authors from
+ * the database.
  *
- * \brief
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/QuickForm/radio.php';
 
@@ -18,6 +20,12 @@ function sortselect($a, $b) {
     return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;
 }
 
+/**
+ * Custom HTML_QuickForm element that allows a user to select authors from
+ * the database.
+ *
+ * @package PapersDB
+ */
 class authorselect extends HTML_QuickForm_advmultiselect {
     var $form_name;
     var $author_list;

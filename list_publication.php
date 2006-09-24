@@ -1,24 +1,27 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.24 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: list_publication.php,v 1.25 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Lists all the publications in database.
+ * Lists all the publications in database.
  *
  * Makes each publication a link to it's own seperate page.  If a user is
  * logged in, he/she has the option of adding a new publication, editing any of
  * the publications and deleting any of the publications.
  *
  * Pretty much identical to list_author.php
+ *
+ * @package PapersDB
  */
 
+/** Requires base class and class that build publication lists. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class list_publication extends pdHtmlPage {
     function list_publication() {

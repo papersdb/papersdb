@@ -1,19 +1,22 @@
 <?php ;
 
-// $Id: search_results.php,v 1.2 2006/09/15 22:10:39 aicmltec Exp $
+// $Id: search_results.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Displays the search resutls contained in the session variables.
  *
- * \brief
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class search_results extends pdHtmlPage {
     var $debug = 0;

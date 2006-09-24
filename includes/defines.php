@@ -1,13 +1,13 @@
 <?php ;
 
-// $Id: defines.php,v 1.22 2006/09/11 20:00:09 aicmltec Exp $
+// $Id: defines.php,v 1.23 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Project Constants
+ * Project Constants
  *
  * Defines contants to connect to the PapersDB database.
+ *
+ * @package PapersDB
  */
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);

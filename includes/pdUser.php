@@ -1,21 +1,21 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.24 2006/09/15 20:19:42 aicmltec Exp $
+// $Id: pdUser.php,v 1.25 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Storage and retrieval of user data to / from the database.
  *
- * \brief Storage and retrieval of user data to / from the database.
- *
- *
+ * @package PapersDB
  */
 
+/** Required to get the used author rank. */
 require_once 'pdAuthorList.php';
 
 /**
- *
- * \brief Class for storage and retrieval of user to / from the
+ * Class for storage and retrieval of user to / from the
  * database.
+ *
+ * @package PapersDB
  */
 class pdUser {
     var $login;

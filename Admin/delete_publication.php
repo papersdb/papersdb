@@ -1,24 +1,27 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.9 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: delete_publication.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Deletes a publication from the database.
+ * Deletes a publication from the database.
  *
  * This page confirms that the user would like to delete the following
  * publication and then removes it from the database once confirmation has been
  * given.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class delete_publication extends pdHtmlPage {
     function delete_publication() {

@@ -1,23 +1,26 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.15 2006/09/13 21:08:15 aicmltec Exp $
+// $Id: edit_user.php,v 1.16 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief This page displays/edits the users information.
+ * This page displays/edits the users information.
  *
  * This includes fields like name, email and favorite collaborators. These
  * authors will be people the user will most likely be using a lot.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthorList.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class edit_user extends pdHtmlPage {
     function edit_user() {

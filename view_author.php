@@ -1,11 +1,9 @@
 <?php ;
 
-// $Id: view_author.php,v 1.18 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: view_author.php,v 1.19 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Given a author id number, this displays all the info about
+ * Given a author id number, this displays all the info about
  * the author.
  *
  * If the author has only a few publications it will display the title and link
@@ -14,13 +12,18 @@
  *
  * if a user is logged in, they have the option of editing or deleting the
  * author.
+ *
+ * @package PapersDB
  */
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthor.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class view_author extends pdHtmlPage {
     function view_author() {

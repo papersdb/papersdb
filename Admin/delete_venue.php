@@ -1,16 +1,17 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.10 2006/09/13 16:46:32 aicmltec Exp $
+// $Id: delete_venue.php,v 1.11 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief This page confirms that the user would like to delete the selected
+ * This page confirms that the user would like to delete the selected
  * venue, and then removes it from the database.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
@@ -19,6 +20,8 @@ require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class delete_venue extends pdHtmlPage {
     function delete_venue() {

@@ -1,11 +1,9 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.19 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: add_venue.php,v 1.20 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief This page displays, edits and adds venues.
+ * This page displays, edits and adds venues.
  *
  * Depending on a the varaible passed is what segment of the page is used.  If
  * $status == view then, it displays a list of all the venues and some
@@ -21,10 +19,13 @@
  * the database. If it is passed a venue_id then it replaces the information,
  * if it is not passed a venue_id, it adds a new id to the database and puts
  * the information there.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
@@ -32,6 +33,8 @@ require_once 'includes/jscalendar.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class add_venue extends pdHtmlPage {
     var $venue_id = null;

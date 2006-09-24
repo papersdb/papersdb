@@ -1,20 +1,22 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.11 2006/09/20 15:54:19 aicmltec Exp $
+// $Id: pdPubList.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Creates a list of all publications or for an individual author.
  *
- * \brief Creates a list of all publications or for an individual author.
- *
+ * @package PapersDB
  */
 
+/** Requires the publication class.*/
 require_once 'pdPublication.php';
 
 /**
  *
  * \brief Class for storage and retrieval of publication authors to / from
  * the database.
+ *
+ * @package PapersDB
  */
 class pdPubList {
     var $list;

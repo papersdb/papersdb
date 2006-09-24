@@ -8,7 +8,7 @@ DIRS := $(patsubst ./%,%,$(shell find . -type d))
 .PHONY: docs
 
 docs: default.ini phpDocumentor.ini
-	$(PHPDOCUMENTOR) -c default.ini
+	$(PHPDOCUMENTOR) -c default.ini | ./phpdoc_errparse.pl
 
 clean:
 	$(RM) -r doc

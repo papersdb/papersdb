@@ -1,20 +1,19 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.10 2006/06/13 20:04:37 aicmltec Exp $
+// $Id: pdCatList.php,v 1.11 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Storage and retrieval of publication categories to / from the
+ * Storage and retrieval of publication categories to / from the
  * database.
  *
- *
+ * @package PapersDB
  */
 
 /**
- *
- * \brief Class for storage and retrieval of publication categories to / from
+ * Class for storage and retrieval of publication categories to / from
  * the database.
+ *
+ * @package PapersDB
  */
 class pdCatList {
     var $list;

@@ -1,25 +1,28 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.11 2006/09/05 22:59:51 aicmltec Exp $
+// $Id: delete_author.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Deletes an author from the database.
+ * Deletes an author from the database.
  *
  * This page first confirms that the user would like to delete the specified
  * author, and then makes the actual deletion. Before the author can removed
  * though, it must not be in any publications. This is checked, and displays
  * the titles of all the publications the author is in.
+ *
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthor.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class delete_author extends pdHtmlPage {
     function delete_author() {

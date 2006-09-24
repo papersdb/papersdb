@@ -1,7 +1,12 @@
 <?php ;
 
-/* check login script */
+/**
+ * This script determines if the user has logged in.
+ *
+ * @package PapersDB
+ */
 
+/** Requries the class to access the user data from the database. */
 require_once 'includes/pdUser.php';
 
 function check_login() {

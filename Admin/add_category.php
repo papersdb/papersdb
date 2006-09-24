@@ -1,25 +1,24 @@
 <?php ;
 
-// $Id: add_category.php,v 1.21 2006/09/11 22:22:37 aicmltec Exp $
+// $Id: add_category.php,v 1.22 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
+ * Creates a form for adding or editing a category.
  *
- * \brief This is the form portion of adding/editing a category.
- *
- * The changes in the database actually are made in add_pub1.php.  This
- * is so when the category is added to the database the publication a user is
- * working in is then updated with that category available to them.
+ * @package PapersDB
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
+/** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdInfoList.php';
 require_once 'includes/pdCategory.php';
 
 /**
  * Renders the whole page.
+ *
+ * @package PapersDB
  */
 class add_category extends pdHtmlPage {
     function add_category() {

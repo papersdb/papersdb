@@ -1,20 +1,18 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.6 2006/07/26 20:56:39 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
 
 /**
- * \file
- *
- * \brief Storage and retrieval of author interests to / from the
+ * Storage and retrieval of author interests to / from the
  * database.
  *
- *
+ * @package PapersDB
  */
 
 /**
+ * Class for storage and retrieval of author interests to / from the database.
  *
- * \brief Class for storage and retrieval of author interests to / from
- * the database.
+ * @package PapersDB
  */
 class pdAuthInterests {
     var $list;
