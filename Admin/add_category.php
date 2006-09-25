@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.23 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_category.php,v 1.24 2006/09/25 23:57:07 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -17,7 +17,11 @@ require_once 'includes/pdInfoList.php';
 require_once 'includes/pdCategory.php';
 
 /**
- * Renders the whole page.
+ * Allows the user to add a new category, or edit a category in the
+ * database.
+ *
+ * If the "cat_id" variable is part of the query string, then the user wishes
+ * to edit the corresponding category.
  *
  * @package PapersDB
  */
@@ -119,7 +123,7 @@ class add_category extends pdHtmlPage {
             }
             $category->dbSave($db);
 
-            $this->contentPre .= 'Category "' . $category->category
+e            $this->contentPre .= 'Category "' . $category->category
                 . '" succesfully added to the database.'
                 . '<p/>'
                 . '<a href="' . $_SERVER['PHP_SELF'] . '">'

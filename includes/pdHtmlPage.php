@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.47 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.48 2006/09/25 23:57:07 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -211,7 +211,7 @@ class pdHtmlPage {
                 $result .= $this->contentPre;
 
             // debug
-            //$result .= '<pre>' . print_r($this->table, true) . '</pre>';
+            $this->contentPost .= '<pre>' . print_r($this, true) . '</pre>';
 
             if ($this->renderer != null) {
                 if ($this->table != null)
@@ -274,10 +274,12 @@ class pdHtmlPage {
                 // note: only add it if not at the login page
                 if (($page_id == 'login')
                     && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
-                    $options[$item->page_title] .= '?redirect=' . $_SERVER['PHP_SELF'];
+                    $options[$item->page_title]
+                        .= '?redirect=' . $_SERVER['PHP_SELF'];
 
                     if ($_SERVER['QUERY_STRING'] != '')
-                        $options[$item->page_title] .= '?' . $_SERVER['QUERY_STRING'];
+                        $options[$item->page_title]
+                            .= '?' . $_SERVER['QUERY_STRING'];
                 }
             }
         }
@@ -293,14 +295,7 @@ class pdHtmlPage {
                         .= '<li><a href="' . $value . '">' . $key . '</a></li>';
             }
 
-        $form = $this->quickSearchFormCreate();
-        $renderer = new HTML_QuickForm_Renderer_QuickHtml();
-        $form->accept($renderer);
-
-        $result .= "</ul>\n"
-            . $renderer->toHtml($renderer->elementToHtml('search') . ' '
-                                . $renderer->elementToHtml('Quick'))
-            . "</div>";
+        $result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div>';
         return $result;
     }
 
@@ -419,17 +414,25 @@ END;
     }
 
     function quickSearchFormCreate() {
-        if (strstr($this->relative_url, '/'))
+        if (strstr($this->relative_url, '/') !== false)
             $script = '../search_publication_db.php';
         else
             $script = 'search_publication_db.php';
 
-        $form = new HTML_QuickForm('quickPubForm', 'get', $script);
-        $form->addElement('text', 'search', null,
-                          array('size' => 12, 'maxlength' => 80));
-        $form->addElement('submit', 'Quick', 'Search');
+        $form = new HTML_QuickForm('quickSearchForm', 'get', $script);
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'text', 'search', null,
+                    array('size' => 12, 'maxlength' => 80)),
+                HTML_QuickForm::createElement('submit', 'Quick', 'Search')
+                ),
+            'quick_search', null, '&nbsp;');
 
-        return $form;
+        $r =& $form->defaultRenderer();
+        $form->accept($r);
+
+        return $r->toHtml();
     }
 
     function navMenuItemDisplay($page_id, $enable) {
