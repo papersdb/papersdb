@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.15 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: add_pub1.php,v 1.16 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

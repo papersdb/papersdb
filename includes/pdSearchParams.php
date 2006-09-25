@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /**

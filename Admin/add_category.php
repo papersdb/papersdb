@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: add_category.php,v 1.22 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: add_category.php,v 1.23 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

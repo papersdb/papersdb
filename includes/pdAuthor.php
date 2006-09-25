@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.15 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.16 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /** Requries classes to access the database. */
@@ -21,7 +22,7 @@ define('PD_AUTHOR_DB_LOAD_ALL',       0xF);
 
 
 /**
- *Class for storage and retrieval of publications to / from the database.
+ * Class that accesses author information in the database.
  *
  * @package PapersDB
  */
@@ -79,7 +80,7 @@ class pdAuthor {
         $this->load($q);
 
         if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
-            $this->interestsDbLoad($db);
+            $this->dbLoadInterests($db);
 
         if ($flags & (PD_AUTHOR_DB_LOAD_PUBS_MIN
                       | PD_AUTHOR_DB_LOAD_PUBS_ALL)) {
@@ -92,7 +93,7 @@ class pdAuthor {
     /**
      *
      */
-    function interestsDbLoad(&$db) {
+    function dbLoadInterests(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -100,7 +101,7 @@ class pdAuthor {
                          'interest.interest',
                          array('interest.interest_id=author_interest.interest_id',
                                'author_interest.author_id' => $this->author_id),
-                         "pdAuthor::interestsDbLoad");
+                         "pdAuthor::dbLoadInterests");
 
         // its possible that the author has no interests in the database
         // no need to assert

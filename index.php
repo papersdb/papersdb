@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.29 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: index.php,v 1.30 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -9,6 +9,7 @@
  * the most recent publications added.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

@@ -1,16 +1,16 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdVenue.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of venue data to / from the database.
+ * Implements a class that accesses venue information from the database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**
- * Class for storage and retrieval of venue to / from the
- * database.
+ * Class that accesses venue information from the database.
  *
  * @package PapersDB
  */

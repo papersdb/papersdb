@@ -8,6 +8,7 @@
  * deleting any of the authors.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

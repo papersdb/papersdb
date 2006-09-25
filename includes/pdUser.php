@@ -1,19 +1,19 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.25 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdUser.php,v 1.26 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of user data to / from the database.
+ * Implements a class that accesses user information from the database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /** Required to get the used author rank. */
 require_once 'pdAuthorList.php';
 
 /**
- * Class for storage and retrieval of user to / from the
- * database.
+ * Class that accesses user information from the database.
  *
  * @package PapersDB
  */

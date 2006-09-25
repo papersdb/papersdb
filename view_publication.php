@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.60 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: view_publication.php,v 1.61 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * View Publication
@@ -12,6 +12,7 @@
  * or delete the current publication.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

@@ -1,12 +1,13 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.11 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: delete_venue.php,v 1.12 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
  * venue, and then removes it from the database.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

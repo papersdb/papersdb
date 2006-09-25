@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.8 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.9 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Flags used when loading information from the database. */

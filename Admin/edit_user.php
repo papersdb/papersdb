@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.16 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: edit_user.php,v 1.17 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page displays/edits the users information.
@@ -9,6 +9,7 @@
  * authors will be people the user will most likely be using a lot.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

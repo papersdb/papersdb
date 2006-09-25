@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: delete_author.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -11,6 +11,7 @@
  * the titles of all the publications the author is in.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

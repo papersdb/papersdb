@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.19 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: view_author.php,v 1.20 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -14,6 +14,7 @@
  * author.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: delete_interest.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -11,6 +11,7 @@
  * and then removes it from the database.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

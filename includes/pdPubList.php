@@ -1,20 +1,19 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdPubList.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Creates a list of all publications or for an individual author.
+ * Implements a class that builds a list of publications.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /** Requires the publication class.*/
 require_once 'pdPublication.php';
 
 /**
- *
- * \brief Class for storage and retrieval of publication authors to / from
- * the database.
+ * Class that builds a list of publications.
  *
  * @package PapersDB
  */
@@ -22,7 +21,10 @@ class pdPubList {
     var $list;
 
     /**
-     * Constructor.
+     * The publications that are loaded depend on the $options array.
+     *
+     * @param object $db      Database access object.
+     * @param array  $options An associative array.
      */
     function pdPubList(&$db, $options = null) {
         assert('is_object($db)');

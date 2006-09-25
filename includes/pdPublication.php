@@ -1,11 +1,13 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.64 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdPublication.php,v 1.65 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of publication data to / from the database.
+ * Implements a class that accesses, from the database, some or all the
+ * information related to a publication.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /** Requires author, category and venue classes. */
@@ -26,8 +28,8 @@ define('PD_PUB_DB_LOAD_ALL',             0x77);
 define('NEW_VENUE', 1);
 
 /**
- * Class for storage and retrieval of publications to / from the
- * database.
+ * Class that accesses, from the database, some or all the information related
+ * to a publication.
  *
  * @package PapersDB
  */
@@ -52,9 +54,6 @@ class pdPublication {
     var $additional_info; // these are the additional attached files
     var $user;
 
-    /**
-     * Constructor.
-     */
     function pdPublication($obj = NULL) {
         $this->paper = 'No Paper';
 
@@ -65,7 +64,7 @@ class pdPublication {
     /**
      * Loads a specific publication from the database.
      *
-     * Use flags to load individual tables
+     * Use $flags to load information from other tables.
      */
     function dbLoad(&$db, $id, $flags = PD_PUB_DB_LOAD_ALL) {
         assert('is_object($db)');

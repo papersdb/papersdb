@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: cv.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -11,6 +11,7 @@
  * string file of the publication ids seperated by commas Output: CV Format
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdExtraInfoList.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Retrieves the extra information items from the database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**

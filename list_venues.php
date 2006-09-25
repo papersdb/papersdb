@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: list_venues.php,v 1.11 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page displays all venues.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: login.php,v 1.23 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: login.php,v 1.24 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

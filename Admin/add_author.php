@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: add_author.php,v 1.33 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: add_author.php,v 1.34 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
@@ -15,13 +16,15 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 
-// this is just a stub, see javascript author_check() for the real code
+/**
+ * This is just a stub, see javascript author_check() for the real code
+ */
 function author_check() {
     return true;
 }
 
 /**
- * Renders the whole page.
+ * Creates a form for adding or editing author information.
  *
  * @package PapersDB
  */

@@ -1,12 +1,13 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Storage and retrieval of author interests to / from the
  * database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**

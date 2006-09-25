@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.25 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: list_publication.php,v 1.26 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -12,6 +12,7 @@
  * Pretty much identical to list_author.php
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requires base class and class that build publication lists. */

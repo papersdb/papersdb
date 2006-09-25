@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: search_results.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: search_results.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

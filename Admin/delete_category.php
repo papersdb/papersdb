@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.12 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: delete_category.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -11,6 +11,7 @@
  * category, then it is removed from the database.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

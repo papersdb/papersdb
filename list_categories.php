@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.7 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: list_categories.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page displays all venues.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */
@@ -18,8 +19,8 @@ require_once 'includes/pdCategory.php';
  *
  * @package PapersDB
  */
-class list_venues extends pdHtmlPage {
-    function list_venues() {
+class list_categories extends pdHtmlPage {
+    function list_categories() {
         global $access_level;
 
         pubSessionInit();
@@ -96,7 +97,7 @@ class list_venues extends pdHtmlPage {
 
 session_start();
 $access_level = check_login();
-$page = new list_venues();
+$page = new list_categories();
 echo $page->toHtml();
 
 ?>

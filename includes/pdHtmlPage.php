@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.46 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.47 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries classes to build the navigation menu. */
@@ -25,9 +26,7 @@ require_once 'HTML/Table.php';
  *
  * Page can be made up of:
  *   - form
- *   - renderer
  *   - table
- *   - form controller
  *
  * @package PapersDB
  */

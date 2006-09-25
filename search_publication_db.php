@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.40 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.41 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -11,6 +11,7 @@
  * \note register_globals is assumed to be turned off.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

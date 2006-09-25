@@ -1,17 +1,16 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.11 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdCatList.php,v 1.12 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of publication categories to / from the
- * database.
+ * Implements a class that retrieves category information for all categories.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**
- * Class for storage and retrieval of publication categories to / from
- * the database.
+ * Class that retrieves category information for all categories.
  *
  * @package PapersDB
  */
@@ -19,7 +18,7 @@ class pdCatList {
     var $list;
 
     /**
-     * Constructor.
+     * Retrieves the cat_id for all categories in the database.
      */
     function pdCatList(&$db) {
         $q = $db->select('category', array('cat_id', 'category'), '',

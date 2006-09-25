@@ -1,16 +1,18 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.11 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.12 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of publication authors to / from the database.
+ * Implements a class that retrieves from the database all the authors with a
+ * common last name and first initial.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**
- * Class for storage and retrieval of publication authors to / from the
- * database.
+ * Class that retrieves from the database all the authors with a common last
+ * name and first initial.
  *
  * @package PapersDB
  */

@@ -1,26 +1,12 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.20 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: add_venue.php,v 1.21 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
  *
- * Depending on a the varaible passed is what segment of the page is used.  If
- * $status == view then, it displays a list of all the venues and some
- * information about them. It links to whether you would like to add a new
- * venue, or edit/delete an existing one.
- *
- * If there is no variable passed, it displays the form to add a new venue.
- *
- * If $status == change, then it displays the same form, but with the values
- * already filled in, as the user is editing a venue.
- *
- * If $submit == true then it takes the input it passed itself and adds it to
- * the database. If it is passed a venue_id then it replaces the information,
- * if it is not passed a venue_id, it adds a new id to the database and puts
- * the information there.
- *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");

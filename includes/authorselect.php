@@ -1,12 +1,13 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.16 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: authorselect.php,v 1.17 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
  * the database.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */

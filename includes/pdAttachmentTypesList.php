@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.2 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdAttachmentTypesList.php,v 1.3 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Queries the databse for the different attachment types allowed.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**

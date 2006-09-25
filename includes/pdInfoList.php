@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.4 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdInfoList.php,v 1.5 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Class to retrieve information table data.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /**

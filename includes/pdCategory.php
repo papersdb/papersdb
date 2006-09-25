@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: pdCategory.php,v 1.11 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
- * Storage and retrieval of venue information to / from the database.
+ * Implements a class that accesses category information from the database.
  *
  * @package PapersDB
+ * @subpackage DB_Access
  */
 
 /** Flags used when loading information from the database. */
@@ -14,7 +15,7 @@ define('PD_CATEGORY_DB_LOAD_CATEGORY_INFO', 1);
 define('PD_CATEGORY_DB_LOAD_ALL',           1);
 
 /**
- * Class for storage and retrieval of venue information to / from the database.
+ * Class that accesses category information from the database.
  *
  * @package PapersDB
  */

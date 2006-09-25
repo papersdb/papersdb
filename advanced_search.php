@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.49 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: advanced_search.php,v 1.50 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -16,6 +16,7 @@
  * http://pear.php.net/manual/en/standards.php.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 /** Requries the base class and classes to access the database. */
@@ -34,7 +35,6 @@ require_once 'includes/jscalendar.php';
 class advanced_search extends pdHtmlPage {
     var $debug = 0;
     var $form_name = 'pubForm';
-    var $db;
     var $cat_list;
     var $category;
     var $search;

@@ -1,11 +1,12 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.6 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: add_pub2.php,v 1.7 2006/09/25 19:59:09 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
  *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
 ini_set("include_path", ini_get("include_path") . ":..");
