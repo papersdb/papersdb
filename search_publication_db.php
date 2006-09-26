@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.41 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.42 2006/09/26 00:14:00 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -95,11 +95,8 @@ class search_publication_db extends pdHtmlPage {
         else
             $arr =& $_GET;
 
-        if (isset($arr['datesGroup'])) {
-            foreach(array('startdate', 'enddate') as $d) {
-                if (isset($arr['datesGroup'][$d]))
-                    $arr[$d] = $arr['datesGroup'][$d];
-            }
+        if ($this->debug) {
+            $this->contentPost .= '<pre>' . print_r($arr, true) . '</pre>';
         }
 
         $this->search_params = new pdSearchParams($arr);

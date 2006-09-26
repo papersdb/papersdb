@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.48 2006/09/25 23:57:07 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.49 2006/09/26 00:14:00 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -18,6 +18,7 @@ require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/QuickForm/Controller.php';
 require_once 'HTML/QuickForm/Action/Display.php';
+require_once('HTML/QuickForm/Renderer/Default.php');
 require_once 'HTML/Table.php';
 
 
@@ -211,7 +212,7 @@ class pdHtmlPage {
                 $result .= $this->contentPre;
 
             // debug
-            $this->contentPost .= '<pre>' . print_r($this, true) . '</pre>';
+            //$this->contentPost .= '<pre>' . print_r($this, true) . '</pre>';
 
             if ($this->renderer != null) {
                 if ($this->table != null)
@@ -403,7 +404,7 @@ END;
             . 'return escape(' . $varname . ')">' . $text . '</a></span>';
     }
 
-    function confirmForm($name, $action = null) {
+    function &confirmForm($name, $action = null) {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
 
@@ -427,12 +428,12 @@ END;
                     array('size' => 12, 'maxlength' => 80)),
                 HTML_QuickForm::createElement('submit', 'Quick', 'Search')
                 ),
-            'quick_search', null, '&nbsp;');
+            null, null, null);
 
-        $r =& $form->defaultRenderer();
-        $form->accept($r);
+        $renderer =& new HTML_QuickForm_Renderer_Default();
+        $form->accept($renderer);
 
-        return $r->toHtml();
+        return $renderer->toHtml();
     }
 
     function navMenuItemDisplay($page_id, $enable) {
