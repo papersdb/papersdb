@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.25 2006/09/25 23:57:07 aicmltec Exp $
+// $Id: login.php,v 1.26 2006/10/11 19:34:40 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -107,54 +107,46 @@ class login extends pdHtmlPage {
         }
         $user->dbLoad($db, $values['loginid']);
 
-        if (isset($values['login'])) {
-            // authenticate.
-            if (!get_magic_quotes_gpc()) {
-                $values['loginid'] = addslashes($values['loginid']);
-            }
-            $user = new pdUser();
+        if (isset($values['submit_login'])) {
+          // check passwords match
+          $values['passwd'] = md5(stripslashes($this->passwd_hash
+                                               . $values['passwd']));
 
-            // check passwords match
-            $values['passwd'] = md5(stripslashes($this->passwd_hash
-                                                 . $values['passwd']));
+          if ($values['passwd'] != $user->password) {
+            $this->contentPre
+              .='Incorrect password, please try again.';
+            $this->pageError = true;
+            return;
+          }
 
-            if ($values['passwd'] != $user->password) {
-                $this->contentPre
-                    .='Incorrect password, please try again.';
-                $this->pageError = true;
-                return;
-            }
+          // if we get here username and password are correct,
+          //register session variables and set last login time.
+          $values['loginid'] = stripslashes($values['loginid']);
+          $_SESSION['user'] = $user;
 
-            // if we get here username and password are correct,
-            //register session variables and set last login time.
-            $values['loginid'] = stripslashes($values['loginid']);
-            $_SESSION['user'] = $user;
+          // reset search results
+          searchSessionInit();
 
-            // reset search results
-            searchSessionInit();
+          $access_level = $_SESSION['user']->access_level;
 
-            $db->close();
+          if ($access_level == 0) {
+            $this->contentPre .= 'Your login request has not been '
+              . 'processed yet.';
+            return;
+          }
 
-            $access_level = $_SESSION['user']->access_level;
-
-            if ($access_level == 0) {
-                $this->contentPre .= 'Your login request has not been '
-                    . 'processed yet.';
-                return;
-            }
-
-            if (isset( $values['redirect'])) {
-                $this->redirectUrl = $values['redirect'];
-                $this->redirectTimeout = 0;
-            }
-            else {
-                $this->contentPre .= '<h2>Logged in</h1>'
-                    . 'You have succesfully logged in as '
-                    . $_SESSION['user']->login
-                    . '<p/>Return to <a href="index.php">main page</a>.'
-                    . '<br/><br/><br/><br/><br/><br/>'
-                    . '</div>';
-            }
+          if (isset( $values['redirect'])) {
+            $this->redirectUrl = $values['redirect'];
+            $this->redirectTimeout = 0;
+          }
+          else {
+            $this->contentPre .= '<h2>Logged in</h1>'
+              . 'You have succesfully logged in as '
+              . $_SESSION['user']->login
+              . '<p/>Return to <a href="index.php">main page</a>.'
+              . '<br/><br/><br/><br/><br/><br/>'
+              . '</div>';
+          }
         }
         else if (isset($values['newaccount'])) {
             // check if username exists in database.
@@ -213,6 +205,11 @@ class login extends pdHtmlPage {
                 . $values['email']
                 . '</code> when your account is ready. '
                 . '<p/>Return to <a href="index.php">main page</a>.';
+        }
+        else {
+          $this->contentPost
+            .= 'Could not process form<br/>'
+            . '<pre>' . print_r($values, true) . '</pre>';
         }
         $db->close();
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.24 2006/09/25 23:57:07 aicmltec Exp $
+// $Id: add_category.php,v 1.25 2006/10/11 19:34:40 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -17,11 +17,12 @@ require_once 'includes/pdInfoList.php';
 require_once 'includes/pdCategory.php';
 
 /**
- * Allows the user to add a new category, or edit a category in the
+ * Allows the user to add a new category or edit a category in the
  * database.
  *
  * If the "cat_id" variable is part of the query string, then the user wishes
- * to edit the corresponding category.
+ * to edit the corresponding category. If not in the query string then allows
+ * the user to add a new category.
  *
  * @package PapersDB
  */

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.7 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_pub2.php,v 1.8 2006/10/11 19:34:40 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -73,8 +73,10 @@ class add_pub2 extends pdHtmlPage {
                 = array_slice(array_keys($user->author_rank), 0, 10);
 
             foreach($most_used_author_ids as $author_id) {
+              if (isset($all_authors[$author_id])) {
                 $most_used_authors[$author_id] = $all_authors[$author_id];
                 unset($all_authors[$author_id]);
+              }
             }
             asort($most_used_authors);
         }
