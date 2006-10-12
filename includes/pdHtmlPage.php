@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.49 2006/09/26 00:14:00 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.50 2006/10/12 15:52:11 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -407,10 +407,15 @@ END;
     function &confirmForm($name, $action = null) {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
-
-        $form->addElement('submit', 'submit', 'Delete');
-        $form->addElement('button', 'cancel', 'Cancel',
-                          array('onclick' => 'history.back()'));
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                  'submit', 'submit', 'Delete'),
+                HTML_QuickForm::createElement(
+                  'button', 'cancel', 'Cancel',
+                  array('onclick' => 'history.back()'))
+              ),
+            null, null, '&nbsp;', false);
         return $form;
     }
 
