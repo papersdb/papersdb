@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.25 2006/10/11 19:34:40 aicmltec Exp $
+// $Id: add_category.php,v 1.26 2006/10/12 16:48:10 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -124,7 +124,7 @@ class add_category extends pdHtmlPage {
             }
             $category->dbSave($db);
 
-e            $this->contentPre .= 'Category "' . $category->category
+            $this->contentPre .= 'Category "' . $category->category
                 . '" succesfully added to the database.'
                 . '<p/>'
                 . '<a href="' . $_SERVER['PHP_SELF'] . '">'
