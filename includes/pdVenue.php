@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdVenue.php,v 1.14 2006/10/13 15:59:47 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -41,13 +41,17 @@ class pdVenue {
     function dbLoad(&$db, $id) {
         assert('is_object($db)');
 
+        if (count($this->occurrences) > 0)
+          unset($this->occurrences);
+
         $q = $db->selectRow('venue', '*', array('venue_id' => $id),
                          "pdVenue::dbLoadVenue");
         if ($q === false) return false;
         $this->load($q);
 
         $q = $db->select('venue_occur', '*', array('venue_id' => $id),
-                         "pdVenue::dbLoadVenue");
+                         "pdVenue::dbLoadVenue",
+                         array('ORDER BY' => 'date'));
         $r = $db->fetchObject($q);
         while ($r) {
             $this->occurrences[] = $r;

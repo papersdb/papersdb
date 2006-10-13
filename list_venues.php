@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.11 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: list_venues.php,v 1.12 2006/10/13 15:59:47 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -57,8 +57,32 @@ class list_venues extends pdHtmlPage {
                     $text .= '<b>Associated Conference:&nbsp;</b>';
                 $text .= $venue->data;
             }
+
             if ($venue->editor != '')
-                $text .= "<br><b>Editor:&nbsp;</b>" . $venue->editor;
+                $text .= "<br/><b>Editor:&nbsp;</b>" . $venue->editor;
+
+
+            // display occurrences
+            if (count($venue->occurrences) > 0) {
+              foreach ($venue->occurrences as $occ) {
+                $text .= '<br/>';
+
+                $date = explode('-', $occ->date);
+
+                if ($occ->url != '') {
+                  $text .= '<a href="' . $occ->url . '" target="_blank">';
+                }
+
+                $text .= $date[0];
+
+                if ($occ->url != '') {
+                    $text .= '</a>';
+                }
+
+                if ($occ->location != '')
+                  $text .= ', ' . $occ->location;
+              }
+            }
 
             $cells[] = $text;
 
