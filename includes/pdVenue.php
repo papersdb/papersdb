@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.14 2006/10/13 15:59:47 aicmltec Exp $
+// $Id: pdVenue.php,v 1.15 2006/10/20 23:11:47 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -194,6 +194,44 @@ class pdVenue {
 
             $this->processVenueData($mixed['data']);
         }
+    }
+
+    function urlGet($year = null) {
+      $url = null;
+
+      if (($year != null) && (count($this->venue->occurrences) > 0)) {
+        foreach ($this->occurrences as $o) {
+          $o_date = split('-', $o->date);
+          if ($o_date[0] == $year) {
+            $url = $o->url;
+          }
+        }
+      }
+      else if ($this->url != '') {
+        $url = $this->url;
+      }
+      else if (strpos($this->name, '<a href=') !== false) {
+        // try to get venue URL from the name
+        //
+        // note: some venue names with URLs don't close the <a href> tag
+        $url = preg_replace('/<a href=[\'"]([^\'"]+)[\'"]>[^<]+(<\/a>)?.+/', '$1',
+                            $this->name);
+      }
+
+      if ($url != '') {
+        if (strpos($url, 'http://') === false)
+          $url = 'http://' . $url;
+      }
+
+      return $url;
+    }
+
+    function nameGet() {
+      if (strpos($this->name, '<a href=') !== false) {
+        return preg_replace('/<a href=[\'"][^\'"]+[\'"]>([^<]+)(?:<\/a>)?(.*)/',
+                            '$1$2', $this->name);
+      }
+      return $this->name;
     }
 }
 

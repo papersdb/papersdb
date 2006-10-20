@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.21 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_venue.php,v 1.22 2006/10/20 23:11:47 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -262,34 +262,34 @@ class add_venue extends pdHtmlPage {
         else {
             $form->setDefaults($_GET);
             if ($this->venue_id != '') {
-                $arr = array('title'    => $venue->title,
-                             'name'     => $venue->name,
-                             'url'      => $venue->url,
-                             'type'     => $venue->type,
-                             'data'     => $venue->data,
-                             'editor'   => $venue->editor,
-                             'venue_date' => $venue->date);
-                if (isset($_GET['numNewOccurrences'])) {
-                    for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
-                        $arr['newOccurrenceLocation'][$c]
-                            = $_GET['newOccurrenceLocation'][$c];
-                        $arr['newOccurrenceDate'][$c]
-                            = $_GET['newOccurrenceDate'][$c];
-                        $arr['newOccurrenceUrl'][$c]
-                            = $_GET['newOccurrenceUrl'][$c];
-                    }
+              $arr = array('title'    => $venue->title,
+                           'name'     => $venue->nameGet(),
+                           'url'      => $venue->urlGet(),
+                           'type'     => $venue->type,
+                           'data'     => $venue->data,
+                           'editor'   => $venue->editor,
+                           'venue_date' => $venue->date);
+              if (isset($_GET['numNewOccurrences'])) {
+                for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
+                  $arr['newOccurrenceLocation'][$c]
+                    = $_GET['newOccurrenceLocation'][$c];
+                  $arr['newOccurrenceDate'][$c]
+                    = $_GET['newOccurrenceDate'][$c];
+                  $arr['newOccurrenceUrl'][$c]
+                    = $_GET['newOccurrenceUrl'][$c];
                 }
-                else if (count($venue->occurrences) > 0) {
-                    $c = 0;
-                    foreach ($venue->occurrences as $o) {
-                        $arr['newOccurrenceLocation'][$c] = $o->location;
-                        $arr['newOccurrenceDate'][$c] = $o->date;
-                        $arr['newOccurrenceUrl'][$c] = $o->url;
-                        $c++;
-                    }
+              }
+              else if (count($venue->occurrences) > 0) {
+                $c = 0;
+                foreach ($venue->occurrences as $o) {
+                  $arr['newOccurrenceLocation'][$c] = $o->location;
+                  $arr['newOccurrenceDate'][$c] = $o->date;
+                  $arr['newOccurrenceUrl'][$c] = $o->url;
+                  $c++;
                 }
+              }
 
-                $form->setDefaults($arr);
+              $form->setDefaults($arr);
             }
             $renderer =& $form->defaultRenderer();
 

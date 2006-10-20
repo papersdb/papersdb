@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.9 2006/10/20 23:11:47 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -19,8 +19,11 @@ class pdVenueList {
 
     /**
      * Constructor.
+     *
+     * By default venues with URLs in the name are not part of the list. Set $all
+     * to true to get venues with URLs in the name also.
      */
-    function pdVenueList(&$db, $type = null) {
+    function pdVenueList(&$db, $type = null, $all = false) {
         if ($type == null)
             $q = $db->select('venue', array('venue_id', 'title', 'name'), '',
                              "pdVenueList::dbLoad");
@@ -34,7 +37,8 @@ class pdVenueList {
         while ($r) {
             if ($r->title != '')
                 $this->list[$r->venue_id] = $r->title;
-            else if (($r->name != '') && (strpos($r->name, 'href') === false)) {
+            else if (($r->name != '')
+                     && ($all || (strpos($r->name, 'href') === false))) {
                 if (strlen($r->name) > 70)
                     $this->list[$r->venue_id] = substr($r->name, 0, 70) . '...';
                 else

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.66 2006/10/20 16:13:42 aicmltec Exp $
+// $Id: pdPublication.php,v 1.67 2006/10/20 23:11:47 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -622,85 +622,85 @@ class pdPublication {
     }
 
     function getCitationHtml($urlPrefix = '.', $author_links = true) {
-        $citation = '';
+      $citation = '';
 
-        $first = true;
-        if (count($this->authors) > 0) {
-            foreach ($this->authors as $auth) {
-                if (!$first)
-                    $citation .= ', ';
+      $first = true;
+      if (count($this->authors) > 0) {
+        foreach ($this->authors as $auth) {
+          if (!$first)
+            $citation .= ', ';
 
-                if ($author_links)
-                    $citation .= '<a href="' . $urlPrefix . '/view_author.php?'
-                        . 'author_id=' . $auth->author_id . '">';
-                $citation .= $auth->firstname[0] . '. ' . $auth->lastname;
+          if ($author_links)
+            $citation .= '<a href="' . $urlPrefix . '/view_author.php?'
+              . 'author_id=' . $auth->author_id . '">';
+          $citation .= $auth->firstname[0] . '. ' . $auth->lastname;
 
-                if ($author_links)
-                    $citation .= '</a>';
-                $first = false;
-            }
-            $citation .= '. ';
+          if ($author_links)
+            $citation .= '</a>';
+          $first = false;
+        }
+        $citation .= '. ';
+      }
+
+      // Title
+      $citation .= '<span id="pub_title">&quot;' . $this->title
+        . '&quot;</span>. ';
+
+      // Additional Information - Outputs the category specific information
+      // if it exists
+      $info_arr = array();
+      if (count($this->info) > 0) {
+        foreach ($this->info as $i)
+          if ($i != '')
+            $info_arr[] = $i;
+        $info = implode(', ', $info_arr);
+      }
+
+      $pub_date = split('-', $this->published);
+
+      //  Venue
+      $v = '';
+      if (is_object($this->venue)) {
+        $url = $this->venue->urlGet($pub_date[0]);
+
+        if ($url != '') {
+          $v .= ' <a href="' .  $url . '" target="_blank">';
         }
 
-        // Title
-        $citation .= '<span id="pub_title">&quot;' . $this->title
-            . '&quot;</span>. ';
+        if ($this->venue->name != '')
+          $v .= $this->venue->name;
+        else
+          $v .= $this->venue->title;
 
-        // Additional Information - Outputs the category specific information
-        // if it exists
-        $info_arr = array();
-        if (count($this->info) > 0) {
-            foreach ($this->info as $i)
-                if ($i != '')
-                    $info_arr[] = $i;
-            $info = implode(', ', $info_arr);
+        if ($url != '') {
+          $v .= '</a>';
         }
 
-        $pub_date = split('-', $this->published);
-
-        //  Venue
-        $v = '';
-        if (is_object($this->venue)) {
-            if (($this->venue->url != '') && ($this->venue->url != 'http://'))
-                $v .= ' <a href="' . $this->venue->url . '" target="_blank">';
-
-            if ($this->venue->name != '')
-                $v .= $this->venue->name;
-            else
-                $v .= $this->venue->title;
-
-            if ((($this->venue->url != '') && ($this->venue->url != 'http://'))
-                || ((strpos($this->venue->name, '<a href=') >= 0)
-                    && (strpos($this->venue->name, '</a>') === false))) {
-                // some venue names don't close the <a href> tag
-                $v .= '</a>';
-            }
-
-            if ($this->venue->type == 'Conference') {
-                if (isset($this->venue->occurrence[$pub_date[0]])
-                    && ($this->venue->occurrence[$pub_date[0]] != ''))
-                    $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
-            }
-            else if ($this->venue->data != '')
-                $v .= ', ' . $this->venue->data;
+        if ($this->venue->type == 'Conference') {
+          if (isset($this->venue->occurrence[$pub_date[0]])
+              && ($this->venue->occurrence[$pub_date[0]] != ''))
+            $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
         }
+        else if ($this->venue->data != '')
+          $v .= ', ' . $this->venue->data;
+      }
 
-        $date_str = '';
-        if ($pub_date[1] != 0)
-            $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
-        if ($pub_date[0] != 0)
-            $date_str .= $pub_date[0];
+      $date_str = '';
+      if ($pub_date[1] != 0)
+        $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
+      if ($pub_date[0] != 0)
+        $date_str .= $pub_date[0];
 
-        if (($v != '') && ($info != '') && ($date_str != ''))
-            $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
-        if (($v != '') && ($info == '') && ($date_str != ''))
-            $citation .= $v . ', ' . $date_str . '.';
-        if (($v != '') && ($info == '') && ($date_str == ''))
-            $citation .= $v . '.';
-        if (($v == '') && ($info == '') && ($date_str != ''))
-            $citation .= $date_str . '.';
+      if (($v != '') && ($info != '') && ($date_str != ''))
+        $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
+      if (($v != '') && ($info == '') && ($date_str != ''))
+        $citation .= $v . ', ' . $date_str . '.';
+      if (($v != '') && ($info == '') && ($date_str == ''))
+        $citation .= $v . '.';
+      if (($v == '') && ($info == '') && ($date_str != ''))
+        $citation .= $date_str . '.';
 
-        return $citation;
+      return $citation;
     }
 
     function getCitationText() {
