@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: list_categories.php,v 1.9 2006/10/20 23:16:54 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -89,7 +89,7 @@ class list_categories extends pdHtmlPage {
             }
         }
 
-        $this->contentPre .= '<h2><b><u>Publication Categories</u></b></h2>';
+        $this->contentPre .= '<h1>Publication Categories</h1>';
         $this->table =& $table;
         $db->close();
     }

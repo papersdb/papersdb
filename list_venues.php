@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.14 2006/10/20 23:14:14 aicmltec Exp $
+// $Id: list_venues.php,v 1.15 2006/10/20 23:16:54 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -131,7 +131,7 @@ class list_venues extends pdHtmlPage {
             }
         }
 
-        $this->contentPre = '<h2>Publication Venues</h2>';
+        $this->contentPre = '<h1>Publication Venues</h1>';
         $db->close();
     }
 }
