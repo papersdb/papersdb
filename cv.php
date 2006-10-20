@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: cv.php,v 1.14 2006/10/20 16:13:42 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -37,57 +37,10 @@ class cv extends pdHtmlPage {
         $pub_count = 0;
         foreach (split(",", $_POST['pub_ids']) as $pub_id) {
             $pub_count++;
-            $this->contentPre .= "<b>[" . $pub_count . "]</b> ";
-
             $pub = new pdPublication();
             $pub->dbLoad($db, $pub_id);
-
-            // AUTHORS - Outputs the Authors for the ID
-            unset($authors);
-            foreach ($pub->authors as $auth) {
-                $authors[] = $auth->firstname[0] . ". " . $auth->lastname;
-            }
-
-            $this->contentPre
-                .= implode(', ', array_slice($authors, 0, count($authors) - 1))
-                . ' and ' . $authors[count($authors) - 1];
-
-            //  Output the Title (if this doesn't exist we have a problem)
-            $this->contentPre .= ', "' . $pub->title . '"';
-
-            //  VENUE - Checks to see if its unique or an ID and takes the
-            //  right action for each
-            if (($pub->venue->name != null)
-                && ($pub->venue->data != null)) {
-                $this->contentPre .= ', ' . $pub->venue->type
-                    . ': ' . $pub->venue->name . ', '
-                    . $pub->venue->data;
-            }
-
-            // Additional Information - Outputs the category specific
-            // information if it exists
-            if (isset($pub->info))
-                foreach ($pub->info as $name => $value) {
-                    if($value != null)
-                        $this->contentPre .= ", " . $value;
-                }
-
-
-            // DATE - Parses the date file, and the outputs it
-            $string = "";
-            $published = split("-", $pub->published);
-            if($published[1] != 00)
-                $string .= date("F", mktime (0,0,0,$published[1]))." ";
-            if($published[2] != 00)
-                $string .= $published[2].", ";
-            if($published[0] != 0000)
-                $string .= $published[0];
-
-            if($string != "")
-                $this->contentPre .= ', ' . $string . '.';
-            else
-                $this->contentPre .= '.';
-            $this->contentPre .= '<p/>';
+            $this->contentPre .= '<b>[' . $pub_count . ']</b> '
+              . $pub->getCitationText() . '<p/>';
         }
         $db->close();
     }
