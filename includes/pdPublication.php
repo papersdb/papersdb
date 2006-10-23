@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.67 2006/10/20 23:11:47 aicmltec Exp $
+// $Id: pdPublication.php,v 1.68 2006/10/23 16:12:01 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -667,8 +667,10 @@ class pdPublication {
           $v .= ' <a href="' .  $url . '" target="_blank">';
         }
 
-        if ($this->venue->name != '')
-          $v .= $this->venue->name;
+        $vname = $this->venue->nameGet();
+
+        if ($vname != '')
+          $v .= $vname;
         else
           $v .= $this->venue->title;
 
@@ -732,23 +734,11 @@ class pdPublication {
       //  Venue
       $v = '';
       if (is_object($this->venue)) {
-        if ($this->venue->name != '')
-          $v .= $this->venue->name;
+        $vname = $this->venue->nameGet();
+        if ($vname != '')
+          $v .= $vname;
         else
           $v .= $this->venue->title;
-
-        //echo 'before: ' . $v . '<br/>';
-
-        # remove URLs from venue name or title
-        $v = preg_replace('/<a href=[\'"][^\'"]+[\'"]>(.*)(<\/a>)?/', '$1', $v);
-
-        //echo 'after: ' . $v . '<br/>';
-
-        if ((strpos($this->venue->name, '<a href=') >= 0)
-            && (strpos($this->venue->name, '</a>') === false)) {
-          // some venue names don't close the <a href> tag
-          $v .= '</a>';
-        }
 
         if ($this->venue->type == 'Conference') {
           if (isset($this->venue->occurrence[$pub_date[0]])
@@ -798,7 +788,7 @@ class pdPublication {
         else
             $venue_short = '';
 
-        $venue_name = $this->venue->name;
+        $venue_name = $this->venue->nameGet();
 
         $auth_count = count($this->authors);
         if ($auth_count > 0) {

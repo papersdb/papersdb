@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.13 2006/10/12 15:52:11 aicmltec Exp $
+// $Id: delete_venue.php,v 1.14 2006/10/23 16:12:01 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -62,7 +62,7 @@ class delete_venue extends pdHtmlPage {
 
     if ($db->numRows($q) > 0) {
       $this->contentPre .= 'Cannot delete venue <b>'
-        . $venue->name . '</b>.<p/>'
+        . $venue->nameGet() . '</b>.<p/>'
         . 'The venue is used by the following publications:' . "\n"
         . '<ul>';
 
@@ -102,7 +102,7 @@ class delete_venue extends pdHtmlPage {
       if ($venue->title != '')
         $disp_name = $venue->title;
       else
-        $disp_name = $venue->name;
+        $disp_name = $venue->nameGet();
 
       $this->contentPre .= '<h3>Confirm</h3><p/>'
         . 'Delete Venue <b>' . $disp_name

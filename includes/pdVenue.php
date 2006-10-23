@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.15 2006/10/20 23:11:47 aicmltec Exp $
+// $Id: pdVenue.php,v 1.16 2006/10/23 16:12:01 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -226,6 +226,8 @@ class pdVenue {
       return $url;
     }
 
+    // note: some venue names in the database contain URLs. This function
+    // returns the name without the URL text.
     function nameGet() {
       if (strpos($this->name, '<a href=') !== false) {
         return preg_replace('/<a href=[\'"][^\'"]+[\'"]>([^<]+)(?:<\/a>)?(.*)/',
