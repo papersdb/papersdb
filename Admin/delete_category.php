@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: delete_category.php,v 1.14 2006/10/27 20:04:54 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -86,7 +86,7 @@ class delete_category extends pdHtmlPage {
         $form =& $this->confirmForm('deleter');
         $form->addElement('hidden', 'cat_id', $cat_id);
 
-        $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+        $renderer =& $form->defaultRenderer();
         $form->accept($renderer);
 
         if ($form->validate()) {
