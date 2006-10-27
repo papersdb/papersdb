@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.8 2006/10/11 19:34:40 aicmltec Exp $
+// $Id: add_pub2.php,v 1.9 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -28,9 +28,13 @@ class add_pub2 extends pdHtmlPage {
     function add_pub2() {
         global $access_level;
 
-        parent::pdHtmlPage('add_publication', 'Select Authors',
-                           'Admin/add_pub2.php',
-                           PD_NAV_MENU_LEVEL_ADMIN);
+        $db =& dbCreate();
+        $pub =& $_SESSION['pub'];
+
+        if ($pub->pub_id != '')
+            parent::pdHtmlPage('edit_publication');
+        else
+            parent::pdHtmlPage('add_publication');
 
         if ($access_level < 1) {
             $this->loginError = true;
@@ -42,14 +46,12 @@ class add_pub2 extends pdHtmlPage {
             return;
         }
 
+        $this->db =& $db;
+
         $this->navMenuItemEnable('add_publication', 0);
         $this->navMenuItemDisplay('add_author', 0);
         $this->navMenuItemDisplay('add_category', 0);
         $this->navMenuItemDisplay('add_venue', 0);
-
-        $this->db =& dbCreate();
-        $db =& $this->db;
-        $pub =& $_SESSION['pub'];
 
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 
@@ -177,6 +179,8 @@ class add_pub2 extends pdHtmlPage {
             header('Location: add_author.php');
         else if (isset($values['prev_step']))
             header('Location: add_pub1.php');
+        else if (isset($values['finish']))
+            header('Location: add_pub_submit.php');
         else
             header('Location: add_pub3.php');
     }
@@ -186,6 +190,5 @@ session_start();
 $access_level = check_login();
 $page = new add_pub2();
 echo $page->toHtml();
-
 
 ?>

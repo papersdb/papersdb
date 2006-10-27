@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.8 2006/10/11 19:34:40 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.9 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -30,9 +30,8 @@ class add_pub_submit extends pdHtmlPage {
     function add_pub_submit() {
         global $access_level;
 
-        parent::pdHtmlPage('add_publication', 'Select Authors',
-                           'Admin/add_pub_submit.php',
-                           PD_NAV_MENU_LEVEL_ADMIN);
+        parent::pdHtmlPage(null, 'Publication Submitted',
+                           'Admin/add_pub_submit.php', PD_NAV_MENU_NEVER);
 
         if ($access_level < 1) {
             header('Location: add_pub1.php');
@@ -44,15 +43,12 @@ class add_pub_submit extends pdHtmlPage {
             return;
         }
 
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
-
         $this->db =& dbCreate();
         $db =& $this->db;
         $pub =& $_SESSION['pub'];
         $user =& $_SESSION['user'];
+
+        //$this->contentPost .= '<pre>' . print_r($pub, true) . '</pre>';
 
         $pub->submit = $user->name;
 
@@ -82,9 +78,16 @@ class add_pub_submit extends pdHtmlPage {
                 .= 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
-        $this->contentPre .= 'The following publication has been added to '
-            . 'the database:<p/>'
-            . $pub->getCitationHtml()
+        if ($pub->pub_id != null) {
+          $this->contentPre
+            .= 'The change to the following publication has been submitted:<p/>';
+        }
+        else {
+          $this->contentPre
+            .= 'The following publication has been added to the database:<p/>';
+        }
+
+          $this->contentPre .= $pub->getCitationHtml()
             . '<a href="../view_publication.php?pub_id=' . $pub->pub_id . '">'
             . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
             . 'width="16" border="0" align="middle" /></a>';

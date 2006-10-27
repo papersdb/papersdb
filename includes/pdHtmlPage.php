@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.50 2006/10/12 15:52:11 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.51 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -248,7 +248,8 @@ class pdHtmlPage {
             //
             // the second AND takes care of displaying the admin links
             //
-            // the third and takes care of displaying the guest links
+            // the third and takes care of displaying the guest login level
+            // (not logged in) links
             if ((($access_level > 0)
                  && ($item->access_level > PD_NAV_MENU_ALWAYS)
                  && ($item->access_level < PD_NAV_MENU_LEVEL_ADMIN))
@@ -435,6 +436,8 @@ END;
                 ),
             null, null, null);
 
+        // create a new renderer because $form->defaultRenderer() creates
+        // a single copy
         $renderer =& new HTML_QuickForm_Renderer_Default();
         $form->accept($renderer);
 

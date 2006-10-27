@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.11 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: delete_publication.php,v 1.12 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * Deletes a publication from the database.
@@ -79,7 +79,7 @@ class delete_publication extends pdHtmlPage {
                 return;
             }
 
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
             $form->accept($renderer);
 
             $this->contentPre .= '<h3>Delete Publication</h3>'

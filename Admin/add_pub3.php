@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_pub3.php,v 1.9 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -29,9 +29,13 @@ class add_pub3 extends pdHtmlPage {
     function add_pub3() {
         global $access_level;
 
-        parent::pdHtmlPage('add_publication', 'Select Authors',
-                           'Admin/add_pub3.php',
-                           PD_NAV_MENU_LEVEL_ADMIN);
+        $db =& dbCreate();
+        $pub =& $_SESSION['pub'];
+
+        if ($pub->pub_id != '')
+            parent::pdHtmlPage('edit_publication');
+        else
+            parent::pdHtmlPage('add_publication');
 
         if ($access_level < 1) {
             $this->loginError = true;
@@ -43,9 +47,7 @@ class add_pub3 extends pdHtmlPage {
             return;
         }
 
-        $this->db =& dbCreate();
-        $db =& $this->db;
-        $pub =& $_SESSION['pub'];
+        $this->db =& $db;
 
         $options = array('cat_id');
         foreach ($options as $opt) {
@@ -229,6 +231,8 @@ class add_pub3 extends pdHtmlPage {
 
         if (isset($values['prev_step']))
             header('Location: add_pub2.php');
+        else if (isset($values['finish']))
+            header('Location: add_pub_submit.php');
         else
             header('Location: add_pub4.php');
     }

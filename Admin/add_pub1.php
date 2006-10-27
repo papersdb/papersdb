@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.16 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_pub1.php,v 1.17 2006/10/27 17:27:21 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -63,7 +63,7 @@ class add_pub1 extends pdHtmlPage {
             $_SESSION['pub'] =& $pub;
         }
 
-        if ($pub != null)
+        if ($pub->pub_id != '')
             parent::pdHtmlPage('edit_publication');
         else
             parent::pdHtmlPage('add_publication');
@@ -73,6 +73,8 @@ class add_pub1 extends pdHtmlPage {
             $db->close();
             return;
         }
+
+        //$this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
 
         $this->navMenuItemEnable('add_publication', 0);
         $this->navMenuItemDisplay('add_author', 0);
