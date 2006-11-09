@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.17 2006/11/09 17:44:15 aicmltec Exp $
+// $Id: pdVenue.php,v 1.18 2006/11/09 20:49:58 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -230,6 +230,25 @@ class pdVenue {
         }
 
         return $url;
+    }
+
+    function locationGet($year = null) {
+        $location = null;
+
+        if (($year != null) && (count($this->occurrences) > 0)) {
+            foreach ($this->occurrences as $o) {
+                $o_date = split('-', $o->date);
+                if ($o_date[0] == $year) {
+                    $location = $o->location;
+                }
+            }
+        }
+
+        if (($this->type == 'Conference') && ($location == null)) {
+            $location = $this->data;
+        }
+
+        return $location;
     }
 
     // note: some venue names in the database contain URLs. This function

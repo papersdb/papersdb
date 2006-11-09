@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.5 2006/11/09 18:11:41 aicmltec Exp $
+// $Id: search_results.php,v 1.6 2006/11/09 20:49:58 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -89,32 +89,6 @@ class search_results extends pdHtmlPage {
                         . 'width="17" border="0" align="middle">';
                 }
                 $citation .= '</a>';
-            }
-
-            // Show Additional Materials
-            if (count($pub->additional_info) > 0) {
-                $att_count = 1;
-                foreach ($pub->additional_info as $att) {
-                    $citation .= '<a href="'
-                        . $pub->attachmentGetUrl($att_count - 1) . '">';
-
-                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                        $citation .= '<img src="images/pdf.gif" alt="PDF" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                        $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                        $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
-                            . 'width="17" border="0" align="middle">';
-                    }
-
-                    $att_count++;
-                }
             }
 
             $pubTable->addRow(array($citation));

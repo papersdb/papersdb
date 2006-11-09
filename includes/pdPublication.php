@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.68 2006/10/23 16:12:01 aicmltec Exp $
+// $Id: pdPublication.php,v 1.69 2006/11/09 20:49:58 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -678,13 +678,16 @@ class pdPublication {
           $v .= '</a>';
         }
 
-        if ($this->venue->type == 'Conference') {
-          if (isset($this->venue->occurrence[$pub_date[0]])
-              && ($this->venue->occurrence[$pub_date[0]] != ''))
-            $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
+        if ($this->venue->data != '') {
+            if ($this->venue->type == 'Workshop')
+                $v .= ' (within ' . $this->venue->data. ')';
+            else
+                $v .= ', ' . $this->venue->data;
         }
-        else if ($this->venue->data != '')
-          $v .= ', ' . $this->venue->data;
+
+        $location = $this->venue->locationGet($pub_date[0]);
+        if ($location != '')
+            $v .= ', ' . $location;
       }
 
       $date_str = '';

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.42 2006/09/26 00:14:00 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.43 2006/11/09 20:49:58 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -29,7 +29,6 @@ class search_publication_db extends pdHtmlPage {
     var $search_params;
     var $result_pubs;
     var $parse_search_add_word_or_next = false;
-    var $input;
 
     function search_publication_db() {
         pubSessionInit();
@@ -107,12 +106,13 @@ class search_publication_db extends pdHtmlPage {
      * Simple function to check to see if the string is a common word or not
      */
     function is_common_word($string){
-        $common_words = array("a", "all", "am", "an", "and","any","are","as","at",
-                              "be","but","can","did","do","does","for","from",
-                              "had", "has","have","here","how","i","if","in","is",
-                              "it","no", "not","of","on","or","so","that","the",
-                              "then","there", "this","to","too","up","use",
-                              "what","when","where", "who","why","you");
+        $common_words = array("a", "all", "am", "an", "and","any","are","as",
+                              "at", "be","but","can","did","do","does","for",
+                              "from", "had", "has","have","here","how","i",
+                              "if","in","is", "it","no", "not","of","on","or",
+                              "so","that","the", "then","there", "this","to",
+                              "too","up","use", "what","when","where", "who",
+                              "why","you");
 
         for ($a =0; $a< count($common_words); $a++)
             if($string == $common_words[$a])
@@ -131,17 +131,17 @@ class search_publication_db extends pdHtmlPage {
         if (strcasecmp($word, "and") == 0)
             return $array;
         if (strcasecmp($word, "or") == 0) {
-            $parse_search_add_word_or_next = true;
+            $this->parse_search_add_word_or_next = true;
             return $array;
         }
         else if ($this->parse_search_add_word_or_next == true) {
             $index = count($array)-1;
-            $array[$index][] = $word;
+            array_push($array[$index], $word);
             $this->parse_search_add_word_or_next = false;
             return $array;
         }
         else {
-            $array[] = array($word);
+            array_push($array, array($word));
             return $array;
         }
     }
@@ -206,78 +206,64 @@ class search_publication_db extends pdHtmlPage {
      * Performs a quick search.
      */
     function quickSearch() {
-        $this->input = $this->search_params->search;
         $quick_search_array
             = $this->parse_search(stripslashes($this->search_params->search));
 
-        for ($index1 = 0; $index1 < count($quick_search_array); $index1++) {
-            $union_array = NULL;
-            for ($index2 = 0; $index2 < count($quick_search_array[$index1]);
-                 $index2++) {
-                $search_term = $quick_search_array[$index1][$index2];
-
+        $union_array = NULL;
+        foreach ($quick_search_array as $and_terms) {
+            foreach ($and_terms as $search_term) {
                 //Search through the publication table
                 $pub_search = array('title', 'paper', 'abstract', 'keywords',
-                                    'extra_info', 'venue');
+                                    'extra_info');
 
                 foreach ($pub_search as $a) {
-                    $search_query = 'SELECT DISTINCT pub_id '
-                        . 'from publication WHERE ' . $a
-                        . ' LIKE ' . quote_smart('%'.$search_term.'%');
-                    $this->add_to_array($search_query, $union_array);
+                    $this->add_to_array('SELECT DISTINCT pub_id '
+                                        . 'from publication WHERE ' . $a
+                                        . ' LIKE '
+                                        . quote_smart('%'.$search_term.'%'),
+                                        $union_array);
                 }
 
                 // search venues - title
-                $search_query = "SELECT venue_id from venue "
-                    . "WHERE title LIKE " . quote_smart("%".$search_term."%");
-                $search_result = query_db($search_query);
-                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $venue_id = $search_array['venue_id'];
-                    if($venue_id != null) {
-                        $search_query = "SELECT DISTINCT pub_id from publication WHERE venue LIKE " . quote_smart($venue_id);
-                        $this->add_to_array($search_query, $union_array);
-                    }
-                }
+                $this->venuesSearch('title', $search_term, $union_array);
 
                 // search venues - name
-                $search_query = "SELECT venue_id from venue "
-                    . "WHERE name LIKE " . quote_smart("%".$search_term."%");
-                $search_result = query_db($search_query);
-                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $venue_id = $search_array['venue_id'];
-                    if($venue_id != null) {
-                        $search_query = "SELECT DISTINCT pub_id from publication WHERE venue LIKE " . quote_smart($venue_id);
-                        $this->add_to_array($search_query, $union_array);
-                    }
-                }
+                $this->venuesSearch('name', $search_term, $union_array);
 
                 //Search Categories
-                $search_query = "SELECT cat_id from category "
-                    . "WHERE category LIKE " . quote_smart("%".$search_term."%");
-                $search_result = query_db($search_query);
-                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                $search_result = query_db('SELECT cat_id from category '
+                                          . 'WHERE category LIKE '
+                                          . quote_smart("%".$search_term."%"));
+                while ($search_array
+                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $cat_id = $search_array['cat_id'];
                     if($cat_id != null) {
-                        $search_query = "SELECT DISTINCT pub_id from pub_cat WHERE cat_id=" . quote_smart($cat_id);
-                        $this->add_to_array($search_query, $union_array);
+                        $this->add_to_array('SELECT DISTINCT pub_id '
+                                            . 'from pub_cat WHERE cat_id='
+                                            . quote_smart($cat_id),
+                                            $union_array);
                     }
                 }
 
                 //Search category specific fields
-                $search_query = "SELECT DISTINCT pub_id from pub_cat_info "
-                    . "WHERE value LIKE " . quote_smart("%".$search_term."%");
-                $this->add_to_array($search_query, $union_array);
+                $this->add_to_array('SELECT DISTINCT pub_id from pub_cat_info '
+                                    . 'WHERE value LIKE '
+                                    . quote_smart("%".$search_term."%"),
+                                    $union_array);
 
                 //Search Authors
-                $search_query = "SELECT author_id from author "
-                    . "WHERE name LIKE " . quote_smart("%".$search_term."%");
-                $search_result = query_db($search_query);
-                while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                $search_result = query_db('SELECT author_id from author '
+                                          . 'WHERE name LIKE '
+                                          . quote_smart("%".$search_term."%"));
+                while ($search_array
+                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $author_id = $search_array['author_id'];
                     if($author_id != null) {
-                        $search_query = "SELECT DISTINCT pub_id from pub_author "
-                            . "WHERE author_id=" . quote_smart($author_id);
-                        $this->add_to_array($search_query, $union_array);
+                        $this->add_to_array('SELECT DISTINCT pub_id '
+                                            . 'from pub_author '
+                                            . 'WHERE author_id='
+                                            . quote_smart($author_id),
+                                            $union_array);
                     }
                 }
             }
@@ -292,6 +278,21 @@ class search_publication_db extends pdHtmlPage {
      * Performs and advanced search.
      */
     function advancedSearch() {
+        // VENUE SEARCH ------------------------------------------
+        if ($this->search_params->venue != '') {
+            $the_search_array
+                = $this->parse_search($this->search_params->venue);
+            $union_array = null;
+            foreach ($the_search_array as $and_terms) {
+                foreach ($and_terms as $or_term) {
+                    $this->venuesSearch('title', $or_term, $union_array);
+                    $this->venuesSearch('name', $or_term, $union_array);
+                }
+                $this->result_pubs = array_intersect($this->result_pubs,
+                                                     $union_array);
+            }
+        }
+
         // CATEGORY SEARCH ----------------------------------------------------
         //
         // if category search found, pass on only the ids found with that match
@@ -320,7 +321,6 @@ class search_publication_db extends pdHtmlPage {
                 $info_id = $info_line['info_id'];
                 $info_name = strtolower($info_line['name']);
                 if($$info_name != "") {
-                    $this->input .= " ".$$info_name;
                     $search_query = "SELECT DISTINCT pub_id "
                         . "FROM pub_cat_info WHERE cat_id=" . quote_smart($cat_id)
                         . " AND info_id=" . quote_smart($info_id)
@@ -330,29 +330,24 @@ class search_publication_db extends pdHtmlPage {
                         = array_intersect($this->result_pubs, $temporary_array);
                 }
             }
-
-            /**
-             * \todo what about category related fields? where are they
-             * incorporated into the search?
-             */
         }
 
         // PUBLICATION FIELDS SEARCH ------------------------------------------
-        $pub_search = array ("title",  "paper", "abstract", "keywords", "venue",
+        $pub_search = array ("title",  "paper", "abstract", "keywords",
                              "extra_info");
         //same thing happening as category, just with each of these fields
-        for ($a = 0; $a < count($pub_search); $a++) {
-            $field = $pub_search[$a];
-            if ($this->search_params->$field != "") {
-                $this->input .= " ".$_POST[$field];
+        foreach ($pub_search as $field) {
+            if ($this->search_params->$field != '') {
                 $the_search_array
                     = $this->parse_search($this->search_params->$field);
-                for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
-                    $union_array = NULL;
-                    for ($index2 = 0; $index2 < count($the_search_array[$index1]); $index2++) {
-                        $term = $the_search_array[$index1][$index2];
-                        $search_query = "SELECT DISTINCT pub_id from publication WHERE " . $field . " LIKE " . quote_smart("%".$term."%");
-                        $this->add_to_array($search_query, $union_array);
+                $union_array = null;
+                foreach ($the_search_array as $and_terms) {
+                    foreach ($and_terms as $or_term) {
+                        $this->add_to_array(
+                            'SELECT DISTINCT pub_id from publication WHERE '
+                            . $field . ' LIKE '
+                            . quote_smart('%'.$or_term.'%'),
+                            $union_array);
                     }
                     $this->result_pubs = array_intersect($this->result_pubs,
                                                           $union_array);
@@ -360,7 +355,7 @@ class search_publication_db extends pdHtmlPage {
             }
         }
 
-        // MYSELF or AUTHOR SELECTED SEARCH ------------------------------------
+        // MYSELF or AUTHOR SELECTED SEARCH -----------------------------------
         $authors = array();
         $author_pubs = array();
 
@@ -385,7 +380,6 @@ class search_publication_db extends pdHtmlPage {
 
         // AUTHOR TYPED SEARCH --------------------------------------
         if ($this->search_params->authortyped != "") {
-            $this->input .= " ".$authortyped;
             $the_search_array = $this->parse_search($this->search_params->authortyped);
 
             for ($index1 = 0; $index1 < count($the_search_array); $index1++) {
@@ -454,6 +448,21 @@ class search_publication_db extends pdHtmlPage {
         $form->addElement('submit', 'submit', 'Output these results to CV format');
 
         return $form;
+    }
+
+    function venuesSearch($field, $value, &$union_array) {
+        assert('($field == "name") || ($field == "title")');
+
+        $search_result = query_db('SELECT venue_id from venue WHERE ' . $field
+                                  . ' LIKE ' . quote_smart('%'. $value . '%'));
+        while ($search_array
+               = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+            $venue_id = $search_array['venue_id'];
+            if ($venue_id != null) {
+                $search_query = "SELECT DISTINCT pub_id from publication WHERE venue_id=" . quote_smart($venue_id);
+                $this->add_to_array($search_query, $union_array);
+            }
+        }
     }
 }
 
