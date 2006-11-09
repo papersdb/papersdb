@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.43 2006/11/09 20:49:58 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.44 2006/11/09 20:57:21 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -282,8 +282,8 @@ class search_publication_db extends pdHtmlPage {
         if ($this->search_params->venue != '') {
             $the_search_array
                 = $this->parse_search($this->search_params->venue);
-            $union_array = null;
             foreach ($the_search_array as $and_terms) {
+                $union_array = null;
                 foreach ($and_terms as $or_term) {
                     $this->venuesSearch('title', $or_term, $union_array);
                     $this->venuesSearch('name', $or_term, $union_array);
@@ -340,8 +340,8 @@ class search_publication_db extends pdHtmlPage {
             if ($this->search_params->$field != '') {
                 $the_search_array
                     = $this->parse_search($this->search_params->$field);
-                $union_array = null;
                 foreach ($the_search_array as $and_terms) {
+                    $union_array = null;
                     foreach ($and_terms as $or_term) {
                         $this->add_to_array(
                             'SELECT DISTINCT pub_id from publication WHERE '
