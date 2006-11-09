@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: search_results.php,v 1.5 2006/11/09 18:11:41 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -93,10 +93,10 @@ class search_results extends pdHtmlPage {
 
             // Show Additional Materials
             if (count($pub->additional_info) > 0) {
-                $add_count = 1;
+                $att_count = 1;
                 foreach ($pub->additional_info as $att) {
                     $citation .= '<a href="'
-                        . $pub->attachmentGetUrl($add_count - 1) . '">';
+                        . $pub->attachmentGetUrl($att_count - 1) . '">';
 
                     if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
                         $citation .= '<img src="images/pdf.gif" alt="PDF" height="18" '
@@ -113,7 +113,7 @@ class search_results extends pdHtmlPage {
                             . 'width="17" border="0" align="middle">';
                     }
 
-                    $add_count++;
+                    $att_count++;
                 }
             }
 

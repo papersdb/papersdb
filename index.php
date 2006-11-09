@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.30 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: index.php,v 1.31 2006/11/09 18:11:41 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -31,21 +31,81 @@ class indexPage extends pdHtmlPage {
         $db =& dbCreate();
         $pub_list = new pdPubList($db, array('sort_by_updated' => true));
 
-        $this->contentPre = 'Recent Additions:<ul>';
+        $this->contentPre = '<h2>Recent Additions:</h2><ul>';
         $stringlength = 0;
         foreach ($pub_list->list as $pub) {
-            if ($stringlength > 300) break;
+            if ($stringlength > 5000) break;
 
-            if (strlen($pub->title) < 60)
-                $stringlength += 60;
-            else if (strlen($pub->title) <= 120)
-                $stringlength += 120;
-            else if (strlen($pub->title) > 120)
-                $stringlength += 180;
+            // get all info for this pub
+            $pub->dbload($db, $pub->pub_id);
 
-            $this->contentPre .= '<li><a href="view_publication.php?pub_id='
+            $citation = '<li class="wide">' . $pub->getCitationHtml();
+
+            // Show Paper
+            if ($pub->paper != 'No paper') {
+                $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
+
+                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
+                    $citation .= '<img src="images/pdf.gif" alt="PDF" '
+                        . 'height="18" width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+                    $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+
+                if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+                    $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
+                        . 'width="17" border="0" align="middle">';
+                }
+                $citation .= '</a>';
+            }
+
+            // Show Additional Materials
+            if (count($pub->additional_info) > 0) {
+                $att_count = 1;
+                foreach ($pub->additional_info as $att) {
+                    $citation .= '<a href="'
+                        . $pub->attachmentGetUrl($att_count - 1) . '">';
+
+                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
+                        $citation .= '<img src="images/pdf.gif" alt="PDF" '
+                            . ' height="18" width="17" border="0" align="middle">';
+                    }
+
+                    if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+                        $citation .= '<img src="images/ppt.gif" alt="PPT" '
+                            . 'height="18" width="17" border="0" align="middle">';
+                    }
+
+                    if (preg_match("/\.(ps|PS)$/", $att->location)) {
+                        $citation .= '<img src="images/ps.gif" alt="PS" '
+                            . 'height="18" width="17" border="0" align="middle">';
+                    }
+
+                    $att_count++;
+                }
+            }
+
+            $citation .= '<a href="view_publication.php?pub_id='
                 . $pub->pub_id . '">'
-                . '<b>' . $pub->title . '</b></a></li>';
+                . '<img src="images/viewmag.png" title="view" alt="view" '
+                . ' height="16" width="16" border="0" align="middle" /></a>';
+
+            if ($access_level > 0)
+                $citation .= '<a href="Admin/add_pub1.php?pub_id='
+                    . $pub->pub_id . '">'
+                    . '<img src="images/pencil.png" title="edit" alt="edit" '
+                    . ' height="16" width="16" border="0" align="middle" />'
+                    . '</a>';
+
+            $citation .= '</li>';
+
+            $stringlength += strlen($citation);
+
+            $this->contentPre .= $citation;
+
         }
         $this->contentPre .= '</ul>';
         $db->close();
