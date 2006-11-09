@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.9 2006/10/27 17:27:21 aicmltec Exp $
+// $Id: add_pub3.php,v 1.10 2006/11/09 17:13:48 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -48,6 +48,8 @@ class add_pub3 extends pdHtmlPage {
         }
 
         $this->db =& $db;
+
+        $this->contentPost .= '<pre>' . print_r($pub, true) . '</pre>';
 
         $options = array('cat_id');
         foreach ($options as $opt) {
@@ -181,8 +183,12 @@ class add_pub3 extends pdHtmlPage {
         $defaults = array('cat_id'     => $pub->category->cat_id,
                           'extra_info' => $pub->extra_info);
 
+        // assign category info items
         if (count($pub->info) > 0)
-            $defaults = array_merge($defaults, $pub->info);
+            foreach (array_values($pub->category->info) as $name) {
+                $element = preg_replace("/\s+/", '', $name);
+                $defaults[$element] = $pub->info[$name];
+            }
 
         $form->setDefaults($defaults);
 
