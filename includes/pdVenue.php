@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.16 2006/10/23 16:12:01 aicmltec Exp $
+// $Id: pdVenue.php,v 1.17 2006/11/09 17:44:15 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -42,10 +42,10 @@ class pdVenue {
         assert('is_object($db)');
 
         if (count($this->occurrences) > 0)
-          unset($this->occurrences);
+            unset($this->occurrences);
 
         $q = $db->selectRow('venue', '*', array('venue_id' => $id),
-                         "pdVenue::dbLoadVenue");
+                            "pdVenue::dbLoadVenue");
         if ($q === false) return false;
         $this->load($q);
 
@@ -136,7 +136,7 @@ class pdVenue {
 
     function addOccurrence($location, $date, $url) {
         assert('$location != ""');
-        assert('$this->type == "Conference"');
+        assert('($this->type == "Conference") || ($this->type == "Workshop")');
 
         $o = new stdClass;
         $o->location = $location;
@@ -197,43 +197,49 @@ class pdVenue {
     }
 
     function urlGet($year = null) {
-      $url = null;
+        $url = null;
 
-      if (($year != null) && (count($this->venue->occurrences) > 0)) {
-        foreach ($this->occurrences as $o) {
-          $o_date = split('-', $o->date);
-          if ($o_date[0] == $year) {
-            $url = $o->url;
-          }
+        if (($year != null) && (count($this->occurrences) > 0)) {
+            foreach ($this->occurrences as $o) {
+                $o_date = split('-', $o->date);
+                if ($o_date[0] == $year) {
+                    $url = $o->url;
+                }
+            }
         }
-      }
-      else if ($this->url != '') {
-        $url = $this->url;
-      }
-      else if (strpos($this->name, '<a href=') !== false) {
-        // try to get venue URL from the name
-        //
-        // note: some venue names with URLs don't close the <a href> tag
-        $url = preg_replace('/<a href=[\'"]([^\'"]+)[\'"]>[^<]+(<\/a>)?.+/', '$1',
-                            $this->name);
-      }
 
-      if ($url != '') {
-        if (strpos($url, 'http://') === false)
-          $url = 'http://' . $url;
-      }
+        // if no URL associated with occurrence try to get the URL from the venue
+        // or name
+        if ($url == null) {
+            if ($this->url != '') {
+                $url = $this->url;
+            }
+            else if (strpos($this->name, '<a href=') !== false) {
+                // try to get venue URL from the name
+                //
+                // note: some venue names with URLs don't close the <a href> tag
+                $url = preg_replace(
+                    '/<a href=[\'"]([^\'"]+)[\'"]>[^<]+(<\/a>)?.+/', '$1',
+                    $this->name);
+            }
+        }
 
-      return $url;
+        if ($url != '') {
+            if (strpos($url, 'http://') === false)
+                $url = 'http://' . $url;
+        }
+
+        return $url;
     }
 
     // note: some venue names in the database contain URLs. This function
     // returns the name without the URL text.
     function nameGet() {
-      if (strpos($this->name, '<a href=') !== false) {
-        return preg_replace('/<a href=[\'"][^\'"]+[\'"]>([^<]+)(?:<\/a>)?(.*)/',
-                            '$1$2', $this->name);
-      }
-      return $this->name;
+        if (strpos($this->name, '<a href=') !== false) {
+            return preg_replace('/<a href=[\'"][^\'"]+[\'"]>([^<]+)(?:<\/a>)?(.*)/',
+                                '$1$2', $this->name);
+        }
+        return $this->name;
     }
 }
 

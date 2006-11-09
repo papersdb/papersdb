@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.22 2006/10/20 23:11:47 aicmltec Exp $
+// $Id: add_venue.php,v 1.23 2006/11/09 17:44:15 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -77,7 +77,7 @@ class add_venue extends pdHtmlPage {
 
         $this->pageTitle = $label;
 
-        if ($venue->type == 'Conference')
+        if (($venue->type == 'Conference') || ($venue->type == 'Workshop'))
             $label .= '&nbsp;<span id="small"><a href="javascript:dataKeep('
                 . ($newOccurrences+1) .')">[Add Occurrence]</a></span>';
 
@@ -88,11 +88,14 @@ class add_venue extends pdHtmlPage {
         }
 
         $form->addElement('radio', 'type', 'Type:', 'Journal', 'Journal',
-                          array('onClick' => 'dataKeep(' . $newOccurrences . ');'));
+                          array('onClick'
+                                => 'dataKeep(' . $newOccurrences . ');'));
         $form->addElement('radio', 'type', null, 'Conference', 'Conference',
-                          array('onClick' => 'dataKeep(' . $newOccurrences . ');'));
+                          array('onClick'
+                                => 'dataKeep(' . $newOccurrences . ');'));
         $form->addElement('radio', 'type', null, 'Workshop', 'Workshop',
-                          array('onClick' => 'dataKeep(' . $newOccurrences . ');'));
+                          array('onClick'
+                                => 'dataKeep(' . $newOccurrences . ');'));
         $form->addElement('text', 'title', 'Internal Title:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('title', 'a venue title is required', 'required',
@@ -152,7 +155,8 @@ class add_venue extends pdHtmlPage {
                     'dateGroup', 'Date:', '&nbsp;', false);
             }
 
-            if ($venue->type == 'Conference') {
+            if (($venue->type == 'Conference')
+                || ($venue->type == 'Workshop')) {
                 $form->addElement('hidden', 'numNewOccurrences',
                                   $newOccurrences);
 
@@ -208,7 +212,7 @@ class add_venue extends pdHtmlPage {
 
                     $form->addElement('text',
                                       'newOccurrenceUrl[' . $i . ']',
-                                      'Conference URL:',
+                                      'URL:',
                                       array('size' => 50, 'maxlength' => 250));
 
                     $form->addElement('button', 'delOccurrence[' . $i . ']',
