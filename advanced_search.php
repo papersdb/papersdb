@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.50 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: advanced_search.php,v 1.51 2006/11/09 23:47:04 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -175,60 +175,17 @@ class advanced_search extends pdHtmlPage {
                                   array('size' => 60, 'maxlength' => 250));
             }
         }
-
-        $startdate_options = array(
-            'baseURL' => 'includes/',
-            'styleCss' => 'calendar.css',
-            'language' => 'en',
-            'image' => array(
-                'src' => 'images/calendar.gif',
-                'border' => 0
-                ),
-            'setup' => array(
-                'inputField' => 'startdate',
-                'ifFormat' => '%Y-%m-%d',
-                'showsTime' => false,
-                'time24' => true,
-                'weekNumbers' => false,
-                'showOthers' => true
-                )
-            );
-
-        $enddate_options = array(
-            'baseURL' => 'includes/',
-            'styleCss' => 'calendar.css',
-            'language' => 'en',
-            'image' => array(
-                'src' => 'images/calendar.gif',
-                'border' => 0
-                ),
-            'setup' => array(
-                'inputField' => 'enddate',
-                'ifFormat' => '%Y-%m-%d',
-                'showsTime' => false,
-                'time24' => true,
-                'weekNumbers' => false,
-                'showOthers' => true
-                )
-            );
-
-
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                    'text', 'startdate', null,
-                    array('readonly' => '1', 'id' => 'startdate', 'size' => 10)),
+                    'date', 'startdate', 'Start Date:',
+                    array('format' => 'YM', 'minYear' => '1985')),
+                HTML_QuickForm::createElement('static', null, null, 'and'),
                 HTML_QuickForm::createElement(
-                    'jscalendar', 'startdate_calendar', null,
-                    $startdate_options),
-                HTML_QuickForm::createElement(
-                    'static', 'date_label', null, 'and'),
-                HTML_QuickForm::createElement(
-                    'text', 'enddate', null,
-                    array('readonly' => '1', 'id' => 'enddate', 'size' => 10)),
-                HTML_QuickForm::createElement(
-                    'jscalendar', 'enddate_calendar', null, $enddate_options)),
-            null, 'Published between:', '&nbsp;');
+                    'date', 'enddate', 'End Date:',
+                    array('format' => 'YM', 'minYear' => '1985')),
+                ),
+            null, 'Published Between:', '&nbsp;', false);
 
         $form->addGroup(
             array(
@@ -254,9 +211,12 @@ class advanced_search extends pdHtmlPage {
             'paper'             => $this->paper,
             'abstract'          => $this->abstract,
             'venue'             => $this->venue,
-            'keywords'          => $this->keywords,
-            'startdate'         => $this->startdate,
-            'enddate'           => $this->enddate);
+            'keywords'          => $this->keywords);
+
+        $defaults['startdate']['Y'] = $this->startdate['Y'];
+        $defaults['startdate']['M'] = $this->startdate['M'];
+        $defaults['enddate']['Y'] = $this->enddate['Y'];
+        $defaults['enddate']['M'] = $this->enddate['M'];
 
         if (is_object($this->category)
             && is_array($this->category->info)) {
@@ -336,8 +296,17 @@ class advanced_search extends pdHtmlPage {
             form.abstract.value    = "{$_SESSION['search_params']->abstract}";
             form.venue.value       = "{$_SESSION['search_params']->venue}";
             form.keywords.value    = "{$_SESSION['search_params']->keywords}";
-            form.startdate.value   = "{$_SESSION['search_params']->startdate}";
-            form.enddate.value     = "{$_SESSION['search_params']->enddate}";
+
+            for (var i = 0; i < form.elements.length; i++) {
+                if (form.elements[i].name == "startdate[Y]")
+                    form.elements[i].value = "{$_SESSION['search_params']->startdate['Y']}";
+                if (form.elements[i].name == "startdate[M]")
+                    form.elements[i].value = "{$_SESSION['search_params']->startdate['M']}";
+                if (form.elements[i].name == "enddate[Y]")
+                    form.elements[i].value = "{$_SESSION['search_params']->enddate['Y']}";
+                if (form.elements[i].name == "enddate[M]")
+                    form.elements[i].value = "{$_SESSION['search_params']->enddate['M']}";
+            }
 
             if ("{$_SESSION['search_params']->author_myself}" == "1") {
                 form.author_myself.checked = true;

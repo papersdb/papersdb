@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.69 2006/11/09 20:49:58 aicmltec Exp $
+// $Id: pdPublication.php,v 1.70 2006/11/09 23:47:04 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -786,12 +786,14 @@ class pdPublication {
             return false;
 
         $pub_date = split('-', $this->published);
-        if ($this->venue->title != '')
-            $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
-        else
-            $venue_short = '';
+        if ($this->venue != null) {
+            if ($this->venue->title != '')
+                $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
+            else
+                $venue_short = '';
 
-        $venue_name = $this->venue->nameGet();
+            $venue_name = $this->venue->nameGet();
+        }
 
         $auth_count = count($this->authors);
         if ($auth_count > 0) {

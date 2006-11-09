@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.44 2006/11/09 20:57:21 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.45 2006/11/09 23:47:04 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -36,7 +36,7 @@ class search_publication_db extends pdHtmlPage {
         $this->optionsGet();
 
         if ($this->debug) {
-            $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+            $this->contentPost .= '_S<pre>' . print_r($_SESSION, true) . '</pre>';
         }
 
         $link = connect_db();
@@ -418,16 +418,22 @@ class search_publication_db extends pdHtmlPage {
             $enddate = date('Y-m-d');
         }
 
-        if (($startdate != $enddate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $startdate)
-            && preg_match('/\d{4,4}-\d{2,2}-\d{2,2}/', $enddate)) {
+        if (($enddate['Y'] > $startdate['Y'])
+            || (($enddate['Y'] == $startdate['Y'])
+                && ($enddate['M'] > $startdate['M']))) {
+
+            $startdate_str
+                = date('Y-m-d', mktime(0, 0, 0, $startdate['M'], 1,
+                                       $startdate['Y']));
+            $enddate_str
+                = date('Y-m-d', mktime(0, 0, 0, $enddate['M'] + 1, 0,
+                                       $enddate['Y']));
 
             $temporary_array = NULL;
 
             $search_query = "SELECT DISTINCT pub_id from publication "
-                . "WHERE published BETWEEN " .
-                quote_smart($startdate)
-                . " AND " . quote_smart($enddate);
+                . "WHERE published BETWEEN " . quote_smart($startdate_str)
+                . " AND " . quote_smart($enddate_str);
             $this->add_to_array($search_query, $temporary_array);
             $this->result_pubs = array_intersect($this->result_pubs,
                                                   $temporary_array);

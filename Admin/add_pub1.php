@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.17 2006/10/27 17:27:21 aicmltec Exp $
+// $Id: add_pub1.php,v 1.18 2006/11/09 23:47:04 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -143,9 +143,8 @@ class add_pub1 extends pdHtmlPage {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-
         $form->addElement('date', 'pub_date', 'Date:',
-                          array('format' => 'YM', 'minYear' => '1990'));
+                          array('format' => 'YM', 'minYear' => '1985'));
 
         $buttons[] = HTML_QuickForm::createElement(
             'button', 'cancel', 'Cancel',
