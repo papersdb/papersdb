@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: delete_author.php,v 1.14 2006/12/04 23:28:18 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -19,6 +19,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthor.php';
+require_once('HTML/QuickForm/Renderer/QuickHtml.php');
 
 /**
  * Renders the whole page.
@@ -117,10 +118,6 @@ class delete_author extends pdHtmlPage {
                 $cell = "none";
 
             $table->addRow(array('Web page:', $cell));
-            $table->addRow(array('', $renderer->elementToHtml('submit')
-                                 . '&nbsp;'
-                                 . $renderer->elementToHtml('cancel')));
-
             $table->updateColAttributes(0, array('id' => 'emph',
                                                  'width' => '25%'));
 

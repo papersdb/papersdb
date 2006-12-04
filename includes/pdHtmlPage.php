@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.51 2006/10/27 17:27:21 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.52 2006/12/04 23:28:18 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -162,20 +162,26 @@ class pdHtmlPage {
         // set up for google analytics
         //
         // note this code is added only on the real site
-        if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-            $result
-                .= '<script src="http://www.google-analytics.com/urchin.js" '
-                . 'type="text/javascript">' . "\n"
-                . '</script>' . "\n"
-                . '<script type="text/javascript">' . "\n"
-                . '_uacct = "UA-584619-1";' . "\n"
-                . 'urchinTracker();' . "\n"
-                . '</script>' . "\n";
+        if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
+            $result .= $this->googleAnalytics();
         }
 
         $result .= '</body></html>';
 
         return $result;
+    }
+
+    // set up for google analytics
+    //
+    // note this code is added only on the real site
+    function googleAnalytics() {
+        return '<script src="http://www.google-analytics.com/urchin.js" '
+            . 'type="text/javascript">' . "\n"
+            . '</script>' . "\n"
+            . '<script type="text/javascript">' . "\n"
+            . '_uacct = "UA-584619-1";' . "\n"
+            . 'urchinTracker();' . "\n"
+            . '</script>' . "\n";
     }
 
     /**
