@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.16 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.17 2006/12/06 17:14:38 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -98,7 +98,7 @@ class pdAuthor {
         assert('isset($this->author_id)');
 
         $q = $db->select(array('interest', 'author_interest'),
-                         'interest.interest',
+                         array('interest.interest', 'interest.interest_id'),
                          array('interest.interest_id=author_interest.interest_id',
                                'author_interest.author_id' => $this->author_id),
                          "pdAuthor::dbLoadInterests");
@@ -107,7 +107,7 @@ class pdAuthor {
         // no need to assert
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->interests[] = $r->interest;
+            $this->interests[$r->interest_id] = $r->interest;
             $r = $db->fetchObject($q);
         }
     }

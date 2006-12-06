@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.34 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_author.php,v 1.35 2006/12/06 17:14:38 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -53,7 +53,9 @@ class add_author extends pdHtmlPage {
         }
 
         if ($this->author_id != null) {
-            $result = $author->dbLoad($db, $this->author_id);
+          $result = $author->dbLoad($db, $this->author_id,
+                                    PD_AUTHOR_DB_LOAD_BASIC
+                                    | PD_AUTHOR_DB_LOAD_INTERESTS);
 
             if (!$result) {
                 $db->close();
@@ -101,10 +103,14 @@ class add_author extends pdHtmlPage {
 
         $form->registerRule('author_check', 'callback', 'author_check');
         // author_check() is actually implemented in javascript
-        $form->addRule(array('firstname', 'lastname'),
-                       'First and last name: '
-                       . 'A similar author already exists in the database',
-                       'author_check', true, 'client');
+
+        if ($this->author_id == null) {
+          // only add this rule if adding a new author
+          $form->addRule(array('firstname', 'lastname'),
+                         'First and last name: '
+                         . 'A similar author already exists in the database',
+                         'author_check', true, 'client');
+        }
 
         $form->addElement('text', 'title',
                           $this->helpTooltip('Title', 'authTitleHelp') . ':',
@@ -123,8 +129,7 @@ class add_author extends pdHtmlPage {
         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
-        $form->addElement('select', 'interests',
-                          'Interests:' . $ref,
+        $form->addElement('select', 'interests', 'Interests:' . $ref,
                           $interests->list,
                           array('multiple' => 'multiple', 'size' => 15));
 
@@ -180,19 +185,22 @@ class add_author extends pdHtmlPage {
             $this->processForm();
         }
         else {
-            $this->renderForm();
+            $this->renderForm($author);
         }
         $db->close();
     }
 
-    function renderForm() {
+    function renderForm(&$author) {
         $db =& $this->db;
         $form =& $this->form;
 
         $form->setDefaults($_GET);
 
-        if ($author->author_id != '')
-            $form->setDefaults($author->asArray());
+        if ($author->author_id != '') {
+          $form->setDefaults($author->asArray());
+          $form->setDefaults(
+            array('interests' => array_keys($author->interests)));
+        }
 
         if (($_SESSION['state'] == 'pub_add') && isset($_SESSION['pub'])) {
             $pub =& $_SESSION['pub'];
@@ -261,14 +269,18 @@ class add_author extends pdHtmlPage {
                 header('Location: add_pub2.php');
         }
         else {
-            $this->contentPre .= 'Author "' . $values['firstname'] . ' '
-                . $values['lastname'] . '" ';
+
             if ($this->author_id == null)
-                $this->contentPre .= 'succesfully added to the database.'
-                    . '<p/>'
-                    . '<a href="' . $_SERVER['PHP_SELF'] . '">'
-                    . 'Add another new author</a>';
+              $this->contentPre .= 'Author "' . $values['firstname'] . ' '
+                . $values['lastname'] . '" '
+                . 'succesfully added to the database.'
+                . '<p/>'
+                . '<a href="' . $_SERVER['PHP_SELF'] . '">'
+                . 'Add another new author</a>';
             else
+              $this->contentPre .= 'Changes to author "'
+                . $values['firstname'] . ' ' . $values['lastname'] . '" '
+                . 'submitted to the database.';
                 $this->contentPre .= 'modified.';
         }
     }
@@ -304,14 +316,14 @@ class add_author extends pdHtmlPage {
         function dataKeep(num) {
             var qsArray = new Array();
             var qsString = "";
+            var form = document.forms["authorForm"];
 
-            for (i = 0; i < document.forms["authorForm"].elements.length; i++) {
-                var element = document.forms["authorForm"].elements[i];
-
-                if ((element.type != "submit") && (element.type != "reset")
+            for (i = 0; i < form.elements.length; i++) {
+                var element = form.elements[i];
+                if ((element.value != "") && (element.value != null)
                     && (element.type != "button")
-                    && (element.value != "") && (element.value != null)) {
-
+                    && (element.type != "reset")
+                    && (element.type != "submit")) {
                     if (element.name == "interests[]") {
                         var interest_count = 0;
 
@@ -328,6 +340,8 @@ class add_author extends pdHtmlPage {
                         qsArray.push(element.name + "=" + num);
                     }
                     else  if (element.name == "authors_in_db[]") {
+                        qsArray.push(element.name + "=" + element.value);
+                    } else {
                         qsArray.push(element.name + "=" + element.value);
                     }
                 }
