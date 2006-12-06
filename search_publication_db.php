@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.45 2006/11/09 23:47:04 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.46 2006/12/06 17:26:47 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -156,12 +156,12 @@ class search_publication_db extends pdHtmlPage {
         for ($index=0; $index < strlen($search); $index++) {
             if ($search[$index] == "\"") {
                 if ($quote_mode == true) {
-                    $search_terms = parse_search_add_word($word, $search_terms);
+                    $search_terms = $this->parse_search_add_word($word, $search_terms);
                     $quote_mode = false;
                     $word = "";
                 }
                 else {
-                    $search_terms = parse_search_add_word($word, $search_terms);
+                    $search_terms = $this->parse_search_add_word($word, $search_terms);
                     $quote_mode = true;
                     $word = "";
                 }
