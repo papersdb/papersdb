@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.9 2006/12/04 23:28:18 aicmltec Exp $
+// $Id: delete_interest.php,v 1.10 2006/12/06 17:19:29 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -43,7 +43,7 @@ class delete_interest extends pdHtmlPage {
         $form =& $this->confirmForm('deleter');
         $interest_list = new pdAuthInterests($db);
         $form->addElement('select', 'interests', null, $interest_list->list,
-                          array('multiple' => 'multiple', 'size' => 4));
+                          array('multiple' => 'multiple', 'size' => 15));
 
 
         if ($form->validate()) {
@@ -71,7 +71,7 @@ class delete_interest extends pdHtmlPage {
                                           'cellpadding' => '6',
                                           'cellspacing' => '0'));
 
-            $table->addRow(array('Select an interest to delete:',
+            $table->addRow(array('Select interest(s) to delete:',
                                  $renderer->elementToHtml('interests')));
             $table->updateColAttributes(0, array('id' => 'emph',
                                                  'width' => '25%'));
