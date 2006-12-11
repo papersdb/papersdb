@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.17 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: authorselect.php,v 1.18 2006/12/11 17:47:41 aicmltec Exp $
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
@@ -190,7 +190,7 @@ END;
             $arrHtmlHidden = array();
         }
 
-        // The 'unselected' multi-select which appears on the left
+        // The 'unselected' multi-select which appears on the right
         uasort($arrHtmlUnselected, sortselect);
 
         $strHtmlUnselected = "<select$attrUnselected>\n";
@@ -203,7 +203,7 @@ END;
         }
         $strHtmlUnselected .= '</select>';
 
-        // The 'selected' multi-select which appears on the right
+        // The 'selected' multi-select which appears on the left
         $strHtmlSelected = "<select$attrSelected>\n";
         if (count($arrHtmlSelected) > 0) {
             foreach ($arrHtmlSelected as $data) {

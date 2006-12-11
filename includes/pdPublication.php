@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.70 2006/11/09 23:47:04 aicmltec Exp $
+// $Id: pdPublication.php,v 1.71 2006/12/11 17:47:42 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -518,11 +518,22 @@ class pdPublication {
             $this->authors[] = $mixed;
             return;
         }
+        else if (is_array($mixed)) {
+            // assigns each author
+            foreach ($mixed as $index => $author_id) {
+                $author = new pdAuthor();
+                $result = $author->dbLoad($db, $author_id,
+                                          PD_AUTHOR_DB_LOAD_BASIC);
+                assert('$result');
+                $this->authors[$index] = $author;
+            }
+            return;
+        }
 
         // check if publication already has this author
         if ($this->authors != null) {
             foreach ($this->authors as $author) {
-                if ($author->author_id == $mixed)
+                assert('$author->author_id != $mixed');
                     return;
             }
         }

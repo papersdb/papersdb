@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.9 2006/10/27 17:27:21 aicmltec Exp $
+// $Id: add_pub2.php,v 1.10 2006/12/11 17:47:41 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -23,6 +23,7 @@ require_once 'includes/authorselect.php';
  * @package PapersDB
  */
 class add_pub2 extends pdHtmlPage {
+    var $debug = 0;
     var $author_id = null;
 
     function add_pub2() {
@@ -168,12 +169,15 @@ class add_pub2 extends pdHtmlPage {
                 $pos = strpos($author, ':');
                 if ($pos !== false) {
                     $values['authors'][$index] = substr($author, $pos + 1);
-                    $pub->addAuthor($db, $values['authors'][$index]);
                 }
             }
+            $pub->addAuthor($db, $values['authors']);
 
             //$this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
+            //$this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
         }
+
+        if ($this->debug) return;
 
         if (isset($values['add_new_author']))
             header('Location: add_author.php');
