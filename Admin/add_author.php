@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.36 2006/12/06 17:16:32 aicmltec Exp $
+// $Id: add_author.php,v 1.37 2006/12/11 18:38:46 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -29,6 +29,7 @@ function author_check() {
  * @package PapersDB
  */
 class add_author extends pdHtmlPage {
+    var $debug = 0;
     var $author_id = null;
     var $numNewInterests = 0;
 
@@ -264,6 +265,8 @@ class add_author extends pdHtmlPage {
         if ($_SESSION['state'] == 'pub_add') {
             $pub =& $_SESSION['pub'];
             $pub->addAuthor($db, $author->author_id);
+
+            if ($this->debug) return;
 
             if (isset($values['add_another']))
                 header('Location: add_author.php');
