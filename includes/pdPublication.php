@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.72 2006/12/11 18:38:46 aicmltec Exp $
+// $Id: pdPublication.php,v 1.73 2006/12/13 00:47:11 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -662,9 +662,9 @@ class pdPublication {
       // if it exists
       $info_arr = array();
       if (count($this->info) > 0) {
-        foreach ($this->info as $i)
+        foreach ($this->info as $key => $i)
           if ($i != '')
-            $info_arr[] = $i;
+            $info_arr[] = $key . ' '  . $i;
         $info = implode(', ', $info_arr);
       }
 
@@ -737,9 +737,9 @@ class pdPublication {
       // if it exists
       $info_arr = array();
       if (count($this->info) > 0) {
-        foreach ($this->info as $i) {
+        foreach ($this->info as $key => $i) {
           if ($i != '')
-            $info_arr[] = $i;
+            $info_arr[] = $key . ' ' . $i;
         }
         $info = implode(', ', $info_arr);
       }
