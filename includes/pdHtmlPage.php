@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.52 2006/12/04 23:28:18 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.53 2007/02/02 20:36:52 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -337,23 +337,14 @@ class pdHtmlPage {
         }
 
         return <<<END
-            <div id="statusbar">
-            <table border="0" cellspacing="0" cellpadding="0" align="center"
-            width="100%">
-            <tr>
-            <td nowrap>{$status}</td>
-            </tr>
-            </table>
-            </div>
+            <div id="statusbar">{$status}</div>
             <div id="titlebar">
             <a href="http://www.uofaweb.ualberta.ca/science/">
-            <img src="http://www.cs.ualberta.ca/library/images/science.gif"
-            alt="Faculty of Science Home Page" width="525" height="20"
-            border="0"/></a>
+            <img class="floatLeft" src="images/science.gif"
+            alt="Faculty of Science Home Page" border="0"/></a>
             <a href="http://www.ualberta.ca/">
-            <img src="http://www.cs.ualberta.ca/library/images/uofa_top.gif"
-            alt="University of Alberta Home Page" width="225" height="20"
-            border="0"/></a>
+            <img class="floatRight" src="images/uofa_top.gif"
+            alt="University of Alberta Home Page" border="0"/></a>
             </div>
 
             <div id="header">
@@ -378,7 +369,7 @@ END;
             <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
             </div>
             <div id="footer2">
-            <table width="800px">
+            <table width="100%">
             <tr>
             <td>
             <a href="http://www.ualberta.ca">
@@ -393,7 +384,7 @@ END;
             <td>
             <span id="copyright">
             <ul>
-            <li>Copyright &copy; 2002-2006</li>
+            <li>Copyright &copy; 2002-2007</li>
                            </ul>
                            </span>
                            </td>
