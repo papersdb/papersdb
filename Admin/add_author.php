@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.37 2006/12/11 18:38:46 aicmltec Exp $
+// $Id: add_author.php,v 1.38 2007/02/05 23:38:50 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -91,8 +91,10 @@ class add_author extends pdHtmlPage {
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('firstname', 'a first name is required', 'required',
                        null, 'client');
+        $form->registerRule('invalid_punct', 'regex',
+                            '/^[^()\/\*\^\?#!@$%+=,\"\'><~\[\]{}]+$/');
         $form->addRule('firstname', 'the first name cannot contain punctuation',
-                       'nopunctuation', null, 'client');
+                       'invalid_punct', null, 'client');
         $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('lastname', 'a last name is required', 'required', null,
@@ -146,7 +148,7 @@ class add_author extends pdHtmlPage {
                 . 'papersdb/Admin/add_pub2.php';
 
             $form->addGroup(
-                array(
+               array(
                     HTML_QuickForm::createElement(
                         'button', 'prev_step', '<< Previous Step',
                         array('onClick' => "location.href='"
@@ -160,6 +162,8 @@ class add_author extends pdHtmlPage {
                         'submit', 'next_step', 'Next Step >>'),
                     ),
                 null, null, '&nbsp;');
+
+            $this->addPubDisableMenuItems();
         }
         else {
             if ($this->author_id == null)
@@ -205,7 +209,8 @@ class add_author extends pdHtmlPage {
               array('interests' => array_keys($author->interests)));
         }
 
-        if (($_SESSION['state'] == 'pub_add') && isset($_SESSION['pub'])) {
+        if ($_SESSION['state'] == 'pub_add') {
+            assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
 
             $this->contentPre .= '<h3>Publication Information</h3>'
@@ -263,6 +268,7 @@ class add_author extends pdHtmlPage {
         $author->dbSave($db);
 
         if ($_SESSION['state'] == 'pub_add') {
+            assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
             $pub->addAuthor($db, $author->author_id);
 
@@ -286,7 +292,6 @@ class add_author extends pdHtmlPage {
               $this->contentPre .= 'Changes to author "'
                 . $values['firstname'] . ' ' . $values['lastname'] . '" '
                 . 'submitted to the database.';
-                $this->contentPre .= 'modified.';
         }
     }
 
