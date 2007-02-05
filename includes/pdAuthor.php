@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.17 2006/12/06 17:14:38 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.18 2007/02/05 23:12:37 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -165,20 +165,16 @@ class pdAuthor {
             return;
         }
 
-        $db->insert('author', array('name' => $this->name,
-                                    'title' => $this->title,
-                                    'email' => $this->email,
-                                    'organization' => $this->organization,
-                                    'webpage' => $this->webpage),
-                    'pdAuthor::dbSave');
+        foreach(array('name', 'title', 'email', 'organization', 'webpage')
+                as $item) {
+            if ($this->$item != NULL)
+                $settings[$item] = $this->$item;
+        }
 
-        $q = $db->selectRow('author', 'author_id',
-                            array('name' => $this->name,
-                                  'title' => $this->title,
-                                  'email' => $this->email,
-                                  'organization' => $this->organization,
-                                  'webpage' => $this->webpage),
-                            "pdAuthor::dbLoad");
+        $db->insert('author', $settings, 'pdAuthor::dbSave');
+
+        $q = $db->selectRow('author', 'author_id', $settings,
+                            "pdAuthor::dbSave");
         assert('($q !== false)');
         $this->load($q);
 
@@ -265,6 +261,22 @@ class pdAuthor {
                 = trim(substr($this->name, 1 + strpos($this->name, ',')));
             $this->lastname
                 = substr($this->name, 0, strpos($this->name, ','));
+        }
+    }
+
+    /**
+     * used when name is in "firstname lastname" format.
+     */
+    function nameSet($name) {
+        $pos = strrpos($name, ',');
+        if ($pos !== false)
+            $this->name = $name;
+        else {
+            // put last name first
+            $pos = strrpos($name, ' ');
+            assert('$pos !== false');
+            $this->name = substr($name, $pos + 1) . ', '
+                . substr($name, 0, $pos);
         }
     }
 }

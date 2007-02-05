@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.53 2007/02/02 20:36:52 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.54 2007/02/05 23:12:38 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -402,13 +402,13 @@ END;
             . 'return escape(' . $varname . ')">' . $text . '</a></span>';
     }
 
-    function &confirmForm($name, $action = null) {
+    function &confirmForm($name, $action = null, $label = 'Delete') {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                  'submit', 'submit', 'Delete'),
+                  'submit', 'submit', $label),
                 HTML_QuickForm::createElement(
                   'button', 'cancel', 'Cancel',
                   array('onclick' => 'history.back()'))
@@ -449,6 +449,13 @@ END;
     function navMenuItemEnable($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
         $this->nav_menu->nav_items[$page_id]->enabled = $enable;
+    }
+
+    function addPubDisableMenuItems() {
+        $this->navMenuItemEnable('add_publication', 0);
+        $this->navMenuItemDisplay('add_author', 0);
+        $this->navMenuItemDisplay('add_category', 0);
+        $this->navMenuItemDisplay('add_venue', 0);
     }
 }
 

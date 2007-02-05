@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.12 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.13 2007/02/05 23:12:38 aicmltec Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -11,8 +11,8 @@
  */
 
 /**
- * Class that retrieves from the database all the authors with a common last
- * name and first initial.
+ * Class that retrieves all authors from the database all, or the authors with
+ * a common last name and first initial.
  *
  * @package PapersDB
  */
@@ -44,6 +44,22 @@ class pdAuthorList {
             $this->list[$r->author_id] = $r->name;
             $r = $db->fetchObject($q);
         }
+    }
+
+    /**
+     * Converts the list to firstname lastname list.
+     */
+    function asFirstLast() {
+        assert('count($this->list) > 0');
+        $fl_list = array();
+        foreach ($this->list as $auth_id => $name) {
+            $names = split(',', $name);
+            if (count($names) == 2)
+                $fl_list[$auth_id] = trim($names[1]) . ' ' . trim($names[0]);
+            else
+                $fl_list[$auth_id] = $name;
+        }
+        return $fl_list;
     }
 }
 

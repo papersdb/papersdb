@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.9 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.10 2007/02/05 23:12:38 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -63,6 +63,9 @@ class pdNavMenu {
         'add_author'         => array('Add Author',
                                       'Admin/add_author.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
+        'batch_add_authors'  => array('Batch Add Authors',
+                                      'Admin/batch_add_authors.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN),
         'add_category'       => array('Add Category', 'Admin/add_category.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
