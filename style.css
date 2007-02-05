@@ -29,7 +29,6 @@ li.wide {
 
 table {
   border: 1px;
-  font-size:1em;
   margin: 5px 0;
   vertical-align: top;
 }
@@ -41,7 +40,7 @@ table tr {
 }
 
 table td, table th  {
-  font-size:12px;
+  font-size:1em;
   padding: 2px;
   text-align: left;
   vertical-align: top;
@@ -239,7 +238,7 @@ div#nav li a:hover {
 
 div#content {
   background-color: #FFFFFF;
-  line-height:1.4
+  line-height:1.4;
   margin-bottom: 5px;
   margin-left:200px;
   margin-top:8px;
@@ -319,4 +318,8 @@ div#footer2 {
   font-size: .6em;
   margin: 0;
   padding: 0;
+}
+
+pre {
+  font-size: 1.25em;
 }
