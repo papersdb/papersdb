@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.7 2007/02/08 22:59:06 aicmltec Exp $
+// $Id: search_results.php,v 1.8 2007/02/08 23:05:59 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -44,78 +44,90 @@ class search_results extends pdHtmlPage {
         $db =& dbCreate();
         $sp =& $_SESSION['search_params'];
 
-        $this->contentPre .= '<h3>SEARCHING FOR</h3>';
+        $this->contentPre .= '<h3>SEARCH RESULTS FOR</h3>';
 
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '60%'));
 
-        // check each field of the search parameter except the dates
-        foreach (array_diff($sp->params, array('startdate',
-                                               'enddate',
-                                               'author_myself',
-                                               'authortyped',
-                                               'authorselect'))
-                 as $param)
-            if ($sp->$param != '') {
-                $name = '';
+        if ($sp->search != '') {
+            $table->addRow(array($sp->search));
+        }
+        else {
+            // check each field of the search parameter except the dates and
+            // authors
+            foreach (array_diff($sp->params, array('startdate',
+                                                   'enddate',
+                                                   'author_myself',
+                                                   'authortyped',
+                                                   'authorselect'))
+                     as $param)
+                if ($sp->$param != '') {
+                    $name = '';
 
-                if ($param == 'cat_id') {
-                    $cl = new pdCatList($db);
-                    $name = 'Category';
-                    $value =& $cl->list[$sp->cat_id];
-                }
-                else {
-                    $name = ucwords($param);
-                    $value = $sp->$param;
+                    if ($param == 'cat_id') {
+                        $cl = new pdCatList($db);
+                        $name = 'Category';
+                        $value =& $cl->list[$sp->cat_id];
+                    }
+                    else {
+                        $name = ucwords($param);
+                        $value = $sp->$param;
+                    }
+
+                    if ($name != '')
+                        $table->addRow(array('<b>' . $name . '</b>:', $value));
                 }
 
-                if ($name != '')
-                    $table->addRow(array('<b>' . $name . '</b>:', $value));
+            $al = null;
+
+            if ($sp->authortyped != '') {
+                $values[] = $sp->authortyped;
             }
 
-        $al = null;
-
-        if ($sp->authortyped != '') {
-            $values[] = $sp->authortyped;
-        }
-
-        if (($sp->author_myself != '')
-            && ($_SESSION['user']->author_id != '')) {
-            $al = new pdAuthorList($db);
-
-            $values[] = $al->list[$_SESSION['user']->author_id];
-        }
-
-        if (count($sp->authorselect) > 0) {
-            if ($al == null)
+            if (($sp->author_myself != '')
+                && ($_SESSION['user']->author_id != '')) {
                 $al = new pdAuthorList($db);
-            foreach ($sp->authorselect as $auth_id)
-                $values[] = $al->list[$auth_id];
 
-        }
+                $values[] = $al->list[$_SESSION['user']->author_id];
+            }
 
-        if (count($values) > 0)
-            $table->addRow(array('<b>Author(s)</b>:', implode('; ', $values)));
+            if (count($sp->authorselect) > 0) {
+                if ($al == null)
+                    $al = new pdAuthorList($db);
+                foreach ($sp->authorselect as $auth_id)
+                    $values[] = $al->list[$auth_id];
 
-        if (($sp->startdate != '') && ($sp->enddate != '')) {
-            $stime = strtotime(implode('-', $sp->startdate) . '-1');
-            $etime = strtotime(implode('-', $sp->enddate) . '-1');
+            }
 
-            // now check the dates
-            if ($etime > $stime) {
-                $table->addRow(array('<b>Start date</b>:',
-                                     $sp->startdate['Y'] . '-' .
-                                     sprintf("%02d", $sp->startdate['M'])));
+            if (count($values) > 0)
+                $table->addRow(array('<b>Author(s)</b>:',
+                                     implode('; ', $values)));
 
-                $table->addRow(array('<b>End date</b>:',
-                                     $sp->enddate['Y'] . '-' .
-                                     sprintf("%02d", $sp->enddate['M'])));
+            if (($sp->startdate != '') && ($sp->enddate != '')) {
+                $stime = strtotime(implode('-', $sp->startdate) . '-1');
+                $etime = strtotime(implode('-', $sp->enddate) . '-1');
+
+                // now check the dates
+                if ($etime > $stime) {
+                    $table->addRow(
+                        array('<b>Start date</b>:',
+                              $sp->startdate['Y'] . '-'
+                              . sprintf("%02d", $sp->startdate['M'])));
+
+                    $table->addRow(
+                        array('<b>End date</b>:',
+                              $sp->enddate['Y'] . '-'
+                              . sprintf("%02d", $sp->enddate['M'])));
+                }
             }
         }
+
+        $this->contentPre .= $table->toHtml();
 
         if (count($_SESSION['search_results']) == 0) {
             $this->contentPre
                 .= '<br/><h3>Your search did not generate any results.</h3>';
+            $db->close();
             return;
         }
 
@@ -123,10 +135,6 @@ class search_results extends pdHtmlPage {
 
         $pubs = new pdPubList(
             $db, array('pub_ids' => $_SESSION['search_results']));
-
-        $this->contentPre .= $table->toHtml();
-
-        $this->contentPre .= '<h3>SEARCH RESULTS</h3>';
 
         $cvForm =& $this->cvFormCreate($_SESSION['search_results']);
         if ($cvForm != null) {
