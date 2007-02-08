@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.5 2007/02/08 22:59:06 aicmltec Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -44,7 +44,7 @@ class pdSearchParams {
     var $venue;
     var $keywords;
     var $startdate;
-    var $enddat;
+    var $enddate;
 
     /**
      * Constructor.

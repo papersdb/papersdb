@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.46 2006/12/06 17:26:47 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.47 2007/02/08 22:59:06 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -99,7 +99,7 @@ class search_publication_db extends pdHtmlPage {
         }
 
         $this->search_params = new pdSearchParams($arr);
-        $_SESSION['search_params'] = $this->search_params;
+        $_SESSION['search_params'] =& $this->search_params;
     }
 
     /**
@@ -413,14 +413,17 @@ class search_publication_db extends pdHtmlPage {
         $startdate =& $this->search_params->startdate;
         $enddate =& $this->search_params->enddate;
 
-        if ($enddate == '') {
-            // the user did not enter an end date, default it to today
-            $enddate = date('Y-m-d');
+        $stime = strtotime(implode('-', $startdate) . '-1');
+        $etime = strtotime(implode('-', $enddate) . '-1');
+
+        if ($stime > $etime) {
+            // the user did not enter an end date, default it to now
+            $enddate['Y'] = date('Y');
+            $enddate['M'] = date('m');
+            $etime = strtotime(implode('-', $enddate) . '-1');
         }
 
-        if (($enddate['Y'] > $startdate['Y'])
-            || (($enddate['Y'] == $startdate['Y'])
-                && ($enddate['M'] > $startdate['M']))) {
+        if ($etime > $stime) {
 
             $startdate_str
                 = date('Y-m-d', mktime(0, 0, 0, $startdate['M'], 1,
