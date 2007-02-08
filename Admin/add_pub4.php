@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.17 2006/10/27 17:27:21 aicmltec Exp $
+// $Id: add_pub4.php,v 1.18 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -50,10 +50,7 @@ class add_pub4 extends pdHtmlPage {
 
         $this->db =& $db;
 
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
+        $this->addPubDisableMenuItems();
 
         // initialize attachments
         if (!isset($_SESSION['paper']) && !isset($_SESSION['attachments'])) {

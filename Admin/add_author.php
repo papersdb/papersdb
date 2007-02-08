@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.38 2007/02/05 23:38:50 aicmltec Exp $
+// $Id: add_author.php,v 1.39 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -146,6 +146,7 @@ class add_author extends pdHtmlPage {
             $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
             $next_page = substr($_SERVER['PHP_SELF'], 0, $pos)
                 . 'papersdb/Admin/add_pub2.php';
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
             $form->addGroup(
                array(
@@ -153,6 +154,9 @@ class add_author extends pdHtmlPage {
                         'button', 'prev_step', '<< Previous Step',
                         array('onClick' => "location.href='"
                               . $next_page . "';")),
+                    HTML_QuickForm::createElement(
+                        'button', 'cancel', 'Cancel',
+                        array('onclick' => "location.href='" . $url . "';")),
                     HTML_QuickForm::createElement(
                         'reset', 'reset', 'Reset'),
                     HTML_QuickForm::createElement(

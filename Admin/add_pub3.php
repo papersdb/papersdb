@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.11 2006/11/09 17:19:09 aicmltec Exp $
+// $Id: add_pub3.php,v 1.12 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -64,10 +64,7 @@ class add_pub3 extends pdHtmlPage {
         else
             $cat_id = $pub->category->cat_id;
 
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
+        $this->addPubDisableMenuItems();
 
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 

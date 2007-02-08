@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.18 2006/11/09 23:47:04 aicmltec Exp $
+// $Id: add_pub1.php,v 1.19 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -20,7 +20,6 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/pdExtraInfoList.php';
 require_once 'includes/authorselect.php';
-require_once 'includes/jscalendar.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
 /**
@@ -76,10 +75,7 @@ class add_pub1 extends pdHtmlPage {
 
         //$this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
 
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
+        $this->addPubDisableMenuItems();
 
         $form = new HTML_QuickForm('add_pub2');
         $form->addElement('header', null, 'Add Publication');
@@ -115,8 +111,10 @@ class add_pub1 extends pdHtmlPage {
         $sel =& $form->addElement(
             'hierselect', 'venue_id',
             $this->helpTooltip('Venue', 'venueHelp') . ':',
-            array('style' => 'width: 450px'), '<br/>');
+            array('style' => 'width: 70%;'), '<br/>');
         $sel->setOptions(array($venue_sel1, $venue_sel2));
+
+        $form->addElement('submit', 'add_venue', 'Add New Venue');
 
         $form->addElement('textarea', 'abstract',
                           $this->helpTooltip('Abstract', 'abstractHelp')
@@ -132,8 +130,7 @@ class add_pub1 extends pdHtmlPage {
                     'static', 'kwgroup_help', null,
                     '<span id="small">separate using semi-colons (;)</span>')),
 
-            'kwgroup', $this->helpTooltip('Keywords',
-                                                'keywordsHelp') . ':',
+            'kwgroup', $this->helpTooltip('Keywords', 'keywordsHelp') . ':',
             '<br/>', false);
 
         $form->addElement('textarea', 'user',
@@ -190,7 +187,6 @@ class add_pub1 extends pdHtmlPage {
             case 'Conference': $type = 2; break;
             case 'Workshop':   $type = 3; break;
             default: $type = 0;
-
         }
 
         $defaults = array('title'    => $pub->title,
@@ -199,10 +195,15 @@ class add_pub1 extends pdHtmlPage {
                           'user'     => $pub->user,
                           'venue_id' => array($type, $pub->venue_id));
 
-        $date = explode('-', $pub->published);
+        if (!isset($pub->published) || ($pub->published == '')) {
+            $defaults['pub_date'] = array('Y' => date('Y'), 'M' => date('m'));
+        }
+        else {
+            $date = explode('-', $pub->published);
 
-        $defaults['pub_date']['Y'] = $date[0];
-        $defaults['pub_date']['M'] = $date[1];
+            $defaults['pub_date']['Y'] = $date[0];
+            $defaults['pub_date']['M'] = $date[1];
+        }
 
         if ($this->debug) {
             $this->contentPost
@@ -263,6 +264,8 @@ class add_pub1 extends pdHtmlPage {
 
         if ($this->debug)
             $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+        else if (isset($values['add_venue']))
+            header('Location: add_venue.php');
         else if (isset($values['finish']))
             header('Location: add_pub_submit.php');
         else

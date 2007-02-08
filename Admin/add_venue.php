@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.23 2006/11/09 17:44:15 aicmltec Exp $
+// $Id: add_venue.php,v 1.24 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -15,7 +15,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
-require_once 'includes/jscalendar.php';
+require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
@@ -23,12 +23,12 @@ require_once 'includes/jscalendar.php';
  * @package PapersDB
  */
 class add_venue extends pdHtmlPage {
+    var $debug = 0;
     var $venue_id = null;
 
     function add_venue() {
         global $access_level;
 
-        pubSessionInit();
         parent::pdHtmlPage('add_venue');
 
         if ($access_level <= 0) {
@@ -55,16 +55,19 @@ class add_venue extends pdHtmlPage {
         else if (isset($_POST['type']) && ($_POST['type'] != ''))
             $venue->type = $_POST['type'];
 
-        if (isset($_GET['numNewOccurrences'])
-            && ($_GET['numNewOccurrences'] != '')) {
-            $newOccurrences =  intval($_GET['numNewOccurrences']);
-        }
-        else if (isset($_POST['numNewOccurrences'])
-            && ($_POST['numNewOccurrences'] != '')) {
-            $newOccurrences =  intval($_POST['numNewOccurrences']);
-        }
-        else {
-            $newOccurrences = count($venue->occurrences);
+        $newOccurrences = 0;
+        if (($venue->type == 'Conference') || ($venue->type == 'Workshop')) {
+            if (isset($_GET['numNewOccurrences'])
+                && is_numeric($_GET['numNewOccurrences'])) {
+                $newOccurrences =  intval($_GET['numNewOccurrences']);
+            }
+            else if (isset($_POST['numNewOccurrences'])
+                     && is_numeric($_POST['numNewOccurrences'])) {
+                $newOccurrences =  intval($_POST['numNewOccurrences']);
+            }
+            else {
+                $newOccurrences = count($venue->occurrences);
+            }
         }
 
         $form = new HTML_QuickForm('venueForm', 'post',
@@ -124,35 +127,8 @@ class add_venue extends pdHtmlPage {
                 $form->addElement('text', 'editor', 'Editor:',
                                   array('size' => 50, 'maxlength' => 250));
 
-                $date_options = array(
-                    'baseURL' => '../includes/',
-                    'styleCss' => 'calendar.css',
-                    'language' => 'en',
-                    'image' => array(
-                        'src' => '../images/calendar.gif',
-                        'border' => 0
-                        ),
-                    'setup' => array(
-                        'inputField' => 'venue_date',
-                        'ifFormat' => '%Y-%m',
-                        'showsTime' => false,
-                        'time24' => true,
-                        'weekNumbers' => false,
-                        'showOthers' => true
-                        )
-                    );
-
-                $form->addGroup(
-                    array(
-                        HTML_QuickForm::createElement(
-                            'text', 'venue_date', null,
-                            array('readonly' => '1', 'id' => 'venue_date',
-                                  'size' => 10)),
-                        HTML_QuickForm::createElement(
-                            'jscalendar', 'venue_date_calendar', null,
-                            $date_options)
-                        ),
-                    'dateGroup', 'Date:', '&nbsp;', false);
+                $form->addElement('date', 'venue_date', 'Date:',
+                                  array('format' => 'YM', 'minYear' => '1985'));
             }
 
             if (($venue->type == 'Conference')
@@ -161,24 +137,6 @@ class add_venue extends pdHtmlPage {
                                   $newOccurrences);
 
                 for ($i = 0; $i < $newOccurrences; $i++) {
-                    $occur_date_arr_name = '$occur_date_options' . $i;
-                    $$occur_date_arr_name = array(
-                        'baseURL' => '../includes/',
-                        'styleCss' => 'calendar.css',
-                        'language' => 'en',
-                        'image' => array(
-                            'src' => '../images/calendar.gif',
-                            'border' => 0
-                            ),
-                        'setup' => array(
-                            'inputField' => 'occur_date' . $i,
-                            'ifFormat' => '%Y-%m-%d',
-                            'showsTime' => false,
-                            'time24' => true,
-                            'weekNumbers' => false,
-                            'showOthers' => true
-                            )
-                        );
 
                     $form->addElement('header', null, 'Occurrence ' . ($i + 1));
                     $form->addElement('text',
@@ -189,26 +147,11 @@ class add_venue extends pdHtmlPage {
                                    'venue occurrence ' . ($i + 1)
                                    . ' location cannot be left blank',
                                    'required', null, 'client');
-                    $form->addGroup(
-                        array(
-                            HTML_QuickForm::createElement(
-                                'text', 'newOccurrenceDate[' . $i . ']', null,
-                                array('readonly' => '1',
-                                      'id' => 'occur_date' . $i,
-                                      'size' => 10)),
-                            HTML_QuickForm::createElement(
-                                'jscalendar', 'occur_calendar' . $i, null,
-                                $$occur_date_arr_name)
-                            ),
-                        'occur_dateGroup' . $i, 'Date:', '&nbsp;', false);
-                    $form->addGroupRule(
-                        'occur_dateGroup' . $i,
-                        array(
-                            'newOccurrenceDate[' . $i . ']'
-                            => array(array('venue occurrence ' . ($i + 1)
-                                           . ' date cannot be left blank',
-                                           'required', null, 'client'))),
-                        'required', null, null, 'client');
+
+                    $form->addElement('date', 'newOccurrenceDate[' . $i . ']',
+                                      'Date:',
+                                      array('format' => 'YM',
+                                            'minYear' => '1985'));
 
                     $form->addElement('text',
                                       'newOccurrenceUrl[' . $i . ']',
@@ -222,79 +165,160 @@ class add_venue extends pdHtmlPage {
             }
         }
 
-        if ($this->venue_id != '')
-            $label = 'Submit';
-        else
-            $label = 'Add Venue';
+        if ($_SESSION['state'] == 'pub_add') {
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $prev_page = substr($_SERVER['PHP_SELF'], 0, $pos)
+                . 'papersdb/Admin/add_pub1.php';
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $form->addGroup(
-            array(
-                HTML_QuickForm::createElement('submit', 'Submit', $label),
-                HTML_QuickForm::createElement('reset', 'Reset', 'Reset')
-                ),
-            'submit_group', null, '&nbsp;', false);
+            $form->addGroup(
+                array(
+                    HTML_QuickForm::createElement(
+                        'button', 'prev_step', '<< Previous Step',
+                        array('onClick' => "location.href='"
+                              . $prev_page . "';")),
+                    HTML_QuickForm::createElement(
+                        'button', 'cancel', 'Cancel',
+                        array('onclick' => "location.href='" . $url . "';")),
+                    HTML_QuickForm::createElement(
+                        'reset', 'reset', 'Reset'),
+                    HTML_QuickForm::createElement(
+                        'submit', 'next_step', 'Next Step >>'),
+                    ),
+                null, null, '&nbsp;');
+
+            $this->addPubDisableMenuItems();
+        }
+        else {
+            if ($this->venue_id != '')
+                $label = 'Submit';
+            else
+                $label = 'Add Venue';
+
+            $form->addGroup(
+                array(
+                    HTML_QuickForm::createElement('submit', 'Submit', $label),
+                    HTML_QuickForm::createElement('reset', 'Reset', 'Reset')
+                    ),
+                'submit_group', null, '&nbsp;', false);
+        }
 
         if ($form->validate()) {
             $values = $form->exportValues();
             $venue->load($values);
 
-            //add http:// to webpage address if needed
-            if (strpos($venue->url, 'http') === false) {
-                $venue->url = "http://" . $venue->url;
-            }
-            $venue->title = str_replace("\"","'", $venue->title);
-
-            $venue->deleteOccurrences();
-            for ($i = 0; $i < $values['numNewOccurrences']; $i++) {
-                $venue->addOccurrence($values['newOccurrenceLocation'][$i],
-                                      $values['newOccurrenceDate'][$i],
-                                      $values['newOccurrenceUrl'][$i]);
-            }
-
-            $venue->dbSave($db);
-
-            if (!isset($this->venue_id) || ($this->venue_id == '')) {
-                $this->contentPre .= 'You have successfully added the venue "'
-                    .  $venue->title . '".'
-                    . '<br><a href="./add_venue.php">Add another venue</a>';
+            if ($this->debug) {
+                $this->contentPre .= '<pre>' . print_r($values, true)
+                    . '</pre>';
             }
             else {
-                $this->contentPre .= 'You have successfully edited the venue "'
-                    . $venue->title . '".';
+                //add http:// to webpage address if needed
+                if (($venue->url != '')
+                    && (strpos($venue->url, 'http') === false)) {
+                    $venue->url = "http://" . $venue->url;
+                }
+                $venue->title = str_replace("\"","'", $venue->title);
+
+                if (($venue->type == 'Conference')
+                    || ($venue->type == 'Workshop')) {
+                    $venue->date = $values['venue_date']['Y']
+                        . '-' . $values['venue_date']['M'] . '-1';
+                }
+
+                $venue->deleteOccurrences();
+                for ($i = 0; $i < $values['numNewOccurrences']; $i++) {
+                    $venue->addOccurrence(
+                        $values['newOccurrenceLocation'][$i],
+                        $values['newOccurrenceDate'][$i]['Y']
+                        . '-' . $values['newOccurrenceDate'][$i]['M']
+                        . '-1',
+                        $values['newOccurrenceUrl'][$i]);
+                }
+
+                $venue->dbSave($db);
+
+                if ($_SESSION['state'] == 'pub_add') {
+                    assert('isset($_SESSION["pub"])');
+                    $pub =& $_SESSION['pub'];
+                    $pub->addVenue($db, $venue);
+
+                    $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+
+                    if ($this->debug) return;
+
+                    header('Location: add_pub2.php');
+                }
+                else {
+                    if (!isset($this->venue_id) || ($this->venue_id == '')) {
+                        $this->contentPre
+                            .= 'You have successfully added the venue "'
+                            .  $venue->title . '".'
+                            . '<br><a href="./add_venue.php">Add another venue</a>';
+                    }
+                    else {
+                        $this->contentPre
+                            .= 'You have successfully edited the venue "'
+                            . $venue->title . '".';
+                    }
+                }
             }
         }
         else {
-            $form->setDefaults($_GET);
+            $form->setConstants($_GET);
             if ($this->venue_id != '') {
-              $arr = array('title'    => $venue->title,
-                           'name'     => $venue->nameGet(),
-                           'url'      => $venue->urlGet(),
-                           'type'     => $venue->type,
-                           'data'     => $venue->data,
-                           'editor'   => $venue->editor,
-                           'venue_date' => $venue->date);
-              if (isset($_GET['numNewOccurrences'])) {
-                for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
-                  $arr['newOccurrenceLocation'][$c]
-                    = $_GET['newOccurrenceLocation'][$c];
-                  $arr['newOccurrenceDate'][$c]
-                    = $_GET['newOccurrenceDate'][$c];
-                  $arr['newOccurrenceUrl'][$c]
-                    = $_GET['newOccurrenceUrl'][$c];
+                $arr = array('title'      => $venue->title,
+                             'name'       => $venue->nameGet(),
+                             'url'        => $venue->urlGet(),
+                             'type'       => $venue->type,
+                             'data'       => $venue->data,
+                             'editor'     => $venue->editor,
+                             'venue_date' => $venue->date);
+                if (isset($_GET['numNewOccurrences'])) {
+                    for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
+                        $arr['newOccurrenceLocation'][$c]
+                            = $_GET['newOccurrenceLocation'][$c];
+                        $arr['newOccurrenceDate'][$c]
+                            = $_GET['newOccurrenceDate'][$c];
+                        $arr['newOccurrenceUrl'][$c]
+                            = $_GET['newOccurrenceUrl'][$c];
+                    }
                 }
-              }
-              else if (count($venue->occurrences) > 0) {
-                $c = 0;
-                foreach ($venue->occurrences as $o) {
-                  $arr['newOccurrenceLocation'][$c] = $o->location;
-                  $arr['newOccurrenceDate'][$c] = $o->date;
-                  $arr['newOccurrenceUrl'][$c] = $o->url;
-                  $c++;
+                else if (count($venue->occurrences) > 0) {
+                    $c = 0;
+                    foreach ($venue->occurrences as $o) {
+                        $arr['newOccurrenceLocation'][$c] = $o->location;
+                        $arr['newOccurrenceDate'][$c] = $o->date;
+                        $arr['newOccurrenceUrl'][$c] = $o->url;
+                        $c++;
+                    }
                 }
-              }
 
-              $form->setDefaults($arr);
+                // set the default date for the new occurrences
+                if (count($venue->occurrences) < $newOccurrences) {
+                    $curdate = array('Y' => date('Y'), 'M' => date('m'));
+                    for ($i = count($venue->occurrences);
+                         $i < $newOccurrences; ++$i)
+                        $arr['newOccurrenceDate'][$i] = $curdate;
+                }
+
+                $form->setConstants($arr);
             }
+            else {
+                $curdate = array('Y' => date('Y'), 'M' => date('m'));
+                $arr = array('venue_date' => $curdate);
+                for ($i = 0; $i < $newOccurrences; ++$i)
+                    $arr['newOccurrenceDate'][$i] = $curdate;
+                $form->setConstants($arr);
+            }
+
+            if ($_SESSION['state'] == 'pub_add') {
+                assert('isset($_SESSION["pub"])');
+                $pub =& $_SESSION['pub'];
+
+                $this->contentPre .= '<h3>Publication Information</h3>'
+                    . $pub->getCitationHtml('..', false) . '<p/>';
+            }
+
             $renderer =& $form->defaultRenderer();
 
             $renderer->setFormTemplate(
@@ -329,6 +353,7 @@ class add_venue extends pdHtmlPage {
             for (i = 0; i < document.forms["venueForm"].elements.length; i++) {
                 var element = document.forms["venueForm"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
+                    && (element.type != "button")
                     && (element.value != "") && (element.value != null)) {
 
                     if (element.name == "venue_id") {
@@ -372,6 +397,7 @@ class add_venue extends pdHtmlPage {
             for (i = 0; i < document.forms["venueForm"].elements.length; i++) {
                 var element = document.forms["venueForm"].elements[i];
                 if ((element.type != "submit") && (element.type != "reset")
+                    && (element.type != "button")
                     && (element.value != "") && (element.value != null)) {
 
                     if (element.name == "venue_id") {

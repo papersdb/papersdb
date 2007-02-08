@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.18 2006/11/09 20:49:58 aicmltec Exp $
+// $Id: pdVenue.php,v 1.19 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -208,10 +208,10 @@ class pdVenue {
             }
         }
 
-        // if no URL associated with occurrence try to get the URL from the venue
-        // or name
+        // if no URL associated with occurrence try to get the URL from the
+        // venue or name
         if ($url == null) {
-            if ($this->url != '') {
+            if (($this->url != '') && ($this->url != 'http://')) {
                 $url = $this->url;
             }
             else if (strpos($this->name, '<a href=') !== false) {
@@ -224,7 +224,7 @@ class pdVenue {
             }
         }
 
-        if ($url != '') {
+        if (($url != '') && ($url != 'http://')) {
             if (strpos($url, 'http://') === false)
                 $url = 'http://' . $url;
         }

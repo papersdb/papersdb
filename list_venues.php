@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.16 2006/11/09 17:44:15 aicmltec Exp $
+// $Id: list_venues.php,v 1.17 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -37,78 +37,84 @@ class list_venues extends pdHtmlPage {
         $table->setAutoGrow(true);
 
         foreach (array_keys($venue_list->list) as $venue_id) {
-          unset($cells);
-          unset($venue);
-          $venue = new pdVenue();
-          $venue->dbLoad($db, $venue_id);
-          $text = '';
-          if ($venue->title != '')
-            $text .= '<b>' . $venue->title . '</b>';
-          if ($venue->type != '')
-            $text .= '<br/><b>' . ucfirst($venue->type) . '</b>:&nbsp;';
+            unset($cells);
+            unset($venue);
+            $venue = new pdVenue();
+            $venue->dbLoad($db, $venue_id);
+            $text = '';
+            if ($venue->title != '')
+                $text .= '<b>' . $venue->title . '</b>';
+            if ($venue->type != '')
+                $text .= '<br/><b>' . ucfirst($venue->type) . '</b>:&nbsp;';
 
-          $url = $venue->urlGet();
+            $url = $venue->urlGet();
 
-          if ($url != null) {
-            $text .= '<a href="' . $url . '" target="_blank">';
-          }
-
-          $text .= $venue->nameGet();
-
-          if ($url != null)
-            $text .= '</a>';
-
-          if ($venue->data != '') {
-            $text .= '<br/>';
-            if($venue->type == 'Conference')
-              $text .= '<b>Location:&nbsp;</b>';
-            else if($venue->type == 'Journal')
-              $text .= '<b>Publisher:&nbsp;</b>';
-            else if($venue->type == 'Workshop')
-              $text .= '<b>Associated Conference:&nbsp;</b>';
-            $text .= $venue->data;
-          }
-
-          if ($venue->editor != '')
-            $text .= "<br/><b>Editor:&nbsp;</b>" . $venue->editor;
-
-
-          // display occurrences
-          if (count($venue->occurrences) > 0) {
-            foreach ($venue->occurrences as $occ) {
-              $text .= '<br/>';
-
-              $date = explode('-', $occ->date);
-
-              if ($occ->url != '') {
-                $text .= '<a href="' . $occ->url . '" target="_blank">';
-              }
-
-              $text .= $date[0];
-
-              if ($occ->url != '') {
-                $text .= '</a>';
-              }
-
-              if ($occ->location != '')
-                $text .= ', ' . $occ->location;
+            if ($url != null) {
+                $text .= '<a href="' . $url . '" target="_blank">';
             }
-          }
 
-          $cells[] = $text;
+            $text .= $venue->nameGet();
 
-          if ($access_level > 0) {
-            $cells[] = '<a href="Admin/add_venue.php?venue_id='
-              . $venue->venue_id . '">'
-              . '<img src="images/pencil.png" title="edit" alt="edit" '
-              . 'height="16" width="16" border="0" align="middle" /></a>';
-            $cells[] = '<a href="Admin/delete_venue.php?venue_id='
-              . $venue->venue_id . '">'
-              . '<img src="images/kill.png" title="delete" alt="delete" '
-              . 'height="16" width="16" border="0" align="middle" /></a>';
-          }
+            if ($url != null)
+                $text .= '</a>';
 
-          $table->addRow($cells);
+            if ($venue->data != '') {
+                $text .= '<br/>';
+                if($venue->type == 'Conference')
+                    $text .= '<b>Location:&nbsp;</b>';
+                else if($venue->type == 'Journal')
+                    $text .= '<b>Publisher:&nbsp;</b>';
+                else if($venue->type == 'Workshop')
+                    $text .= '<b>Associated Conference:&nbsp;</b>';
+                $text .= $venue->data;
+            }
+
+            if ($venue->editor != '')
+                $text .= "<br/><b>Editor:&nbsp;</b>" . $venue->editor;
+
+            // display occurrences
+            if (count($venue->occurrences) > 0) {
+                foreach ($venue->occurrences as $occ) {
+                    $text .= '<br/>';
+
+                    $date = explode('-', $occ->date);
+
+                    if ($occ->url != '') {
+                        $text .= '<a href="' . $occ->url . '" target="_blank">';
+                    }
+
+                    $text .= $date[0];
+
+                    if ($occ->url != '') {
+                        $text .= '</a>';
+                    }
+
+                    if ($occ->location != '')
+                        $text .= ', ' . $occ->location;
+                }
+            }
+            else {
+                if (($venue->date != '') && ($venue->date != '0000-00-00')) {
+                    $date = explode('-', $venue->date);
+                    $text .= "<br/><b>Date:&nbsp;</b>" . $date[0] . '-'
+                        . $date[1];
+                }
+            }
+
+            $cells[] = $text;
+
+            if ($access_level > 0) {
+                $cells[] = '<a href="Admin/add_venue.php?venue_id='
+                    . $venue->venue_id . '">'
+                    . '<img src="images/pencil.png" title="edit" alt="edit" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
+                $cells[] = '<a href="Admin/delete_venue.php?venue_id='
+                    . $venue->venue_id . '">'
+                    . '<img src="images/kill.png" title="delete" alt="delete" '
+                    . 'height="16" width="16" border="0" align="middle" /></a>';
+            }
+
+            $table->addRow($cells);
         }
 
         // now assign table attributes including highlighting for even and odd

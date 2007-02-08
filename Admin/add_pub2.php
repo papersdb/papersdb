@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.10 2006/12/11 17:47:41 aicmltec Exp $
+// $Id: add_pub2.php,v 1.11 2007/02/08 18:58:50 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -49,10 +49,7 @@ class add_pub2 extends pdHtmlPage {
 
         $this->db =& $db;
 
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
+        $this->addPubDisableMenuItems();
 
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 
