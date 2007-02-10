@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.13 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdPubList.php,v 1.14 2007/02/10 22:23:08 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -19,6 +19,7 @@ require_once 'pdPublication.php';
  */
 class pdPubList {
     var $list;
+    var $count;
 
     /**
      * The publications that are loaded depend on the $options array.
@@ -32,13 +33,30 @@ class pdPubList {
         if (!isset($options['num_to_load']))
             $options['num_to_load'] = -1;
 
-        if ($options['author_id'] != '') {
-            $this->authorPubsDbLoad($db, $options['author_id'],
+        if ($options['auth_pubs'] != '') {
+            $this->authorPubsNumGet($db, $options['auth_pubs']);
+        }
+        else if ($options['author_id'] != '') {
+            $this->authorIdPubsDbLoad($db, $options['author_id'],
                                     $options['num_to_load']);
         }
+        else if ($options['venue_id'] != '') {
+            $this->venuePubsDbLoad($db, $options['venue_id']);
+        }
         else if ($options['cat_id'] != '') {
-            $this->categoryPubsDbLoad($db, $options['cat_id'],
-                                      $options['num_to_load']);
+            $this->categoryPubsDbLoad($db, $options['cat_id']);
+        }
+        else if ($options['keywords_list'] != ''){
+            $this->keywordsList($db);
+        }
+        else if ($options['keyword'] != ''){
+            $this->keywordPubsDBLoad($db, $options['keyword']);
+        }
+        else if ($options['year_list'] != ''){
+            $this->yearsPubsDBLoad($db);
+        }
+        else if ($options['year'] != ''){
+            $this->yearPubsDBLoad($db, $options['year']);
         }
         else if (is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
@@ -71,9 +89,32 @@ class pdPubList {
     }
 
     /**
+     * Retrieves the number of publications for a given author.
+     */
+    function authorPubsNumGet(&$db, $author_name) {
+        assert('is_object($db)');
+        assert('$author_name != ""');
+
+        $q = $db->selectRow(array('author', 'publication', 'pub_author'),
+                            'count(publication.pub_id) as pcount',
+                            array('author.author_id=pub_author.author_id',
+                                  'pub_author.pub_id=publication.pub_id',
+                                  'author.name like "' . $author_name . '%"'),
+                            "pdPubList::authorPubsDbLoad",
+                            array('ORDER BY' => 'publication.title ASC'));
+
+        if ($q === false) {
+            $this->count = 0;
+            return;
+        }
+
+        $this->count = $q->pcount;
+    }
+
+    /**
      * Retrieves publications for a given author.
      */
-    function authorPubsDbLoad(&$db, $author_id, $numToLoad) {
+    function authorIdPubsDbLoad(&$db, $author_id, $numToLoad) {
         assert('is_object($db)');
         assert('$author_id != ""');
 
@@ -87,7 +128,7 @@ class pdPubList {
                          array('pub_author.pub_id=publication.pub_id',
                                'pub_author.author_id'
                                => quote_smart($author_id)),
-                         "pdPubList::authorPubsDbLoad",
+                         "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.title ASC'));
 
         if ($db->numRows($q) == 0) return;
@@ -107,11 +148,29 @@ class pdPubList {
     /**
      * Retrieves publications for a given category.
      */
-    function categoryPubsDbLoad(&$db, $cat_id, $numToLoad) {
+    function venuePubsDbLoad(&$db, $venue_id) {
+        assert('is_object($db)');
+        assert('$venue_id != ""');
+
+        $q = $db->select('publication', '*',
+                         array('venue_id' => $venue_id),
+                         "pdPubList::categoryPubsDbLoad");
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+        }
+    }
+
+    /**
+     * Retrieves publications for a given category.
+     */
+    function categoryPubsDbLoad(&$db, $cat_id) {
         assert('is_object($db)');
         assert('$cat_id != ""');
-
-        if ($numToLoad == 0) return;
 
         $q = $db->select(array('publication', 'pub_cat'),
                          'publication.pub_id',
@@ -121,18 +180,12 @@ class pdPubList {
 
         if ($db->numRows($q) == 0) return;
 
-        // if $numToLoad is -1 then we load all publications
-        if ($numToLoad == -1)
-            $numToLoad = $db->numRows($q);
-
         $r = $db->fetchObject($q);
-        while ($r && ($numToLoad > 0)) {
+        while ($r) {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
-            $numToLoad--;
         }
     }
-
 
     /**
      *
@@ -180,6 +233,78 @@ class pdPubList {
             array_push($resutl, $pub->pub_id);
         }
         return $result;
+    }
+
+    function yearsPubsDBLoad(&$db) {
+        assert('is_object($db)');
+
+        $q = $db->select(array('publication'),
+                         'distinct year(published) as year', '',
+                         "pdAuthor::publicationsDbLoad",
+                         array( 'ORDER BY' => 'published ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = $r->year;
+            $r = $db->fetchObject($q);
+        }
+    }
+
+    function yearPubsDBLoad(&$db, $year) {
+        assert('is_object($db)');
+
+        $q = $db->select(array('publication'), '*',
+                         array('year(published)' => $year),
+                         "pdAuthor::publicationsDbLoad",
+                         array( 'ORDER BY' => 'published ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+        }
+    }
+
+    function keywordsList($db) {
+        assert('is_object($db)');
+
+        $q = $db->select('publication', 'keywords', '',
+                         "pdAuthor::publicationsDbLoad");
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $keywords = split('; *', $r->keywords);
+            foreach ($keywords as $kw) {
+                if ($kw != '')
+                    $list[$kw] = true;
+            }
+            $r = $db->fetchObject($q);
+        }
+
+        $this->list = array_keys($list);
+    }
+
+    function keywordPubsDBLoad(&$db, $kw) {
+        assert('is_object($db)');
+
+        $q = $db->select(array('publication'), '*',
+                         array('keywords like "%' . $kw . '%"'),
+                         "pdAuthor::publicationsDbLoad",
+                         array( 'ORDER BY' => 'title ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+        }
     }
 }
 

@@ -235,6 +235,52 @@ div#nav li a:hover {
   color: #006633;
 }
 
+div#sel {
+  margin-bottom: 1em;
+}
+
+div#sel ul {
+  font-size: 0.9em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+div#sel li {
+  margin: 0 0.15em;
+}
+
+div#sel li.selected {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  vertical-align: center;
+  width: 14ex;
+}
+
+div#sel li a {
+  background: #f4f4f4;
+  border-left: 4px solid #cccccc;
+  color: #006633;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  vertical-align: center;
+  width: 14ex;
+}
+
+div#sel li a:hover {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
+}
 
 div#content {
   background-color: #FFFFFF;

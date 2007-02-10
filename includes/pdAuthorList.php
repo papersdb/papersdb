@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.13 2007/02/05 23:12:38 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.14 2007/02/10 22:23:08 loyola Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -25,8 +25,12 @@ class pdAuthorList {
     function pdAuthorList(&$db, $firstname = null, $lastname = null) {
         assert('is_object($db)');
 
-        if (($firstname != null) && ($lastname != null)) {
-            $name = '%' . $lastname . ', ' . $firstname[0] . '%';
+        if ($firstname != null) {
+            if ($lastname != null)
+                $name = '%' . $lastname . ', ' . $firstname[0] . '%';
+            else
+                $name = '%' . $lastname . '%';
+
             $q = $db->select('author', '*',
                              array('name LIKE ' . $db->addQuotes($name)),
                              "pdAuthorList::pdAuthorList");
