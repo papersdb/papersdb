@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.1 2007/02/19 21:51:24 loyola Exp $
+// $Id: dbcreate_mysql.php,v 1.2 2007/02/20 04:24:38 loyola Exp $
 
 /**
  * Creates the PapersDB database.
@@ -28,10 +28,7 @@ class dbCreate extends pdHtmlPage {
         global $access_level;
 
         pubSessionInit();
-        if ($access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
+        parent::pdHtmlPage('dbcreate');
 
         $db =& dbCreate();
 
@@ -58,6 +55,13 @@ class dbCreate extends pdHtmlPage {
         $db->close();
     }
 
+    function createDatabase($db) {
+        assert('is_object($db)');
+
+        $q  = $db->query('CREATE DATABASE ' . DB_NAME);
+        assert('$q');
+    }
+
     function tblAdditionalInfo($db) {
         assert('is_object($db)');
 
@@ -65,7 +69,7 @@ class dbCreate extends pdHtmlPage {
         $q = $db->query(
             'CREATE TABLE `additional_info` ('
             . '`add_id` int(10) unsigned NOT NULL auto_increment, '
-            . '`type` varchar(100) default "",' .
+            . '`type` varchar(100) default "",'
             . '`location` varchar(255) default NULL, '
             . 'PRIMARY KEY  (`add_id`))');
         assert('$q');
@@ -79,9 +83,10 @@ class dbCreate extends pdHtmlPage {
             . '`type` varchar(20) NOT NULL default "")');
         assert('$q');
 
-        $q = $db->insert('attahcment_types', 'type',
-                         array('PDF', 'PS', 'DOC', 'TXT', 'Auxiliary Material'),
-                         'dbcreate::tblAttachmentTypes');
+        foreach (array('PDF', 'PS', 'DOC', 'TXT', 'Auxiliary Material') as $type)
+            $arr[] = array('type' => $type);
+
+        $q = $db->insert('attachment_types', $arr, 'dbcreate::tblAttachmentTypes');
         assert('$q');
     }
 
@@ -122,7 +127,7 @@ class dbCreate extends pdHtmlPage {
             . '`cat_id` int(10) unsigned NOT NULL default "0", '
             . '`info_id` int(10) unsigned NOT NULL default "0", '
             . 'PRIMARY KEY  (`cat_id`,`info_id`) '
-            ')');
+            . ')');
         assert('$q');
     }
 
@@ -135,13 +140,14 @@ class dbCreate extends pdHtmlPage {
             . '`cat_id` int(10) unsigned NOT NULL auto_increment, '
             . '`category` varchar(255) NOT NULL default "", '
             . 'PRIMARY KEY  (`cat_id`) '
-            ')');
+            . ')');
         assert('$q');
 
-        $q = $db->insert('category', '*',
-                         array('In Conference', 'In Magazine', 'In Journal',
-                               'In Workshop'),
-                         'dbcreate::tblCategory');
+        foreach(array('In Conference', 'In Magazine', 'In Journal', 'In Workshop')
+                as $cat)
+            $arr[] = array('category' => $cat);
+
+        $q = $db->insert('category', $arr, 'dbcreate::tblCategory');
         assert('$q');
     }
 
@@ -155,23 +161,24 @@ class dbCreate extends pdHtmlPage {
             . ')');
         assert('$q');
 
-        $q = $db->insert('extra_info', '',
-                         array('Awarded Best Student Paper prize',
-                               'Awarded Distinguished Paper prize',
-                               'MSc thesis',
-                               'Oral Presentation',
-                               'Platform Presentation',
-                               'Refereed Poster',
-                               'Second Place Poster',
-                               'lightly refereed',
-                               'unrefereed',
-                               'with Business',
-                               'with Colleague',
-                               'with External',
-                               'with Medical',
-                               'with PostDoc',
-                               'with Student'),
-                         'dbcreate::tblExtraInfo');
+        foreach (array('Awarded Best Student Paper prize',
+                       'Awarded Distinguished Paper prize',
+                       'MSc thesis',
+                       'Oral Presentation',
+                       'Platform Presentation',
+                       'Refereed Poster',
+                       'Second Place Poster',
+                       'lightly refereed',
+                       'unrefereed',
+                       'with Business',
+                       'with Colleague',
+                       'with External',
+                       'with Medical',
+                       'with PostDoc',
+                       'with Student') as $info)
+            $arr[] = array('name' => $info);
+
+        $q = $db->insert('extra_info', $arr, 'dbcreate::tblExtraInfo');
         assert('$q');
     }
 
@@ -183,16 +190,17 @@ class dbCreate extends pdHtmlPage {
         $q = $db->query(
             'CREATE TABLE `info` ('
             . '`info_id` int(10) unsigned NOT NULL auto_increment, '
-            . '`name` varchar(255) NOT NULL default '', '
+            . '`name` varchar(255) NOT NULL default "", '
             . 'PRIMARY KEY  (`info_id`) '
             . ')');
         assert('$q');
 
-        $q = $db->insert('info', '',
-                         array('Conference', 'Journal', 'Book Title', 'Publisher',
-                               'Institution', 'Editor', 'Edition', 'School', 'Type',
-                               'Volume', 'Number', 'Pages', 'URL'),
-                         "dbcreate::tblExtraInfo");
+        foreach (array('Conference', 'Journal', 'Book Title', 'Publisher',
+                       'Institution', 'Editor', 'Edition', 'School', 'Type',
+                       'Volume', 'Number', 'Pages', 'URL') as $info)
+            $arr[] = array('name' => $info);
+
+        $q = $db->insert('info', $arr, "dbcreate::tblExtraInfo");
         assert('$q');
     }
 
@@ -203,7 +211,7 @@ class dbCreate extends pdHtmlPage {
         $q = $db->query(
             'CREATE TABLE `interest` ('
             . '`interest_id` int(10) unsigned NOT NULL auto_increment, '
-            . '`interest` varchar(255) NOT NULL default '', '
+            . '`interest` varchar(255) NOT NULL default "", '
             . 'PRIMARY KEY  (`interest_id`) '
             . ')');
         assert('$q');
@@ -269,9 +277,9 @@ class dbCreate extends pdHtmlPage {
         $q = $db->query('DROP TABLE IF EXISTS `pub_cat_info`');
         $q = $db->query(
             'CREATE TABLE `pub_cat_info` ('
-            . '`pub_id` int(10) unsigned NOT NULL default '0', '
-            . '`cat_id` int(10) unsigned NOT NULL default '0', '
-            . '`info_id` int(10) unsigned NOT NULL default '0', '
+            . '`pub_id` int(10) unsigned NOT NULL default "0", '
+            . '`cat_id` int(10) unsigned NOT NULL default "0", '
+            . '`info_id` int(10) unsigned NOT NULL default "0", '
             . '`value` varchar(255) default NULL, '
             . 'PRIMARY KEY  (`pub_id`,`cat_id`,`info_id`) '
             . ')');
