@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.1 2007/03/01 00:00:50 aicmltec Exp $
+# Name: $Id: report.pl,v 1.2 2007/03/01 00:04:01 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -128,7 +128,9 @@ foreach my $year (sort keys %years) {
     %pubs = getTierOnePubs($years{$year}[0], $years{$year}[1]);
     @keys = keys %pubs;
 
-    print "Tier 1 publications by all authors: " . ($#keys + 1) . "\n";
+    print "Tier 1 publications by all authors for " . $years{$year}[0]
+        . " - " . $years{$year}[1]
+        . ": " . ($#keys + 1) . "\n";
 }
 
 print "\n";
@@ -137,7 +139,9 @@ foreach my $year (sort keys %years) {
     %pubs = getNonTierOnePubs($years{$year}[0], $years{$year}[1]);
     @keys = keys %pubs;
 
-    print "Non Tier 1 publications by all authors: " . ($#keys + 1) . "\n";
+    print "Non Tier 1 publications by all authors for " . $years{$year}[0]
+        . " - " . $years{$year}[1]
+        . ": " . ($#keys + 1) . "\n";
 }
 
 $dbh->disconnect();
