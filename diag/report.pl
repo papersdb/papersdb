@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.2 2007/03/01 00:04:01 aicmltec Exp $
+# Name: $Id: report.pl,v 1.3 2007/03/05 22:06:20 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -12,7 +12,8 @@ use strict;
 use DBI;
 use Data::Dumper;
 
-my @tier1venues = qw(AAAI IJCAI ICML NIPS JAIR AIJ MLJ Bioinformatics NAR);
+my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR AIJ MLJ Bioinformatics
+NAR JMLR UAI CCR);
 
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
@@ -99,6 +100,8 @@ sub getNonTierOnePubs {
 
 my %pubs;
 my @keys;
+
+print "Tier-1 Venues: " . join(", ", @tier1venues) . "\n\n";
 
 foreach my $year (sort keys %years) {
     %pubs = getTierOnePubs($years{$year}[0], $years{$year}[1], 1);
