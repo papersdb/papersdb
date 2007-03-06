@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.3 2007/03/05 22:06:20 aicmltec Exp $
+# Name: $Id: report.pl,v 1.4 2007/03/06 22:52:42 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -32,119 +32,90 @@ my @pi_authors = ('Szepesvari, C',
 my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman', 'papersdb', '')
     || die "Could not connect to database: $DBI::errstr";
 
-sub getTierOnePubs {
+sub getPubs {
+    my $authors = shift;
     my $startdate = shift;
     my $enddate = shift;
-    my $author = shift;
+    my $tier1only = shift;
     my $statement;
 
-    $statement = 'SELECT * FROM '
+    $statement = 'SELECT publication.pub_id, publication.title FROM '
         . 'publication, author, pub_author, venue WHERE ';
 
     my @list;
 
-    if (defined $author) {
-        foreach my $name (@pi_authors) {
-            push(@list, 'author.name LIKE "%' . $name . '%" ');
+    if ((defined @$authors) && ($#$authors >= 0)) {
+        my @list;
+        foreach my $author (@$authors) {
+            push(@list, 'author.name LIKE "%' . $author . '%"');
         }
-        $statement .= '(' . join(" OR ", @list) . ') AND ';
+        $statement .= '(' . join(' OR ', @list) . ') ';
     }
 
-    $statement .= 'venue.title IN ('
-        . join(', ', map { $dbh->quote($_) } @tier1venues)
-        . ') '
-        . 'AND publication.pub_id=pub_author.pub_id '
+    if ((defined $tier1only) && ($tier1only == 1)) {
+        $statement .= 'AND venue.title IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'AND publication.venue_id=venue.venue_id '
+    }
+    else {
+        $statement .= 'AND (venue.title NOT IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'OR publication.venue_id=NULL) '
+    }
+
+    $statement .= 'AND publication.pub_id=pub_author.pub_id '
         . 'AND author.author_id=pub_author.author_id '
-        . 'AND publication.venue_id=venue.venue_id '
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
-
-    #print $statement . "\n";
 
     my $rv = $dbh->selectall_hashref($statement, 'pub_id');
     return %$rv;
 }
 
-sub getNonTierOnePubs {
-    my $startdate = shift;
-    my $enddate = shift;
-    my $author = shift;
-    my $statement;
+sub getPubAuthors {
+    my $pub_id = shift;
+    my $authors = shift;
 
-    $statement = 'SELECT * FROM '
-        . 'publication, author, pub_author, venue WHERE ';
+    my $statement = 'SELECT author.name FROM '
+        . 'publication, author, pub_author WHERE '
+        . 'publication.pub_id=' . $pub_id . ' AND '
+        . 'publication.pub_id=pub_author.pub_id AND '
+        . 'author.author_id=pub_author.author_id AND ';
 
-    my @list;
-
-    if (defined $author) {
-        foreach my $name (@pi_authors) {
-            push(@list, 'author.name LIKE "%' . $name . '%" ');
+    if ((defined @$authors) && ($#$authors >= 0)) {
+        my @list;
+        foreach my $author (@$authors) {
+            push(@list, 'author.name LIKE "%' . $author . '%"');
         }
-        $statement .= '(' . join(" OR ", @list) . ') AND ';
+        $statement .= '(' . join(' OR ', @list) . ')';
     }
-
-    $statement .= 'venue.title NOT IN ('
-        . join(', ', map { $dbh->quote($_) } @tier1venues)
-        . ') '
-        . 'AND publication.pub_id=pub_author.pub_id '
-        . 'AND author.author_id=pub_author.author_id '
-        . 'AND publication.venue_id=venue.venue_id '
-        . 'AND publication.published BETWEEN \''
-        . $startdate . '\' AND \'' . $enddate . '\'';
 
     #print $statement . "\n";
 
-    my $rv = $dbh->selectall_hashref($statement, 'pub_id');
-    return %$rv;
+    my @result = @{ $dbh->selectall_arrayref($statement) };
+    print "*******" . Dumper(\@result);
+    return @result;
 }
 
 my %pubs;
-my @keys;
+my %pub_authors;
+my %pubcount;
 
 print "Tier-1 Venues: " . join(", ", @tier1venues) . "\n\n";
 
-foreach my $year (sort keys %years) {
-    %pubs = getTierOnePubs($years{$year}[0], $years{$year}[1], 1);
-
-    @keys = keys %pubs;
-
-    print "Tier 1 publications by all PIs for " . $years{$year}[0]
-        . " - " . $years{$year}[1]
-        . ": " . ($#keys + 1) . "\n";
-}
-
-print "\n";
+print "AUTHOR;TIME PERIOD;T1 PUBS;NON T1 PUBS\n";
 
 foreach my $year (sort keys %years) {
-    %pubs = getNonTierOnePubs($years{$year}[0], $years{$year}[1], 1);
+    foreach my $t1 (qw(0 1)) {
+        %pubs = getPubs(\@pi_authors, $years{$year}[0], $years{$year}[1], $t1);
 
-    @keys = keys %pubs;
+        foreach my $pub_id (sort keys %pubs) {
+            my $authors = getPubAuthors($pub_id, \@pi_authors);
+            $pubs{$pub_id}{'authors'} = \@{ $authors };
+        }
 
-    print "Non Tier 1 publications by all PIs for " . $years{$year}[0]
-        . " - " . $years{$year}[1]
-        . ": " . ($#keys + 1) . "\n";
-}
-
-print "\n";
-
-foreach my $year (sort keys %years) {
-    %pubs = getTierOnePubs($years{$year}[0], $years{$year}[1]);
-    @keys = keys %pubs;
-
-    print "Tier 1 publications by all authors for " . $years{$year}[0]
-        . " - " . $years{$year}[1]
-        . ": " . ($#keys + 1) . "\n";
-}
-
-print "\n";
-
-foreach my $year (sort keys %years) {
-    %pubs = getNonTierOnePubs($years{$year}[0], $years{$year}[1]);
-    @keys = keys %pubs;
-
-    print "Non Tier 1 publications by all authors for " . $years{$year}[0]
-        . " - " . $years{$year}[1]
-        . ": " . ($#keys + 1) . "\n";
+        print Dumper(%pubs);
+    }
 }
 
 $dbh->disconnect();
