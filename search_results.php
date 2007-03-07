@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.8 2007/02/08 23:05:59 aicmltec Exp $
+// $Id: search_results.php,v 1.9 2007/03/07 19:26:22 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -101,7 +101,7 @@ class search_results extends pdHtmlPage {
 
             if (count($values) > 0)
                 $table->addRow(array('<b>Author(s)</b>:',
-                                     implode('; ', $values)));
+                                     implode(' AND ', $values)));
 
             if (($sp->startdate != '') && ($sp->enddate != '')) {
                 $stime = strtotime(implode('-', $sp->startdate) . '-1');

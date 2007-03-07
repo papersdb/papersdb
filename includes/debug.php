@@ -1,4 +1,5 @@
- <?php
+<?php ;
+
 /**
 * print debug information to the current debug window
 *

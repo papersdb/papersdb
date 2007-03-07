@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.48 2007/03/07 18:41:15 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.49 2007/03/07 19:26:22 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -18,6 +18,8 @@
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdSearchParams.php';
+
+#include "includes/debug.php";
 
 /**
  * Renders the whole page.
@@ -366,14 +368,15 @@ class search_publication_db extends pdHtmlPage {
 
         if (count($authors) > 0) {
             foreach ($authors as $auth_id) {
+                $author_pubs = array();
                 $search_query = "SELECT DISTINCT pub_id from pub_author "
                     . "WHERE author_id=" . quote_smart($auth_id);
                 $this->add_to_array($search_query, $author_pubs);
+
+                $this->result_pubs = array_intersect($this->result_pubs,
+                                                     $author_pubs);
             }
         }
-        if (count($author_pubs) > 0)
-            $this->result_pubs = array_intersect($this->result_pubs,
-                                                  $author_pubs);
 
         // AUTHOR TYPED SEARCH --------------------------------------
         if ($this->search_params->authortyped != "") {
@@ -387,7 +390,7 @@ class search_publication_db extends pdHtmlPage {
                 $search_query = "SELECT DISTINCT author_id from author WHERE ";
 
                 foreach ($and_terms as $or_term) {
-                    $terms[] .= 'name LIKE ' . quote_smart('%'.$or_term.'%');
+                    $terms[] = 'name LIKE ' . quote_smart('%'.$or_term.'%');
                 }
 
                 $search_query .= implode(' OR ', $terms);
@@ -401,7 +404,7 @@ class search_publication_db extends pdHtmlPage {
                 $search_query = "SELECT DISTINCT pub_id from pub_author WHERE ";
 
                 foreach ($authors as $author_id) {
-                    $terms[] .= 'author_id=' . quote_smart($author_id);
+                    $terms[] = 'author_id=' . quote_smart($author_id);
                 }
                 $search_query .= implode(' OR ', $terms);
                 $this->add_to_array($search_query, $author_pubs);
@@ -484,7 +487,6 @@ class search_publication_db extends pdHtmlPage {
 }
 
 session_start();
-
 $access_level = check_login();
 $page = new search_publication_db();
 echo $page->toHtml();

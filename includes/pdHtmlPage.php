@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.54 2007/02/05 23:12:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.55 2007/03/07 19:26:22 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -308,9 +308,9 @@ class pdHtmlPage {
     }
 
     function loginErrorMessage() {
-       return '<br/>'
-           . '<h4>You must be logged in to access this page.</h4>'
-           . '</div>';
+        return '<br/>'
+            . '<h4>You must be logged in to access this page.</h4>'
+            . '</div>';
     }
 
     function errorMessage() {
@@ -338,18 +338,18 @@ class pdHtmlPage {
 
         return <<<END
             <div id="statusbar">{$status}</div>
-            <div id="titlebar">
-            <a href="http://www.uofaweb.ualberta.ca/science/">
-            <img class="floatLeft" src="images/science.gif"
-            alt="Faculty of Science Home Page" border="0"/></a>
-            <a href="http://www.ualberta.ca/">
-            <img class="floatRight" src="images/uofa_top.gif"
-            alt="University of Alberta Home Page" border="0"/></a>
-            </div>
+                                               <div id="titlebar">
+                                               <a href="http://www.uofaweb.ualberta.ca/science/">
+                                               <img class="floatLeft" src="images/science.gif"
+                                               alt="Faculty of Science Home Page" border="0"/></a>
+                                               <a href="http://www.ualberta.ca/">
+                                               <img class="floatRight" src="images/uofa_top.gif"
+                                               alt="University of Alberta Home Page" border="0"/></a>
+                                               </div>
 
-            <div id="header">
-            <h1>PapersDB</h1>
-            </div>
+                                               <div id="header">
+                                               <h1>PapersDB</h1>
+                                               </div>
 
 END;
     }
@@ -385,12 +385,12 @@ END;
             <span id="copyright">
             <ul>
             <li>Copyright &copy; 2002-2007</li>
-                           </ul>
-                           </span>
-                           </td>
-                           </tr>
-                           </table>
-                           </div>
+                                     </ul>
+                                     </span>
+                                     </td>
+                                     </tr>
+                                     </table>
+                                     </div>
 
 END;
     }
@@ -408,11 +408,11 @@ END;
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                  'submit', 'submit', $label),
+                    'submit', 'submit', $label),
                 HTML_QuickForm::createElement(
-                  'button', 'cancel', 'Cancel',
-                  array('onclick' => 'history.back()'))
-              ),
+                    'button', 'cancel', 'Cancel',
+                    array('onclick' => 'history.back()'))
+                ),
             null, null, '&nbsp;', false);
         return $form;
     }
