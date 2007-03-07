@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.26 2006/10/11 19:34:40 aicmltec Exp $
+// $Id: functions.php,v 1.27 2007/03/07 23:15:04 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -115,6 +115,55 @@ function format80($text) {
     }
 
     return implode("\n", $new_lines);
+}
+
+/**
+* catch the contents of a print_r into a string
+*
+* @access private
+* @param $data unknown variable
+* @return string print_r results
+* @global
+*/
+function debug_capture_print_r($data)
+{
+    ob_start();
+    print_r($data);
+
+    $result = ob_get_contents();
+
+    ob_end_clean();
+
+    return $result;
+}
+
+function debugVar($name,$data) {
+    $captured = explode("\n",debug_capture_print_r($data));
+    echo $name . "<br/>\n";
+    foreach  ($captured as $line) {
+        echo debug_colorize_string($line) . "<br/>\n";
+    }
+}
+
+
+/**
+* colorize a string for pretty display
+*
+* @access private
+* @param $string string info to colorize
+* @return string HTML colorized
+* @global
+*/
+function debug_colorize_string($string)
+{
+    /* turn array indexes to red */
+    $string = str_replace('[','[<font color="red">',$string);
+    $string = str_replace(']','</font>]',$string);
+    /* turn the word Array blue */
+    $string = str_replace('Array','<font color="blue">Array</font>',$string);
+    /* turn arrows graygreen */
+    $string = str_replace('=>','<font color="#556F55">=></font>',$string);
+    return $string;
 }
 
 /**

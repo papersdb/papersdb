@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.73 2006/12/13 00:47:11 aicmltec Exp $
+// $Id: pdPublication.php,v 1.74 2007/03/07 23:15:04 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -664,7 +664,7 @@ class pdPublication {
       if (count($this->info) > 0) {
         foreach ($this->info as $key => $i)
           if ($i != '')
-            $info_arr[] = $key . ' '  . $i;
+            $info_arr[] = $i;
         $info = implode(', ', $info_arr);
       }
 
@@ -710,11 +710,13 @@ class pdPublication {
 
       if (($v != '') && ($info != '') && ($date_str != ''))
         $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
-      if (($v != '') && ($info == '') && ($date_str != ''))
+      else if (($v != '') && ($info == '') && ($date_str != ''))
         $citation .= $v . ', ' . $date_str . '.';
-      if (($v != '') && ($info == '') && ($date_str == ''))
+      else if (($v != '') && ($info == '') && ($date_str == ''))
         $citation .= $v . '.';
-      if (($v == '') && ($info == '') && ($date_str != ''))
+      else if (($v == '') && ($info != '') && ($date_str != ''))
+        $citation .= $info . ', ' . $date_str . '.';
+      else if (($v == '') && ($info == '') && ($date_str != ''))
         $citation .= $date_str . '.';
 
       return $citation;
