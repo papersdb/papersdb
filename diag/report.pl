@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.5 2007/03/07 02:14:57 loyola Exp $
+# Name: $Id: report.pl,v 1.6 2007/03/07 20:22:41 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -12,8 +12,9 @@ use strict;
 use DBI;
 use Data::Dumper;
 
-my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR AIJ MLJ Bioinformatics
-NAR JMLR UAI CCR);
+my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
+
+# Bioinformatics
 
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
@@ -122,6 +123,7 @@ sub getPubAuthors {
 }
 
 my %pubs;
+my %authors;
 my %author_pubs;
 
 foreach my $year (sort keys %years) {
@@ -129,13 +131,18 @@ foreach my $year (sort keys %years) {
         %pubs = getPubs(\@pi_authors, $years{$year}[0], $years{$year}[1], $t1);
 
         foreach my $pub_id (sort keys %pubs) {
-            my %authors = getPubAuthors($pub_id, \@pi_authors);
+            my %pub_authors = getPubAuthors($pub_id, \@pi_authors);
 
-            my $num_authors = scalar(keys %authors);
-            my $authors = join(':', keys %authors);
+            my $num_authors = scalar(keys %pub_authors);
+            my $authors = join(':', keys %pub_authors);
 
             $author_pubs{$year}{$t1}{$authors}{'num_authors'} = $num_authors;
             push(@{ $author_pubs{$year}{$t1}{$authors}{'pubs'} }, $pub_id);
+
+            push(@{ $authors{$authors}{$t1} }, $pub_id);
+            if ($num_authors > 1) {
+                push(@{ $authors{'multiple'}{$t1} }, $pub_id);
+            }
         }
     }
 }
@@ -171,6 +178,13 @@ foreach my $year (sort keys %author_pubs) {
     foreach my $t1 (sort keys %{ $author_pubs{$year} }) {
         printf "%s - %s;%s;%d\n", $years{$year}[0], $years{$year}[1],
             $t1, $totals{$year}{$t1};
+    }
+}
+
+print "\n\nAUTHOR(S);T1;NUM PUBS\n";
+foreach my $authors (sort keys %authors) {
+    foreach my $t1 (sort keys %{ $authors{$authors} }) {
+        printf "%s;%s;%d\n", $authors, $t1, scalar(@{ $authors{$authors}{$t1} });
     }
 }
 
