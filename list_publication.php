@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.27 2007/02/10 22:23:08 loyola Exp $
+// $Id: list_publication.php,v 1.28 2007/03/08 16:57:04 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -108,7 +108,7 @@ class list_publication extends pdHtmlPage {
             $this->pageError = true;
         }
 
-        $this->contentPre .= $title;
+        $this->contentPre .= $this->pubSelMenu() . "<br/>\n" . $title;
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
@@ -175,23 +175,10 @@ class list_publication extends pdHtmlPage {
 
     function pubSelect(&$db, $viewCat) {
         assert('is_object($db)');
-
-        $pubShowCats = array('year', 'author', 'venue', 'category',
-                             'keywords');
-        $text = '<div id="sel"><ul>';
-        foreach($pubShowCats as $pcat) {
-            if ($pcat == $viewCat)
-                $text .= '<li class="selected">By ' . ucwords($pcat) . '</li>';
-            else
-            $text .= '<li><a href="list_publication.php?by='. $pcat
-                . '">By ' . ucwords($pcat) . '</a></li>';
-        }
-        $text .= '</ul></div>';
-        $this->contentPre .= $text . '<br/>';
+        $this->contentPre .= $this->pubSelMenu() . '<br/>';
 
         switch ($viewCat) {
             case "year":
-                $text = '';
                 $pub_years = new pdPubList($db, array('year_list' => true));
 
                 foreach (array_values($pub_years->list) as $year) {
@@ -250,7 +237,6 @@ class list_publication extends pdHtmlPage {
                 break;
 
             case 'category':
-                $text = '';
                 $cl = new pdCatList($db);
 
                 foreach ($cl->list as $cat_id => $category) {
@@ -311,6 +297,22 @@ class list_publication extends pdHtmlPage {
                                                           'class' => 'small'));
             }
         }
+    }
+
+    function pubSelMenu() {
+        $pubShowCats = array('year', 'author', 'venue', 'category',
+                             'keywords');
+        $text = '<div id="sel"><ul>';
+        foreach($pubShowCats as $pcat) {
+            if ($pcat == $viewCat)
+                $text .= '<li class="selected">By ' . ucwords($pcat) . '</li>';
+            else
+            $text .= '<li><a href="list_publication.php?by='. $pcat
+                . '">By ' . ucwords($pcat) . '</a></li>';
+        }
+        $text .= '</ul></div>';
+
+        return $text;
     }
 }
 
