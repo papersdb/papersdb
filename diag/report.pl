@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.7 2007/03/08 23:10:29 aicmltec Exp $
+# Name: $Id: report.pl,v 1.8 2007/03/08 23:29:26 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -148,7 +148,7 @@ sub getPubs {
     my $tier1only = shift;
     my $statement;
 
-    $statement = 'SELECT publication.pub_id, publication.title FROM '
+    $statement = 'SELECT DISTINCT publication.pub_id, publication.title FROM '
         . 'publication, author, pub_author, venue WHERE ';
 
     if ((defined @$authors) && (@$authors > 0)) {
@@ -261,8 +261,6 @@ sub piReport {
             }
         }
     }
-
-    print Dumper(\%author_pubs);
 
     my %totals;
 
