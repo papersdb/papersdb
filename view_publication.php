@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.61 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: view_publication.php,v 1.62 2007/03/08 18:23:00 aicmltec Exp $
 
 /**
  * View Publication
@@ -33,7 +33,7 @@ class view_publication extends pdHtmlPage {
         global $access_level;
 
         pubSessionInit();
-        parent::pdHtmlPage('view_publications');
+        parent::pdHtmlPage('view_publication');
 
         if (!isset($_GET['pub_id'])) {
             $this->pageError = true;
