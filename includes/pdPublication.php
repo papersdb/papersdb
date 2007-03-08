@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.74 2007/03/07 23:15:04 aicmltec Exp $
+// $Id: pdPublication.php,v 1.75 2007/03/08 18:20:18 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -800,7 +800,7 @@ class pdPublication {
             return false;
 
         $pub_date = split('-', $this->published);
-        if ($this->venue != null) {
+        if (is_object($this->venue)) {
             if ($this->venue->title != '')
                 $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
             else
