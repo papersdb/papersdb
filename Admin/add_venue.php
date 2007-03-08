@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.24 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: add_venue.php,v 1.25 2007/03/08 01:00:52 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -171,21 +171,25 @@ class add_venue extends pdHtmlPage {
                 . 'papersdb/Admin/add_pub1.php';
             $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-            $form->addGroup(
-                array(
-                    HTML_QuickForm::createElement(
-                        'button', 'prev_step', '<< Previous Step',
-                        array('onClick' => "location.href='"
-                              . $prev_page . "';")),
-                    HTML_QuickForm::createElement(
-                        'button', 'cancel', 'Cancel',
-                        array('onclick' => "location.href='" . $url . "';")),
-                    HTML_QuickForm::createElement(
-                        'reset', 'reset', 'Reset'),
-                    HTML_QuickForm::createElement(
-                        'submit', 'next_step', 'Next Step >>'),
-                    ),
-                null, null, '&nbsp;');
+            $buttons[] = HTML_QuickForm::createElement(
+                'button', 'prev_step', '<< Previous Step',
+                array('onClick' => "location.href='"
+                      . $prev_page . "';"));
+            $buttons[] = HTML_QuickForm::createElement(
+                'button', 'cancel', 'Cancel',
+                array('onclick' => "location.href='" . $url . "';"));
+            $buttons[] = HTML_QuickForm::createElement(
+                'reset', 'reset', 'Reset');
+            $buttons[] = HTML_QuickForm::createElement(
+                'submit', 'next_step', 'Next Step >>');
+
+            $pub =& $_SESSION['pub'];
+
+            if ($pub->pub_id != '')
+                $buttons[] = HTML_QuickForm::createElement(
+                    'submit', 'finish', 'Finish');
+
+            $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
             $this->addPubDisableMenuItems();
         }
@@ -246,7 +250,10 @@ class add_venue extends pdHtmlPage {
 
                     if ($this->debug) return;
 
-                    header('Location: add_pub2.php');
+                    if (isset($values['finish']))
+                        header('Location: add_pub_submit.php');
+                    else
+                        header('Location: add_pub2.php');
                 }
                 else {
                     if (!isset($this->venue_id) || ($this->venue_id == '')) {
