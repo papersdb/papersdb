@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.75 2007/03/08 18:20:18 aicmltec Exp $
+// $Id: pdPublication.php,v 1.76 2007/03/09 17:41:57 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -871,7 +871,10 @@ class pdPublication {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
-        if (!isset($papername) || (strpos($papername, 'paper_') !== false))
+        # 'No paper' was used in a previous version of the software
+        if (!isset($papername)
+            || (strpos($papername, 'No paper') !== false)
+            || (strpos($papername, 'paper_') !== false))
             return;
 
         $basename = 'paper_' . basename($papername, '.' . $user->login);
