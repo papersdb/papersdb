@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.56 2007/03/07 23:15:04 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.57 2007/03/09 20:24:49 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -460,10 +460,12 @@ END;
 
     function debugVar($name,$data) {
         $captured = explode("\n",debug_capture_print_r($data));
-        $this->contentPost .= $name . "<br/>\n";
+        $this->contentPost .= $name . "<br/>\n<pre>";
         foreach  ($captured as $line) {
-            $this->contentPost .= debug_colorize_string($line) . "<br/>\n";;
+            $this->contentPost .= debug_colorize_string($line)
+                . "\n";
         }
+        $this->contentPost .= "</pre>\n";
     }
 }
 

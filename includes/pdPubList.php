@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.14 2007/02/10 22:23:08 loyola Exp $
+// $Id: pdPubList.php,v 1.15 2007/03/09 20:24:49 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -57,6 +57,9 @@ class pdPubList {
         }
         else if ($options['year'] != ''){
             $this->yearPubsDBLoad($db, $options['year']);
+        }
+        else if (is_array($options['title'])){
+            $this->titlePubsDBLoad($db, $options['pub_ids']);
         }
         else if (is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
@@ -195,7 +198,7 @@ class pdPubList {
                          'publication.pub_id',
                          array('publication.pub_id=pub_author.pub_id',
                                'pub_author.author_id' => $author_id),
-                         "pdAuthor::publicationsDbLoad",
+                         "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'publication.title ASC'));
         return $db->numRows($q);
     }
@@ -240,7 +243,7 @@ class pdPubList {
 
         $q = $db->select(array('publication'),
                          'distinct year(published) as year', '',
-                         "pdAuthor::publicationsDbLoad",
+                         "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published ASC'));
 
         if ($db->numRows($q) == 0) return;
@@ -257,7 +260,26 @@ class pdPubList {
 
         $q = $db->select(array('publication'), '*',
                          array('year(published)' => $year),
-                         "pdAuthor::publicationsDbLoad",
+                         "pdPubList::publicationsDbLoad",
+                         array( 'ORDER BY' => 'published ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+        }
+    }
+
+    function titlePubsDBLoad(&$db, $title) {
+        assert('is_object($db)');
+
+        $title = str_replace(' ', '%', $title);
+
+        $q = $db->select(array('publication'), '*',
+                         array('LOWER(title) LIKE' => 'LOWER(%' . $title . '%)'),
+                         "pdPubList::titlePubsDBLoad",
                          array( 'ORDER BY' => 'published ASC'));
 
         if ($db->numRows($q) == 0) return;
@@ -273,7 +295,7 @@ class pdPubList {
         assert('is_object($db)');
 
         $q = $db->select('publication', 'keywords', '',
-                         "pdAuthor::publicationsDbLoad");
+                         "pdPubList::publicationsDbLoad");
 
         if ($db->numRows($q) == 0) return;
 
@@ -295,7 +317,7 @@ class pdPubList {
 
         $q = $db->select(array('publication'), '*',
                          array('keywords like "%' . $kw . '%"'),
-                         "pdAuthor::publicationsDbLoad",
+                         "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'title ASC'));
 
         if ($db->numRows($q) == 0) return;

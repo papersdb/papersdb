@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.76 2007/03/09 17:41:57 aicmltec Exp $
+// $Id: pdPublication.php,v 1.77 2007/03/09 20:24:49 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -700,6 +700,10 @@ class pdPublication {
         $location = $this->venue->locationGet($pub_date[0]);
         if ($location != '')
             $v .= ', ' . $location;
+      }
+
+      if (($v == '') && is_object($this->category)) {
+          $v = $this->category->category;
       }
 
       $date_str = '';
