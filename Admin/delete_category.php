@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.14 2006/10/27 20:04:54 aicmltec Exp $
+// $Id: delete_category.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -49,7 +49,7 @@ class delete_category extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $category = new pdCategory();
         $result = $category->dbLoad($db, $cat_id);

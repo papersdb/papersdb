@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.57 2007/03/09 20:24:49 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.58 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -16,8 +16,6 @@ require_once 'includes/pdNavMenu.php';
 
 require_once 'HTML/QuickForm.php';
 require_once 'HTML/QuickForm/advmultiselect.php';
-require_once 'HTML/QuickForm/Controller.php';
-require_once 'HTML/QuickForm/Action/Display.php';
 require_once('HTML/QuickForm/Renderer/Default.php');
 require_once 'HTML/Table.php';
 
@@ -75,10 +73,6 @@ class pdHtmlPage {
             $this->login_level  = $login_level;
         }
 
-        if ($urlPrefix != null)
-            $this->urlPrefix = $urlPrefix;
-
-        $this->redirectUrl     = $redirectUrl;
         $this->redirectTimeout = 0;
         $this->db              = null;
         $this->table           = null;

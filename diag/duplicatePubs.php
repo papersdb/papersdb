@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.1 2007/03/09 20:24:49 aicmltec Exp $
+// $Id: duplicatePubs.php,v 1.2 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -25,22 +25,19 @@ class duplicatePubs extends pdHtmlPage {
         global $access_level;
 
         pubSessionInit();
-        parent::pdHtmlPage('duplicatePubs', 'Duplicate Publications',
-                           'diag/duplicatePubs.php');
+        parent::pdHtmlPage('duplicatePubs');
 
         if ($access_level <= 1) {
             $this->loginError = true;
             return;
         }
 
-        $db =& dbCreate();
-
-        $all_pubs = new pdPubList($db);
-
         $this->contentPre .= '<h1>Publications with same title</h1>'
             . 'Note that some publications may exist both in a conference '
             . 'and later in time in a journal.';
 
+        $db = dbCreate();
+        $all_pubs = new pdPubList($db);
         $titles = array();
 
         foreach ($all_pubs->list as $pub) {

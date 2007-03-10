@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.10 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: lib_dbfunctions.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * DB connection is only hard coded here and in lib_functions.
@@ -29,7 +29,7 @@ $wgSiteName = "PapersDB";
 /**
  * Creates a database object to operate on the database.
  */
-function &dbCreate() {
+function dbCreate() {
     return Database::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, DB_NAME);
 }
 

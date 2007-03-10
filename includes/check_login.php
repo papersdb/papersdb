@@ -23,7 +23,7 @@ function check_login() {
     }
 
     // addslashes to session login before using in a query.
-    $db =& dbCreate();
+    $db = dbCreate();
     $q = $db->selectRow('user', 'password',
                         array('login' => $_SESSION['user']->login),
                         "Admin/check_login.php");

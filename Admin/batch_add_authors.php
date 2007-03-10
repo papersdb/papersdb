@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.1 2007/02/05 23:12:37 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.2 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -33,9 +33,9 @@ class batch_add_authors extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
-        $form = new HTML_QuickForm($name, 'post', $action, '_self',
+        $form = new HTML_QuickForm('batch_add', 'post', null, '_self',
                                    'multipart/form-data');
 
         $form->addGroup(

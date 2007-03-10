@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.9 2007/03/07 19:26:22 aicmltec Exp $
+// $Id: search_results.php,v 1.10 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -41,7 +41,7 @@ class search_results extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $sp =& $_SESSION['search_params'];
 
         $this->contentPre .= '<h3>SEARCH RESULTS FOR</h3>';
@@ -136,7 +136,7 @@ class search_results extends pdHtmlPage {
         $pubs = new pdPubList(
             $db, array('pub_ids' => $_SESSION['search_results']));
 
-        $cvForm =& $this->cvFormCreate($_SESSION['search_results']);
+        $cvForm = $this->cvFormCreate($_SESSION['search_results']);
         if ($cvForm != null) {
             $renderer =& $cvForm->defaultRenderer();
             $cvForm->accept($renderer);

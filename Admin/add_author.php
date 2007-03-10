@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.40 2007/03/08 01:00:52 aicmltec Exp $
+// $Id: add_author.php,v 1.41 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -15,6 +15,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
+require_once 'Admin/add_pub_base.php';
 
 /**
  * This is just a stub, see javascript author_check() for the real code
@@ -36,7 +37,7 @@ class add_author extends pdHtmlPage {
     function add_author() {
         global $access_level;
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $author = new pdAuthor();
 
         $arr = null;
@@ -142,7 +143,7 @@ class add_author extends pdHtmlPage {
                               array('size' => 50, 'maxlength' => 250));
         }
 
-        if ($_SESSION['state'] == 'pub_add') {
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
             $next_page = substr($_SERVER['PHP_SELF'], 0, $pos)
                 . 'papersdb/Admin/add_pub2.php';
@@ -217,12 +218,13 @@ class add_author extends pdHtmlPage {
               array('interests' => array_keys($author->interests)));
         }
 
-        if ($_SESSION['state'] == 'pub_add') {
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
 
-            $this->contentPre .= '<h3>Publication Information</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>';
+            $this->contentPre .= '<h3>Adding Following Publication</h3>'
+                . $pub->getCitationHtml('..', false) . '<p/>'
+                . add_pub_base::similarPubsHtml($db);
         }
 
         $renderer =& $form->defaultRenderer();
@@ -270,12 +272,20 @@ class add_author extends pdHtmlPage {
         $author->email = $values['email'];
         $author->organization = $values['organization'];
         $author->webpage = $values['webpage'];
-        $author->interests = array_merge($values['interests'],
-                                         $values['newInterests']);
+
+        if (isset($values['interests']) && (count($values['interests']) > 0))
+            $author->interests
+                = array_merge($author->interests, $values['interests']);
+
+
+        if (isset($values['newInterests'])
+            && (count($values['newInterests']) > 0))
+            $author->interests
+                = array_merge($author->interests, $values['newInterests']);
 
         $author->dbSave($db);
 
-        if ($_SESSION['state'] == 'pub_add') {
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
             $pub->addAuthor($db, $author->author_id);

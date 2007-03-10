@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.26 2006/10/12 16:48:10 aicmltec Exp $
+// $Id: add_category.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -38,7 +38,7 @@ class add_category extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $category = new pdCategory();
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {

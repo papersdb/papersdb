@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.19 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: add_pub1.php,v 1.20 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -12,7 +12,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requires the base class and classes to access the database. */
-require_once 'includes/pdHtmlPage.php';
+require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdVenueList.php';
@@ -27,7 +27,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  *
  * @package PapersDB
  */
-class add_pub1 extends pdHtmlPage {
+class add_pub1 extends add_pub_base {
     var $debug = 0;
 
     function add_pub1() {
@@ -41,12 +41,15 @@ class add_pub1 extends pdHtmlPage {
                 $$opt = null;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         if (isset($_SESSION['pub'])) {
+            // according to session variables, we are already editing a
+            // publication
             $pub =& $_SESSION['pub'];
         }
         else if ($pub_id != '') {
+            // pub_id passed in with $_GET variable
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id);
             if (!$result) {
@@ -58,6 +61,7 @@ class add_pub1 extends pdHtmlPage {
             $_SESSION['pub'] =& $pub;
         }
         else {
+            // create a new publication
             $pub = new pdPublication();
             $_SESSION['pub'] =& $pub;
         }
@@ -72,8 +76,6 @@ class add_pub1 extends pdHtmlPage {
             $db->close();
             return;
         }
-
-        //$this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
 
         $this->addPubDisableMenuItems();
 
@@ -100,7 +102,7 @@ class add_pub1 extends pdHtmlPage {
         $venue_sel2[2] = array('' => '--Select Venue--') + $venues[2]->list;
         $venue_sel2[3] = array('' => '--Select Venue--') + $venues[3]->list;
 
-        // add 'Used by me' to venue selection
+        // check if user info has 'Used by me' to venues
         $user =& $_SESSION['user'];
         $user->venueIdsGet($db);
         if (count($user->venue_ids) > 0) {
@@ -215,8 +217,9 @@ class add_pub1 extends pdHtmlPage {
         if (isset($_SESSION['pub']) && ($_SESSION['pub']->title != '')) {
             $pub =& $_SESSION['pub'];
 
-            $this->contentPre .= '<h3>Publication Information</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>';
+            $this->contentPre .= '<h3>Adding Following Publication</h3>'
+                . $pub->getCitationHtml('..', false) . '<p/>'
+                . add_pub_base::similarPubsHtml($db);
         }
 
         $renderer =& $this->form->defaultRenderer();
@@ -261,6 +264,10 @@ class add_pub1 extends pdHtmlPage {
 
         if (isset($values['venue_id'][1]) && ($values['venue_id'][1] > 0))
             $pub->addVenue($db, $values['venue_id'][1]);
+
+        $result = $pub->duplicateTitleCheck($db);
+        if (count($result) > 0)
+            $_SESSION['similar_pubs'] = $result;
 
         if ($this->debug)
             $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';

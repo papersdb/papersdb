@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.18 2007/02/05 23:12:37 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.19 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -148,9 +148,9 @@ class pdAuthor {
     function dbSave(&$db) {
         assert('is_object($db)');
 
-	    // add http:// to webpage address if needed
-	    if(strpos($webpage, 'http') === false) {
-		    $this->webpage = "http://" . $this->webpage;
+        // add http:// to webpage address if needed
+        if(strpos($this->webpage, 'http') === false) {
+            $this->webpage = "http://" . $this->webpage;
         }
 
         if (isset($this->author_id)) {

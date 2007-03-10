@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.78 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: add_publication.php,v 1.79 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -1040,7 +1040,7 @@ class ActionReset extends HTML_QuickForm_Action {
 
 session_start();
 $access_level = check_login();
-$db =& dbCreate();
+$db = dbCreate();
 
 $wizard = new HTML_QuickForm_Controller('pubWizard', true);
 $wizard->addPage(new pubStep1Page('page1'));

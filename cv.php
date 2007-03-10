@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.14 2006/10/20 16:13:42 aicmltec Exp $
+// $Id: cv.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -33,7 +33,7 @@ class cv extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $pub_count = 0;
         foreach (split(",", $_POST['pub_ids']) as $pub_id) {
             $pub_count++;

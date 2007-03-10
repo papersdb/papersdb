@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.9 2006/10/20 23:16:54 aicmltec Exp $
+// $Id: list_categories.php,v 1.10 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -25,7 +25,7 @@ class list_categories extends pdHtmlPage {
 
         pubSessionInit();
         parent::pdHtmlPage('all_categories');
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $cat_list = new pdCatList($db);
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.26 2006/10/11 19:34:40 aicmltec Exp $
+// $Id: login.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -97,7 +97,7 @@ class login extends pdHtmlPage {
     }
 
     function processForm() {
-        $db =& dbCreate();
+        $db = dbCreate();
         $user = new pdUser();
 
         $values = $this->form->exportValues();

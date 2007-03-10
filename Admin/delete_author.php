@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.14 2006/12/04 23:28:18 aicmltec Exp $
+// $Id: delete_author.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -38,16 +38,17 @@ class delete_author extends pdHtmlPage {
             return;
         }
 
-        if (isset($_GET['author_id']) && ($_GET['author_id'] != ''))
-            $author_id = intval($_GET['author_id']);
-
         $form =& $this->confirmForm('deleter');
-        $form->addElement('hidden', 'author_id', $author_id);
+
+        if (isset($_GET['author_id']) && ($_GET['author_id'] != '')) {
+            $author_id = intval($_GET['author_id']);
+            $form->addElement('hidden', 'author_id', $author_id);
+        }
 
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $db =& dbCreate();
+            $db = dbCreate();
             $author = new pdAuthor();
             $result = $author->dbLoad($db, $values['author_id']);
             if (!$result) {
@@ -85,7 +86,7 @@ class delete_author extends pdHtmlPage {
                 return;
             }
 
-            $db =& dbCreate();
+            $db = dbCreate();
             $author = new pdAuthor();
             $result = $author->dbLoad($db, $author_id);
             if (!$result) {

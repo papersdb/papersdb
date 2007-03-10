@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.10 2006/12/06 17:19:29 aicmltec Exp $
+// $Id: delete_interest.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -38,7 +38,7 @@ class delete_interest extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $form =& $this->confirmForm('deleter');
         $interest_list = new pdAuthInterests($db);

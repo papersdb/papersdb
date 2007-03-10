@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.28 2007/03/08 16:57:04 aicmltec Exp $
+// $Id: list_publication.php,v 1.29 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -34,7 +34,7 @@ class list_publication extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('view_publications');
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         if (isset($_GET['year'])) {
             $pub_list = new pdPubList(
@@ -173,21 +173,30 @@ class list_publication extends pdHtmlPage {
         $db->close();
     }
 
-    function pubSelect(&$db, $viewCat) {
+    function pubSelect(&$db, $viewCat = null) {
         assert('is_object($db)');
-        $this->contentPre .= $this->pubSelMenu() . '<br/>';
+        $this->contentPre .= $this->pubSelMenu($viewCat) . '<br/>';
+        $text = '';
 
         switch ($viewCat) {
             case "year":
+                $table = new HTML_Table(array('class' => 'nomargins',
+                                              'width' => '100%'));
                 $pub_years = new pdPubList($db, array('year_list' => true));
 
-                foreach (array_values($pub_years->list) as $year) {
-                    $text .= '<a href="list_publication.php?year=' . $year
-                        . '">' . $year . '</a><br/>';
+                $table->addRow(array('Year', 'Num. Publications'),
+                               array('id' => 'emph'));
+
+                foreach (array_values($pub_years->list) as $item) {
+                    $cells = array();
+                    $cells[] = '<a href="list_publication.php?year='
+                        . $item['year'] . '">' . $item['year'] . '</a>';
+                    $cells[] = $item['count'];
+                    $table->addRow($cells);
                 }
 
                 $this->contentPre .= '<h2>Publications by Year:</h2>'
-                    . $text;
+                    . $table->toHtml();
                 break;
 
             case 'author':
@@ -237,15 +246,23 @@ class list_publication extends pdHtmlPage {
                 break;
 
             case 'category':
+                $table = new HTML_Table(array('class' => 'nomargins',
+                                              'width' => '100%'));
                 $cl = new pdCatList($db);
 
+                $table->addRow(array('Category', 'Num. Publications'),
+                               array('id' => 'emph'));
+
                 foreach ($cl->list as $cat_id => $category) {
-                    $text .= '<a href="list_publication.php?cat_id=' . $cat_id
-                        . '">' . $category . '</a><br/>';
+                    $cells = array();
+                    $cells[] = '<a href="list_publication.php?cat_id='
+                        . $cat_id . '">' . $category . '</a><br/>';
+                    $cells[] = $cl->catNumPubs($db, $cat_id);
+                    $table->addRow($cells);
                 }
 
                 $this->contentPre .= '<h2>Publications by Category:</h2>'
-                    . $text;
+                    . $table->toHtml();
                 break;
 
             case 'keywords':
@@ -278,6 +295,8 @@ class list_publication extends pdHtmlPage {
     }
 
     function tableHighlits(&$table) {
+        global $access_level;
+
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
@@ -291,15 +310,13 @@ class list_publication extends pdHtmlPage {
             }
 
             if ($access_level > 0) {
-                $table->updateCellAttributes($i, 1, array('id' => 'emph',
-                                                          'class' => 'small'));
-                $table->updateCellAttributes($i, 2, array('id' => 'emph',
+                $table->updateCellAttributes($i, 0, array('id' => 'emph',
                                                           'class' => 'small'));
             }
         }
     }
 
-    function pubSelMenu() {
+    function pubSelMenu($viewCat = null) {
         $pubShowCats = array('year', 'author', 'venue', 'category',
                              'keywords');
         $text = '<div id="sel"><ul>';

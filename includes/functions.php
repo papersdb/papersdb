@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.28 2007/03/09 20:24:49 aicmltec Exp $
+// $Id: functions.php,v 1.29 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -177,6 +177,7 @@ function pubSessionInit() {
     unset($_SESSION['attachments']);
     unset($_SESSION['att_types']);
     unset($_SESSION['removed_atts']);
+    unset($_SESSION['similar_pubs']);
 }
 
 /**
@@ -188,11 +189,11 @@ function searchSessionInit() {
     unset($_SESSION['search_params']);
 }
 
-function backtrace() {
+function papersdb_backtrace() {
     $s = '';
     $MAXSTRLEN = 64;
 
-    $s = '<pre align=left>';
+    $s = '<div id="backtrace"><pre align=left>';
     $traceArr = debug_backtrace();
 
     //print_r($traceArr);
@@ -202,7 +203,6 @@ function backtrace() {
     foreach($traceArr as $arr) {
         for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
         $tabs -= 1;
-        $s .= '<font face="Courier New,Courier">';
         if (isset($arr['class'])) $s .= $arr['class'].'.';
         $args = array();
         if(!empty($arr['args'])) foreach($arr['args'] as $v)
@@ -222,12 +222,12 @@ function backtrace() {
         $s .= $arr['function'].'('.implode(', ',$args).')</font>';
         $Line = (isset($arr['line'])? $arr['line'] : "unknown");
         $File = (isset($arr['file'])? $arr['file'] : "unknown");
-        $s .= sprintf("<font color=#808080 size=-1> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
+        $s .= sprintf("<font color=#808080> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
                       $Line, $File, $File);
         $s .= "\n";
     }
-    $s .= '</pre>';
-    return $s;
+    $s .= '</pre></div>';
+    echo $s;
 }
 
 /**
@@ -237,7 +237,7 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     if (PHP_VERSION >= 5)
         if ($errno >= E_STRICT) return;
 
-    if ($errno == E_NOTICE) return;
+    //if ($errno == E_NOTICE) return;
 
     // timestamp for the error entry
     $dt = date("Y-m-d H:i:s (T)");
@@ -276,9 +276,10 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
 
     // for testing
     echo $err;
-    backtrace();
+    papersdb_backtrace();
 }
 
 $old_error_handler = set_error_handler("userErrorHandler");
+assert_options(ASSERT_CALLBACK, 'papersdb_backtrace');
 
 ?>

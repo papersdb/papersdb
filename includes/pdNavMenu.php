@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.11 2007/02/10 22:23:08 loyola Exp $
+// $Id: pdNavMenu.php,v 1.12 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -122,6 +122,9 @@ class pdNavMenu {
                                       PD_NAV_MENU_LEVEL_ADMIN),
         'author_report'      => array('Author Report',
                                       'diag/author_report.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN),
+        'duplicatePubs'      => array('Duplicate Publications',
+                                      'diag/duplicatePubs.php',
                                       PD_NAV_MENU_LEVEL_ADMIN)
         );
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.49 2007/03/07 19:26:22 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.50 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -337,7 +337,8 @@ class search_publication_db extends pdHtmlPage {
                              "extra_info");
         //same thing happening as category, just with each of these fields
         foreach ($pub_search as $field) {
-            if ($this->search_params->$field != '') {
+            if (isset($this->search_params->$field)
+                && ($this->search_params->$field != '')) {
                 $the_search_array
                     = $this->parse_search($this->search_params->$field);
                 foreach ($the_search_array as $and_terms) {

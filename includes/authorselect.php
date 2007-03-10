@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.18 2006/12/11 17:47:41 aicmltec Exp $
+// $Id: authorselect.php,v 1.19 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
@@ -14,12 +14,6 @@
 require_once 'HTML/QuickForm/advmultiselect.php';
 require_once 'HTML/QuickForm/radio.php';
 
-
-function sortselect($a, $b) {
-    if (strtolower($a['text']) == strtolower($b['text'])) return 0;
-
-    return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;
-}
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
@@ -191,7 +185,7 @@ END;
         }
 
         // The 'unselected' multi-select which appears on the right
-        uasort($arrHtmlUnselected, sortselect);
+        uasort($arrHtmlUnselected, array($this, 'sortselect'));
 
         $strHtmlUnselected = "<select$attrUnselected>\n";
         if (count($arrHtmlUnselected) > 0) {
@@ -530,6 +524,12 @@ JS_END;
         }
 
         return $js;
+    }
+
+    function sortselect($a, $b) {
+        if (strtolower($a['text']) == strtolower($b['text'])) return 0;
+
+        return (strtolower($a['text']) < strtolower($b['text'])) ? -1 : 1;
     }
 }
 

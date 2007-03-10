@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.17 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: list_venues.php,v 1.18 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -25,7 +25,7 @@ class list_venues extends pdHtmlPage {
 
         pubSessionInit();
         parent::pdHtmlPage('all_venues');
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $venue_list = new pdVenueList($db, null, true);
 

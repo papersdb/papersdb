@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.20 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: view_author.php,v 1.21 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -39,7 +39,7 @@ class view_author extends pdHtmlPage {
         }
 
         // Connecting, selecting database
-        $this->db =& dbCreate();
+        $this->db = dbCreate();
 
         $auth = new pdAuthor();
         $auth->dbLoad($this->db, $_GET['author_id'],
@@ -68,7 +68,7 @@ class view_author extends pdHtmlPage {
 
         $this->contentPre .= '</h3>';
 
-        $this->table =& $this->authTableCreate($auth);
+        $this->table = $this->authTableCreate($auth);
 
         $this->db->close();
     }
@@ -122,10 +122,11 @@ class view_author extends pdHtmlPage {
                 }
             }
             else {
-                $table->addRow(array('Publications:',
-                                     '<a href="./list_publication.php?'
-                                     . 'type=view&author_id=' . $auth->author_id
-                                     . '">View All Publications</a>'));
+                $table->addRow(
+                    array('Publications:',
+                          '<a href="./list_publication.php?'
+                          . 'type=view&author_id=' . $auth->author_id
+                          . '">View Publications by this author</a>'));
             }
         }
         else {

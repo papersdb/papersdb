@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.15 2007/03/09 20:24:49 aicmltec Exp $
+// $Id: pdPubList.php,v 1.16 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -33,40 +33,42 @@ class pdPubList {
         if (!isset($options['num_to_load']))
             $options['num_to_load'] = -1;
 
-        if ($options['auth_pubs'] != '') {
+        if (isset($options['auth_pubs'])) {
             $this->authorPubsNumGet($db, $options['auth_pubs']);
         }
-        else if ($options['author_id'] != '') {
+        else if (isset($options['author_id'])) {
             $this->authorIdPubsDbLoad($db, $options['author_id'],
                                     $options['num_to_load']);
         }
-        else if ($options['venue_id'] != '') {
+        else if (isset($options['venue_id'])) {
             $this->venuePubsDbLoad($db, $options['venue_id']);
         }
-        else if ($options['cat_id'] != '') {
+        else if (isset($options['cat_id'])) {
             $this->categoryPubsDbLoad($db, $options['cat_id']);
         }
-        else if ($options['keywords_list'] != ''){
+        else if (isset($options['keywords_list'])) {
             $this->keywordsList($db);
         }
-        else if ($options['keyword'] != ''){
+        else if (isset($options['keyword'])) {
             $this->keywordPubsDBLoad($db, $options['keyword']);
         }
-        else if ($options['year_list'] != ''){
+        else if (isset($options['year_list'])) {
             $this->yearsPubsDBLoad($db);
         }
-        else if ($options['year'] != ''){
+        else if (isset($options['year'])) {
             $this->yearPubsDBLoad($db, $options['year']);
         }
-        else if (is_array($options['title'])){
+        else if (isset($options['title']) && is_array($options['title'])) {
             $this->titlePubsDBLoad($db, $options['pub_ids']);
         }
-        else if (is_array($options['pub_ids'])){
+        else if (isset($options['pub_ids']) && is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
         }
-        else {
+        else if (isset($options['sort_by_updated'])) {
             $this->allPubsDbLoad($db, $options['sort_by_updated']);
-            return;
+        }
+        else {
+            $this->allPubsDbLoad($db);
         }
     }
 
@@ -227,7 +229,7 @@ class pdPubList {
             $this->list[] = new pdPublication($q);
         }
 
-        uasort($this->list, pubsTitleSort);
+        uasort($this->list, array('pdPublication', 'pubsTitleSort'));
     }
 
     function toPubIdList() {
@@ -241,7 +243,7 @@ class pdPubList {
     function yearsPubsDBLoad(&$db) {
         assert('is_object($db)');
 
-        $q = $db->select(array('publication'),
+        $q = $db->select('publication',
                          'distinct year(published) as year', '',
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published ASC'));
@@ -250,15 +252,23 @@ class pdPubList {
 
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[] = $r->year;
+            $this->list[] = array('year' => $r->year);
             $r = $db->fetchObject($q);
         }
+
+        foreach ($this->list as $key => $item) {
+            $q = $db->selectRow('publication', 'count(pub_id) as count',
+                             array('year(published)' => $item['year']),
+                             "pdPubList::publicationsDbLoad");
+            $this->list[$key]['count'] = $q->count;
+        }
+
     }
 
     function yearPubsDBLoad(&$db, $year) {
         assert('is_object($db)');
 
-        $q = $db->select(array('publication'), '*',
+        $q = $db->select('publication', '*',
                          array('year(published)' => $year),
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published ASC'));

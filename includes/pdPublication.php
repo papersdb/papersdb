@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.77 2007/03/09 20:24:49 aicmltec Exp $
+// $Id: pdPublication.php,v 1.78 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -14,6 +14,7 @@
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdVenue.php';
+require_once 'includes/pdPubList.php';
 
 define('PD_PUB_DB_LOAD_BASIC',           0);
 define('PD_PUB_DB_LOAD_CATEGORY',        1);
@@ -660,6 +661,7 @@ class pdPublication {
 
       // Additional Information - Outputs the category specific information
       // if it exists
+      $info = '';
       $info_arr = array();
       if (count($this->info) > 0) {
         foreach ($this->info as $key => $i)
@@ -949,6 +951,27 @@ class pdPublication {
         }
     }
 
+    function duplicateTitleCheck($db) {
+        assert('is_object($db)');
+
+        $myTitleLower = preg_replace('/\s\s+/', ' ', strtolower($this->title));
+        $all_pubs = new pdPubList($db);
+        $similarPubs = array();
+
+        foreach ($all_pubs->list as $pub) {
+            $pubTitleLower
+                = preg_replace('/\s\s+/', ' ', strtolower($pub->title));
+
+            if (isset($this->pub_id) && ($this->pub_id == $pub->pub_id))
+                continue;
+
+            if ($myTitleLower == $pubTitleLower) {
+                $similarPubs[] = $pub->pub_id;
+            }
+        }
+        return $similarPubs;
+    }
+
     /**
      * Loads publication data from the object or array passed in
      */
@@ -970,12 +993,12 @@ class pdPublication {
             }
         }
     }
-}
 
-function pubsTitleSort($a , $b) {
-    if (strtolower($a->title) == strtolower($b->title)) return 0;
+    function pubsTitleSort($a , $b) {
+        if (strtolower($a->title) == strtolower($b->title)) return 0;
 
-    return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
+        return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
+    }
 }
 
 ?>

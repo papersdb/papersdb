@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.6 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: author_report.php,v 1.7 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -54,7 +54,7 @@ class author_report extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $this->contentPre .= '<h2>AICML Author Report</h2>';
 

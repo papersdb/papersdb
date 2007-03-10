@@ -129,6 +129,10 @@ a:hover { text-decoration: underline; color: #666600;}
   font-size:9px;
 }
 
+#statusbar {
+  font-size: .7em;
+}
+
 h1 {
   color: #006633;
 }

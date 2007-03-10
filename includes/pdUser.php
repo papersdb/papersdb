@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.26 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdUser.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -128,7 +128,10 @@ class pdUser {
         if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->author_rank[$r->author_id]++;
+            if (!isset($this->author_rank[$r->author_id]))
+                $this->author_rank[$r->author_id] = 0;
+            else
+                $this->author_rank[$r->author_id]++;
             $r = $db->fetchObject($q);
         }
 

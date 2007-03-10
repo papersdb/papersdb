@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.10 2006/12/11 17:47:41 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -43,7 +43,7 @@ class add_pub_submit extends pdHtmlPage {
             return;
         }
 
-        $this->db =& dbCreate();
+        $this->db = dbCreate();
         $db =& $this->db;
         $pub =& $_SESSION['pub'];
         $user =& $_SESSION['user'];

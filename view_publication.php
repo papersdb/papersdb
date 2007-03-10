@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.62 2007/03/08 18:23:00 aicmltec Exp $
+// $Id: view_publication.php,v 1.63 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * View Publication
@@ -40,7 +40,7 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $this->pub_id = intval($_GET['pub_id']);
         isValid($this->pub_id);
 
@@ -56,7 +56,7 @@ class view_publication extends pdHtmlPage {
             $this->contentPost .= 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
-        $content .= "<h1>" . $pub->title;
+        $content = "<h1>" . $pub->title;
 
         if ($access_level > 0) {
             $content
@@ -219,10 +219,6 @@ class view_publication extends pdHtmlPage {
         $bibtex = $pub->getBibtex();
         if ($bibtex !== false)
         $content .= '<h3>BibTeX</h3><pre>' . $bibtex . '</pre><p/>';
-
-
-        if ($access_level > 0)
-            $content .= $actions;
 
         $updateStr = $this->lastUpdateGet($pub);
         if ($updateStr != '') {

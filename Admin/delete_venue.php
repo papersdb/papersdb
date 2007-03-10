@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.14 2006/10/23 16:12:01 aicmltec Exp $
+// $Id: delete_venue.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -46,7 +46,7 @@ class delete_venue extends pdHtmlPage {
       return;
     }
 
-    $db =& dbCreate();
+    $db = dbCreate();
 
     $venue = new pdVenue();
     $result = $venue->dbLoad($db, $venue_id);

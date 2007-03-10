@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.3 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: check_attachments.php,v 1.4 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -32,7 +32,7 @@ class check_attachments extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $pub_list = new pdPubList($db);
         foreach ($pub_list->list as $pub) {
@@ -40,9 +40,11 @@ class check_attachments extends pdHtmlPage {
 
             $paper_arr = split('paper_', $pub->paper);
 
-            if ($paper_arr[1] == '') continue;
+            if (isset($paper_arr[1])) {
+                if ($paper_arr[1] == '') continue;
 
-            $this->checkAtt($pub->pub_id, $pub->paper, $paper_arr[1], 0);
+                $this->checkAtt($pub->pub_id, $pub->paper, $paper_arr[1], 0);
+            }
 
             if (count($pub->additional_info) > 0)
                 foreach ($pub->additional_info as $att) {

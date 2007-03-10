@@ -27,7 +27,7 @@ class list_author extends pdHtmlPage {
 
         pubSessionInit();
         parent::pdHtmlPage('all_authors');
-        $db =& dbCreate();
+        $db = dbCreate();
 
         // Performing SQL query
         $auth_list = new pdAuthorList($db);

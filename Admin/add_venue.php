@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.25 2007/03/08 01:00:52 aicmltec Exp $
+// $Id: add_venue.php,v 1.26 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -16,6 +16,7 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
 require_once 'includes/pdPublication.php';
+require_once 'Admin/add_pub_base.php';
 
 /**
  * Renders the whole page.
@@ -36,7 +37,7 @@ class add_venue extends pdHtmlPage {
             return;
         }
 
-        $db =& dbCreate();
+        $db = dbCreate();
 
         $venue = new pdVenue();
 
@@ -165,7 +166,7 @@ class add_venue extends pdHtmlPage {
             }
         }
 
-        if ($_SESSION['state'] == 'pub_add') {
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
             $prev_page = substr($_SERVER['PHP_SELF'], 0, $pos)
                 . 'papersdb/Admin/add_pub1.php';
@@ -318,12 +319,14 @@ class add_venue extends pdHtmlPage {
                 $form->setConstants($arr);
             }
 
-            if ($_SESSION['state'] == 'pub_add') {
+            if (isset($_SESSION['state'])
+                && ($_SESSION['state'] == 'pub_add')) {
                 assert('isset($_SESSION["pub"])');
                 $pub =& $_SESSION['pub'];
 
-                $this->contentPre .= '<h3>Publication Information</h3>'
-                    . $pub->getCitationHtml('..', false) . '<p/>';
+                $this->contentPre .= '<h3>Adding Following Publication</h3>'
+                    . $pub->getCitationHtml('..', false) . '<p/>'
+                    . add_pub_base::similarPubsHtml($db);
             }
 
             $renderer =& $form->defaultRenderer();

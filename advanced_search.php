@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.51 2006/11/09 23:47:04 aicmltec Exp $
+// $Id: advanced_search.php,v 1.52 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -47,6 +47,8 @@ class advanced_search extends pdHtmlPage {
     var $keywords;
     var $authorselect;
     var $selected_authors;
+    var $startdate;
+    var $enddate;
 
     function advanced_search() {
         pubSessionInit();
@@ -69,7 +71,7 @@ class advanced_search extends pdHtmlPage {
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $this->db =& $db;
 
         $this->cat_list = new pdCatList($db);
@@ -77,11 +79,12 @@ class advanced_search extends pdHtmlPage {
         $this->category = new pdCategory();
         $this->category->dbLoad($db, $this->cat_id);
 
-        $form =& $this->createForm();
+        $form = $this->createForm();
         $this->form =& $form;
         $this->setFormValues();
 
-        if (count($_SESSION['search_params']->authorselect) > 0)
+        if (isset($_SESSION['search_params'])
+            && (count($_SESSION['search_params']->authorselect) > 0))
             $this->selected_authors = ':'
                 . implode(':', $_SESSION['search_params']->authorselect)
                 . ':';
@@ -204,19 +207,18 @@ class advanced_search extends pdHtmlPage {
      */
     function setFormValues() {
         $defaultValues = array(
-            'search'            => $this->search,
-            'cat_id'            => $this->cat_id,
-            'title'             => $this->title,
-            'authortyped'       => $this->authortyped,
-            'paper'             => $this->paper,
-            'abstract'          => $this->abstract,
-            'venue'             => $this->venue,
-            'keywords'          => $this->keywords);
-
-        $defaults['startdate']['Y'] = $this->startdate['Y'];
-        $defaults['startdate']['M'] = $this->startdate['M'];
-        $defaults['enddate']['Y'] = $this->enddate['Y'];
-        $defaults['enddate']['M'] = $this->enddate['M'];
+            'search'     => $this->search,
+            'cat_id'     => $this->cat_id,
+            'title'      => $this->title,
+            'authortyped'=> $this->authortyped,
+            'paper'      => $this->paper,
+            'abstract'   => $this->abstract,
+            'venue'      => $this->venue,
+            'keywords'   => $this->keywords,
+            'startdate'  => array('Y' => $this->startdate['Y'],
+                                  'M' => $this->startdate['M']),
+            'enddate'    => array('Y' => $this->enddate['Y'],
+                                  'M' => $this->enddate['M']));
 
         if (is_object($this->category)
             && is_array($this->category->info)) {
@@ -236,6 +238,11 @@ class advanced_search extends pdHtmlPage {
      * Outputs the java script used by the page.
      */
     function javascript() {
+        if (isset($_SESSION['search_params']))
+            $sp = $_SESSION['search_params'];
+        else
+            $sp = new pdSearchParams();
+
         $this->js = <<<END
 
             <script language="JavaScript" type="text/JavaScript">
@@ -289,26 +296,26 @@ class advanced_search extends pdHtmlPage {
             var authorselect = form.elements["authorselect[]"];
             var selected_authors = "{$this->selected_authors}";
 
-            form.cat_id.value      = "{$_SESSION['search_params']->cat_id}";
-            form.title.value       = "{$_SESSION['search_params']->title}";
-            form.authortyped.value = "{$_SESSION['search_params']->authortyped}";
-            form.paper.value       = "{$_SESSION['search_params']->paper}";
-            form.abstract.value    = "{$_SESSION['search_params']->abstract}";
-            form.venue.value       = "{$_SESSION['search_params']->venue}";
-            form.keywords.value    = "{$_SESSION['search_params']->keywords}";
+            form.cat_id.value      = "{$sp->cat_id}";
+            form.title.value       = "{$sp->title}";
+            form.authortyped.value = "{$sp->authortyped}";
+            form.paper.value       = "{$sp->paper}";
+            form.abstract.value    = "{$sp->abstract}";
+            form.venue.value       = "{$sp->venue}";
+            form.keywords.value    = "{$sp->keywords}";
 
             for (var i = 0; i < form.elements.length; i++) {
                 if (form.elements[i].name == "startdate[Y]")
-                    form.elements[i].value = "{$_SESSION['search_params']->startdate['Y']}";
+                    form.elements[i].value = "{$sp->startdate['Y']}";
                 if (form.elements[i].name == "startdate[M]")
-                    form.elements[i].value = "{$_SESSION['search_params']->startdate['M']}";
+                    form.elements[i].value = "{$sp->startdate['M']}";
                 if (form.elements[i].name == "enddate[Y]")
-                    form.elements[i].value = "{$_SESSION['search_params']->enddate['Y']}";
+                    form.elements[i].value = "{$sp->enddate['Y']}";
                 if (form.elements[i].name == "enddate[M]")
-                    form.elements[i].value = "{$_SESSION['search_params']->enddate['M']}";
+                    form.elements[i].value = "{$sp->enddate['M']}";
             }
 
-            if ("{$_SESSION['search_params']->author_myself}" == "1") {
+            if ("{$sp->author_myself}" == "1") {
                 form.author_myself.checked = true;
             }
 

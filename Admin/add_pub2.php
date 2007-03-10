@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.11 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: add_pub2.php,v 1.12 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -12,7 +12,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
-require_once 'includes/pdHtmlPage.php';
+require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/authorselect.php';
@@ -29,7 +29,7 @@ class add_pub2 extends pdHtmlPage {
     function add_pub2() {
         global $access_level;
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $pub =& $_SESSION['pub'];
 
         if ($pub->pub_id != '')
@@ -136,8 +136,9 @@ class add_pub2 extends pdHtmlPage {
 
         $form->setDefaults($defaults);
 
-        $this->contentPre .= '<h3>Publication Information</h3>'
-            . $pub->getCitationHtml('', false) . '<p/>';
+        $this->contentPre .= '<h3>Adding Following Publication</h3>'
+            . $pub->getCitationHtml('', false) . '<p/>'
+            . add_pub_base::similarPubsHtml($db);
 
         $renderer =& $form->defaultRenderer();
 
@@ -161,7 +162,7 @@ class add_pub2 extends pdHtmlPage {
 
         $values = $form->exportValues();
 
-        if (count($values['authors']) > 0) {
+        if (isset($values['authors']) && (count($values['authors']) > 0)) {
             foreach ($values['authors'] as $index => $author) {
                 $pos = strpos($author, ':');
                 if ($pos !== false) {

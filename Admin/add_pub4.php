@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.18 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: add_pub4.php,v 1.19 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -12,7 +12,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
-require_once 'includes/pdHtmlPage.php';
+require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthor.php';
@@ -30,7 +30,7 @@ class add_pub4 extends pdHtmlPage {
     function add_pub4() {
         global $access_level;
 
-        $db =& dbCreate();
+        $db = dbCreate();
         $pub =& $_SESSION['pub'];
 
         if ($pub->pub_id != '')
@@ -105,7 +105,9 @@ class add_pub4 extends pdHtmlPage {
         $pub =& $_SESSION['pub'];
         $user =& $_SESSION['user'];
 
-        $num_att = count($_SESSION['attachments']);
+        $num_att = 0;
+        if (isset($_SESSION['attachments']))
+            $num_att = count($_SESSION['attachments']);
 
         $form->addElement('header', null, 'Attachments');
 
@@ -295,8 +297,9 @@ class add_pub4 extends pdHtmlPage {
 
         $form->setDefaults($defaults);
 
-        $this->contentPre .= '<h3>Publication Information</h3>'
-            . $pub->getCitationHtml('', false) . '<p/>';
+        $this->contentPre .= '<h3>Adding Following Publication</h3>'
+            . $pub->getCitationHtml('', false) . '<p/>'
+            . add_pub_base::similarPubsHtml($db);
 
         $renderer =& $form->defaultRenderer();
 

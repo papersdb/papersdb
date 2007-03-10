@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.33 2007/02/10 22:23:08 loyola Exp $
+// $Id: index.php,v 1.34 2007/03/10 01:23:05 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -28,7 +28,7 @@ class indexPage extends pdHtmlPage {
         pubSessionInit();
 
         parent::pdHtmlPage('home');
-        $db =& dbCreate();
+        $db = dbCreate();
         $pub_list = new pdPubList($db, array('sort_by_updated' => true));
 
         $this->contentPre = '<h2>Recent Additions:</h2><ul>';
@@ -88,9 +88,10 @@ class indexPage extends pdHtmlPage {
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '60%'));
 
-        foreach (array_values($pub_years->list) as $year) {
-            $text .= '<a href="list_publication.php?year=' . $year
-                . '">' . $year . '</a> ';
+        $text = '';
+        foreach (array_values($pub_years->list) as $item) {
+            $text .= '<a href="list_publication.php?year=' . $item['year']
+                . '">' . $item['year'] . '</a> ';
         }
 
         $table->addRow(array($text));
