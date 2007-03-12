@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.53 2007/03/12 05:25:45 loyola Exp $
+// $Id: advanced_search.php,v 1.54 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -54,6 +54,8 @@ class advanced_search extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('advanced_search');
+
+        if ($this->loginError) return;
 
         if(isset($_GET['search']) && ($_GET['search'] != ''))
             $this->search = stripslashes($_GET['search']);

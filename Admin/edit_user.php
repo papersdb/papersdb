@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.19 2007/03/12 05:25:45 loyola Exp $
+// $Id: edit_user.php,v 1.20 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This page displays/edits the users information.
@@ -29,10 +29,7 @@ class edit_user extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('edit_user');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         if ((isset($_GET['status']) && ($_GET['status'] == 'edit'))
             || (isset($_POST['status']) && ($_POST['status'] == 'edit')))

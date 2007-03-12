@@ -34,8 +34,6 @@ table {
 }
 
 table tr {
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
   vertical-align: top;
 }
 
@@ -78,8 +76,8 @@ table#searchlink {
   max-width: 600px;
 }
 
-tr.odd {background-color: #fff;}
-tr.even {background-color:#eee;}
+tr.odd {background-color: #eee;}
+tr.even {background-color:#fff;}
 td#large {font-size:1.3em;}
 td#standard {font-size:1em;}
 td#small {font-size: .5em;}
@@ -161,6 +159,16 @@ td#emph_large {
 td#footer {
   font-size: 9px;
   text-align: right;
+}
+
+td#publist {
+  padding: 1ex 1ex 1ex 1ex;
+  vertical-align: top;
+}
+
+td.emph#publist {
+  color: #006633;
+  font-weight: bold;
 }
 
 div#field {

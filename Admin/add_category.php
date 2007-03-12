@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.28 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_category.php,v 1.29 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -32,10 +32,7 @@ class add_category extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('add_category');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $category = new pdCategory();
 

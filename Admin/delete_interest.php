@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
+// $Id: delete_interest.php,v 1.13 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -32,10 +32,7 @@ class delete_interest extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('delete_interest');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $form =& $this->confirmForm('deleter');
         $interest_list = new pdAuthInterests($this->db);

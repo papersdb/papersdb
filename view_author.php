@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.22 2007/03/12 05:25:45 loyola Exp $
+// $Id: view_author.php,v 1.23 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -32,6 +32,8 @@ class view_author extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('view_authors');
 
+        if ($this->loginError) return;
+
         if (!isset($_GET['author_id'])) {
             $this->pageError = true;
             return;
@@ -51,15 +53,7 @@ class view_author extends pdHtmlPage {
         $this->contentPre .= '<h3>' . $auth->name;
 
         if ($this->access_level > 0) {
-            $this->contentPre
-                .= '&nbsp;&nbsp;<a href="Admin/add_author.php?author_id='
-                . $auth->author_id . '">'
-                . '<img src="images/pencil.png" title="edit" alt="edit" '
-                . 'height="16" width="16" border="0" align="top" /></a>'
-                . '<a href="Admin/delete_author.php?author_id='
-                . $auth->author_id . '">'
-                . '<img src="images/kill.png" title="delete" alt="delete" '
-                . 'height="16" width="16" border="0" align="top" /></a>';
+            $this->contentPre .= $this->getAuthorIcons($auth, 0x6);
         }
 
         $this->contentPre .= '</h3>';

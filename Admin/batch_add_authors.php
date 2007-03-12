@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.3 2007/03/12 05:25:45 loyola Exp $
+// $Id: batch_add_authors.php,v 1.4 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -27,10 +27,7 @@ class batch_add_authors extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('batch_add_authors');
 
-        if ($this->access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $form = new HTML_QuickForm('batch_add', 'post', null, '_self',
                                    'multipart/form-data');

@@ -27,15 +27,17 @@ class list_author extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('all_authors');
 
+        if ($this->loginError) return;
+
         // Performing SQL query
         $auth_list = new pdAuthorList($this->db);
 
         $this->contentPre .= "<h1>Authors</h1>";
 
         $table = new HTML_Table(array('width' => '100%',
-                                            'border' => '0',
-                                            'cellpadding' => '6',
-                                            'cellspacing' => '0'));
+                                      'border' => '0',
+                                      'cellpadding' => '6',
+                                      'cellspacing' => '0'));
         $table->setAutoGrow(true);
 
         if (count($auth_list->list) > 0) {
@@ -43,7 +45,6 @@ class list_author extends pdHtmlPage {
                 $author = new pdAuthor();
                 $author->dbLoad($this->db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
 
-                unset($cells);
                 $info = '<a href="view_author.php?author_id='
                     . $author_id . '">' . $name . '</a>';
 
@@ -55,25 +56,7 @@ class list_author extends pdHtmlPage {
                     $info .= '<br/><span id="small">'
                         . $author->organization . '</span>';
 
-                $cells[] = $info;
-
-                $cells[] = '<a href="view_author.php?author_id='
-                    . $author_id . '">'
-                    . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
-                    . 'width="16" border="0" align="middle" /></a>';
-
-                if ($this->access_level > 0) {
-                    $cells[] = '<a href="Admin/add_author.php?author_id='
-                        . $author_id . '">'
-                        . '<img src="images/pencil.png" title="edit" alt="edit" '
-                        . 'height="16" width="16" border="0" align="middle" /></a>';
-                    $cells[] = '<a href="Admin/delete_author.php?author_id='
-                        . $author_id . '">'
-                        . '<img src="images/kill.png" title="delete" alt="delete" '
-                        . 'height="16" width="16" border="0" align="middle" /></a>';
-                }
-
-                $table->addRow($cells);
+                $table->addRow(array($info, $this->getAuthorIcons($author)));
             }
         }
         else {

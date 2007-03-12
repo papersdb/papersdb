@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.19 2007/03/12 05:25:45 loyola Exp $
+// $Id: list_venues.php,v 1.20 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -24,6 +24,8 @@ class list_venues extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('all_venues');
+
+        if ($this->loginError) return;
 
         $venue_list = new pdVenueList($this->db, null, true);
 
@@ -102,14 +104,7 @@ class list_venues extends pdHtmlPage {
             $cells[] = $text;
 
             if ($this->access_level > 0) {
-                $cells[] = '<a href="Admin/add_venue.php?venue_id='
-                    . $venue->venue_id . '">'
-                    . '<img src="images/pencil.png" title="edit" alt="edit" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>';
-                $cells[] = '<a href="Admin/delete_venue.php?venue_id='
-                    . $venue->venue_id . '">'
-                    . '<img src="images/kill.png" title="delete" alt="delete" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>';
+                $cells[] = $this->getVenueIcons($venue);
             }
 
             $table->addRow($cells);

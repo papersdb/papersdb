@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.11 2007/03/12 05:25:45 loyola Exp $
+// $Id: list_categories.php,v 1.12 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -24,6 +24,8 @@ class list_categories extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('all_categories');
+
+        if ($this->loginError) return;
 
         $cat_list = new pdCatList($this->db);
 
@@ -54,14 +56,7 @@ class list_categories extends pdHtmlPage {
             }
 
             if ($this->access_level > 0) {
-                $cells[] = '<a href="Admin/add_category.php?cat_id='
-                    . $category->cat_id . '">'
-                    . '<img src="images/pencil.png" title="edit" alt="edit" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>';
-                $cells[] = '<a href="Admin/delete_category.php?cat_id='
-                    . $category->cat_id . '">'
-                    . '<img src="images/kill.png" title="delete" alt="delete" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>';
+                $cells[] = $this->getCategoryIcons($category);
             }
 
             $table->addRow($cells);

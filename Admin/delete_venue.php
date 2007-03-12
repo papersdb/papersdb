@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.16 2007/03/12 05:25:45 loyola Exp $
+// $Id: delete_venue.php,v 1.17 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -30,10 +30,7 @@ class delete_venue extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('delete_venue');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         if (isset($_GET['venue_id']) && ($_GET['venue_id'] != ''))
             $venue_id = intval($_GET['venue_id']);
@@ -60,25 +57,17 @@ class delete_venue extends pdHtmlPage {
         if ($this->db->numRows($q) > 0) {
             $this->contentPre .= 'Cannot delete venue <b>'
                 . $venue->nameGet() . '</b>.<p/>'
-                . 'The venue is used by the following publications:' . "\n"
-                . '<ul>';
+                . 'The venue is used by the following publications:<p/>' . "\n";
 
             $r = $this->db->fetchObject($q);
             while ($r) {
                 $pub = new pdPublication();
                 $pub->dbLoad($this->db, $r->pub_id);
                 $this->contentPre
-                    .= '<li>' . $pub->getCitationHtml()
-                    . '&nbsp;<a href="../view_publication.php?pub_id=' . $pub->pub_id
-                    . '"><img src="../images/viewmag.png" title="view" alt="view" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>'
-                    . '&nbsp;<a href="add_pub1.php?pub_id=' . $pub->pub_id . '">'
-                    . '<img src="../images/pencil.png" title="edit" alt="edit" '
-                    . 'height="16" width="16" border="0" align="middle" /></a>'
-                    . '</li>';
+                    .= $pub->getCitationHtml()
+                    . '&nbsp;' . $this->getPubIcons($pub, 0xe) . '<p/>';
                 $r = $this->db->fetchObject($q);
             }
-            $this->contentPre .= '</ul>';
             $this->db->close();
             return;
         }

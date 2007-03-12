@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.59 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.60 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -130,6 +130,13 @@ class pdHtmlPage {
             $this->login_level  = $login_level;
         }
 
+        // ensure that the user is logged in if a page requires login access
+        if (($this->login_level >= PD_NAV_MENU_LOGIN_REQUIRED)
+            && ($this->access_level < 1)) {
+            $this->loginError = true;
+            return;
+        }
+
         $this->redirectTimeout = 0;
         $this->table           = null;
         $this->form            = null;
@@ -179,12 +186,9 @@ class pdHtmlPage {
         }
 
         // addslashes to session login before using in a query.
-        $db = dbCreate();
-        $q = $db->selectRow('user', 'password',
-                            array('login' => $_SESSION['user']->login),
-                            "Admin/check_login.php");
-
-        $db->close();
+        $q = $this->db->selectRow('user', 'password',
+                                  array('login' => $_SESSION['user']->login),
+                                  "Admin/check_login.php");
 
         // now we have encrypted pass from DB in $q->password,
         // stripslashes() just incase:
@@ -568,6 +572,181 @@ END;
                 . "\n";
         }
         $this->contentPost .= "</pre>\n";
+    }
+
+    function getPubIcons(&$pub, $flags = 0xf) {
+        $html = '';
+        $url_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $url_prefix = '../';
+
+        if (($flags & 0x1) && ($pub->paper != 'No paper')) {
+            $html .= '<a href="' . $pub->paperAttGetUrl() . '">';
+
+            if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
+                $html .= '<img src="' . $url_prefix
+                    . 'images/pdf.gif" alt="PDF" '
+                    . 'height="18" width="17" border="0" align="top">';
+            }
+            else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
+                $html .= '<img src="' . $url_prefix
+                    . 'images/ppt.gif" alt="PPT" height="18" '
+                    . 'width="17" border="0" align="top">';
+            }
+            else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
+                $html .= '<img src="' . $url_prefix
+                    . 'images/ps.gif" alt="PS" height="18" '
+                    . 'width="17" border="0" align="top">';
+            }
+            $html .= '</a>';
+        }
+
+        if ($flags & 0x2) {
+            $html .= '<a href="' . $url_prefix
+                . 'view_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="' . $url_prefix
+                .'images/viewmag.png" title="view" alt="view" '
+                . ' height="16" width="16" border="0" align="top" /></a>';
+        }
+
+        if (($flags & 0x4) && ($this->access_level > 0)) {
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/add_pub1.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/pencil.png" title="edit" alt="edit" '
+                . ' height="16" width="16" border="0" align="top" />'
+                . '</a>';
+        }
+
+        if (($flags & 0x8) && ($this->access_level > 0)) {
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/delete_publication.php?pub_id='
+                . $pub->pub_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/kill.png" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
+        }
+
+        return $html;
+    }
+
+    function getPubAddAttIcons(&$att) {
+        $html = '';
+        $url_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $url_prefix = '../';
+
+        if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
+            $html .= '<img src="' . $url_prefix
+                . 'images/pdf.gif" alt="PDF" '
+                . 'height="18" width="17" border="0" '
+                . 'align="top">';
+        }
+        else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
+            $html .= '<img src="' . $url_prefix
+                . 'images/ppt.gif" alt="PPT" '
+                . 'height="18" width="17" border="0" '
+                . 'align="top">';
+        }
+        else if (preg_match("/\.(ps|PS)$/", $att->location)) {
+            $html .= '<img src="' . $url_prefix
+                . 'images/ps.gif" alt="PS" '
+                . 'height="18" width="17" border="0" '
+                . 'align="top">';
+        }
+
+        return $html;
+    }
+
+    function getAuthorIcons(&$author, $flags = 0x7) {
+        $html = '';
+        $url_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $url_prefix = '../';
+
+        if ($flags & 0x1)
+            $html .= '<a href="' . $url_prefix
+                . 'view_author.php?author_id='
+                . $author->author_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/viewmag.png" title="view" alt="view" height="16" '
+            . 'width="16" border="0" align="top" /></a>';
+
+        if ($this->access_level > 0) {
+            if ($flags & 0x2)
+                $html .= '<a href="' . $url_prefix
+                    . 'Admin/add_author.php?author_id='
+                    . $author->author_id . '">'
+                    . '<img src="' . $url_prefix
+                    . 'images/pencil.png" title="edit" alt="edit" '
+                    . 'height="16" width="16" border="0" align="top" /></a>';
+
+            if ($flags & 0x4)
+                $html .= '<a href="' . $url_prefix
+                    . 'Admin/delete_author.php?author_id='
+                    . $author->author_id . '">'
+                    . '<img src="' . $url_prefix
+                    . 'images/kill.png" title="delete" alt="delete" '
+                    . 'height="16" width="16" border="0" align="top" /></a>';
+        }
+
+        return $html;
+    }
+
+    function getCategoryIcons(&$category, $flags = 0x3) {
+        if ($this->access_level < 1) return null;
+
+        $html = '';
+        $url_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $url_prefix = '../';
+
+        if ($flags & 0x1)
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/add_category.php?cat_id='
+                . $category->cat_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/pencil.png" title="edit" alt="edit" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
+
+        if ($flags & 0x2)
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/delete_category.php?cat_id='
+                . $category->cat_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/kill.png" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
+
+        return $html;
+    }
+
+    function getVenueIcons(&$venue, $flags = 0x3) {
+        if ($this->access_level < 1) return null;
+
+        $html = '';
+        $url_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $url_prefix = '../';
+
+        if ($flags & 0x1)
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/add_venue.php?venue_id='
+                . $venue->venue_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/pencil.png" title="edit" alt="edit" '
+                . 'height="16" width="16" border="0" align="middle" /></a>';
+
+        if ($flags & 0x2)
+            $html .= '<a href="' . $url_prefix
+                . 'Admin/delete_venue.php?venue_id='
+                . $venue->venue_id . '">'
+                . '<img src="' . $url_prefix
+                . 'images/kill.png" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="middle" /></a>';
+
+        return $html;
     }
 }
 

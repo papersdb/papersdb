@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.8 2007/03/12 05:25:45 loyola Exp $
+// $Id: author_report.php,v 1.9 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -48,10 +48,7 @@ class author_report extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('author_report');
 
-        if ($this->access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $this->contentPre .= '<h2>AICML Author Report</h2>';
 
@@ -91,11 +88,8 @@ class author_report extends pdHtmlPage {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
-                . '&nbsp;<a href="../view_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
-                . 'width="16" border="0" align="middle" /></a>'
-                . '<br/>' . '<span id="small">' . $authors . '</span><p/>';
+                . '&nbsp;' . $this->getPubIcons($pub)
+                . '<br/><span id="small">' . $authors . '</span><p/>';
             $c++;
         }
 
@@ -139,11 +133,8 @@ class author_report extends pdHtmlPage {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
-                . '&nbsp;<a href="../view_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
-                . 'width="16" border="0" align="middle" /></a>'
-                . '<br/>' . '<span id="small">' . $authors . '</span><p/>';
+                . '&nbsp;' . $this->getPubIcons($pub)
+                . '<br/><span id="small">' . $authors . '</span><p/>';
             $c++;
         }
 

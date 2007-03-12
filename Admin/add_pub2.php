@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.13 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_pub2.php,v 1.14 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -32,7 +32,7 @@ class add_pub2 extends add_pub_base {
 
         parent::add_pub_base();
 
-        //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
+        if ($this->loginError) return;
 
         $form = new HTML_QuickForm('add_pub2');
 

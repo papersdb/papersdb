@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.11 2007/03/12 05:25:45 loyola Exp $
+// $Id: search_results.php,v 1.12 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -30,9 +30,7 @@ class search_results extends pdHtmlPage {
         session_start();
         parent::pdHtmlPage('search_results');
 
-        if ($this->debug) {
-            $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
-        }
+        if ($this->loginError) return;
 
         if (!isset($_SESSION['search_results'])
             || !isset($_SESSION['search_url'])) {
@@ -53,11 +51,12 @@ class search_results extends pdHtmlPage {
         else {
             // check each field of the search parameter except the dates and
             // authors
-            foreach (array_diff($sp->params, array('startdate',
-                                                   'enddate',
-                                                   'author_myself',
-                                                   'authortyped',
-                                                   'authorselect'))
+            foreach (array_diff(array_keys(get_class_vars(get_class($sp))),
+                                array('startdate',
+                                      'enddate',
+                                      'author_myself',
+                                      'authortyped',
+                                      'authorselect'))
                      as $param)
                 if ($sp->$param != '') {
                     $name = '';
@@ -143,60 +142,32 @@ class search_results extends pdHtmlPage {
 
         $this->contentPre .= $renderer->toHtml();
 
-        $table = new HTML_Table(array('class' => 'nomargins',
-                                      'width' => '100%'));
+        $table = new HTML_Table(array('id' => 'publist',
+                                      'width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '0',
+                                      'cellspacing' => '0'));
 
         $b = 0;
         foreach ($pubs->list as $pub) {
             // get all info for this pub
             $pub->dbload($this->db, $pub->pub_id);
-            $pubTable = new HTML_Table();
 
-            $citation = $pub->getCitationHtml();
-
-            // Show Paper
-            if ($pub->paper != 'No paper') {
-                $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
-
-                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                    $citation .= '<img src="images/pdf.gif" alt="PDF" '
-                        . 'height="18" width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                $citation .= '</a>';
-            }
-
-            $pubTable->addRow(array($citation));
-
-            $indexTable = new HTML_Table();
-
-            $cell = ($b + 1)
-                . '<br/><a href="view_publication.php?pub_id=' . $pub->pub_id . '">'
-                . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
-                . 'width="16" border="0" align="middle" /></a>';
-
-            if ($this->access_level > 0)
-                $cell .= '<a href="Admin/add_pub1.php?pub_id='
-                    . $pub->pub_id . '">'
-                    . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
-                    . 'width="16" border="0" align="middle" /></a>';
-
-            $indexTable->addRow(array($cell), array('nowrap'));
-
-            $table->addRow(array($indexTable->toHtml(), $pubTable->toHtml()));
+            $table->addRow(array(($b+1),
+                                 $pub->getCitationHtml()
+                                 . $this->getPubIcons($pub)));
             $b++;
         }
 
-        tableHighlightRows($table);
+        for ($i = 0; $i < $table->getRowCount(); $i++) {
+            if ($i & 1)
+                $table->updateRowAttributes($i, array('class' => 'even'), true);
+            else
+                $table->updateRowAttributes($i, array('class' => 'odd'), true);
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
+        }
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'id' => 'publist'), true);
 
         $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
                                                 'border' => '0',

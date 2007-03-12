@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_pub_submit.php,v 1.13 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -32,8 +32,10 @@ class add_pub_submit extends pdHtmlPage {
         parent::pdHtmlPage(null, 'Publication Submitted',
                            'Admin/add_pub_submit.php', PD_NAV_MENU_NEVER);
 
-        if ($this->access_level < 1) {
-            header('Location: add_pub1.php');
+        if ($this->loginError) return;
+
+        if (!isset($_SESSION['state'])) {
+            $this->pageError = true;
             return;
         }
 
@@ -54,28 +56,29 @@ class add_pub_submit extends pdHtmlPage {
             .= 'The following publication has been added to the database:<p/>';
         }
 
-        //$this->contentPost .= '<pre>' . print_r($pub, true) . '</pre>';
-
         $pub->submit = $user->name;
 
         $pub->dbSave($this->db);
 
         // deal with paper
-        if (strpos(basename($_SESSION['paper']), 'paper_') === false)
-            $pub->paperSave($this->db, $_SESSION['paper']);
+        if (isset($_SESSION['paper'])) {
+            if ($_SESSION['paper'] != 'none')
+                $pub->paperSave($this->db, $_SESSION['paper']);
+            else
+                $pub->deletePaper($this->db);
+        }
 
-        if (count($_SESSION['attachments']) > 0)
+        if (isset($_SESSION['attachments'])
+            && (count($_SESSION['attachments']) > 0))
             for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
                 assert('isset($_SESSION["att_types"][$i])');
 
-                if (strpos(basename($_SESSION['attachments'][$i]),
-                            'additional_') === false) {
-                    $pub->attSave($this->db, $_SESSION['attachments'][$i],
-                                  $_SESSION['att_types'][$i]);
-                }
+                $pub->attSave($this->db, $_SESSION['attachments'][$i],
+                              $_SESSION['att_types'][$i]);
             }
 
-        if (count($_SESSION['removed_atts']) > 0)
+        if (isset($_SESSION['removed_atts'])
+             && (count($_SESSION['removed_atts']) > 0))
             foreach ($_SESSION['removed_atts'] as $filename)
                 $pub->dbAttRemove($this->db, $filename);
 
@@ -85,9 +88,7 @@ class add_pub_submit extends pdHtmlPage {
         }
 
           $this->contentPre .= $pub->getCitationHtml()
-            . '<a href="../view_publication.php?pub_id=' . $pub->pub_id . '">'
-            . '<img src="../images/viewmag.png" title="view" alt="view" height="16" '
-            . 'width="16" border="0" align="middle" /></a>';
+              . $this->getPubIcons($pub);
 
         pubSessionInit();
         $this->db->close();

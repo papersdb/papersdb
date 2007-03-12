@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.30 2007/03/12 05:25:45 loyola Exp $
+// $Id: list_publication.php,v 1.31 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -32,6 +32,8 @@ class list_publication extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('view_publications');
+
+        if ($this->loginError) return;
 
         if (isset($_GET['year'])) {
             $pub_list = new pdPubList(
@@ -120,43 +122,8 @@ class list_publication extends pdHtmlPage {
                 ++$count;
                 $pub->dbload($this->db, $pub->pub_id);
 
-                $citation = $pub->getCitationHtml();
-
-                // Show Paper
-                if ($pub->paper != 'No paper') {
-                    $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
-
-                    if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                        $citation .= '<img src="images/pdf.gif" alt="PDF" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-
-                    if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                        $citation .= '<img src="images/ppt.gif" alt="PPT" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-
-                    if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                        $citation .= '<img src="images/ps.gif" alt="PS" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-                    $citation .= '</a>';
-                }
-
-                $citation .= '<a href="view_publication.php?pub_id='
-                    . $pub->pub_id . '">'
-                    . '<img src="images/viewmag.png" title="view" alt="view" '
-                    . ' height="16" width="16" border="0" align="middle" /></a>';
-
-                if ($this->access_level > 0)
-                    $citation .= '<a href="Admin/add_pub1.php?pub_id='
-                        . $pub->pub_id . '">'
-                        . '<img src="images/pencil.png" title="edit" alt="edit" '
-                        . ' height="16" width="16" border="0" align="middle" />'
-                        . '</a>';
+                $citation = $pub->getCitationHtml()
+                    . $this->getPubIcons($pub);
 
                 $table->addRow(array($count, $citation));
             }
@@ -295,20 +262,14 @@ class list_publication extends pdHtmlPage {
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
-            $table->updateCellAttributes($i, 0, array('class' => 'standard'));
-
-            if ($i & 1) {
+            if ($i & 1)
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
-            }
-            else {
+            else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            }
-
-            if ($this->access_level > 0) {
-                $table->updateCellAttributes($i, 0, array('id' => 'emph',
-                                                          'class' => 'small'));
-            }
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'id' => 'publist'), true);
     }
 
     function pubSelMenu($viewCat = null) {

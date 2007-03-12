@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.51 2007/03/12 05:25:45 loyola Exp $
+// $Id: search_publication_db.php,v 1.52 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -36,10 +36,13 @@ class search_publication_db extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('search_results');
+
+        if ($this->loginError) return;
+
         $this->optionsGet();
 
         if ($this->debug) {
-            debug_var('_SESSION', $_SESSION);
+            debugVar('_SESSION', $_SESSION);
         }
 
         $link = connect_db();
@@ -98,7 +101,7 @@ class search_publication_db extends pdHtmlPage {
             $arr =& $_GET;
 
         if ($this->debug) {
-            debug_var('Options', $arr);
+            debugVar('Options', $arr);
         }
 
         $this->search_params = new pdSearchParams($arr);
@@ -417,42 +420,48 @@ class search_publication_db extends pdHtmlPage {
         }
 
         if ($this->debug) {
-            debug_var('author pubs', $author_pubs);
-            debug_var('result', $this->result_pubs);
+            debugVar('author pubs', $author_pubs);
+            debugVar('result', $this->result_pubs);
         }
 
 
         // DATES SEARCH --------------------------------------
-        $startdate =& $this->search_params->startdate;
-        $enddate =& $this->search_params->enddate;
+        if (isset($this->search_params->startdate)) {
+            $startdate =& $this->search_params->startdate;
+            $stime = strtotime(implode('-', $startdate) . '-1');
+        }
 
-        $stime = strtotime(implode('-', $startdate) . '-1');
-        $etime = strtotime(implode('-', $enddate) . '-1');
-
-        if ($stime > $etime) {
-            // the user did not enter an end date, default it to now
-            $enddate['Y'] = date('Y');
-            $enddate['M'] = date('m');
+        if (isset($this->search_params->enddate)) {
+            $enddate =& $this->search_params->enddate;
             $etime = strtotime(implode('-', $enddate) . '-1');
         }
 
-        if ($etime > $stime) {
+        if (isset($stime) && isset($etime)) {
+            if ($stime > $etime) {
+                // the user did not enter an end date, default it to now
+                $enddate['Y'] = date('Y');
+                $enddate['M'] = date('m');
+                $etime = strtotime(implode('-', $enddate) . '-1');
+            }
 
-            $startdate_str
-                = date('Y-m-d', mktime(0, 0, 0, $startdate['M'], 1,
-                                       $startdate['Y']));
-            $enddate_str
-                = date('Y-m-d', mktime(0, 0, 0, $enddate['M'] + 1, 0,
-                                       $enddate['Y']));
+            if ($etime > $stime) {
 
-            $temporary_array = NULL;
+                $startdate_str
+                    = date('Y-m-d', mktime(0, 0, 0, $startdate['M'], 1,
+                                           $startdate['Y']));
+                $enddate_str
+                    = date('Y-m-d', mktime(0, 0, 0, $enddate['M'] + 1, 0,
+                                           $enddate['Y']));
 
-            $search_query = "SELECT DISTINCT pub_id from publication "
-                . "WHERE published BETWEEN " . quote_smart($startdate_str)
-                . " AND " . quote_smart($enddate_str);
-            $this->add_to_array($search_query, $temporary_array);
-            $this->result_pubs = array_intersect($this->result_pubs,
-                                                  $temporary_array);
+                $temporary_array = NULL;
+
+                $search_query = "SELECT DISTINCT pub_id from publication "
+                    . "WHERE published BETWEEN " . quote_smart($startdate_str)
+                    . " AND " . quote_smart($enddate_str);
+                $this->add_to_array($search_query, $temporary_array);
+                $this->result_pubs = array_intersect($this->result_pubs,
+                                                     $temporary_array);
+            }
         }
 
         return $this->result_pubs;

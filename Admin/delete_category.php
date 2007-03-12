@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.16 2007/03/12 05:25:45 loyola Exp $
+// $Id: delete_category.php,v 1.17 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -33,10 +33,7 @@ class delete_category extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('delete_category');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != ''))
             $cat_id = intval($_GET['cat_id']);

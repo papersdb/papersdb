@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.3 2007/03/12 05:25:45 loyola Exp $
+// $Id: duplicatePubs.php,v 1.4 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -26,10 +26,7 @@ class duplicatePubs extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('duplicatePubs');
 
-        if ($this->access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $this->contentPre .= '<h1>Publications with same title</h1>'
             . 'Note that some publications may exist both in a conference '
@@ -69,45 +66,7 @@ class duplicatePubs extends pdHtmlPage {
     function citationGet($pub) {
         assert('is_object($pub)');
 
-        $citation = $pub->getCitationHtml('..');
-
-        // Show Paper
-        if ($pub->paper != 'No paper') {
-            $citation .= '<a href="../' . $pub->paperAttGetUrl() . '">';
-
-            if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                $citation .= '<img src="../images/pdf.gif" alt="PDF" '
-                    . 'height="18" width="17" border="0" '
-                    . 'align="middle">';
-            }
-
-            if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                $citation .= '<img src="../images/ppt.gif" alt="PPT" '
-                    . 'height="18" width="17" border="0" '
-                    . 'align="middle">';
-            }
-
-            if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                $citation .= '<img src="../images/ps.gif" alt="PS" '
-                    . 'height="18" width="17" border="0" '
-                    . 'align="middle">';
-            }
-            $citation .= '</a>';
-        }
-
-        $citation .= '<a href="../view_publication.php?pub_id='
-            . $pub->pub_id . '">'
-            . '<img src="../images/viewmag.png" title="view" alt="view" '
-            . ' height="16" width="16" border="0" align="middle" /></a>'
-            . '<a href="../Admin/add_pub1.php?pub_id='
-            . $pub->pub_id . '">'
-            . '<img src="../images/pencil.png" title="edit" alt="edit" '
-            . ' height="16" width="16" border="0" align="middle" />'
-            . '</a>'
-            . '<a href="../Admin/delete_publication.php?pub_id='
-            . $pub->pub_id . '">'
-            . '<img src="../images/kill.png" title="delete" alt="delete" '
-            . 'height="16" width="16" border="0" align="top" /></a>';
+        $citation = $pub->getCitationHtml('..') .$this->getPubIcons($pub);
 
         return $citation;
     }

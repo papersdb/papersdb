@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.30 2007/03/12 05:25:45 loyola Exp $
+// $Id: functions.php,v 1.31 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -78,21 +78,6 @@ function arr2obj($arg_array) {
         }
     }
     return $tmp; // return the object!
-}
-
-/**
- * Highlights each row of a table using the 'even' and 'odd' CSS classes.
- * The table passed in must be a Pear HTML_Table.
- */
-function tableHighlightRows(&$table) {
-    assert('is_object($table)');
-
-    for ($i = 0; $i < $table->getRowCount(); $i++) {
-        if ($i & 1)
-            $table->updateRowAttributes($i, array('class' => 'even'), true);
-        else
-            $table->updateRowAttributes($i, array('class' => 'odd'), true);
-    }
 }
 
 /**

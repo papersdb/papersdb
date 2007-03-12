@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.5 2007/03/12 05:25:45 loyola Exp $
+// $Id: check_attachments.php,v 1.6 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -26,10 +26,7 @@ class check_attachments extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('check_attachments');
 
-        if ($this->access_level <= 1) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $pub_list = new pdPubList($this->db);
         foreach ($pub_list->list as $pub) {

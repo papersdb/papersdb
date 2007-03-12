@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.14 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_pub3.php,v 1.15 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -31,6 +31,8 @@ class add_pub3 extends add_pub_base {
         $this->pub =& $_SESSION['pub'];
 
         parent::add_pub_base();
+
+        if ($this->loginError) return;
 
         $options = array('cat_id');
         foreach ($options as $opt) {

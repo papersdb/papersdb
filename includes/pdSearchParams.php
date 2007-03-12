@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.7 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdSearchParams.php,v 1.8 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -34,7 +34,7 @@ class pdSearchParams {
      */
     function pdSearchParams($mixed = null) {
         if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('pdSearchParams')) as $member) {
+            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
                 if (isset($mixed[$member])) {
                     $this->$member= $mixed[$member];
                 }
@@ -51,7 +51,7 @@ class pdSearchParams {
     function paramsToHtmlQueryStr() {
         $results = array();
 
-        foreach ($this->params as $param) {
+        foreach (array_keys(get_class_vars(get_class($this))) as $param) {
             if (isset($this->$param) && ($this->$param != '')) {
                 if (is_array($this->$param)) {
                     foreach ($this->$param as $key => $value) {

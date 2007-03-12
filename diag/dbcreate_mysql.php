@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.4 2007/03/12 05:25:45 loyola Exp $
+// $Id: dbcreate_mysql.php,v 1.5 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Creates the PapersDB database.
@@ -28,6 +28,8 @@ class dbCreate extends pdHtmlPage {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('dbcreate');
+
+        if ($this->loginError) return;
 
         $this->tblAdditionalInfo();
         $this->tblAttachmentTypes();

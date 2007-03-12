@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.79 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdPublication.php,v 1.80 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -215,7 +215,6 @@ class pdPublication {
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
                      'updated'    => date("Y-m-d"),
-                     'venue_id'   => $this->venue->venue_id,
                      'submit'     => $this->submit);
 
         if (isset($this->pub_id)) {
@@ -226,6 +225,11 @@ class pdPublication {
 
             $db->insert('publication', $arr, 'pdPublication::dbSave');
             $this->pub_id = $db->insertId();
+        }
+
+
+        if (is_object($this->venue)) {
+            $arr['venue_id'] = $this->venue->venue_id;
         }
 
         $db->delete('pointer', array('pub_id' => $this->pub_id),
@@ -564,7 +568,7 @@ class pdPublication {
 
     function paperDbUpdate(&$db, $paper) {
         $this->paper = $paper;
-        $db->update('publication', array('paper' => $paper),
+        $db->update('publication', array('paper' => $this->paper),
                     array('pub_id' => $this->pub_id),
                     'pdPublication::updatePaper');
     }
@@ -587,8 +591,93 @@ class pdPublication {
         $this->pub_links = array_values($this->pub_links);
     }
 
-    function deleteFiles() {
-        assert('$this->pub_id != null');
+    function paperExists() {
+        $path = FS_PATH;
+        if (strpos($this->paper, 'uploaded_files/') === false)
+            $path .= '/uploaded_files/' . $this->pub_id . '/';
+        $path .= $this->paper;
+
+        return file_exists($path);
+    }
+
+    function attExists(&$att) {
+        $path = FS_PATH;
+        if (strpos($att->location, 'uploaded_files/') === false)
+            $path .= '/uploaded_files/';
+        $path .= $att->location;
+
+        return file_exists($path);
+    }
+
+    function paperSave($db, $papername) {
+        assert('is_object($db)');
+        assert('isset($this->pub_id)');
+
+        # 'No paper' was used in a previous version of the software
+        if (!isset($papername)
+            || (strpos($papername, 'No paper') !== false))
+            return;
+
+        $user =& $_SESSION['user'];
+
+        $basename = basename($papername, '.' . $user->login);
+
+        if ($basename == basename($this->paper))  return;
+
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+
+        $basename = basename($papername, '.' . $user->login);
+        $filename = $pub_path . $basename;
+
+        // create the publication's path if it does not exist
+        if (!file_exists($pub_path)) {
+            mkdir($pub_path, 0777);
+            // mkdir permissions with 0777 does not seem to work
+            chmod($pub_path, 0777);
+        }
+
+        if (rename($papername, $filename)) {
+            chmod($filename, 0777);
+            $this->paperDbUpdate($db, $basename);
+        }
+    }
+
+    function attSave($db, $att_name, $att_type) {
+        assert('is_object($db)');
+        assert('$this->pub_id != ""');
+
+        if (($att_name == '') || ($att_type == '')) return;
+
+        $user =& $_SESSION['user'];
+
+        // make sure this attachment is not already in the list
+        $basename = basename($att_name, '.' . $user->login);
+
+        if (count($this->additional_info) > 0)
+            foreach ($this->additional_info as $att)
+                if ($att_name == basename($att->location))
+                    return;
+
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+
+        $basename = basename($att_name, '.' . $user->login);
+        $filename = $pub_path . $basename;
+
+        // create the publication's path if it does not exist
+        if (!file_exists($pub_path)) {
+            mkdir($pub_path, 0777);
+            // mkdir permissions with 0777 does not seem to work
+            chmod($pub_path, 0777);
+        }
+
+        if (rename($att_name, $filename)) {
+            chmod($filename, 0777);
+            $this->dbAttRemove($db, $att->location);
+        }
+    }
+
+    function deletePaper(&$db) {
+        assert('isset($this->pub_id)');
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
         $filepath = $pub_path . basename($this->paper);
@@ -596,17 +685,41 @@ class pdPublication {
         if (file_exists($filepath))
             unlink($filepath);
 
+        $this->paper = 'No paper';
+        $this->paperDbUpdate($db, 'No paper');
+    }
+
+    function deleteAtt(&$db, &$att) {
+        assert('isset($this->pub_id)');
+
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
+        $filepath = $pub_path . basename($att->location);
+
+        if (file_exists($filepath))
+            unlink($filepath);
+        $this->dbAttUpdate($db, $basename, $att_type);
+    }
+
+    function deleteFiles() {
+        $this->deletePaper();
+
         if (count($this->additional_info) > 0) {
             foreach ($this->additional_info as $att) {
-                $filepath = $pub_path . basename($att->location);
-
-                if (file_exists($filepath))
-                    unlink($filepath);
+                $this->deleteAtt($att);
             }
         }
 
-        if (file_exists($pub_path))
+        if (file_exists(FS_PATH_UPLOAD . $this->pub_id))
             rmdir($pub_path);
+    }
+
+    function attFilenameGet($num) {
+        if ($this->pub_id == '') return null;
+
+        assert('$num < count($this->additional_info)');
+
+        return FS_PATH_UPLOAD . $this->pub_id . '/'
+            . basename($this->additional_info[$num]->location);
     }
 
     function paperAttGetUrl() {
@@ -874,84 +987,6 @@ class pdPublication {
             || ($this->paper == '')) return null;
 
         return FS_PATH_UPLOAD . $this->pub_id . '/' . basename($this->paper);
-    }
-
-    function paperSave($db, $papername) {
-        assert('is_object($db)');
-        assert('$this->pub_id != ""');
-
-        # 'No paper' was used in a previous version of the software
-        if (!isset($papername)
-            || (strpos($papername, 'No paper') !== false)
-            || (strpos($papername, 'paper_') !== false))
-            return;
-
-        $basename = 'paper_' . basename($papername, '.' . $user->login);
-
-        if ($basename == basename($pub->paper))  return;
-
-        $user =& $_SESSION['user'];
-
-        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
-
-        $basename = 'paper_' . basename($papername, '.' . $user->login);
-        $filename = $pub_path . $basename;
-
-        // create the publication's path if it does not exist
-        if (!file_exists($pub_path)) {
-            mkdir($pub_path, 0777);
-            // mkdir permissions with 0777 does not seem to work
-            chmod($pub_path, 0777);
-        }
-
-        if (rename($papername, $filename)) {
-            chmod($filename, 0777);
-            $this->paperDbUpdate($db, $basename);
-        }
-    }
-
-    function attFilenameGet($num) {
-        if ($this->pub_id == '') return null;
-
-        assert('$num < count($this->additional_info)');
-
-        return FS_PATH_UPLOAD . $this->pub_id . '/'
-            . basename($this->additional_info[$num]->location);
-    }
-
-    function attSave($db, $att_name, $att_type) {
-        assert('is_object($db)');
-        assert('$this->pub_id != ""');
-
-        if (($att_name == '') || ($att_type == '')
-            || (strpos($att_name, 'additional_') !== false)) return;
-
-        // make sure this attachment is not already in the list
-        $basename = 'additional_' . basename($att_name, '.' . $user->login);
-
-        if (count($this->additional_info) > 0)
-            foreach ($this->additional_info as $att)
-                if ($att_name == basename($att->location))
-                    return;
-
-        $user =& $_SESSION['user'];
-
-        $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
-
-        $basename = 'additional_' . basename($att_name, '.' . $user->login);
-        $filename = $pub_path . $basename;
-
-        // create the publication's path if it does not exist
-        if (!file_exists($pub_path)) {
-            mkdir($pub_path, 0777);
-            // mkdir permissions with 0777 does not seem to work
-            chmod($pub_path, 0777);
-        }
-
-        if (rename($att_name, $filename)) {
-            chmod($filename, 0777);
-            $this->dbAttUpdate($db, $basename, $att_type);
-        }
     }
 
     function duplicateTitleCheck($db) {

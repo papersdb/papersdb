@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.64 2007/03/12 05:25:45 loyola Exp $
+// $Id: view_publication.php,v 1.65 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * View Publication
@@ -34,6 +34,8 @@ class view_publication extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('view_publication');
 
+        if ($this->loginError) return;
+
         if (!isset($_GET['pub_id'])) {
             $this->pageError = true;
             return;
@@ -56,50 +58,29 @@ class view_publication extends pdHtmlPage {
 
         $content = "<h1>" . $pub->title;
 
+        $iconFlags = 0x2;
         if ($this->access_level > 0) {
-            $content
-                .= '&nbsp;&nbsp;<a href="Admin/add_pub1.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="images/pencil.png" title="edit" alt="edit" '
-                . 'height="16" width="16" border="0" align="top" /></a>'
-                . '<a href="Admin/delete_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="images/kill.png" title="delete" alt="delete" '
-                . 'height="16" width="16" border="0" align="top" /></a>';
+            $iconFlags |= 0xC;
         }
+        $content .= $this->getPubIcons($pub, $iconFlags);
 
         $content .= "</h1>\n" . $pub->authorsToHtml();
 
-        if (($pub->paper != 'No paper')
+        debugVar('pub', $pub);
+
+        if (isset($pub->paper) && ($pub->paper != 'No paper')
             && (basename($pub->paper) != 'paper_')) {
-
-            $path = FS_PATH;
-            if (strpos($pub->paper, 'uploaded_files/') === false)
-                $path .= '/uploaded_files/' . $pub->pub_id . '/';
-            $path .= $pub->paper;
-
-            if (file_exists($path)) {
+            if ($pub->paperExists()) {
                 $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()
                     . '">';
 
-                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                    $content .= '<img src="images/pdf.gif" alt="PDF" '
-                        . 'height="18" width="17" border="0" align="middle">';
-                }
-                else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                    $content .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                    $content .= '<img src="images/ps.gif" alt="PS" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                else {
-                    $name = split('paper_', $pub->paper);
-                    if ($name[1] != '')
-                        $content .= $name[1];
-                }
-                $content .= '</a><br/>';
+                $name = split('paper_', $pub->paper);
+                if ($name[1] != '')
+                    $content .= $name[1];
+                $content .= '</a>&nbsp;';
+
+                $content .= $this->getPubIcons($pub, 0x1) . "<br/>\n";
+
             }
         }
 
@@ -118,41 +99,23 @@ class view_publication extends pdHtmlPage {
             foreach ($pub->additional_info as $att) {
                 $cell = '';
 
-                $path = FS_PATH;
-                if (strpos($att->location, 'uploaded_files/') === false)
-                    $path .= '/uploaded_files/';
-                $path .= $att->location;
-
-                if (file_exists($path)) {
+                if ($pub->attExists($att)) {
                     $name = split('additional_', $att->location);
 
                     $cell .= '<a href="'
                         . $pub->attachmentGetUrl($add_count - 1) . '">';
 
-                    if (preg_match("/\.(pdf|PDF)$/", $att->location)) {
-                        $cell .= '<img src="images/pdf.gif" alt="PDF" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-                    else if (preg_match("/\.(ppt|PPT)$/", $att->location)) {
-                        $cell .= '<img src="images/ppt.gif" alt="PPT" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-                    else if (preg_match("/\.(ps|PS)$/", $att->location)) {
-                        $cell .= '<img src="images/ps.gif" alt="PS" '
-                            . 'height="18" width="17" border="0" '
-                            . 'align="middle">';
-                    }
-                    else {
-                        if ($name[1] != '')
-                            $cell .= $name[1];
-                    }
+                    if ($name[1] != '')
+                        $cell .= $name[1];
 
                     $cell .= '</a>';
 
                     if (in_array($att->type, $att_types->list))
                         $cell .= '&nbsp;[' . $att->type . ']';
+
+                    $cell .= '&nbsp;<a href="'
+                        . $pub->attachmentGetUrl($add_count - 1) . '">'
+                        . $this->getPubAddAttIcons($att) . '</a>';
 
                     $add_count++;
                 }
@@ -164,7 +127,7 @@ class view_publication extends pdHtmlPage {
             $content .= $table->toHtml();
         }
 
-        $content .= '<p/>' . stripslashes(nl2br($pub->abstract)) . '<p/>'
+        $content .= '<p/>' . stripslashes($pub->abstract) . '<p/>'
             . '<h3>Citation</h3>' . $pub->getCitationHtml(). '<p/>';
 
         $table = new HTML_Table(array('width' => '600',
@@ -174,7 +137,9 @@ class view_publication extends pdHtmlPage {
 
         $table->addRow(array('Category:', $pub->category->category));
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
-        $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
+
+        if ($this->access_level >= 1)
+            $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
 
         if ($pub->user != '')
             $table->addRow(array('User Info:', $pub->user));

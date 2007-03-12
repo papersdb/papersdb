@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.42 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_author.php,v 1.43 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -69,10 +69,7 @@ class add_author extends pdHtmlPage {
         else
             parent::pdHtmlPage('edit_author');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $form = new HTML_QuickForm('authorForm');
 

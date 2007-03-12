@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.35 2007/03/12 05:25:45 loyola Exp $
+// $Id: index.php,v 1.36 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -21,12 +21,14 @@ require_once 'includes/pdPubList.php';
  *
  * @package PapersDB
  */
-class indexPage extends pdHtmlPage {
-    function indexPage() {
+class index extends pdHtmlPage {
+    function index() {
         session_start();
         pubSessionInit();
 
         parent::pdHtmlPage('home');
+
+        if ($this->loginError) return;
 
         $this->recentAdditions();
         $this->pubByYears();
@@ -47,40 +49,8 @@ class indexPage extends pdHtmlPage {
             // get all info for this pub
             $pub->dbload($this->db, $pub->pub_id);
 
-            $citation = '<li class="wide">' . $pub->getCitationHtml();
-
-            // Show Paper
-            if ($pub->paper != 'No paper') {
-                $citation .= '<a href="' . $pub->paperAttGetUrl() . '">';
-
-                if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
-                    $citation .= '<img src="images/pdf.gif" alt="PDF" '
-                        . 'height="18" width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ppt.gif" alt="PPT" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-
-                if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
-                    $citation .= '<img src="images/ps.gif" alt="PS" height="18" '
-                        . 'width="17" border="0" align="middle">';
-                }
-                $citation .= '</a>';
-            }
-
-            $citation .= '<a href="view_publication.php?pub_id='
-                . $pub->pub_id . '">'
-                . '<img src="images/viewmag.png" title="view" alt="view" '
-                . ' height="16" width="16" border="0" align="middle" /></a>';
-
-            if ($this->access_level > 0)
-                $citation .= '<a href="Admin/add_pub1.php?pub_id='
-                    . $pub->pub_id . '">'
-                    . '<img src="images/pencil.png" title="edit" alt="edit" '
-                    . ' height="16" width="16" border="0" align="middle" />'
-                    . '</a>';
+            $citation = '<li class="wide">' . $pub->getCitationHtml()
+                . '&nbsp;' . $this->getPubIcons($pub);
 
             $citation .= '</li>';
 
@@ -113,7 +83,7 @@ class indexPage extends pdHtmlPage {
     }
 }
 
-$page = new indexPage();
+$page = new index();
 echo $page->toHtml();
 
 ?>

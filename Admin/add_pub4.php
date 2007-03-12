@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.20 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_pub4.php,v 1.21 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -33,20 +33,18 @@ class add_pub4 extends add_pub_base {
 
         parent::add_pub_base();
 
+        if ($this->loginError) return;
+
         // initialize attachments
         if (!isset($_SESSION['paper']) && !isset($_SESSION['attachments'])) {
             $_SESSION['paper'] = $this->pub->paperFilenameGet();
             if (count($this->pub->additional_info) > 0)
                 for ($i = 0; $i < count($this->pub->additional_info); $i++) {
-                    $_SESSION['attachments'][$i] = $this->pub->attFilenameGet($i);
+                    $_SESSION['attachments'][$i]
+                        = $this->pub->attFilenameGet($i);
                     $_SESSION['att_types'][$i]
                         = $this->pub->additional_info[$i]->type;
                 }
-        }
-
-        if ($this->debug) {
-            $this->contentPost
-                .= 'sess<pre>' . print_r($_SESSION, true) . '</pre>';
         }
 
         $form = new HTML_QuickForm('add_pub4');
@@ -294,7 +292,7 @@ class add_pub4 extends add_pub_base {
 
         $element =& $form->getElement('uploadpaper');
         if (!isset($element->message) && ($element->isUploadedFile())) {
-            $basename = $_FILES['uploadpaper']['name'] . '.' . $user->login;
+            $basename = 'paper_' . $_FILES['uploadpaper']['name'] . '.' . $user->login;
             $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
             $_SESSION['paper'] = FS_PATH_UPLOAD . $basename;
         }
@@ -304,7 +302,8 @@ class add_pub4 extends add_pub_base {
         foreach ($elements as $element) {
             if (($element->getName() == 'new_att')
                 && $element->isUploadedFile()) {
-                $basename = $_FILES['new_att']['name'] . '.' . $user->login;
+                $basename = 'additional_' . $_FILES['new_att']['name']
+                    . '.' . $user->login;
                 $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
                 $_SESSION['attachments'][] =  FS_PATH_UPLOAD . $basename;
                 $_SESSION['att_types'][] =  $values['new_att_type'];

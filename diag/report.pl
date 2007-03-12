@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.8 2007/03/08 23:29:26 aicmltec Exp $
+# Name: $Id: report.pl,v 1.9 2007/03/12 23:05:43 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -171,6 +171,7 @@ sub getPubs {
     }
 
     $statement .= 'AND publication.pub_id=pub_author.pub_id '
+        . 'AND publication.keywords LIKE "%machine learning%" '
         . 'AND author.author_id=pub_author.author_id '
         . 'AND publication.venue_id=venue.venue_id '
         . 'AND publication.published BETWEEN \''

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.14 2007/03/12 05:25:45 loyola Exp $
+// $Id: delete_publication.php,v 1.15 2007/03/12 23:05:43 aicmltec Exp $
 
 /**
  * Deletes a publication from the database.
@@ -30,10 +30,7 @@ class delete_publication extends pdHtmlPage {
         pubSessionInit();
         parent::pdHtmlPage('delete_publication');
 
-        if ($this->access_level <= 0) {
-            $this->loginError = true;
-            return;
-        }
+        if ($this->loginError) return;
 
         $pub_id = null;
         if (isset($_GET['pub_id']) && ($_GET['pub_id'] != ''))
