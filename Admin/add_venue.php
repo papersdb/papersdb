@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.26 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_venue.php,v 1.27 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -28,16 +28,13 @@ class add_venue extends pdHtmlPage {
     var $venue_id = null;
 
     function add_venue() {
-        global $access_level;
-
+        session_start();
         parent::pdHtmlPage('add_venue');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
-
-        $db = dbCreate();
 
         $venue = new pdVenue();
 
@@ -49,7 +46,7 @@ class add_venue extends pdHtmlPage {
         }
 
         if ($this->venue_id != null)
-            $venue->dbLoad($db, $this->venue_id);
+            $venue->dbLoad($this->db, $this->venue_id);
 
         if (isset($_GET['type']) && ($_GET['type'] != ''))
             $venue->type = $_GET['type'];
@@ -240,12 +237,12 @@ class add_venue extends pdHtmlPage {
                         $values['newOccurrenceUrl'][$i]);
                 }
 
-                $venue->dbSave($db);
+                $venue->dbSave($this->db);
 
                 if ($_SESSION['state'] == 'pub_add') {
                     assert('isset($_SESSION["pub"])');
                     $pub =& $_SESSION['pub'];
-                    $pub->addVenue($db, $venue);
+                    $pub->addVenue($this->db, $venue);
 
                     $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
 
@@ -326,7 +323,7 @@ class add_venue extends pdHtmlPage {
 
                 $this->contentPre .= '<h3>Adding Following Publication</h3>'
                     . $pub->getCitationHtml('..', false) . '<p/>'
-                    . add_pub_base::similarPubsHtml($db);
+                    . add_pub_base::similarPubsHtml();
             }
 
             $renderer =& $form->defaultRenderer();
@@ -345,7 +342,7 @@ class add_venue extends pdHtmlPage {
             $this->table =& $table;
             $this->javascript();
         }
-        $db->close();
+        $this->db->close();
     }
 
     function javascript() {
@@ -464,8 +461,6 @@ JS_END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_venue();
 echo $page->toHtml();
 

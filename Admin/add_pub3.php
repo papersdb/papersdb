@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.13 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_pub3.php,v 1.14 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -23,33 +23,14 @@ require_once 'includes/pdExtraInfoList.php';
  *
  * @package PapersDB
  */
-class add_pub3 extends pdHtmlPage {
+class add_pub3 extends add_pub_base {
     var $author_id = null;
 
     function add_pub3() {
-        global $access_level;
+        session_start();
+        $this->pub =& $_SESSION['pub'];
 
-        $db = dbCreate();
-        $pub =& $_SESSION['pub'];
-
-        if ($pub->pub_id != '')
-            parent::pdHtmlPage('edit_publication');
-        else
-            parent::pdHtmlPage('add_publication');
-
-        if ($access_level < 1) {
-            $this->loginError = true;
-            return;
-        }
-
-        if ($_SESSION['state'] != 'pub_add') {
-            header('Location: add_pub1.php');
-            return;
-        }
-
-        $this->db =& $db;
-
-        // $this->contentPost .= '<pre>' . print_r($pub, true) . '</pre>';
+        parent::add_pub_base();
 
         $options = array('cat_id');
         foreach ($options as $opt) {
@@ -60,9 +41,9 @@ class add_pub3 extends pdHtmlPage {
         }
 
         if (isset($cat_id))
-            $pub->addCategory($db, $cat_id);
-        else
-            $cat_id = $pub->category->cat_id;
+            $this->pub->addCategory($this->db, $cat_id);
+        else if (is_object($this->pub->category))
+            $cat_id = $this->pub->category->cat_id;
 
         $this->addPubDisableMenuItems();
 
@@ -73,7 +54,7 @@ class add_pub3 extends pdHtmlPage {
         $form->addElement('header', null, 'Category Information');
 
         // category
-        $category_list = new pdCatList($db);
+        $category_list = new pdCatList($this->db);
         $form->addElement(
             'select', 'cat_id',
             $this->helpTooltip('Category', 'categoryHelp') . ':',
@@ -82,8 +63,8 @@ class add_pub3 extends pdHtmlPage {
             array('onchange' => 'dataKeep();'));
 
         if ($cat_id > 0) {
-            if ($pub->category->info != null) {
-                foreach (array_values($pub->category->info) as $name) {
+            if ($this->pub->category->info != null) {
+                foreach (array_values($this->pub->category->info) as $name) {
                     $element = preg_replace("/\s+/", '', $name);
                     $form->addElement('text', $element, ucfirst($name) . ':',
                                       array('size' => 50, 'maxlength' => 250));
@@ -98,15 +79,15 @@ class add_pub3 extends pdHtmlPage {
                                              'extraInfoHelp') . ':',
                           array('cols' => 60, 'rows' => 5));
 
-        $extra_info = new pdExtraInfoList($db);
+        $extra_info = new pdExtraInfoList($this->db);
 
         if (count($extra_info) > 0) {
             unset($options);
             foreach ($extra_info->list as $info) {
-                if ($pub != null) {
+                if ($this->pub != null) {
                     // only make it an option if not already assigned for this
                     // pub
-                    if (strpos($pub->extra_info, $info) === false) {
+                    if (strpos($this->pub->extra_info, $info) === false) {
                         $options[$info] = $info;
                     }
                 }
@@ -150,7 +131,7 @@ class add_pub3 extends pdHtmlPage {
         $buttons[] = HTML_QuickForm::createElement(
             'submit', 'next_step', 'Next Step >>');
 
-        if ($pub->pub_id != '')
+        if ($this->pub->pub_id != '')
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
@@ -168,24 +149,24 @@ class add_pub3 extends pdHtmlPage {
     }
 
     function renderForm() {
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
         $defaults = $_GET;
 
         $this->contentPre .= '<h3>Adding Following Publication</h3>'
-            . $pub->getCitationHtml('..', false) . '<p/>'
-            . add_pub_base::similarPubsHtml($db);
+            . $this->pub->getCitationHtml('..', false) . '<p/>'
+            . add_pub_base::similarPubsHtml();
 
-        $defaults = array('cat_id'     => $pub->category->cat_id,
-                          'extra_info' => $pub->extra_info);
+        if (is_object($this->pub->category))
+            $defaults['cat_id'] = $this->pub->category->cat_id;
+
+        $defaults['extra_info'] = $this->pub->extra_info;
 
         // assign category info items
-        if (count($pub->info) > 0)
-            foreach (array_values($pub->category->info) as $name) {
+        if (count($this->pub->info) > 0)
+            foreach (array_values($this->pub->category->info) as $name) {
                 $element = preg_replace("/\s+/", '', $name);
-                $defaults[$element] = $pub->info[$name];
+                $defaults[$element] = $this->pub->info[$name];
             }
 
         $form->setDefaults($defaults);
@@ -205,20 +186,18 @@ class add_pub3 extends pdHtmlPage {
     }
 
     function processForm() {
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
         $values = $form->exportValues();
 
         if ($values['cat_id'] > 0)
-            $pub->addCategory($db, $values['cat_id']);
+            $this->pub->addCategory($this->db, $values['cat_id']);
 
-        if ($pub->category->info != null) {
-            foreach (array_values($pub->category->info) as $name) {
+        if ($this->pub->category->info != null) {
+            foreach (array_values($this->pub->category->info) as $name) {
                 $element = preg_replace("/\s+/", '', $name);
                 if (isset($values[$element]))
-                    $pub->info[$name] = $values[$element];
+                    $this->pub->info[$name] = $values[$element];
             }
         }
 
@@ -232,7 +211,7 @@ class add_pub3 extends pdHtmlPage {
             $extra_info_arr = array_merge($extra_info_arr,
                                           $values['extra_info_from_list']);
 
-        $pub->extraInfoSet($extra_info_arr);
+        $this->pub->extraInfoSet($extra_info_arr);
 
         if (isset($values['prev_step']))
             header('Location: add_pub2.php');
@@ -339,8 +318,6 @@ END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_pub3();
 echo $page->toHtml();
 

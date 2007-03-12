@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.78 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdPublication.php,v 1.79 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -78,11 +78,14 @@ class pdPublication {
         $this->load($q);
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
-            $q = $db->selectRow('pub_cat', '*', array('pub_id' => $id),
+            $q = $db->selectRow('pub_cat', 'cat_id', array('pub_id' => $id),
                              "pdPublication::dbLoad");
-            $this->category = new pdCategory();
-            $this->category->dbLoad($db, $q->cat_id, null,
-                                    PD_CATEGORY_DB_LOAD_BASIC);
+
+            if ($q !== false) {
+                $this->category = new pdCategory();
+                $this->category->dbLoad($db, $q->cat_id, null,
+                                        PD_CATEGORY_DB_LOAD_BASIC);
+            }
         }
 
         // some categories are not defined
@@ -823,7 +826,7 @@ class pdPublication {
             else if ($auth_count > 2)
                 $bibtex .= '+al';
 
-            if ($venue_short != '')
+            if (isset($venue_short))
                 $bibtex .= ':' . $venue_short;
 
             $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
@@ -850,7 +853,7 @@ class pdPublication {
             }
         }
 
-        if ($venue_name != '') {
+        if (isset($venue_name)) {
             if ($this->category->category == 'In Conference') {
                 $bibtex .= '  booktitle = {' . $venue_name . "},\n";
             }
@@ -976,18 +979,14 @@ class pdPublication {
      * Loads publication data from the object or array passed in
      */
     function load(&$mixed) {
-        $members = array('pub_id', 'title', 'paper', 'abstract', 'keywords',
-                         'user', 'published', 'venue_id', 'venue', 'extra_info',
-                         'submit', 'updated', 'additional_info', 'category');
-
         if (is_object($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdPublication')) as $member) {
                 if (isset($mixed->$member))
                     $this->$member = $mixed->$member;
             }
         }
         else if (is_array($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdPublication')) as $member) {
                 if (isset($mixed[$member]))
                     $this->$member = $mixed[$member];
             }

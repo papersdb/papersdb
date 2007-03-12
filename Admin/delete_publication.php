@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.13 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: delete_publication.php,v 1.14 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Deletes a publication from the database.
@@ -26,12 +26,11 @@ require_once 'includes/pdPublication.php';
  */
 class delete_publication extends pdHtmlPage {
     function delete_publication() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('delete_publication');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -93,8 +92,6 @@ class delete_publication extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new delete_publication();
 echo $page->toHtml();
 

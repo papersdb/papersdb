@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdUser.php,v 1.28 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -190,18 +190,15 @@ class pdUser {
     /**
      * Loads user data from the object or array passed in
      */
-    function load($mixed) {
-        $members = array('login', 'password', 'name', 'email', 'comments',
-                         'search', 'verified', 'access_level');
-
+    function load(&$mixed) {
         if (is_object($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdUser')) as $member) {
                 if (isset($mixed->$member))
                     $this->$member = $mixed->$member;
             }
         }
         else if (is_array($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdUser')) as $member) {
                 if (isset($mixed[$member]))
                     $this->$member = $mixed[$member];
             }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.19 2007/02/08 18:58:50 aicmltec Exp $
+// $Id: pdVenue.php,v 1.20 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -174,25 +174,18 @@ class pdVenue {
     /**
      * Loads publication data from the object passed in
      */
-    function load($mixed) {
-        $members = array('venue_id', 'title', 'name', 'url', 'type',
-                         'editor', 'date');
-
+    function load(&$mixed) {
         if (is_object($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdVenue')) as $member) {
                 if (isset($mixed->$member))
                     $this->$member = $mixed->$member;
             }
-
-            $this->processVenueData($mixed->data);
         }
         else if (is_array($mixed)) {
-            foreach ($members as $member) {
+            foreach (array_keys(get_class_vars('pdVenue')) as $member) {
                 if (isset($mixed[$member]))
                     $this->$member = $mixed[$member];
             }
-
-            $this->processVenueData($mixed['data']);
         }
     }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.7 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: author_report.php,v 1.8 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -44,24 +44,21 @@ class author_report extends pdHtmlPage {
     var $pi_pdf_pubs;
 
     function author_report() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('author_report');
 
-        if ($access_level <= 1) {
+        if ($this->access_level <= 1) {
             $this->loginError = true;
             return;
         }
-
-        $db = dbCreate();
 
         $this->contentPre .= '<h2>AICML Author Report</h2>';
 
         for ($i = 0; $i < count($this->pi_authors) - 1; $i++) {
             for ($j = $i + 1; $j < count($this->pi_authors); $j++) {
 
-                $q = $db->query(
+                $q = $this->db->query(
                     'SELECT publication.pub_id FROM '
                     . '(SELECT pub_id, name FROM pub_author, author '
                     . 'WHERE name like \'%' . $this->pi_authors[$i]
@@ -72,7 +69,7 @@ class author_report extends pdHtmlPage {
                     . 'publication '
                     . 'WHERE c.pub_id=publication.pub_id '
                     . 'AND f.pub_id=publication.pub_id');
-                $r = $db->fetchObject($q);
+                $r = $this->db->fetchObject($q);
                 while ($r) {
                     if (isset($pi_pubs[$r->pub_id]))
                         $pi_pubs[$r->pub_id] .= '<br/>' . $this->pi_authors[$i]
@@ -80,7 +77,7 @@ class author_report extends pdHtmlPage {
                     else
                         $pi_pubs[$r->pub_id] = $this->pi_authors[$i] . ' and '
                             . $this->pi_authors[$j];
-                    $r = $db->fetchObject($q);
+                    $r = $this->db->fetchObject($q);
                 }
             }
         }
@@ -92,7 +89,7 @@ class author_report extends pdHtmlPage {
         $c = 0;
         foreach ($pi_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
+            $pub->dbLoad($this->db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;<a href="../view_publication.php?pub_id='
                 . $pub->pub_id . '">'
@@ -105,7 +102,7 @@ class author_report extends pdHtmlPage {
         for ($i = 0; $i < count($this->pi_authors); $i++) {
             for ($j = 0; $j < count($this->pdf_authors); $j++) {
 
-                $q = $db->query(
+                $q = $this->db->query(
                     'SELECT publication.pub_id FROM '
                     . '(SELECT pub_id, name FROM pub_author, author '
                     . 'WHERE name like \'%' . $this->pi_authors[$i]
@@ -116,7 +113,7 @@ class author_report extends pdHtmlPage {
                     . 'publication '
                     . 'WHERE c.pub_id=publication.pub_id '
                     . 'AND f.pub_id=publication.pub_id');
-                $r = $db->fetchObject($q);
+                $r = $this->db->fetchObject($q);
                 while ($r) {
                     // skip if already included in report
                     if (!isset($pi_pubs[$r->pub_id])) {
@@ -128,7 +125,7 @@ class author_report extends pdHtmlPage {
                             $pi_pdf_pubs[$r->pub_id] = $this->pi_authors[$i]
                                 . ' and ' . $this->pdf_authors[$j];
                     }
-                    $r = $db->fetchObject($q);
+                    $r = $this->db->fetchObject($q);
                 }
             }
         }
@@ -140,7 +137,7 @@ class author_report extends pdHtmlPage {
         $c = 0;
         foreach ($pi_pdf_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
+            $pub->dbLoad($this->db, $pub_id);
             $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;<a href="../view_publication.php?pub_id='
                 . $pub->pub_id . '">'
@@ -150,12 +147,10 @@ class author_report extends pdHtmlPage {
             $c++;
         }
 
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new author_report();
 echo $page->toHtml();
 

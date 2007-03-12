@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: login.php,v 1.28 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -22,13 +22,12 @@ class login extends pdHtmlPage {
     var $passwd_hash;
 
     function login() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('login');
         $this->passwd_hash = "aicml";
 
-        if ($access_level > 0) {
+        if ($this->access_level > 0) {
             $this->contentPre .= 'You are already logged in as '
                 . $_SESSION['user']->login . '.';
             $this->pageError = true;
@@ -97,7 +96,6 @@ class login extends pdHtmlPage {
     }
 
     function processForm() {
-        $db = dbCreate();
         $user = new pdUser();
 
         $values = $this->form->exportValues();
@@ -105,7 +103,7 @@ class login extends pdHtmlPage {
         if (!get_magic_quotes_gpc()) {
             $values['loginid'] = addslashes($values['loginid']);
         }
-        $user->dbLoad($db, $values['loginid']);
+        $user->dbLoad($this->db, $values['loginid']);
 
         if (isset($values['submit_login'])) {
           // check passwords match
@@ -127,9 +125,9 @@ class login extends pdHtmlPage {
           // reset search results
           searchSessionInit();
 
-          $access_level = $_SESSION['user']->access_level;
+          $this->access_level = $_SESSION['user']->access_level;
 
-          if ($access_level == 0) {
+          if ($this->access_level == 0) {
             $this->contentPre .= 'Your login request has not been '
               . 'processed yet.';
             return;
@@ -155,7 +153,7 @@ class login extends pdHtmlPage {
                     . $values['loginid'] . '</strong> is already taken, '
                     . 'please pick another one.';
                 $this->pageError = true;
-                $db->close();
+                $this->db->close();
                 return;
             }
 
@@ -163,7 +161,7 @@ class login extends pdHtmlPage {
             if ($values['passwd'] != $values['passwd_again']) {
                 $this->contentPre .= 'Passwords did not match.';
                 $this->pageError = true;
-                $db->close();
+                $this->db->close();
                 return;
             }
 
@@ -180,13 +178,13 @@ class login extends pdHtmlPage {
                 $values['email'] = addslashes($values['email']);
             }
 
-            $db->insert('user', array('login'    => $values['loginid'],
+            $this->db->insert('user', array('login'    => $values['loginid'],
                                       'password' => $values['passwd'],
                                       'email'    => $values['email'],
                                       'name'     => $values['realname']),
                         'login.php');
 
-            $access_level = 0;
+            $this->access_level = 0;
 
             // only send email if running the real papersdb
             if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
@@ -211,12 +209,10 @@ class login extends pdHtmlPage {
             .= 'Could not process form<br/>'
             . '<pre>' . print_r($values, true) . '</pre>';
         }
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-check_login();
 $page = new login();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: delete_author.php,v 1.16 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -28,12 +28,11 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class delete_author extends pdHtmlPage {
     function delete_author() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('delete_author');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -133,8 +132,6 @@ class delete_author extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new delete_author();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.10 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: search_results.php,v 1.11 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -27,8 +27,7 @@ class search_results extends pdHtmlPage {
     var $debug = 0;
 
     function search_results() {
-        global $access_level;
-
+        session_start();
         parent::pdHtmlPage('search_results');
 
         if ($this->debug) {
@@ -41,7 +40,6 @@ class search_results extends pdHtmlPage {
             return;
         }
 
-        $db = dbCreate();
         $sp =& $_SESSION['search_params'];
 
         $this->contentPre .= '<h3>SEARCH RESULTS FOR</h3>';
@@ -65,7 +63,7 @@ class search_results extends pdHtmlPage {
                     $name = '';
 
                     if ($param == 'cat_id') {
-                        $cl = new pdCatList($db);
+                        $cl = new pdCatList($this->db);
                         $name = 'Category';
                         $value =& $cl->list[$sp->cat_id];
                     }
@@ -79,6 +77,7 @@ class search_results extends pdHtmlPage {
                 }
 
             $al = null;
+            $values = array();
 
             if ($sp->authortyped != '') {
                 $values[] = $sp->authortyped;
@@ -86,14 +85,14 @@ class search_results extends pdHtmlPage {
 
             if (($sp->author_myself != '')
                 && ($_SESSION['user']->author_id != '')) {
-                $al = new pdAuthorList($db);
+                $al = new pdAuthorList($this->db);
 
                 $values[] = $al->list[$_SESSION['user']->author_id];
             }
 
             if (count($sp->authorselect) > 0) {
                 if ($al == null)
-                    $al = new pdAuthorList($db);
+                    $al = new pdAuthorList($this->db);
                 foreach ($sp->authorselect as $auth_id)
                     $values[] = $al->list[$auth_id];
 
@@ -127,14 +126,14 @@ class search_results extends pdHtmlPage {
         if (count($_SESSION['search_results']) == 0) {
             $this->contentPre
                 .= '<br/><h3>Your search did not generate any results.</h3>';
-            $db->close();
+            $this->db->close();
             return;
         }
 
         $search_url =& $_SESSION['search_url'];
 
         $pubs = new pdPubList(
-            $db, array('pub_ids' => $_SESSION['search_results']));
+            $this->db, array('pub_ids' => $_SESSION['search_results']));
 
         $cvForm = $this->cvFormCreate($_SESSION['search_results']);
         if ($cvForm != null) {
@@ -150,7 +149,7 @@ class search_results extends pdHtmlPage {
         $b = 0;
         foreach ($pubs->list as $pub) {
             // get all info for this pub
-            $pub->dbload($db, $pub->pub_id);
+            $pub->dbload($this->db, $pub->pub_id);
             $pubTable = new HTML_Table();
 
             $citation = $pub->getCitationHtml();
@@ -185,7 +184,7 @@ class search_results extends pdHtmlPage {
                 . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
                 . 'width="16" border="0" align="middle" /></a>';
 
-            if ($access_level > 0)
+            if ($this->access_level > 0)
                 $cell .= '<a href="Admin/add_pub1.php?pub_id='
                     . $pub->pub_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" height="16" '
@@ -212,7 +211,7 @@ class search_results extends pdHtmlPage {
         $this->contentPre .= $table->toHtml()
             . '<hr/>' . $searchLinkTable->toHtml();
 
-        $db->close();
+        $this->db->close();
     }
 
     /**
@@ -230,8 +229,6 @@ class search_results extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new search_results();
 echo $page->toHtml();
 

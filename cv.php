@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: cv.php,v 1.16 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -25,6 +25,7 @@ require_once 'includes/pdPublication.php';
  */
 class cv extends pdHtmlPage {
     function cv() {
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('cv', null, false);
 
@@ -33,16 +34,15 @@ class cv extends pdHtmlPage {
             return;
         }
 
-        $db = dbCreate();
         $pub_count = 0;
         foreach (split(",", $_POST['pub_ids']) as $pub_id) {
             $pub_count++;
             $pub = new pdPublication();
-            $pub->dbLoad($db, $pub_id);
+            $pub->dbLoad($this->db, $pub_id);
             $this->contentPre .= '<b>[' . $pub_count . ']</b> '
               . $pub->getCitationText() . '<p/>';
         }
-        $db->close();
+        $this->db->close();
     }
 }
 

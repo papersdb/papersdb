@@ -23,14 +23,12 @@ require_once 'includes/pdAuthor.php';
  */
 class list_author extends pdHtmlPage {
     function list_author() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('all_authors');
-        $db = dbCreate();
 
         // Performing SQL query
-        $auth_list = new pdAuthorList($db);
+        $auth_list = new pdAuthorList($this->db);
 
         $this->contentPre .= "<h1>Authors</h1>";
 
@@ -43,7 +41,7 @@ class list_author extends pdHtmlPage {
         if (count($auth_list->list) > 0) {
             foreach ($auth_list->list as $author_id => $name) {
                 $author = new pdAuthor();
-                $author->dbLoad($db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
+                $author->dbLoad($this->db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
 
                 unset($cells);
                 $info = '<a href="view_author.php?author_id='
@@ -64,7 +62,7 @@ class list_author extends pdHtmlPage {
                     . '<img src="images/viewmag.png" title="view" alt="view" height="16" '
                     . 'width="16" border="0" align="middle" /></a>';
 
-                if ($access_level > 0) {
+                if ($this->access_level > 0) {
                     $cells[] = '<a href="Admin/add_author.php?author_id='
                         . $author_id . '">'
                         . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -94,7 +92,7 @@ class list_author extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -103,12 +101,10 @@ class list_author extends pdHtmlPage {
         }
 
         $this->table =& $table;
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new list_author();
 echo $page->toHtml();
 

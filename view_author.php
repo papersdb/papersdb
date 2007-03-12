@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.21 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: view_author.php,v 1.22 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -28,8 +28,7 @@ require_once 'includes/pdAuthor.php';
  */
 class view_author extends pdHtmlPage {
     function view_author() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('view_authors');
 
@@ -37,9 +36,6 @@ class view_author extends pdHtmlPage {
             $this->pageError = true;
             return;
         }
-
-        // Connecting, selecting database
-        $this->db = dbCreate();
 
         $auth = new pdAuthor();
         $auth->dbLoad($this->db, $_GET['author_id'],
@@ -54,7 +50,7 @@ class view_author extends pdHtmlPage {
 
         $this->contentPre .= '<h3>' . $auth->name;
 
-        if ($access_level > 0) {
+        if ($this->access_level > 0) {
             $this->contentPre
                 .= '&nbsp;&nbsp;<a href="Admin/add_author.php?author_id='
                 . $auth->author_id . '">'
@@ -140,8 +136,6 @@ class view_author extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new view_author();
 echo $page->toHtml();
 

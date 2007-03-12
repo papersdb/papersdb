@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.15 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: delete_category.php,v 1.16 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Deletes a category from the database.
@@ -29,12 +29,11 @@ require_once 'includes/pdPublication.php';
  */
 class delete_category extends pdHtmlPage {
     function delete_category() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('delete_category');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -133,8 +132,6 @@ class delete_category extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new delete_category();
 echo $page->toHtml();
 

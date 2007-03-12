@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.2 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: duplicatePubs.php,v 1.3 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -22,12 +22,11 @@ require_once 'includes/pdPubList.php';
  */
 class duplicatePubs extends pdHtmlPage {
     function duplicatePubs() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('duplicatePubs');
 
-        if ($access_level <= 1) {
+        if ($this->access_level <= 1) {
             $this->loginError = true;
             return;
         }
@@ -36,8 +35,7 @@ class duplicatePubs extends pdHtmlPage {
             . 'Note that some publications may exist both in a conference '
             . 'and later in time in a journal.';
 
-        $db = dbCreate();
-        $all_pubs = new pdPubList($db);
+        $all_pubs = new pdPubList($this->db);
         $titles = array();
 
         foreach ($all_pubs->list as $pub) {
@@ -54,8 +52,8 @@ class duplicatePubs extends pdHtmlPage {
                 if ($titles[$i][1] == $titles[$j][1]) {
                     $this->contentPre .= '<h2>Match ' . $count . '</h2>';
 
-                    $titles[$i][0]->dbLoad($db, $titles[$i][0]->pub_id);
-                    $titles[$j][0]->dbLoad($db, $titles[$j][0]->pub_id);
+                    $titles[$i][0]->dbLoad($this->db, $titles[$i][0]->pub_id);
+                    $titles[$j][0]->dbLoad($this->db, $titles[$j][0]->pub_id);
 
                     $this->contentPre .= $this->citationGet( $titles[$i][0])
                         . '<br/>' . $this->citationGet( $titles[$j][0]);
@@ -65,7 +63,7 @@ class duplicatePubs extends pdHtmlPage {
             }
         }
 
-        $db->close();
+        $this->db->close();
     }
 
     function citationGet($pub) {
@@ -115,8 +113,6 @@ class duplicatePubs extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new duplicatePubs();
 echo $page->toHtml();
 

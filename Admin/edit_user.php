@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.18 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: edit_user.php,v 1.19 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -25,12 +25,11 @@ require_once 'includes/pdAuthorList.php';
  */
 class edit_user extends pdHtmlPage {
     function edit_user() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('edit_user');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -44,9 +43,8 @@ class edit_user extends pdHtmlPage {
     }
 
     function editUser() {
-        $db = dbCreate();
         $user =& $_SESSION['user'];
-        $user->collaboratorsDbLoad($db);
+        $user->collaboratorsDbLoad($this->db);
 
         $form = new HTML_QuickForm('pubForm');
 
@@ -57,7 +55,7 @@ class edit_user extends pdHtmlPage {
         $form->addElement('text', 'email', 'E-mail:',
                           array('size' => 50, 'maxlength' => 100));
 
-        $auth_list = new pdAuthorList($db);
+        $auth_list = new pdAuthorList($this->db);
         assert('is_array($auth_list->list)');
 
         $authSelect =& $form->addElement('advmultiselect', 'authors', null,
@@ -113,7 +111,7 @@ END;
 
             unset($user->collaborators);
             if (count($values['authors']) > 0) {
-                $auth_list = new pdAuthorList($db);
+                $auth_list = new pdAuthorList($this->db);
 
                 foreach ($values['authors'] as $author_id) {
                     $user->collaborators[$author_id]
@@ -121,7 +119,7 @@ END;
                 }
             }
 
-            $user->dbSave($db);
+            $user->dbSave($this->db);
             $this->contentPre .= 'Change to user information submitted.';
         }
         else {
@@ -150,13 +148,12 @@ END;
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-        $db->close();
-    }
+        $this->db->close();
+}
 
 function showUser() {
-        $db = dbCreate();
-        $user =& $_SESSION['user'];
-        $user->collaboratorsDbLoad($db);
+    $user =& $_SESSION['user'];
+        $user->collaboratorsDbLoad($this->db);
 
         $this->contentPre .= '<h2>Login Information&nbsp;&nbsp;'
             . '<a href="edit_user.php?status=edit">'
@@ -193,12 +190,10 @@ function showUser() {
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '30%'));
         $this->table =& $table;
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new edit_user();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.10 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: list_categories.php,v 1.11 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -21,13 +21,11 @@ require_once 'includes/pdCategory.php';
  */
 class list_categories extends pdHtmlPage {
     function list_categories() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('all_categories');
-        $db = dbCreate();
 
-        $cat_list = new pdCatList($db);
+        $cat_list = new pdCatList($this->db);
 
         $table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
@@ -40,7 +38,7 @@ class list_categories extends pdHtmlPage {
             unset($cells);
 
             $category = new pdCategory();
-            $result = $category->dbLoad($db, $cat_id);
+            $result = $category->dbLoad($this->db, $cat_id);
             assert('$result');
 
             $cells[] = '<b>' . $category->category . '</b><br/>';
@@ -55,7 +53,7 @@ class list_categories extends pdHtmlPage {
                 $cells[] = '';
             }
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $cells[] = '<a href="Admin/add_category.php?cat_id='
                     . $category->cat_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -81,7 +79,7 @@ class list_categories extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -91,12 +89,10 @@ class list_categories extends pdHtmlPage {
 
         $this->contentPre .= '<h1>Publication Categories</h1>';
         $this->table =& $table;
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new list_categories();
 echo $page->toHtml();
 

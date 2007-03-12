@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.3 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: dbcreate_mysql.php,v 1.4 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Creates the PapersDB database.
@@ -25,48 +25,45 @@ class dbCreate extends pdHtmlPage {
     var $numNewInterests = 0;
 
     function dbCreate() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('dbcreate');
 
-        $db = dbCreate();
+        $this->tblAdditionalInfo();
+        $this->tblAttachmentTypes();
+        $this->tblAuthor();
+        $this->tblAuthorInterest();
+        $this->tblCatInfo();
+        $this->tblCategory();
+        $this->tblExtraInfo();
+        $this->tblInfo();
+        $this->tblinterest();
+        $this->tblPointer();
+        $this->tblPubAdd();
+        $this->tblPubAuthor();
+        $this->tblPubCat();
+        $this->tblPubCatInfo();
+        $this->tblPublication();
+        $this->tblUser();
+        $this->tblUserAuthor();
+        $this->tblVenue();
+        $this->tblVenueOccur();
 
-        $this->tblAdditionalInfo($db);
-        $this->tblAttachmentTypes($db);
-        $this->tblAuthor($db);
-        $this->tblAuthorInterest($db);
-        $this->tblCatInfo($db);
-        $this->tblCategory($db);
-        $this->tblExtraInfo($db);
-        $this->tblInfo($db);
-        $this->tblinterest($db);
-        $this->tblPointer($db);
-        $this->tblPubAdd($db);
-        $this->tblPubAuthor($db);
-        $this->tblPubCat($db);
-        $this->tblPubCatInfo($db);
-        $this->tblPublication($db);
-        $this->tblUser($db);
-        $this->tblUserAuthor($db);
-        $this->tblVenue($db);
-        $this->tblVenueOccur($db);
-
-        $db->close();
+        $this->db->close();
     }
 
-    function createDatabase($db) {
-        assert('is_object($db)');
+    function createDatabase() {
+        assert('is_object($this->db)');
 
-        $q  = $db->query('CREATE DATABASE ' . DB_NAME);
+        $q  = $this->db->query('CREATE DATABASE ' . DB_NAME);
         assert('$q');
     }
 
-    function tblAdditionalInfo($db) {
-        assert('is_object($db)');
+    function tblAdditionalInfo() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `additional_info`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `additional_info`');
+        $q = $this->db->query(
             'CREATE TABLE `additional_info` ('
             . '`add_id` int(10) unsigned NOT NULL auto_increment, '
             . '`type` varchar(100) default "",'
@@ -75,10 +72,10 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblAttachmentTypes($db) {
-        assert('is_object($db)');
-        $q = $db->query('DROP TABLE IF EXISTS `attachment_types`');
-        $q = $db->query(
+    function tblAttachmentTypes() {
+        assert('is_object($this->db)');
+        $q = $this->db->query('DROP TABLE IF EXISTS `attachment_types`');
+        $q = $this->db->query(
             'CREATE TABLE `attachment_types` ('
             . '`type` varchar(20) NOT NULL default "")');
         assert('$q');
@@ -86,15 +83,15 @@ class dbCreate extends pdHtmlPage {
         foreach (array('PDF', 'PS', 'DOC', 'TXT', 'Auxiliary Material') as $type)
             $arr[] = array('type' => $type);
 
-        $q = $db->insert('attachment_types', $arr, 'dbcreate::tblAttachmentTypes');
+        $q = $this->db->insert('attachment_types', $arr, 'dbcreate::tblAttachmentTypes');
         assert('$q');
     }
 
-    function tblAuthor($db) {
-        assert('is_object($db)');
+    function tblAuthor() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `author`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `author`');
+        $q = $this->db->query(
             'CREATE TABLE `author` ('
             . '`title` varchar(255) default "", '
             . '`webpage` varchar(255) default "", '
@@ -106,11 +103,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblAuthorInterest($db) {
-        assert('is_object($db)');
+    function tblAuthorInterest() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `author_interest`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `author_interest`');
+        $q = $this->db->query(
             'CREATE TABLE `author_interest` ('
             . '`author_id` int(10) unsigned NOT NULL default "0", '
             . '`interest_id` int(10) unsigned NOT NULL default "0", '
@@ -118,11 +115,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblCatInfo($db) {
-        assert('is_object($db)');
+    function tblCatInfo() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `cat_info`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `cat_info`');
+        $q = $this->db->query(
             'CREATE TABLE `cat_info` ('
             . '`cat_id` int(10) unsigned NOT NULL default "0", '
             . '`info_id` int(10) unsigned NOT NULL default "0", '
@@ -131,11 +128,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblCategory($db) {
-        assert('is_object($db)');
+    function tblCategory() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `category`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `category`');
+        $q = $this->db->query(
             'CREATE TABLE `category` ('
             . '`cat_id` int(10) unsigned NOT NULL auto_increment, '
             . '`category` varchar(255) NOT NULL default "", '
@@ -147,15 +144,15 @@ class dbCreate extends pdHtmlPage {
                 as $cat)
             $arr[] = array('category' => $cat);
 
-        $q = $db->insert('category', $arr, 'dbcreate::tblCategory');
+        $q = $this->db->insert('category', $arr, 'dbcreate::tblCategory');
         assert('$q');
     }
 
-    function tblExtraInfo($db) {
-        assert('is_object($db)');
+    function tblExtraInfo() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `extra_info`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `extra_info`');
+        $q = $this->db->query(
             'CREATE TABLE `extra_info` ('
             . '`name` varchar(50) NOT NULL default ""'
             . ')');
@@ -178,16 +175,16 @@ class dbCreate extends pdHtmlPage {
                        'with Student') as $info)
             $arr[] = array('name' => $info);
 
-        $q = $db->insert('extra_info', $arr, 'dbcreate::tblExtraInfo');
+        $q = $this->db->insert('extra_info', $arr, 'dbcreate::tblExtraInfo');
         assert('$q');
     }
 
 
-    function tblInfo($db) {
-        assert('is_object($db)');
+    function tblInfo() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `info`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `info`');
+        $q = $this->db->query(
             'CREATE TABLE `info` ('
             . '`info_id` int(10) unsigned NOT NULL auto_increment, '
             . '`name` varchar(255) NOT NULL default "", '
@@ -200,15 +197,15 @@ class dbCreate extends pdHtmlPage {
                        'Volume', 'Number', 'Pages', 'URL') as $info)
             $arr[] = array('name' => $info);
 
-        $q = $db->insert('info', $arr, "dbcreate::tblExtraInfo");
+        $q = $this->db->insert('info', $arr, "dbcreate::tblExtraInfo");
         assert('$q');
     }
 
-    function tblinterest($db) {
-        assert('is_object($db)');
+    function tblinterest() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `interest`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `interest`');
+        $q = $this->db->query(
             'CREATE TABLE `interest` ('
             . '`interest_id` int(10) unsigned NOT NULL auto_increment, '
             . '`interest` varchar(255) NOT NULL default "", '
@@ -217,11 +214,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPointer($db) {
-        assert('is_object($db)');
+    function tblPointer() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `pointer`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `pointer`');
+        $q = $this->db->query(
             'CREATE TABLE `pointer` ('
             . '`pub_id` int(11) NOT NULL default "0", '
             . '`type` varchar(100) NOT NULL default "", '
@@ -231,11 +228,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubAdd($db) {
-        assert('is_object($db)');
+    function tblPubAdd() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `pub_add`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `pub_add`');
+        $q = $this->db->query(
             'CREATE TABLE `pub_add` ('
             . '`pub_id` int(10) unsigned NOT NULL default "0", '
             . '`add_id` int(10) unsigned NOT NULL default "0", '
@@ -244,11 +241,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubAuthor($db) {
-        assert('is_object($db)');
+    function tblPubAuthor() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `pub_author`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `pub_author`');
+        $q = $this->db->query(
             'CREATE TABLE `pub_author` ('
             . '`rank` int(11) default "0", '
             . '`pub_id` int(10) unsigned NOT NULL default "0", '
@@ -258,11 +255,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubCat($db) {
-        assert('is_object($db)');
+    function tblPubCat() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `pub_cat`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `pub_cat`');
+        $q = $this->db->query(
             'CREATE TABLE `pub_cat` ('
             . '`pub_id` int(10) unsigned NOT NULL default "0", '
             . '`cat_id` int(10) unsigned NOT NULL default "0", '
@@ -271,11 +268,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubCatInfo($db) {
-        assert('is_object($db)');
+    function tblPubCatInfo() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `pub_cat_info`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `pub_cat_info`');
+        $q = $this->db->query(
             'CREATE TABLE `pub_cat_info` ('
             . '`pub_id` int(10) unsigned NOT NULL default "0", '
             . '`cat_id` int(10) unsigned NOT NULL default "0", '
@@ -286,11 +283,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPublication($db) {
-        assert('is_object($db)');
+    function tblPublication() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `publication`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `publication`');
+        $q = $this->db->query(
             'CREATE TABLE `publication` ('
             . '`pub_id` int(10) unsigned NOT NULL auto_increment, '
             . '`title` varchar(255) NOT NULL default "", '
@@ -309,11 +306,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblUser($db) {
-        assert('is_object($db)');
+    function tblUser() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `user`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `user`');
+        $q = $this->db->query(
             'CREATE TABLE `user` ('
             . '`search` varchar(100) default "", '
             . '`comments` varchar(100) default "", '
@@ -328,11 +325,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblUserAuthor($db) {
-        assert('is_object($db)');
+    function tblUserAuthor($this->db) {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `user_author`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `user_author`');
+        $q = $this->db->query(
             'CREATE TABLE `user_author` ('
             . '`login` varchar(100) NOT NULL default "", '
             . '`author_id` int(11) NOT NULL default "0", '
@@ -341,11 +338,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblVenue($db) {
-        assert('is_object($db)');
+    function tblVenue() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `venue`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `venue`');
+        $q = $this->db->query(
             'CREATE TABLE `venue` ('
             . '`venue_id` int(11) NOT NULL auto_increment, '
             . '`title` varchar(100) default "", '
@@ -360,11 +357,11 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblVenueOccur($db) {
-        assert('is_object($db)');
+    function tblVenueOccur() {
+        assert('is_object($this->db)');
 
-        $q = $db->query('DROP TABLE IF EXISTS `venue_occur`');
-        $q = $db->query(
+        $q = $this->db->query('DROP TABLE IF EXISTS `venue_occur`');
+        $q = $this->db->query(
             'CREATE TABLE `venue_occur` ('
             . '`venue_occur_id` int(11) NOT NULL auto_increment, '
             . '`venue_id` int(11) NOT NULL default "0", '
@@ -378,8 +375,6 @@ class dbCreate extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new dbCreate();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.16 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdPubList.php,v 1.17 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -90,7 +90,8 @@ class pdPubList {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
-        assert('is_array($this->list)');
+        if (isset($this->list))
+            assert('is_array($this->list)');
     }
 
     /**

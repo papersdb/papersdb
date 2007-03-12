@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.4 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: check_attachments.php,v 1.5 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -22,21 +22,18 @@ require_once 'includes/pdPubList.php';
  */
 class check_attachments extends pdHtmlPage {
     function check_attachments() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('check_attachments');
 
-        if ($access_level <= 1) {
+        if ($this->access_level <= 1) {
             $this->loginError = true;
             return;
         }
 
-        $db = dbCreate();
-
-        $pub_list = new pdPubList($db);
+        $pub_list = new pdPubList($this->db);
         foreach ($pub_list->list as $pub) {
-            $pub->dbLoad($db, $pub->pub_id);
+            $pub->dbLoad($this->db, $pub->pub_id);
 
             $paper_arr = split('paper_', $pub->paper);
 
@@ -54,7 +51,7 @@ class check_attachments extends pdHtmlPage {
                 }
         }
 
-        $db->close();
+        $this->db->close();
     }
 
     function checkAtt($pub_id, $dbname, $basename, $is_additional) {
@@ -88,8 +85,6 @@ class check_attachments extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new check_attachments();
 echo $page->toHtml();
 

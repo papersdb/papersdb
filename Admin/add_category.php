@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.27 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_category.php,v 1.28 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -28,25 +28,23 @@ require_once 'includes/pdCategory.php';
  */
 class add_category extends pdHtmlPage {
     function add_category() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('add_category');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
 
-        $db = dbCreate();
         $category = new pdCategory();
 
         if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
             $cat_id = intval($_GET['cat_id']);
-            $result = $category->dbLoad($db, $cat_id);
+            $result = $category->dbLoad($this->db, $cat_id);
 
             if (!$result) {
-                $db->close();
+                $this->db->close();
                 $this->pageError = true;
                 return;
             }
@@ -73,7 +71,7 @@ class add_category extends pdHtmlPage {
 
         // info list
         $label = 'Related Fields:';
-        $info_list = new pdInfoList($db);
+        $info_list = new pdInfoList($this->db);
         foreach ($info_list->list as $info_id => $name) {
             $form->addElement('advcheckbox', 'info[' . $info_id . ']',
                               $label, $name, null, array('', $name));
@@ -122,7 +120,7 @@ class add_category extends pdHtmlPage {
                 $obj->name = $infoname;
                 $category->info[] = $obj;
             }
-            $category->dbSave($db);
+            $category->dbSave($this->db);
 
             $this->contentPre .= 'Category "' . $category->category
                 . '" succesfully added to the database.'
@@ -155,7 +153,7 @@ class add_category extends pdHtmlPage {
             $this->renderer =& $renderer;
             $this->javascript();
         }
-        $db->close();
+        $this->db->close();
     }
 
     function javascript() {
@@ -213,8 +211,6 @@ JS_END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_category();
 echo $page->toHtml();
 

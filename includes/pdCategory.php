@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.11 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdCategory.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -161,22 +161,18 @@ class pdCategory {
     /**
      * Loads publication data from the object passed in
      */
-    function load($mixed) {
+    function load(&$mixed) {
         if (is_object($mixed)) {
-            if (isset($mixed->cat_id))
-                $this->cat_id = $mixed->cat_id;
-            if (isset($mixed->category))
-                $this->category = $mixed->category;
-            if (isset($mixed->info))
-                $this->info = $mixed->info;
+            foreach (array_keys(get_class_vars('pdCategory')) as $member) {
+                if (isset($mixed->$member))
+                    $this->$member = $mixed->$member;
+            }
         }
         else if (is_array($mixed)) {
-            if (isset($mixed['cat_id']))
-                $this->cat_id = $mixed['cat_id'];
-            if (isset($mixed['category']))
-                $this->category = $mixed['category'];
-            if (isset($mixed['info']))
-                $this->info = $mixed['info'];
+            foreach (array_keys(get_class_vars('pdCategory')) as $member) {
+                if (isset($mixed[$member]))
+                    $this->$member = $mixed[$member];
+            }
         }
     }
 }

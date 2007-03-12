@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.23 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: defines.php,v 1.24 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Project Constants
@@ -13,6 +13,9 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 
 ini_set("include_path", ini_get("include_path") . ":/usr/share/pear");
+
+$wgSitename = "PapersDB";
+$wgServer = "www.cs.ualberta.ca";
 
 /** The server hosting the database. */
 if ($_ENV['HOSTNAME'] == 'levante')
@@ -45,6 +48,9 @@ else
     define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
 
 define('FS_PATH_UPLOAD', FS_PATH . '/uploaded_files/');
+
+$relative_files_path = "uploaded_files/";
+$absolute_files_path = FS_PATH . $relative_files_path;
 
 define('MAINTENANCE', 0);
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: delete_interest.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Deletes author interests from the database.
@@ -28,20 +28,17 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class delete_interest extends pdHtmlPage {
     function delete_interest() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('delete_interest');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
 
-        $db = dbCreate();
-
         $form =& $this->confirmForm('deleter');
-        $interest_list = new pdAuthInterests($db);
+        $interest_list = new pdAuthInterests($this->db);
         $form->addElement('select', 'interests', null, $interest_list->list,
                           array('multiple' => 'multiple', 'size' => 15));
 
@@ -52,7 +49,7 @@ class delete_interest extends pdHtmlPage {
             foreach ($values['interests'] as $interest_id)
                 $names[] = $interest_list->list[$interest_id];
 
-            $interest_list->dbDelete($db, $values['interests']);
+            $interest_list->dbDelete($this->db, $values['interests']);
 
             $this->contentPre .= 'You have successfully removed the '
                 . 'following interest from the database: <br/><b>'
@@ -80,12 +77,10 @@ class delete_interest extends pdHtmlPage {
             $this->table =& $table;
         }
 
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new delete_interest();
 echo $page->toHtml();
 

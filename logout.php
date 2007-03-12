@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: logout.php,v 1.8 2006/09/24 21:21:42 aicmltec Exp $
+// $Id: logout.php,v 1.9 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Allows a user to log out of the system.
@@ -9,24 +9,27 @@
  */
 
 /** Requries the base class and classes to access the database. */
-require_once 'includes/functions.php';
-require_once 'includes/check_login.php';
+require_once 'includes/pdHtmlPage.php';
 
-session_start();
-$access_level = check_login();
+class logout extends pdHtmlPage {
+    function logout() {
+        session_start();
+        pdHtmlPage::pdHtmlPage('logout');
 
-if ($access_level <= 0) {
-	die('You are not logged in so you cannot log out.');
+        if ($this->access_level <= 0) {
+            die('You are not logged in so you cannot log out.');
+        }
+
+        unset($_SESSION['user']);
+        searchSessionInit();
+
+        // kill session variables
+        $_SESSION = array(); // reset session array
+        session_destroy();   // destroy session.
+        header('Location: index.php');
+    }
 }
 
-unset($_SESSION['user']);
-searchSessionInit();
-
-// kill session variables
-$_SESSION = array(); // reset session array
-session_destroy();   // destroy session.
-header('Location: index.php');
-
-// redirect them to anywhere you like.
+$page = new logout();
 
 ?>

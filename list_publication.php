@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.29 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: list_publication.php,v 1.30 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -29,55 +29,52 @@ require_once 'includes/pdVenueList.php';
  */
 class list_publication extends pdHtmlPage {
     function list_publication() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('view_publications');
 
-        $db = dbCreate();
-
         if (isset($_GET['year'])) {
             $pub_list = new pdPubList(
-                $db, array('year' => $_GET['year']));
+                $this->db, array('year' => $_GET['year']));
             $title = '<h1>Publications in ' .$_GET['year'] . '</h1>';
         }
         else if (isset($_GET['venue_id'])) {
-            $vl = new pdVenueList($db);
+            $vl = new pdVenueList($this->db);
 
             if (!array_key_exists($_GET['venue_id'], $vl->list)) {
-                $db->close();
+                $this->db->close();
                 $this->pageError = true;
                 return;
             }
 
             $pub_list = new pdPubList(
-                $db, array('venue_id' => $_GET['venue_id']));
+                $this->db, array('venue_id' => $_GET['venue_id']));
             $title = '<h1>Publications in Venue "'
                 . $vl->list[$_GET['venue_id']] . '"</h1>';
         }
         else if (isset($_GET['cat_id'])) {
-            $cl = new pdCatList($db);
+            $cl = new pdCatList($this->db);
 
             if (!array_key_exists($_GET['cat_id'], $cl->list)) {
-                $db->close();
+                $this->db->close();
                 $this->pageError = true;
                 return;
             }
 
             $pub_list = new pdPubList(
-                $db, array('cat_id' => $_GET['cat_id']));
+                $this->db, array('cat_id' => $_GET['cat_id']));
             $title = '<h1>Publications in Category "'
                 . $cl->list[$_GET['cat_id']] . '"</h1>';
         }
         else if (isset($_GET['keyword'])) {
             $pub_list = new pdPubList(
-                $db, array('keyword' => $_GET['keyword']));
+                $this->db, array('keyword' => $_GET['keyword']));
             $title = '<h1>Publications with keyword "' .$_GET['keyword']
                 . '"</h1>';
         }
         else if (isset($_GET['keyword'])) {
             $pub_list = new pdPubList(
-                $db, array('keyword' => $_GET['keyword']));
+                $this->db, array('keyword' => $_GET['keyword']));
             $title = '<h1>Publications with keyword "' .$_GET['keyword']
                 . '"</h1>';
         }
@@ -87,10 +84,10 @@ class list_publication extends pdHtmlPage {
             //
             // This is used when viewing an author.
             $pub_list = new pdPubList(
-                $db, array('author_id' => $_GET['author_id']));
+                $this->db, array('author_id' => $_GET['author_id']));
 
             $auth = new pdAuthor();
-            $auth->dbLoad($db, $_GET['author_id'],
+            $auth->dbLoad($this->db, $_GET['author_id'],
                           PD_AUTHOR_DB_LOAD_BASIC);
 
             $title = '<h1>Publications by ' . $auth->name . '</h1>';
@@ -100,8 +97,8 @@ class list_publication extends pdHtmlPage {
                 $viewCat = 'year';
             else
                 $viewCat = $_GET['by'];
-            $this->pubSelect($db, $viewCat);
-            $db->close();
+            $this->pubSelect($viewCat);
+            $this->db->close();
             return;
         }
         else {
@@ -121,7 +118,7 @@ class list_publication extends pdHtmlPage {
             $count = 0;
             foreach ($pub_list->list as $pub) {
                 ++$count;
-                $pub->dbload($db, $pub->pub_id);
+                $pub->dbload($this->db, $pub->pub_id);
 
                 $citation = $pub->getCitationHtml();
 
@@ -154,7 +151,7 @@ class list_publication extends pdHtmlPage {
                     . '<img src="images/viewmag.png" title="view" alt="view" '
                     . ' height="16" width="16" border="0" align="middle" /></a>';
 
-                if ($access_level > 0)
+                if ($this->access_level > 0)
                     $citation .= '<a href="Admin/add_pub1.php?pub_id='
                         . $pub->pub_id . '">'
                         . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -170,11 +167,11 @@ class list_publication extends pdHtmlPage {
 
         $this->tableHighlits($table);
 
-        $db->close();
+        $this->db->close();
     }
 
-    function pubSelect(&$db, $viewCat = null) {
-        assert('is_object($db)');
+    function pubSelect($viewCat = null) {
+        assert('is_object($this->db)');
         $this->contentPre .= $this->pubSelMenu($viewCat) . '<br/>';
         $text = '';
 
@@ -182,7 +179,7 @@ class list_publication extends pdHtmlPage {
             case "year":
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
-                $pub_years = new pdPubList($db, array('year_list' => true));
+                $pub_years = new pdPubList($this->db, array('year_list' => true));
 
                 $table->addRow(array('Year', 'Num. Publications'),
                                array('id' => 'emph'));
@@ -203,7 +200,7 @@ class list_publication extends pdHtmlPage {
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
 
-                $al = new pdAuthorList($db);
+                $al = new pdAuthorList($this->db);
 
                 for ($c = 65; $c <= 90; ++$c) {
                     $text = '';
@@ -227,7 +224,7 @@ class list_publication extends pdHtmlPage {
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
 
-                $vl = new pdVenueList($db);
+                $vl = new pdVenueList($this->db);
 
                 for ($c = 65; $c <= 90; ++$c) {
                     $text = '';
@@ -248,7 +245,7 @@ class list_publication extends pdHtmlPage {
             case 'category':
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
-                $cl = new pdCatList($db);
+                $cl = new pdCatList($this->db);
 
                 $table->addRow(array('Category', 'Num. Publications'),
                                array('id' => 'emph'));
@@ -257,7 +254,7 @@ class list_publication extends pdHtmlPage {
                     $cells = array();
                     $cells[] = '<a href="list_publication.php?cat_id='
                         . $cat_id . '">' . $category . '</a><br/>';
-                    $cells[] = $cl->catNumPubs($db, $cat_id);
+                    $cells[] = $cl->catNumPubs($this->db, $cat_id);
                     $table->addRow($cells);
                 }
 
@@ -271,7 +268,7 @@ class list_publication extends pdHtmlPage {
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
 
-                $kl = new pdPubList($db, array('keywords_list' => true));
+                $kl = new pdPubList($this->db, array('keywords_list' => true));
 
                 for ($c = 65; $c <= 90; ++$c) {
                     $text = '';
@@ -295,8 +292,6 @@ class list_publication extends pdHtmlPage {
     }
 
     function tableHighlits(&$table) {
-        global $access_level;
-
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
@@ -309,7 +304,7 @@ class list_publication extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $table->updateCellAttributes($i, 0, array('id' => 'emph',
                                                           'class' => 'small'));
             }
@@ -333,8 +328,6 @@ class list_publication extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new list_publication();
 echo $page->toHtml();
 

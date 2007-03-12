@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.29 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: functions.php,v 1.30 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -171,6 +171,8 @@ function debug_colorize_string($string)
  * Initializes a publication add / edit session.
  */
 function pubSessionInit() {
+    if (!isset($_SESSION)) return;
+
     unset($_SESSION['state']);
     unset($_SESSION['pub']);
     unset($_SESSION['paper']);
@@ -199,10 +201,7 @@ function papersdb_backtrace() {
     //print_r($traceArr);
 
     array_shift($traceArr);
-    $tabs = sizeof($traceArr)-1;
     foreach($traceArr as $arr) {
-        for ($i=0; $i < $tabs; $i++) $s .= ' &nbsp; ';
-        $tabs -= 1;
         if (isset($arr['class'])) $s .= $arr['class'].'.';
         $args = array();
         if(!empty($arr['args'])) foreach($arr['args'] as $v)
@@ -211,8 +210,7 @@ function papersdb_backtrace() {
             else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
             else if (is_object($v)) $args[] = 'Object:'.get_class($v);
             else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
-            else
-            {
+            else {
                 $v = (string) @$v;
                 $str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
                 if (strlen($v) > $MAXSTRLEN) $str .= '...';

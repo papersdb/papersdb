@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_publication.php,v 1.79 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_publication.php,v 1.80 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -30,8 +30,6 @@ require_once 'includes/pdAttachmentTypesList.php';
  */
 class add_publication extends pdHtmlPage {
     function add_publication($pub = null) {
-        global $access_level;
-
         $_SESSION['state'] = 'pub_add';
         $options = array('pub_id');
         foreach ($options as $opt) {
@@ -50,7 +48,7 @@ class add_publication extends pdHtmlPage {
         $this->navMenuItemDisplay('add_category', 0);
         $this->navMenuItemDisplay('add_venue', 0);
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }

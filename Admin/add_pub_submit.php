@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -28,12 +28,11 @@ class add_pub_submit extends pdHtmlPage {
     var $debug = 0;
 
     function add_pub_submit() {
-        global $access_level;
-
+        session_start();
         parent::pdHtmlPage(null, 'Publication Submitted',
                            'Admin/add_pub_submit.php', PD_NAV_MENU_NEVER);
 
-        if ($access_level < 1) {
+        if ($this->access_level < 1) {
             header('Location: add_pub1.php');
             return;
         }
@@ -43,8 +42,6 @@ class add_pub_submit extends pdHtmlPage {
             return;
         }
 
-        $this->db = dbCreate();
-        $db =& $this->db;
         $pub =& $_SESSION['pub'];
         $user =& $_SESSION['user'];
 
@@ -61,11 +58,11 @@ class add_pub_submit extends pdHtmlPage {
 
         $pub->submit = $user->name;
 
-        $pub->dbSave($db);
+        $pub->dbSave($this->db);
 
         // deal with paper
         if (strpos(basename($_SESSION['paper']), 'paper_') === false)
-            $pub->paperSave($db, $_SESSION['paper']);
+            $pub->paperSave($this->db, $_SESSION['paper']);
 
         if (count($_SESSION['attachments']) > 0)
             for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
@@ -73,14 +70,14 @@ class add_pub_submit extends pdHtmlPage {
 
                 if (strpos(basename($_SESSION['attachments'][$i]),
                             'additional_') === false) {
-                    $pub->attSave($db, $_SESSION['attachments'][$i],
+                    $pub->attSave($this->db, $_SESSION['attachments'][$i],
                                   $_SESSION['att_types'][$i]);
                 }
             }
 
         if (count($_SESSION['removed_atts']) > 0)
             foreach ($_SESSION['removed_atts'] as $filename)
-                $pub->dbAttRemove($db, $filename);
+                $pub->dbAttRemove($this->db, $filename);
 
         if ($this->debug) {
             $this->contentPost
@@ -98,8 +95,6 @@ class add_pub_submit extends pdHtmlPage {
 
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_pub_submit();
 echo $page->toHtml();
 

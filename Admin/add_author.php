@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.41 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_author.php,v 1.42 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -35,9 +35,7 @@ class add_author extends pdHtmlPage {
     var $numNewInterests = 0;
 
     function add_author() {
-        global $access_level;
-
-        $db = dbCreate();
+        session_start();
         $author = new pdAuthor();
 
         $arr = null;
@@ -55,12 +53,12 @@ class add_author extends pdHtmlPage {
         }
 
         if ($this->author_id != null) {
-          $result = $author->dbLoad($db, $this->author_id,
+          $result = $author->dbLoad($this->db, $this->author_id,
                                     PD_AUTHOR_DB_LOAD_BASIC
                                     | PD_AUTHOR_DB_LOAD_INTERESTS);
 
             if (!$result) {
-                $db->close();
+                $this->db->close();
                 $this->pageError = true;
                 return;
             }
@@ -71,7 +69,7 @@ class add_author extends pdHtmlPage {
         else
             parent::pdHtmlPage('edit_author');
 
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
             return;
         }
@@ -101,7 +99,7 @@ class add_author extends pdHtmlPage {
         $form->addRule('lastname', 'a last name is required', 'required', null,
                        'client');
 
-        $auth_list = new pdAuthorList($db);
+        $auth_list = new pdAuthorList($this->db);
         $form->addElement('select', 'authors_in_db', null, $auth_list->list,
                           array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
 
@@ -128,7 +126,7 @@ class add_author extends pdHtmlPage {
         $form->addElement('text', 'webpage', 'Webpage:',
                           array('size' => 50, 'maxlength' => 250));
 
-        $interests = new pdAuthInterests($db);
+        $interests = new pdAuthInterests($this->db);
 
         $ref = '<br/><div id="small"><a href="javascript:dataKeep('
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
@@ -172,7 +170,7 @@ class add_author extends pdHtmlPage {
 
             $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
-            $this->addPubDisableMenuItems();
+            add_pub_base::addPubDisableMenuItems();
         }
         else {
             if ($this->author_id == null)
@@ -193,7 +191,6 @@ class add_author extends pdHtmlPage {
         $form->addElement('hidden', 'numNewInterests', $this->numNewInterests);
 
         $this->form =& $form;
-        $this->db =& $db;
 
         if ($form->validate()) {
             $this->processForm();
@@ -201,11 +198,10 @@ class add_author extends pdHtmlPage {
         else {
             $this->renderForm($author);
         }
-        $db->close();
+        $this->db->close();
     }
 
     function renderForm(&$author) {
-        $db =& $this->db;
         $form =& $this->form;
 
         $form->setDefaults($_GET);
@@ -224,7 +220,7 @@ class add_author extends pdHtmlPage {
 
             $this->contentPre .= '<h3>Adding Following Publication</h3>'
                 . $pub->getCitationHtml('..', false) . '<p/>'
-                . add_pub_base::similarPubsHtml($db);
+                . add_pub_base::similarPubsHtml();
         }
 
         $renderer =& $form->defaultRenderer();
@@ -243,13 +239,12 @@ class add_author extends pdHtmlPage {
     }
 
     function processForm() {
-        $db =& $this->db;
         $form =& $this->form;
         $values = $form->exportValues();
 
         // check if an author with a similar name already exists
         if ($this->author_id == null) {
-            $like_authors = new pdAuthorList($db, $values['firstname'],
+            $like_authors = new pdAuthorList($this->db, $values['firstname'],
                                              $values['lastname']);
             if (count($like_authors->list) > 0) {
                 $this->contentPre
@@ -258,7 +253,7 @@ class add_author extends pdHtmlPage {
                     $this->contentPre .= '<li>' . $auth . '</li>';
                 }
                 $this->contentPre .= '</ul>New author not submitted.';
-                $db->close();
+                $this->db->close();
                 return;
             }
         }
@@ -283,12 +278,12 @@ class add_author extends pdHtmlPage {
             $author->interests
                 = array_merge($author->interests, $values['newInterests']);
 
-        $author->dbSave($db);
+        $author->dbSave($this->db);
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
-            $pub->addAuthor($db, $author->author_id);
+            $pub->addAuthor($this->db, $author->author_id);
 
             if ($this->debug) return;
 
@@ -414,8 +409,6 @@ JS_END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_author();
 echo $page->toHtml();
 

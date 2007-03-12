@@ -10,6 +10,8 @@
  */
   //require_once  'CacheManager.php' ;
 
+require_once "lib_dbfunctions.php";
+
 /** See Database::makeList() */
 define( 'LIST_COMMA', 0 );
 define( 'LIST_AND', 1 );
@@ -1823,8 +1825,8 @@ class ResultWrapper {
  * Displays the file cache if possible
  */
 function wfEmergencyAbort( &$conn, $error ) {
+    global $wgSitename, $wgServer, $wgMessageCache, $wgLogo;
 	global $wgTitle, $wgUseFileCache, $title, $wgInputEncoding, $wgOutputEncoding;
-	global $wgSitename, $wgServer, $wgMessageCache, $wgLogo;
 
 	# I give up, Brion is right. Getting the message cache to work when there is no DB is tricky.
 	# Hard coding strings instead.

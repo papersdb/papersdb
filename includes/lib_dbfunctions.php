@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.11 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: lib_dbfunctions.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * DB connection is only hard coded here and in lib_functions.
@@ -19,12 +19,6 @@
 /** Requires the global defines and the class that accesses the databse. */
 require_once "defines.php";
 require_once 'Database.php';
-
-$relative_files_path = "uploaded_files/";
-$absolute_files_path = FS_PATH . $relative_files_path;
-
-$wgSiteName = "PapersDB";
-
 
 /**
  * Creates a database object to operate on the database.
@@ -77,15 +71,15 @@ function wfProfileOut($str) { echo $str . "<br/>\n"; }
 function wfLogDBError( $text ) { echo $text . "<br/>\n"; }
 function wfGetSiteNotice() {}
 function wfErrorExit() {
+    //echo papersdb_backtrace();
     die();
-    print_r(debug_backtrace());
 }
 function wfSetBit( &$dest, $bit, $state = true ) {}
 function wfSuppressWarnings( $end = false ) {}
 function wfRestoreWarnings() {}
 function wfDebugDieBacktrace( $msg = '' ) {
+    echo papersdb_backtrace();
     die($msg);
-    print_r(debug_backtrace());
 }
 function wfSetVar( &$dest, $source ) {}
 

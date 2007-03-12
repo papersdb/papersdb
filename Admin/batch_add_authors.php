@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.2 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.3 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -23,17 +23,14 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class batch_add_authors extends pdHtmlPage {
     function batch_add_authors() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('batch_add_authors');
 
-        if ($access_level <= 1) {
+        if ($this->access_level <= 1) {
             $this->loginError = true;
             return;
         }
-
-        $db = dbCreate();
 
         $form = new HTML_QuickForm('batch_add', 'post', null, '_self',
                                    'multipart/form-data');
@@ -67,7 +64,7 @@ class batch_add_authors extends pdHtmlPage {
 
             $new_authors = explode('; ', $values['new_authors']);
 
-            $auth_list = new pdAuthorList($db);
+            $auth_list = new pdAuthorList($this->db);
             assert('is_array($auth_list->list)');
             $fl_auth_list = $auth_list->asFirstLast();
 
@@ -77,7 +74,7 @@ class batch_add_authors extends pdHtmlPage {
             foreach ($new_auths as $auth_name) {
                 $auth = new pdAuthor();
                 $auth->nameSet($auth_name);
-                $auth->dbSave($db);
+                $auth->dbSave($this->db);
             }
 
             if (count($in_db_auths) > 0) {
@@ -138,7 +135,7 @@ class batch_add_authors extends pdHtmlPage {
             $this->javascript();
         }
 
-        $db->close();
+        $this->db->close();
     }
     function javascript() {
         $this->js = <<<JS_END
@@ -153,8 +150,6 @@ JS_END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new batch_add_authors();
 echo $page->toHtml();
 

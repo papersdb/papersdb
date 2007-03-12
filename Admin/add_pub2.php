@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.12 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_pub2.php,v 1.13 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -22,41 +22,22 @@ require_once 'includes/authorselect.php';
  *
  * @package PapersDB
  */
-class add_pub2 extends pdHtmlPage {
+class add_pub2 extends add_pub_base {
     var $debug = 0;
     var $author_id = null;
 
     function add_pub2() {
-        global $access_level;
+        session_start();
+        $this->pub =& $_SESSION['pub'];
 
-        $db = dbCreate();
-        $pub =& $_SESSION['pub'];
-
-        if ($pub->pub_id != '')
-            parent::pdHtmlPage('edit_publication');
-        else
-            parent::pdHtmlPage('add_publication');
-
-        if ($access_level < 1) {
-            $this->loginError = true;
-            return;
-        }
-
-        if ($_SESSION['state'] != 'pub_add') {
-            header('Location: add_pub1.php');
-            return;
-        }
-
-        $this->db =& $db;
-
-        $this->addPubDisableMenuItems();
+        parent::add_pub_base();
 
         //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 
         $form = new HTML_QuickForm('add_pub2');
 
         $user = $_SESSION['user'];
-        $auth_list = new pdAuthorList($db);
+        $auth_list = new pdAuthorList($this->db);
         $all_authors = $auth_list->list;
 
         if (count($user->collaborators) > 0)
@@ -65,7 +46,7 @@ class add_pub2 extends pdHtmlPage {
             }
 
         // get the first 10 popular authors used by this user
-        $user->popularAuthorsDbLoad($db);
+        $user->popularAuthorsDbLoad($this->db);
 
         $most_used_authors = array();
         if (count($user->author_rank) > 0) {
@@ -103,7 +84,7 @@ class add_pub2 extends pdHtmlPage {
         $buttons[] = HTML_QuickForm::createElement(
             'submit', 'next_step', 'Next Step >>');
 
-        if ($pub->pub_id != '')
+        if ($this->pub->pub_id != '')
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
@@ -123,22 +104,20 @@ class add_pub2 extends pdHtmlPage {
     function renderForm() {
         assert('isset($_SESSION["pub"])');
 
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
         $defaults = array();
 
-        if (count($pub->authors) > 0) {
-            foreach ($pub->authors as $author)
+        if (count($this->pub->authors) > 0) {
+            foreach ($this->pub->authors as $author)
                 $defaults['authors'][] = $author->author_id;
         }
 
         $form->setDefaults($defaults);
 
         $this->contentPre .= '<h3>Adding Following Publication</h3>'
-            . $pub->getCitationHtml('', false) . '<p/>'
-            . add_pub_base::similarPubsHtml($db);
+            . $this->pub->getCitationHtml('', false) . '<p/>'
+            . add_pub_base::similarPubsHtml();
 
         $renderer =& $form->defaultRenderer();
 
@@ -156,9 +135,7 @@ class add_pub2 extends pdHtmlPage {
     function processForm() {
         assert('isset($_SESSION["pub"])');
 
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
         $values = $form->exportValues();
 
@@ -169,10 +146,7 @@ class add_pub2 extends pdHtmlPage {
                     $values['authors'][$index] = substr($author, $pos + 1);
                 }
             }
-            $pub->addAuthor($db, $values['authors']);
-
-            //$this->contentPre .= '<pre>' . print_r($values, true) . '</pre>';
-            //$this->contentPre .= '<pre>' . print_r($pub, true) . '</pre>';
+            $this->pub->addAuthor($this->db, $values['authors']);
         }
 
         if ($this->debug) return;
@@ -188,8 +162,6 @@ class add_pub2 extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_pub2();
 echo $page->toHtml();
 

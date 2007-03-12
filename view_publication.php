@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.63 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: view_publication.php,v 1.64 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * View Publication
@@ -30,8 +30,7 @@ class view_publication extends pdHtmlPage {
     var $pub_id;
 
     function view_publication() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('view_publication');
 
@@ -40,12 +39,11 @@ class view_publication extends pdHtmlPage {
             return;
         }
 
-        $db = dbCreate();
         $this->pub_id = intval($_GET['pub_id']);
         isValid($this->pub_id);
 
         $pub = new pdPublication();
-        $result = $pub->dbLoad($db, $this->pub_id);
+        $result = $pub->dbLoad($this->db, $this->pub_id);
 
         if (!$result) {
             $this->contentPre .= 'Publication does not exist';
@@ -58,7 +56,7 @@ class view_publication extends pdHtmlPage {
 
         $content = "<h1>" . $pub->title;
 
-        if ($access_level > 0) {
+        if ($this->access_level > 0) {
             $content
                 .= '&nbsp;&nbsp;<a href="Admin/add_pub1.php?pub_id='
                 . $pub->pub_id . '">'
@@ -106,7 +104,7 @@ class view_publication extends pdHtmlPage {
         }
 
         // Show Additional Materials
-        $att_types = new pdAttachmentTypesList($db);
+        $att_types = new pdAttachmentTypesList($this->db);
 
         if (count($pub->additional_info) > 0) {
             $table = new HTML_Table(array('width' => '350',
@@ -202,7 +200,7 @@ class view_publication extends pdHtmlPage {
                 else
                     $label = '';
                 $linked_pub = new pdPublication();
-                $linked_pub->dbLoad($db, $link_pub_id);
+                $linked_pub->dbLoad($this->db, $link_pub_id);
 
                 $table->addRow(array($label, '<a href="view_publication.php?'
                                      . 'pub_id=' . $linked_pub->pub_id . '" '
@@ -229,7 +227,7 @@ class view_publication extends pdHtmlPage {
         $this->contentPre .= $content . '<span id="small">' . $updateStr
             . '</span>';
 
-        $db->close();
+        $this->db->close();
     }
 
     function lastUpdateGet(&$pub) {
@@ -245,8 +243,6 @@ class view_publication extends pdHtmlPage {
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new view_publication();
 echo $page->toHtml();
 

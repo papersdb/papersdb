@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.1 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_pub_base.php,v 1.2 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -19,66 +19,50 @@ class add_pub_base extends pdHtmlPage {
     var $pub;
     var $pub_id;
 
-    function add_pub_base($page_id) {
-        global $access_level;
+    function add_pub_base() {
+        if ($this->pub->pub_id != '')
+            parent::pdHtmlPage('edit_publication');
+        else
+            parent::pdHtmlPage('add_publication');
 
-        foreach (array_keys(get_class_vars('add_pub_base')) as $name) {
-            if (isset($_GET[$name]) && ($_GET[$name] != ''))
-                $$name = stripslashes($_GET[$name]);
-            else
-                $$name = null;
-        }
-
-        $db = $this->db = dbCreate();
-
-        if (isset($_SESSION['pub'])) {
-            // according to session variables, we are already editing a
-            // publication
-            $pub =& $_SESSION['pub'];
-        }
-        else if ($pub_id != '') {
-            // pub_id passed in with $_GET variable
-            $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $pub_id);
-            if (!$result) {
-                $this->pageError = true;
-                $db->close();
-                return;
-            }
-
-            $_SESSION['pub'] =& $pub;
-        }
-        else {
-            // create a new publication
-            $pub = new pdPublication();
-            $_SESSION['pub'] =& $pub;
-        }
-
-        parent::pdHtmlPage($page_id);
-
-        if ($access_level <= 0) {
+        if ($this->access_level <= 0) {
             $this->loginError = true;
-            $db->close();
             return;
         }
+
+        if ((get_class($this) == "add_pub2")
+            || (get_class($this) == "add_pub3")
+            || (get_class($this) == "add_pub4")) {
+            if ($_SESSION['state'] != 'pub_add') {
+                header('Location: add_pub1.php');
+                return;
+            }
+        }
+
+        $this->addPubDisableMenuItems();
     }
 
     /**
      * This is a static function.
      */
-    function similarPubsHtml($db) {
-        assert('is_object($db)');
-
+    function similarPubsHtml() {
         if (!isset($_SESSION['similar_pubs'])) return;
 
         $html = '<h3>Similar Publications in Database</h3>';
         foreach ($_SESSION['similar_pubs'] as $sim_pub_id) {
             $sim_pub = new pdPublication();
-            $sim_pub->dbLoad($db, $sim_pub_id);
+            $sim_pub->dbLoad($this->db, $sim_pub_id);
 
             $html .= $sim_pub->getCitationHtml('..', false) . '<p/>';
         }
 
         return $html;
+    }
+
+    function addPubDisableMenuItems() {
+        $this->navMenuItemEnable('add_publication', 0);
+        $this->navMenuItemDisplay('add_author', 0);
+        $this->navMenuItemDisplay('add_category', 0);
+        $this->navMenuItemDisplay('add_venue', 0);
     }
 }

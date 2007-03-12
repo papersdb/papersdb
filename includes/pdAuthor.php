@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.19 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.20 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -31,6 +31,8 @@ class pdAuthor {
     var $title;
     var $webpage;
     var $name;
+    var $firstname;
+    var $lastname;
     var $email;
     var $organization;
     var $interests;
@@ -171,7 +173,8 @@ class pdAuthor {
                 $settings[$item] = $this->$item;
         }
 
-        $db->insert('author', $settings, 'pdAuthor::dbSave');
+        $q = $db->insert('author', $settings, 'pdAuthor::dbSave');
+        assert('$q');
 
         $q = $db->selectRow('author', 'author_id', $settings,
                             "pdAuthor::dbSave");
@@ -241,26 +244,33 @@ class pdAuthor {
     /**
      * Loads author data from the object passed in
      */
-    function load($obj) {
-        assert('is_object($obj)');
+    function load(&$mixed) {
+        if (is_object($mixed)) {
+            foreach (array_keys(get_class_vars('pdAuthor')) as $member) {
+                if (isset($mixed->$member))
+                    $this->$member = $mixed->$member;
+            }
 
-        if (isset($obj->author_id))
-            $this->author_id = $obj->author_id;
-        if (isset($obj->title))
-            $this->title = $obj->title;
-        if (isset($obj->webpage))
-            $this->webpage = $obj->webpage;
-        if (isset($obj->email))
-            $this->email = $obj->email;
-        if (isset($obj->organization))
-            $this->organization = $obj->organization;
+            if (isset($mixed->name)) {
+                $this->nameSet($this->name);
+            }
+        }
+        else if (is_array($mixed)) {
+            foreach (array_keys(get_class_vars('psAuthor')) as $member) {
+                if (isset($mixed[$member]))
+                    $this->$member = $mixed[$member];
+            }
 
-        if (isset($obj->name)) {
-            $this->name = $obj->name;
-            $this->firstname
-                = trim(substr($this->name, 1 + strpos($this->name, ',')));
-            $this->lastname
-                = substr($this->name, 0, strpos($this->name, ','));
+            if (isset($mixed['name'])) {
+                $this->firstname
+                    = trim(substr($this->name, 1 + strpos($this->name, ',')));
+                $this->lastname
+                    = substr($this->name, 0, strpos($this->name, ','));
+            }
+
+            if (isset($mixed->name)) {
+                $this->nameSet($this->name);
+            }
         }
     }
 
@@ -278,6 +288,11 @@ class pdAuthor {
             $this->name = substr($name, $pos + 1) . ', '
                 . substr($name, 0, $pos);
         }
+
+        $this->firstname
+            = trim(substr($this->name, 1 + strpos($this->name, ',')));
+        $this->lastname
+            = substr($this->name, 0, strpos($this->name, ','));
     }
 }
 

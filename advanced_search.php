@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.52 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: advanced_search.php,v 1.53 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -51,6 +51,7 @@ class advanced_search extends pdHtmlPage {
     var $enddate;
 
     function advanced_search() {
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('advanced_search');
 
@@ -71,13 +72,10 @@ class advanced_search extends pdHtmlPage {
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
 
-        $db = dbCreate();
-        $this->db =& $db;
-
-        $this->cat_list = new pdCatList($db);
+        $this->cat_list = new pdCatList($this->db);
 
         $this->category = new pdCategory();
-        $this->category->dbLoad($db, $this->cat_id);
+        $this->category->dbLoad($this->db, $this->cat_id);
 
         $form = $this->createForm();
         $this->form =& $form;
@@ -104,7 +102,7 @@ class advanced_search extends pdHtmlPage {
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();
-        $db->close();
+        $this->db->close();
     }
 
     /**
@@ -114,9 +112,6 @@ class advanced_search extends pdHtmlPage {
      * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
-        global $access_level;
-
-        $db =& $this->db;
         $user = null;
 
         $form = new HTML_QuickForm($this->form_name, 'get',
@@ -133,9 +128,9 @@ class advanced_search extends pdHtmlPage {
                           + $this->cat_list->list,
                           array('onChange' => 'dataKeep(0);'));
 
-        $auth_list = new pdAuthorList($db);
+        $auth_list = new pdAuthorList($this->db);
 
-        if (($access_level > 0) && ($_SESSION['user']->author_id != '')) {
+        if (($this->access_level > 0) && ($_SESSION['user']->author_id != '')) {
             $user =& $_SESSION['user'];
             unset($auth_list->list[$user->author_id]);
         }
@@ -332,8 +327,6 @@ END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new advanced_search();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.18 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: list_venues.php,v 1.19 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -21,13 +21,11 @@ require_once 'includes/pdVenue.php';
  */
 class list_venues extends pdHtmlPage {
     function list_venues() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
         parent::pdHtmlPage('all_venues');
-        $db = dbCreate();
 
-        $venue_list = new pdVenueList($db, null, true);
+        $venue_list = new pdVenueList($this->db, null, true);
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
@@ -40,7 +38,7 @@ class list_venues extends pdHtmlPage {
             unset($cells);
             unset($venue);
             $venue = new pdVenue();
-            $venue->dbLoad($db, $venue_id);
+            $venue->dbLoad($this->db, $venue_id);
             $text = '';
             if ($venue->title != '')
                 $text .= '<b>' . $venue->title . '</b>';
@@ -103,7 +101,7 @@ class list_venues extends pdHtmlPage {
 
             $cells[] = $text;
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $cells[] = '<a href="Admin/add_venue.php?venue_id='
                     . $venue->venue_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -129,7 +127,7 @@ class list_venues extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             }
 
-            if ($access_level > 0) {
+            if ($this->access_level > 0) {
                 $table->updateCellAttributes($i, 1, array('id' => 'emph',
                                                           'class' => 'small'));
                 $table->updateCellAttributes($i, 2, array('id' => 'emph',
@@ -138,12 +136,10 @@ class list_venues extends pdHtmlPage {
         }
 
         $this->contentPre = '<h1>Publication Venues</h1>';
-        $db->close();
+        $this->db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new list_venues();
 echo $page->toHtml();
 

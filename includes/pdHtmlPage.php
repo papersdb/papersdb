@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.58 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.59 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -11,7 +11,7 @@
 
 /** Requries classes to build the navigation menu. */
 require_once 'includes/functions.php';
-require_once 'includes/check_login.php';
+require_once 'includes/pdUser.php';
 require_once 'includes/pdNavMenu.php';
 
 require_once 'HTML/QuickForm.php';
@@ -35,6 +35,7 @@ class pdHtmlPage {
     var $relative_url;
     var $redirectUrl;
     var $redirectTimeout;
+    var $access_level;
     var $login_level;
     var $db;
     var $loginError;
@@ -50,12 +51,68 @@ class pdHtmlPage {
     var $form_controller;
     var $nav_menu;
 
+    var $db_tables = array('additional_info',
+                           'attachment_types',
+                           'author',
+                           'author_interest',
+                           'cat_info',
+                           'category',
+                           'extra_info',
+                           'help_fields',
+                           'info',
+                           'interest',
+                           'pointer',
+                           'pub_add',
+                           'pub_author',
+                           'pub_cat',
+                           'pub_cat_info',
+                           'publication',
+                           'user',
+                           'user_author',
+                           'venue',
+                           'venue_occur',
+                           'venueold');
+
     /**
      * Constructor.
      */
     function pdHtmlPage($page_id, $title = null, $relative_url = null,
                         $login_level = PD_NAV_MENU_NEVER,
                         $useStdLayout = true) {
+        if (MAINTENANCE == 1) {
+            echo 'PapersDB is under maintenance, please check back later';
+            exit;
+        }
+
+        // a derived page may already have needed access to the database prior
+        // to invoking the base class constructor, so only create the database
+        // object if not already set
+        if (!is_object($this->db))
+            $this->db = dbCreate();
+
+        if (!$this->db->isOpen()) {
+            switch (mysql_errno()) {
+                case 1045:
+                case 2000:
+                    $this->contentPre
+                        .= 'failed due to authentication errors. '
+                        . 'Check database username and password<br>/';
+                    break;
+
+                case 2002:
+                case 2003:
+                default:
+                    // General connection problem
+                    $this->contentPre
+                        .= 'failed with error [' . $errno . '] '
+                        . htmlspecialchars(mysql_error()) . '.<br>';
+                    break;
+            }
+            return;
+        }
+
+        $this->dbIntegrityCheck();
+        $this->check_login();
         $this->nav_menu = new pdNavMenu();
 
         if (($page_id != null) && ($page_id != '')
@@ -74,7 +131,6 @@ class pdHtmlPage {
         }
 
         $this->redirectTimeout = 0;
-        $this->db              = null;
         $this->table           = null;
         $this->form            = null;
         $this->renderer        = null;
@@ -82,12 +138,71 @@ class pdHtmlPage {
         $this->pageError       = false;
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
+    }
 
-        if (MAINTENANCE == 1) {
-            if (!isset($_GET['test']) || ($_GET['test'] != 1)) {
-                echo 'PapersDB is under maintenance, please check back later';
-                exit;
+    function dbIntegrityCheck() {
+        if (isset($_SESSION['dbcheck'])) return;
+
+        $q = $this->db->query('show tables');
+
+        if ($this->db->numRows($q) == 0) {
+            echo "Database error encountered: not all tables available";
+            die();
+        }
+
+        $r = $this->db->fetchObject($q);
+        while ($r) {
+            $tables[] = $r->Tables_in_pubDBdev;
+            $r = $this->db->fetchObject($q);
+        }
+
+        if ($tables != $this->db_tables) {
+            echo "Database error encountered: not all tables available";
+            die();
+        }
+        $_SESSION['dbcheck'] = true;
+    }
+
+    /**
+     * Assigns $this->access_level according to whether the user is logged
+     * in or not.
+     */
+    function check_login() {
+        $passwd_hash = "aicml";
+        $this->access_level = 0;
+
+        if (!isset($_SESSION['user'])) return;
+
+        // remember, $_SESSION['password'] will be encrypted.
+        if(!get_magic_quotes_gpc()) {
+            $_SESSION['user']->login = addslashes($_SESSION['user']->login);
+        }
+
+        // addslashes to session login before using in a query.
+        $db = dbCreate();
+        $q = $db->selectRow('user', 'password',
+                            array('login' => $_SESSION['user']->login),
+                            "Admin/check_login.php");
+
+        $db->close();
+
+        // now we have encrypted pass from DB in $q->password,
+        // stripslashes() just incase:
+
+        $q->password = stripslashes($q->password);
+
+        //compare:
+        if ($q->password == $_SESSION['user']->password) {
+            // valid password for login
+            // they have correct info in session variables.
+
+            if ($_SESSION['user']->verified == 1) {
+                // user is valid
+                $this->access_level = $_SESSION['user']->access_level;
             }
+        }
+        else {
+            unset($_SESSION['user']); // kill incorrect session variables.
         }
     }
 
@@ -137,9 +252,9 @@ class pdHtmlPage {
     }
 
     function htmlPageFooter() {
+        $result = '';
         if($this->useStdLayout) {
-            $result = '</div>';
-            $result .= $this->pageFooter();
+            $result .= '</div>' . $this->pageFooter();
         }
 
         if ($this->hasHelpTooltips) {
@@ -233,8 +348,6 @@ class pdHtmlPage {
     }
 
     function navMenu() {
-        global $access_level;
-
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
@@ -250,12 +363,12 @@ class pdHtmlPage {
             //
             // the third and takes care of displaying the guest login level
             // (not logged in) links
-            if ((($access_level > 0)
+            if ((($this->access_level > 0)
                  && ($item->access_level > PD_NAV_MENU_ALWAYS)
                  && ($item->access_level < PD_NAV_MENU_LEVEL_ADMIN))
-                || (($access_level >= 2)
+                || (($this->access_level >= 2)
                     && ($item->access_level == PD_NAV_MENU_LEVEL_ADMIN))
-                || (($access_level == 0)
+                || (($this->access_level == 0)
                     && ($item->access_level < PD_NAV_MENU_LOGIN_REQUIRED))) {
 
                 // only display search results if a search was performed
@@ -317,12 +430,10 @@ class pdHtmlPage {
     }
 
     function pageHeader() {
-        global $access_level;
-
-        if ($access_level > 0) {
+        if ($this->access_level > 0) {
             $status = 'Logged in as: ' . $_SESSION['user']->login;
 
-            if ($access_level >= 2) {
+            if ($this->access_level >= 2) {
                 $status .= ', DB : ' . DB_NAME;
             }
         }
@@ -330,20 +441,24 @@ class pdHtmlPage {
             $status = 'Not Logged In';
         }
 
+        $dir_prefix = '';
+        if (strstr($this->relative_url, '/'))
+            $dir_prefix = '../';
+
         return <<<END
             <div id="statusbar">{$status}</div>
-                                               <div id="titlebar">
-                                               <a href="http://www.uofaweb.ualberta.ca/science/">
-                                               <img class="floatLeft" src="images/science.gif"
-                                               alt="Faculty of Science Home Page" border="0"/></a>
-                                               <a href="http://www.ualberta.ca/">
-                                               <img class="floatRight" src="images/uofa_top.gif"
-                                               alt="University of Alberta Home Page" border="0"/></a>
-                                               </div>
+            <div id="titlebar">
+            <a href="http://www.uofaweb.ualberta.ca/science/">
+            <img class="floatLeft" src="{$dir_prefix}images/science.gif"
+            alt="Faculty of Science Home Page" border="0"/></a>
+            <a href="http://www.ualberta.ca/">
+            <img class="floatRight" src="{$dir_prefix}images/uofa_top.gif"
+            alt="University of Alberta Home Page" border="0"/></a>
+            </div>
 
-                                               <div id="header">
-                                               <h1>PapersDB</h1>
-                                               </div>
+            <div id="header">
+            <h1>PapersDB</h1>
+            </div>
 
 END;
     }
@@ -443,13 +558,6 @@ END;
     function navMenuItemEnable($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
         $this->nav_menu->nav_items[$page_id]->enabled = $enable;
-    }
-
-    function addPubDisableMenuItems() {
-        $this->navMenuItemEnable('add_publication', 0);
-        $this->navMenuItemDisplay('add_author', 0);
-        $this->navMenuItemDisplay('add_category', 0);
-        $this->navMenuItemDisplay('add_venue', 0);
     }
 
     function debugVar($name,$data) {

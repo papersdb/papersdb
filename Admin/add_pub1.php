@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.20 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: add_pub1.php,v 1.21 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -31,53 +31,42 @@ class add_pub1 extends add_pub_base {
     var $debug = 0;
 
     function add_pub1() {
-        global $access_level;
+        session_start();
 
-        $options = array('pub_id');
-        foreach ($options as $opt) {
-            if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
-                $$opt = stripslashes($_GET[$opt]);
+        foreach (array_keys(get_class_vars('add_pub1')) as $name) {
+            if (isset($_GET[$name]) && ($_GET[$name] != ''))
+                $this->$name = stripslashes($_GET[$name]);
             else
-                $$opt = null;
+                $this->$name = null;
         }
-
-        $db = dbCreate();
 
         if (isset($_SESSION['pub'])) {
             // according to session variables, we are already editing a
             // publication
-            $pub =& $_SESSION['pub'];
+            $this->pub =& $_SESSION['pub'];
         }
-        else if ($pub_id != '') {
+        else if ($this->pub_id != '') {
             // pub_id passed in with $_GET variable
-            $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $pub_id);
+            $this->db = dbCreate();
+            $this->pub = new pdPublication();
+            $result = $this->pub->dbLoad($this->db, $this->pub_id);
             if (!$result) {
                 $this->pageError = true;
-                $db->close();
+                $this->db->close();
                 return;
             }
 
-            $_SESSION['pub'] =& $pub;
+            $_SESSION['pub'] =& $this->pub;
         }
         else {
             // create a new publication
-            $pub = new pdPublication();
-            $_SESSION['pub'] =& $pub;
+            $this->pub = new pdPublication();
+            $_SESSION['pub'] =& $this->pub;
         }
 
-        if ($pub->pub_id != '')
-            parent::pdHtmlPage('edit_publication');
-        else
-            parent::pdHtmlPage('add_publication');
+        parent::add_pub_base();
 
-        if ($access_level <= 0) {
-            $this->loginError = true;
-            $db->close();
-            return;
-        }
-
-        $this->addPubDisableMenuItems();
+        if ($this->loginError) return;
 
         $form = new HTML_QuickForm('add_pub2');
         $form->addElement('header', null, 'Add Publication');
@@ -92,10 +81,10 @@ class add_pub1 extends add_pub_base {
         // Venue
         $venue_sel1 = array('All Venues', 'Journal', 'Conference',
                             'Workshop');
-        $venues = array(new pdVenueList($db),
-                        new pdVenueList($db, 'Journal'),
-                        new pdVenueList($db, 'Conference'),
-                        new pdVenueList($db, 'Workshop'));
+        $venues = array(new pdVenueList($this->db),
+                        new pdVenueList($this->db, 'Journal'),
+                        new pdVenueList($this->db, 'Conference'),
+                        new pdVenueList($this->db, 'Workshop'));
 
         $venue_sel2[0] = array('' => '--Select Venue--') + $venues[0]->list;
         $venue_sel2[1] = array('' => '--Select Venue--') + $venues[1]->list;
@@ -104,7 +93,7 @@ class add_pub1 extends add_pub_base {
 
         // check if user info has 'Used by me' to venues
         $user =& $_SESSION['user'];
-        $user->venueIdsGet($db);
+        $user->venueIdsGet($this->db);
         if (count($user->venue_ids) > 0) {
             array_push($venue_sel1, 'Used by me');
             $venue_sel2[4] = array('' => '--Select Venue--') + $user->venue_ids;
@@ -153,13 +142,13 @@ class add_pub1 extends add_pub_base {
         $buttons[] = HTML_QuickForm::createElement(
             'submit', 'next', 'Next step >>');
 
-        if ($pub->pub_id != '')
+        if ($this->pub->pub_id != '')
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
         $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
-        $this->db =& $db;
+        $this->db =& $this->db;
         $this->form =& $form;
 
         if ($form->validate()) {
@@ -171,37 +160,37 @@ class add_pub1 extends add_pub_base {
 
         if ($this->debug) {
             $this->contentPost
-                .= 'values<pre>' . print_r($pub, true) . '</pre>';
+                .= 'values<pre>' . print_r($this->pub, true) . '</pre>';
         }
 
-        $db->close();
+        $this->db->close();
     }
 
     function renderForm() {
         assert('isset($_SESSION["pub"])');
 
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
-        switch ($pub->venue->type) {
-            case 'Journal':    $type = 1; break;
-            case 'Conference': $type = 2; break;
-            case 'Workshop':   $type = 3; break;
-            default: $type = 0;
+        $defaults = array('title'    => $this->pub->title,
+                          'abstract' => $this->pub->abstract,
+                          'keywords' => $this->pub->keywords,
+                          'user'     => $this->pub->user);
+
+        if (is_object($this->pub->venue)) {
+            switch ($this->pub->venue->type) {
+                case 'Journal':    $type = 1; break;
+                case 'Conference': $type = 2; break;
+                case 'Workshop':   $type = 3; break;
+                default: $type = 0;
+            }
+            $defaults['venue_id'] = array($type, $this->pub->venue_id);
         }
 
-        $defaults = array('title'    => $pub->title,
-                          'abstract' => $pub->abstract,
-                          'keywords' => $pub->keywords,
-                          'user'     => $pub->user,
-                          'venue_id' => array($type, $pub->venue_id));
-
-        if (!isset($pub->published) || ($pub->published == '')) {
+        if (!isset($this->pub->published) || ($this->pub->published == '')) {
             $defaults['pub_date'] = array('Y' => date('Y'), 'M' => date('m'));
         }
         else {
-            $date = explode('-', $pub->published);
+            $date = explode('-', $this->pub->published);
 
             $defaults['pub_date']['Y'] = $date[0];
             $defaults['pub_date']['M'] = $date[1];
@@ -215,11 +204,11 @@ class add_pub1 extends add_pub_base {
         $this->form->setDefaults($defaults);
 
         if (isset($_SESSION['pub']) && ($_SESSION['pub']->title != '')) {
-            $pub =& $_SESSION['pub'];
+            $this->pub =& $_SESSION['pub'];
 
             $this->contentPre .= '<h3>Adding Following Publication</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>'
-                . add_pub_base::similarPubsHtml($db);
+                . $this->pub->getCitationHtml('..', false) . '<p/>'
+                . add_pub_base::similarPubsHtml();
         }
 
         $renderer =& $this->form->defaultRenderer();
@@ -247,9 +236,7 @@ class add_pub1 extends add_pub_base {
 
     function processForm() {
         assert('isset($_SESSION["pub"])');
-        $db =& $this->db;
         $form =& $this->form;
-        $pub =& $_SESSION['pub'];
 
         $values = $form->exportValues();
 
@@ -257,15 +244,15 @@ class add_pub1 extends add_pub_base {
             echo 'values<pre>' . print_r($values, true) . '</pre>';
         }
 
-        $pub->load($values);
-        $pub->published = $values['pub_date']['Y'] . '-'
+        $this->pub->load($values);
+        $this->pub->published = $values['pub_date']['Y'] . '-'
             .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
         if (isset($values['venue_id'][1]) && ($values['venue_id'][1] > 0))
-            $pub->addVenue($db, $values['venue_id'][1]);
+            $this->pub->addVenue($this->db, $values['venue_id'][1]);
 
-        $result = $pub->duplicateTitleCheck($db);
+        $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)
             $_SESSION['similar_pubs'] = $result;
 
@@ -328,8 +315,6 @@ JS_END;
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new add_pub1();
 echo $page->toHtml();
 

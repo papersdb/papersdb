@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.34 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: index.php,v 1.35 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -23,13 +23,21 @@ require_once 'includes/pdPubList.php';
  */
 class indexPage extends pdHtmlPage {
     function indexPage() {
-        global $access_level;
-
+        session_start();
         pubSessionInit();
 
         parent::pdHtmlPage('home');
-        $db = dbCreate();
-        $pub_list = new pdPubList($db, array('sort_by_updated' => true));
+
+        $this->recentAdditions();
+        $this->pubByYears();
+
+        $this->db->close();
+    }
+
+    function recentAdditions() {
+        $pub_list = new pdPubList($this->db, array('sort_by_updated' => true));
+
+        if (!isset($pub_list->list)) return;
 
         $this->contentPre = '<h2>Recent Additions:</h2><ul>';
         $stringlength = 0;
@@ -37,7 +45,7 @@ class indexPage extends pdHtmlPage {
             if ($stringlength > 5000) break;
 
             // get all info for this pub
-            $pub->dbload($db, $pub->pub_id);
+            $pub->dbload($this->db, $pub->pub_id);
 
             $citation = '<li class="wide">' . $pub->getCitationHtml();
 
@@ -67,7 +75,7 @@ class indexPage extends pdHtmlPage {
                 . '<img src="images/viewmag.png" title="view" alt="view" '
                 . ' height="16" width="16" border="0" align="middle" /></a>';
 
-            if ($access_level > 0)
+            if ($this->access_level > 0)
                 $citation .= '<a href="Admin/add_pub1.php?pub_id='
                     . $pub->pub_id . '">'
                     . '<img src="images/pencil.png" title="edit" alt="edit" '
@@ -82,8 +90,12 @@ class indexPage extends pdHtmlPage {
 
         }
         $this->contentPre .= '</ul>';
+    }
 
-        $pub_years = new pdPubList($db, array('year_list' => true));
+    function pubByYears() {
+        $pub_years = new pdPubList($this->db, array('year_list' => true));
+
+        if (!isset($pub_years->list)) return;
 
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '60%'));
@@ -98,13 +110,9 @@ class indexPage extends pdHtmlPage {
 
         $this->contentPre .= '<h2>Publications by Year:</h2><ul>'
             . $table->toHtml();
-
-        $db->close();
     }
 }
 
-session_start();
-$access_level = check_login();
 $page = new indexPage();
 echo $page->toHtml();
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.6 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.7 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -16,23 +16,6 @@
  * @package PapersDB
  */
 class pdSearchParams {
-    /**
-     * These are the only options allowed by this script. These can be passed
-     * by either GET or POST methods.
-     */
-    var $params = array('search',
-                        'cat_id',
-                        'title',
-                        'author_myself',
-                        'authortyped',
-                        'authorselect',
-                        'paper',
-                        'abstract',
-                        'venue',
-                        'keywords',
-                        'startdate',
-                        'enddate');
-
     var $search;
     var $cat_id;
     var $title;
@@ -51,9 +34,9 @@ class pdSearchParams {
      */
     function pdSearchParams($mixed = null) {
         if (is_array($mixed)) {
-            foreach ($this->params as $param) {
-                if (isset($mixed[$param])) {
-                    $this->$param= $mixed[$param];
+            foreach (array_keys(get_class_vars('pdSearchParams')) as $member) {
+                if (isset($mixed[$member])) {
+                    $this->$member= $mixed[$member];
                 }
             }
         }

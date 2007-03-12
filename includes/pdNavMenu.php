@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.12 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.13 2007/03/12 05:25:45 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -125,6 +125,9 @@ class pdNavMenu {
                                       PD_NAV_MENU_LEVEL_ADMIN),
         'duplicatePubs'      => array('Duplicate Publications',
                                       'diag/duplicatePubs.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN),
+        'dbcreate'          => array('Create Database',
+                                      'diag/dbcreate_mysql.php',
                                       PD_NAV_MENU_LEVEL_ADMIN)
         );
 
