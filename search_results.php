@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.13 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: search_results.php,v 1.14 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -138,34 +138,7 @@ class search_results extends pdHtmlPage {
             $cvForm->accept($renderer);
         }
 
-        echo $renderer->toHtml();
-
-        $table = new HTML_Table(array('id' => 'publist',
-                                      'width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '0',
-                                      'cellspacing' => '0'));
-
-        $b = 0;
-        foreach ($pubs->list as $pub) {
-            // get all info for this pub
-            $pub->dbload($this->db, $pub->pub_id);
-
-            $table->addRow(array(($b+1),
-                                 $pub->getCitationHtml()
-                                 . $this->getPubIcons($pub)));
-            $b++;
-        }
-
-        for ($i = 0; $i < $table->getRowCount(); $i++) {
-            if ($i & 1)
-                $table->updateRowAttributes($i, array('class' => 'even'), true);
-            else
-                $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
-        }
-        $table->updateColAttributes(0, array('class' => 'emph',
-                                             'id' => 'publist'), true);
+        echo $renderer->toHtml() . $this->displayPubList($pubs);
 
         $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
                                                 'border' => '0',
@@ -177,8 +150,7 @@ class search_results extends pdHtmlPage {
                   . 'height="16" width="16" border="0" align="top" />'
                   . ' Link to this search</a></div><br/>'));
 
-        echo $table->toHtml()
-            . '<hr/>' . $searchLinkTable->toHtml();
+        echo '<hr/>' . $searchLinkTable->toHtml();
     }
 
     /**

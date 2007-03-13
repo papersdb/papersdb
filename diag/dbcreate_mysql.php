@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.6 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: dbcreate_mysql.php,v 1.7 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Creates the PapersDB database.
@@ -325,7 +325,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblUserAuthor($this->db) {
+    function tblUserAuthor() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `user_author`');

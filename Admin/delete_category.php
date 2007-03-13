@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: delete_category.php,v 1.20 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -56,25 +56,14 @@ class delete_category extends pdHtmlPage {
             return;
         }
 
-        $q = $this->db->select('pub_cat', 'pub_id',
-                         array('cat_id' => $this->cat_id),
-                         "delete_category::delete_category");
+        $pub_list = new pdPubList($this->db, array('cat_id' => $this->cat_id));
 
-        if ($this->db->numRows($q) > 0) {
+        if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
             echo 'Cannot delete category <b>'
                 . $category->category . '</b>.<p/>'
                 . 'The category is used by the following '
                 . 'publications:' . "\n"
-                . '<ul>';
-
-            $r = $this->db->fetchObject($q);
-            while ($r) {
-                $pub = new pdPublication();
-                $pub->dbLoad($this->db, $r->pub_id);
-                echo '<li>' . $pub->getCitationHtml() . '</li>';
-                $r = $this->db->fetchObject($q);
-            }
-            echo '</ul>';
+                . $this->displayPubList($pub_list);
             return;
         }
 
@@ -87,34 +76,13 @@ class delete_category extends pdHtmlPage {
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $pub_list = new pdPubList($this->db, array('cat_id' => $this->cat_id));
+            // This is where the actual deletion happens.
+            $category->dbDelete($this->db);
 
-            if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
-                echo '<b>Deletion Failed</b><p/>'
-                    . 'This category is used by the following publications:<p/>';
-
-                foreach ($pub_list->list as $pub)
-                    echo '<b>' . $pub->title . '</b><br/>';
-
-                echo '<p/>To remove this category these publication(s) '
-                    . 'must be changed.';
-            }
-            else {
-                // This is where the actual deletion happens.
-                $category->dbDelete($this->db);
-
-                echo 'Category <b>' . $category->category
-                    . '</b> removed from the database.';
-            }
+            echo 'Category <b>' . $category->category
+                . '</b> removed from the database.';
         }
         else {
-            $category = new pdCategory();
-            $result = $category->dbLoad($this->db, $this->cat_id);
-            if (!$result) {
-                $this->pageError = true;
-                return;
-            }
-
             echo '<h3>Confirm</h3>'
                 . 'Delete category <b>' . $category->category . '</b>?<p/>';
 

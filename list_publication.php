@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.32 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: list_publication.php,v 1.33 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -113,32 +113,8 @@ class list_publication extends pdHtmlPage {
             $this->pageError = true;
         }
 
-        echo $this->pubSelMenu() . "<br/>\n" . $title;
-
-        $this->table = new HTML_Table(array('width' => '100%',
-                                            'border' => '0',
-                                            'cellpadding' => '6',
-                                            'cellspacing' => '0'));
-        $table =& $this->table;
-        $table->setAutoGrow(true);
-
-        if (count($pub_list->list) > 0) {
-            $count = 0;
-            foreach ($pub_list->list as $pub) {
-                ++$count;
-                $pub->dbload($this->db, $pub->pub_id);
-
-                $citation = $pub->getCitationHtml()
-                    . $this->getPubIcons($pub);
-
-                $table->addRow(array($count, $citation));
-            }
-        }
-        else {
-            $table->addRow(array('No Publications'));
-        }
-
-        $this->tableHighlits($table);
+        echo $this->pubSelMenu() . "<br/>\n" . $title
+            . $this->displayPubList($pub_list);
     }
 
     function pubSelect($viewCat = null) {

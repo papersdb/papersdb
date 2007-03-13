@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: delete_author.php,v 1.20 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -38,52 +38,45 @@ class delete_author extends pdHtmlPage {
 
         $this->loadHttpVars();
 
-        $form =& $this->confirmForm('deleter');
-
-        if (isset($this->author_id) && is_numeric($this->author_id)) {
-            $form->addElement('hidden', 'author_id', $this->author_id);
+        if (!isset($this->author_id) || !is_numeric($this->author_id)) {
+            $this->pageError = true;
+            return;
         }
+
+        $author = new pdAuthor();
+        $result = $author->dbLoad($this->db, $this->author_id);
+        if (!$result) {
+            $this->pageError = true;
+            return;
+        }
+
+        $pub_list = new pdPubList($this->db,
+                                  array('author_id' => $this->author_id));
+
+        if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
+            echo 'Cannot delete Author <b>' . $author->name . '</b>.<p/>'
+                . 'The author has the following ' . 'publications '
+                . 'in the database:' . "\n"
+                . $this->displayPubList($pub_list);
+            return;
+        }
+
+        $form =& $this->confirmForm('deleter');
+        $form->addElement('hidden', 'author_id', $this->author_id);
 
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $author = new pdAuthor();
-            $result = $author->dbLoad($this->db, $values['author_id']);
-            if (!$result) {
-                $this->pageError = true;
-                return;
-            }
+            // This is where the actual deletion happens.
+            $name = $author->name;
+            $author->dbDelete($this->db);
 
-            if (isset($author->pub_list) && (count($author->pub_list) > 0)) {
-                echo '<b>Deletion Failed</b><p/>'
-                    . 'This author is listed as author for the following '
-                    . 'publications:<p/>';
-
-                foreach ($author->pub_list->list as $pub)
-                    echo '<b>' . $pub->title . '</b><br/>';
-
-                echo '<p/>You must change or remove the author of the '
-                    . 'following publication(s) in order to delete this author.';
-            }
-            else {
-                // This is where the actual deletion happens.
-                $name = $author->name;
-                $author->dbDelete($this->db);
-
-                echo 'You have successfully removed the '
-                    . 'following author from the database: <p/>'
-                    . '<b>' . $name . '</b>';
-            }
+            echo 'You have successfully removed the '
+                . 'following author from the database: <p/>'
+                . '<b>' . $name . '</b>';
         }
         else {
             if (!isset($this->author_id) || !is_numeric($this->author_id)) {
-                $this->pageError = true;
-                return;
-            }
-
-            $author = new pdAuthor();
-            $result = $author->dbLoad($this->db, $this->author_id);
-            if (!$result) {
                 $this->pageError = true;
                 return;
             }
@@ -105,7 +98,7 @@ class delete_author extends pdHtmlPage {
             $table->addRow(array('Organization:', $author->organization));
             $cell = '';
 
-            if (isset($author->webpage) && trim($author->webpage != ""))
+            if (isset($author->webpage) && trim($author->webpage != ''))
                 $cell = '<a href="' . $author->webpage . '">'
                     . $author->webpage . '</a>';
             else

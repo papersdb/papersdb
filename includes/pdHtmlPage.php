@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.62 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.63 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -731,6 +731,45 @@ END;
                 . 'height="16" width="16" border="0" align="middle" /></a>';
 
         return $html;
+    }
+
+    function displayPubList($pub_list) {
+        assert('is_object($pub_list)');
+
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '0',
+                                      'cellspacing' => '0'));
+        $table->setAutoGrow(true);
+
+        if (count($pub_list->list) == 0) {
+            return 'No Publications';
+        }
+
+        $count = 0;
+        foreach ($pub_list->list as $pub) {
+            ++$count;
+            $pub->dbload($this->db, $pub->pub_id);
+
+            $citation = $pub->getCitationHtml()
+                . $this->getPubIcons($pub);
+
+            $table->addRow(array($count, $citation));
+        }
+
+        // now assign table attributes including highlighting for even and odd
+        // rows
+        for ($i = 0; $i < $table->getRowCount(); $i++) {
+            if ($i & 1)
+                $table->updateRowAttributes($i, array('class' => 'even'), true);
+            else
+                $table->updateRowAttributes($i, array('class' => 'odd'), true);
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
+        }
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'id' => 'publist'), true);
+
+        return $table->toHtml();
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: delete_venue.php,v 1.20 2007/03/13 22:59:12 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -25,6 +25,8 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_venue extends pdHtmlPage {
+    var $venue_id;
+
     function delete_venue() {
         session_start();
         pubSessionInit();
@@ -32,40 +34,29 @@ class delete_venue extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (isset($_GET['venue_id']) && ($_GET['venue_id'] != ''))
-            $venue_id = intval($_GET['venue_id']);
-        else if (isset($_POST['venue_id']) && ($_POST['venue_id'] != ''))
-            $venue_id = intval($_POST['venue_id']);
-        else {
-            echo 'No venue id defined';
+        $this->loadHttpVars();
+
+        if (!isset($this->venue_id) || !is_numeric($this->venue_id)) {
             $this->pageError = true;
             return;
         }
 
         $venue = new pdVenue();
-        $result = $venue->dbLoad($this->db, $venue_id);
+        $result = $venue->dbLoad($this->db, $this->venue_id);
         if (!$result) {
             $this->pageError = true;
             return;
         }
 
-        $q = $this->db->select('publication', 'pub_id',
-                               array('venue_id' => $venue_id),
-                               "delete_venue::delete_venue");
+        $pub_list = new pdPubList($this->db,
+                                  array('venue_id' => $this->venue_id));
 
-        if ($this->db->numRows($q) > 0) {
+        if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
             echo 'Cannot delete venue <b>'
                 . $venue->nameGet() . '</b>.<p/>'
-                . 'The venue is used by the following publications:<p/>' . "\n";
-
-            $r = $this->db->fetchObject($q);
-            while ($r) {
-                $pub = new pdPublication();
-                $pub->dbLoad($this->db, $r->pub_id);
-                echo $pub->getCitationHtml()
-                    . '&nbsp;' . $this->getPubIcons($pub, 0xe) . '<p/>';
-                $r = $this->db->fetchObject($q);
-            }
+                . 'The venue is used by the following '
+                . 'publications:' . "\n"
+                . $this->displayPubList($pub_list);
             return;
         }
 
