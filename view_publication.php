@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.65 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: view_publication.php,v 1.66 2007/03/13 00:16:50 aicmltec Exp $
 
 /**
  * View Publication
@@ -62,11 +62,9 @@ class view_publication extends pdHtmlPage {
         if ($this->access_level > 0) {
             $iconFlags |= 0xC;
         }
-        $content .= $this->getPubIcons($pub, $iconFlags);
 
-        $content .= "</h1>\n" . $pub->authorsToHtml();
-
-        debugVar('pub', $pub);
+        $content .= $this->getPubIcons($pub, $iconFlags)
+            . "</h1>\n" . $pub->authorsToHtml();
 
         if (isset($pub->paper) && ($pub->paper != 'No paper')
             && (basename($pub->paper) != 'paper_')) {
