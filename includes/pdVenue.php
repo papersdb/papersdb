@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.20 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdVenue.php,v 1.21 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -97,7 +97,7 @@ class pdVenue {
             $db->delete('venue_occur', array('venue_id' => $this->venue_id),
                         'pdVenue::dbSave');
 
-        if (count($this->occurrences) == 0) return;
+        if (!isset($this->occurrences)) return;
 
         $arr = array();
         foreach ($this->occurrences as $o) {

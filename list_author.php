@@ -32,7 +32,7 @@ class list_author extends pdHtmlPage {
         // Performing SQL query
         $auth_list = new pdAuthorList($this->db);
 
-        $this->contentPre .= "<h1>Authors</h1>";
+        echo "<h1>Authors</h1>";
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
@@ -84,7 +84,6 @@ class list_author extends pdHtmlPage {
         }
 
         $this->table =& $table;
-        $this->db->close();
     }
 }
 

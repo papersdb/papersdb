@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.20 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdAuthor.php,v 1.21 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -278,13 +278,19 @@ class pdAuthor {
      * used when name is in "firstname lastname" format.
      */
     function nameSet($name) {
-        $pos = strrpos($name, ',');
-        if ($pos !== false)
+        $commaPos = strrpos($name, ',');
+        $spacePos = strrpos($name, ',');
+
+        if (($commaPos === false) && ($spacePos === false)) {
             $this->name = $name;
-        else {
+            $this->lastname = $name;
+            return;
+        }
+
+        if ($commaPos !== false)
+            $this->name = $name;
+        else if ($spacePos !== false) {
             // put last name first
-            $pos = strrpos($name, ' ');
-            assert('$pos !== false');
             $this->name = substr($name, $pos + 1) . ', '
                 . substr($name, 0, $pos);
         }

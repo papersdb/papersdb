@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.30 2007/03/13 14:03:31 loyola Exp $
+// $Id: add_category.php,v 1.31 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -27,24 +27,42 @@ require_once 'includes/pdCategory.php';
  * @package PapersDB
  */
 class add_category extends pdHtmlPage {
+    var $cat_id;
+    var $numNewFields;
+
     function add_category() {
         session_start();
         pubSessionInit();
         parent::pdHtmlPage('add_category');
 
+        $this->loadHttpVars();
+
         if ($this->loginError) return;
 
         $category = new pdCategory();
 
-        if (isset($_GET['cat_id']) && ($_GET['cat_id'] != '')) {
-            $cat_id = intval($_GET['cat_id']);
-            $result = $category->dbLoad($this->db, $cat_id);
-
-            if (!$result) {
-                $this->db->close();
+        if (isset($this->cat_id)) {
+            if (!is_numeric($this->cat_id)) {
                 $this->pageError = true;
                 return;
             }
+
+            $result = $category->dbLoad($this->db, $this->cat_id);
+
+            if (!$result) {
+                $this->pageError = true;
+                return;
+            }
+        }
+
+        if (isset($this->numNewFields)) {
+            if (!is_numeric($this->numNewFields)) {
+                $this->pageError = true;
+                return;
+            }
+        }
+        else {
+            $this->numNewFields = 0;
         }
 
         if ($category->cat_id != '')
@@ -75,32 +93,24 @@ class add_category extends pdHtmlPage {
             $label = '';
         }
 
-        if (isset($_GET['numNewFields']) && ($_GET['numNewFields'] != ''))
-            $newFields = intval($_GET['numNewFields']);
-        else if (isset($_POST['numNewFields'])
-                 && ($_POST['numNewFields'] != ''))
-            $newFields = intval($_POST['numNewFields']);
-        else
-            $newFields = 0;
-
-        for ($i = 0; $i < $newFields; $i++) {
+        for ($i = 0; $i < $this->numNewFields; $i++) {
             $form->addElement('text', 'new_fields[' . $i . ']',
                               'New field ' . ($i + 1) . ':',
                               array('size' => 50, 'maxlength' => 250));
         }
 
-        $form->addElement('hidden', 'numNewFields', $newFields);
+        $form->addElement('hidden', 'numNewFields', $this->numNewFields);
 
         $form->addGroup(
             array(
-                HTML_QuickForm::createElement(
-                    'submit', 'submit', 'Submit New Category'),
                 HTML_QuickForm::createElement(
                     'reset', 'reset', 'Reset'),
                 HTML_QuickForm::createElement(
                     'button', 'add_field', 'Add Related Field',
                     array('onClick' => 'dataKeep('
-                          . ($newFields + 1) . ');'))
+                          . ($this->numNewFields + 1) . ');')),
+                HTML_QuickForm::createElement(
+                    'submit', 'submit', 'Submit New Category')
                 ),
             'submit_group', null, '&nbsp;');
 
@@ -109,8 +119,11 @@ class add_category extends pdHtmlPage {
 
             $category->category = $values['catname'];
 
-            foreach (array_merge($values['info'], $values['new_fields'])
-                     as $infoname) {
+            if (isset($values['new_fields']))
+                $values['info'] = array_merge($values['info'],
+                                              $values['new_fields']);
+
+            foreach ($values['info'] as $infoname) {
                 if ($infoname == '') continue;
 
                 $obj = new stdClass;
@@ -150,7 +163,6 @@ class add_category extends pdHtmlPage {
             $this->renderer =& $renderer;
             $this->javascript();
         }
-        $this->db->close();
     }
 
     function javascript() {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.31 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: list_publication.php,v 1.32 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -28,6 +28,13 @@ require_once 'includes/pdVenueList.php';
  * @package PapersDB
  */
 class list_publication extends pdHtmlPage {
+    var $year;
+    var $author_id;
+    var $venue_id;
+    var $cat_id;
+    var $keyword;
+    var $by;
+
     function list_publication() {
         session_start();
         pubSessionInit();
@@ -35,79 +42,78 @@ class list_publication extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (isset($_GET['year'])) {
+        $this->loadHttpVars();
+
+        if (isset($this->year)) {
             $pub_list = new pdPubList(
-                $this->db, array('year' => $_GET['year']));
-            $title = '<h1>Publications in ' .$_GET['year'] . '</h1>';
+                $this->db, array('year' => $this->year));
+            $title = '<h1>Publications in ' .$this->year . '</h1>';
         }
-        else if (isset($_GET['venue_id'])) {
+        else if (isset($this->venue_id)) {
             $vl = new pdVenueList($this->db);
 
-            if (!array_key_exists($_GET['venue_id'], $vl->list)) {
-                $this->db->close();
+            if (!array_key_exists($this->venue_id, $vl->list)) {
                 $this->pageError = true;
                 return;
             }
 
             $pub_list = new pdPubList(
-                $this->db, array('venue_id' => $_GET['venue_id']));
+                $this->db, array('venue_id' => $this->venue_id));
             $title = '<h1>Publications in Venue "'
-                . $vl->list[$_GET['venue_id']] . '"</h1>';
+                . $vl->list[$this->venue_id] . '"</h1>';
         }
-        else if (isset($_GET['cat_id'])) {
+        else if (isset($this->cat_id)) {
             $cl = new pdCatList($this->db);
 
-            if (!array_key_exists($_GET['cat_id'], $cl->list)) {
-                $this->db->close();
+            if (!array_key_exists($this->cat_id, $cl->list)) {
                 $this->pageError = true;
                 return;
             }
 
             $pub_list = new pdPubList(
-                $this->db, array('cat_id' => $_GET['cat_id']));
+                $this->db, array('cat_id' => $this->cat_id));
             $title = '<h1>Publications in Category "'
-                . $cl->list[$_GET['cat_id']] . '"</h1>';
+                . $cl->list[$this->cat_id] . '"</h1>';
         }
-        else if (isset($_GET['keyword'])) {
+        else if (isset($this->keyword)) {
             $pub_list = new pdPubList(
-                $this->db, array('keyword' => $_GET['keyword']));
-            $title = '<h1>Publications with keyword "' .$_GET['keyword']
+                $this->db, array('keyword' => $this->keyword));
+            $title = '<h1>Publications with keyword "' .$this->keyword
                 . '"</h1>';
         }
-        else if (isset($_GET['keyword'])) {
+        else if (isset($this->keyword)) {
             $pub_list = new pdPubList(
-                $this->db, array('keyword' => $_GET['keyword']));
-            $title = '<h1>Publications with keyword "' .$_GET['keyword']
+                $this->db, array('keyword' => $this->keyword));
+            $title = '<h1>Publications with keyword "' .$this->keyword
                 . '"</h1>';
         }
-        else if (isset($_GET['author_id'])) {
+        else if (isset($this->author_id)) {
             // If there exists an author_id, only extract the publications for
             // that author
             //
             // This is used when viewing an author.
             $pub_list = new pdPubList(
-                $this->db, array('author_id' => $_GET['author_id']));
+                $this->db, array('author_id' => $this->author_id));
 
             $auth = new pdAuthor();
-            $auth->dbLoad($this->db, $_GET['author_id'],
+            $auth->dbLoad($this->db, $this->author_id,
                           PD_AUTHOR_DB_LOAD_BASIC);
 
             $title = '<h1>Publications by ' . $auth->name . '</h1>';
         }
-        else if (isset($_GET['by']) || (count($_GET) == 0)) {
+        else if (isset($this->by) || (!isset($_GET) == 0)) {
             if (count($_GET) == 0)
                 $viewCat = 'year';
             else
-                $viewCat = $_GET['by'];
+                $viewCat = $this->by;
             $this->pubSelect($viewCat);
-            $this->db->close();
             return;
         }
         else {
             $this->pageError = true;
         }
 
-        $this->contentPre .= $this->pubSelMenu() . "<br/>\n" . $title;
+        echo $this->pubSelMenu() . "<br/>\n" . $title;
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
@@ -133,13 +139,11 @@ class list_publication extends pdHtmlPage {
         }
 
         $this->tableHighlits($table);
-
-        $this->db->close();
     }
 
     function pubSelect($viewCat = null) {
         assert('is_object($this->db)');
-        $this->contentPre .= $this->pubSelMenu($viewCat) . '<br/>';
+        echo $this->pubSelMenu($viewCat) . '<br/>';
         $text = '';
 
         switch ($viewCat) {
@@ -159,7 +163,7 @@ class list_publication extends pdHtmlPage {
                     $table->addRow($cells);
                 }
 
-                $this->contentPre .= '<h2>Publications by Year:</h2>'
+                echo '<h2>Publications by Year:</h2>'
                     . $table->toHtml();
                 break;
 
@@ -181,7 +185,7 @@ class list_publication extends pdHtmlPage {
 
                 $this->tableHighlits($table);
 
-                $this->contentPre .= '<h2>Publications by Author:</h2>'
+                echo '<h2>Publications by Author:</h2>'
                     . $table->toHtml();
                 break;
 
@@ -205,7 +209,7 @@ class list_publication extends pdHtmlPage {
 
                 $this->tableHighlits($table);
 
-                $this->contentPre .= '<h2>Publications by Venue:</h2>'
+                echo '<h2>Publications by Venue:</h2>'
                     . $table->toHtml();
                 break;
 
@@ -225,7 +229,7 @@ class list_publication extends pdHtmlPage {
                     $table->addRow($cells);
                 }
 
-                $this->contentPre .= '<h2>Publications by Category:</h2>'
+                echo '<h2>Publications by Category:</h2>'
                     . $table->toHtml();
                 break;
 
@@ -249,8 +253,7 @@ class list_publication extends pdHtmlPage {
 
                 $this->tableHighlits($table);
 
-                $this->contentPre .= '<h2>Publications by Keyword:</h2>'
-                    . $table->toHtml();
+                echo '<h2>Publications by Keyword:</h2>' . $table->toHtml();
                 break;
 
             default:

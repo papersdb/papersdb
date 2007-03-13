@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.12 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: search_results.php,v 1.13 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -40,7 +40,7 @@ class search_results extends pdHtmlPage {
 
         $sp =& $_SESSION['search_params'];
 
-        $this->contentPre .= '<h3>SEARCH RESULTS FOR</h3>';
+        echo '<h3>SEARCH RESULTS FOR</h3>';
 
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '60%'));
@@ -120,12 +120,10 @@ class search_results extends pdHtmlPage {
             }
         }
 
-        $this->contentPre .= $table->toHtml();
+        echo $table->toHtml();
 
         if (count($_SESSION['search_results']) == 0) {
-            $this->contentPre
-                .= '<br/><h3>Your search did not generate any results.</h3>';
-            $this->db->close();
+            echo '<br/><h3>Your search did not generate any results.</h3>';
             return;
         }
 
@@ -140,7 +138,7 @@ class search_results extends pdHtmlPage {
             $cvForm->accept($renderer);
         }
 
-        $this->contentPre .= $renderer->toHtml();
+        echo $renderer->toHtml();
 
         $table = new HTML_Table(array('id' => 'publist',
                                       'width' => '100%',
@@ -179,10 +177,8 @@ class search_results extends pdHtmlPage {
                   . 'height="16" width="16" border="0" align="top" />'
                   . ' Link to this search</a></div><br/>'));
 
-        $this->contentPre .= $table->toHtml()
+        echo $table->toHtml()
             . '<hr/>' . $searchLinkTable->toHtml();
-
-        $this->db->close();
     }
 
     /**

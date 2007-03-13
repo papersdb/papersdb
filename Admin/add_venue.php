@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.29 2007/03/13 14:03:31 loyola Exp $
+// $Id: add_venue.php,v 1.30 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -26,6 +26,8 @@ require_once 'Admin/add_pub_base.php';
 class add_venue extends pdHtmlPage {
     var $debug = 0;
     var $venue_id = null;
+    var $type;
+    var $numNewOccurrences;
 
     function add_venue() {
         session_start();
@@ -33,36 +35,22 @@ class add_venue extends pdHtmlPage {
 
         if ($this->loginError) return;
 
+        $this->loadHttpVars();
         $venue = new pdVenue();
-
-        if (isset($_GET['venue_id']) && ($_GET['venue_id'] != '')) {
-            $this->venue_id = intval($_GET['venue_id']);
-        }
-        else if (isset($_POST['venue_id']) && ($_POST['venue_id'] != '')) {
-            $this->venue_id = intval($_POST['venue_id']);
-        }
 
         if ($this->venue_id != null)
             $venue->dbLoad($this->db, $this->venue_id);
 
-        if (isset($_GET['type']) && ($_GET['type'] != ''))
-            $venue->type = $_GET['type'];
-        else if (isset($_POST['type']) && ($_POST['type'] != ''))
-            $venue->type = $_POST['type'];
+        if (isset($this->type) && ($this->type != ''))
+            $venue->type = $this->type;
 
         $newOccurrences = 0;
         if (($venue->type == 'Conference') || ($venue->type == 'Workshop')) {
-            if (isset($_GET['numNewOccurrences'])
-                && is_numeric($_GET['numNewOccurrences'])) {
-                $newOccurrences =  intval($_GET['numNewOccurrences']);
-            }
-            else if (isset($_POST['numNewOccurrences'])
-                     && is_numeric($_POST['numNewOccurrences'])) {
-                $newOccurrences =  intval($_POST['numNewOccurrences']);
-            }
-            else {
+            if (isset($this->numNewOccurrences)
+                && is_numeric($this->numNewOccurrences))
+                $newOccurrences =  intval($this->numNewOccurrences);
+            else
                 $newOccurrences = count($venue->occurrences);
-            }
         }
 
         $form = new HTML_QuickForm('venueForm', 'post',
@@ -154,7 +142,7 @@ class add_venue extends pdHtmlPage {
                                       array('size' => 50, 'maxlength' => 250));
 
                     $form->addElement('button', 'delOccurrence[' . $i . ']',
-                                      'Delete',
+                                      'Delete Occurrence',
                                       'onClick=dataRemove(' . $i . ');');
                 }
             }
@@ -206,60 +194,56 @@ class add_venue extends pdHtmlPage {
             $values = $form->exportValues();
             $venue->load($values);
 
-            if ($this->debug) {
-                echo '<pre>' . print_r($values, true)
-                    . '</pre>';
-            }
-            else {
-                //add http:// to webpage address if needed
-                if (($venue->url != '')
-                    && (strpos($venue->url, 'http') === false)) {
-                    $venue->url = "http://" . $venue->url;
-                }
-                $venue->title = str_replace("\"","'", $venue->title);
+            debugVar('values', $values);
 
+            //add http:// to webpage address if needed
+            if (($venue->url != '')
+                && (strpos($venue->url, 'http') === false)) {
+                $venue->url = "http://" . $venue->url;
+            }
+            $venue->title = str_replace("\"","'", $venue->title);
+
+            if (isset($values['venue_date']))
                 if (($venue->type == 'Conference')
                     || ($venue->type == 'Workshop')) {
                     $venue->date = $values['venue_date']['Y']
                         . '-' . $values['venue_date']['M'] . '-1';
                 }
 
-                $venue->deleteOccurrences();
-                for ($i = 0; $i < $values['numNewOccurrences']; $i++) {
-                    $venue->addOccurrence(
-                        $values['newOccurrenceLocation'][$i],
-                        $values['newOccurrenceDate'][$i]['Y']
-                        . '-' . $values['newOccurrenceDate'][$i]['M']
-                        . '-1',
-                        $values['newOccurrenceUrl'][$i]);
-                }
+            $venue->deleteOccurrences();
+            for ($i = 0; $i < $values['numNewOccurrences']; $i++) {
+                $venue->addOccurrence(
+                    $values['newOccurrenceLocation'][$i],
+                    $values['newOccurrenceDate'][$i]['Y']
+                    . '-' . $values['newOccurrenceDate'][$i]['M']
+                    . '-1',
+                    $values['newOccurrenceUrl'][$i]);
+            }
 
-                $venue->dbSave($this->db);
+            $venue->dbSave($this->db);
 
-                if ($_SESSION['state'] == 'pub_add') {
-                    assert('isset($_SESSION["pub"])');
-                    $pub =& $_SESSION['pub'];
-                    $pub->addVenue($this->db, $venue);
+            if (isset($_SESSION['state'])
+                && ($_SESSION['state'] == 'pub_add')) {
+                assert('isset($_SESSION["pub"])');
+                $pub =& $_SESSION['pub'];
+                $pub->addVenue($this->db, $venue);
 
-                    echo '<pre>' . print_r($_SESSION, true) . '</pre>';
+                if ($this->debug) return;
 
-                    if ($this->debug) return;
-
-                    if (isset($values['finish']))
-                        header('Location: add_pub_submit.php');
-                    else
-                        header('Location: add_pub2.php');
+                if (isset($values['finish']))
+                    header('Location: add_pub_submit.php');
+                else
+                    header('Location: add_pub2.php');
+            }
+            else {
+                if (!isset($this->venue_id) || ($this->venue_id == '')) {
+                    echo 'You have successfully added the venue "'
+                        .  $venue->title . '".'
+                        . '<br><a href="./add_venue.php">Add another venue</a>';
                 }
                 else {
-                    if (!isset($this->venue_id) || ($this->venue_id == '')) {
-                        echo 'You have successfully added the venue "'
-                            .  $venue->title . '".'
-                            . '<br><a href="./add_venue.php">Add another venue</a>';
-                    }
-                    else {
-                        echo 'You have successfully edited the venue "'
-                            . $venue->title . '".';
-                    }
+                    echo 'You have successfully edited the venue "'
+                        . $venue->title . '".';
                 }
             }
         }
@@ -273,14 +257,14 @@ class add_venue extends pdHtmlPage {
                              'data'       => $venue->data,
                              'editor'     => $venue->editor,
                              'venue_date' => $venue->date);
-                if (isset($_GET['numNewOccurrences'])) {
-                    for ($i = 0; $i < $_GET['numNewOccurrences']; $i++) {
+                if (isset($this->numNewOccurrences)) {
+                    for ($i = 0; $i < $this->numNewOccurrences; $i++) {
                         $arr['newOccurrenceLocation'][$c]
-                            = $_GET['newOccurrenceLocation'][$c];
+                            = $this->newOccurrenceLocation[$c];
                         $arr['newOccurrenceDate'][$c]
-                            = $_GET['newOccurrenceDate'][$c];
+                            = $this->newOccurrenceDate[$c];
                         $arr['newOccurrenceUrl'][$c]
-                            = $_GET['newOccurrenceUrl'][$c];
+                            = $this->newOccurrenceUrl[$c];
                     }
                 }
                 else if (count($venue->occurrences) > 0) {
@@ -337,7 +321,6 @@ class add_venue extends pdHtmlPage {
             $this->table =& $table;
             $this->javascript();
         }
-        $this->db->close();
     }
 
     function javascript() {

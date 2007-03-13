@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.66 2007/03/13 00:16:50 aicmltec Exp $
+// $Id: view_publication.php,v 1.67 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * View Publication
@@ -48,23 +48,21 @@ class view_publication extends pdHtmlPage {
         $result = $pub->dbLoad($this->db, $this->pub_id);
 
         if (!$result) {
-            $this->contentPre .= 'Publication does not exist';
+            echo 'Publication does not exist';
             return;
         }
 
         if ($this->debug) {
-            $this->contentPost .= 'pub<pre>' . print_r($pub, true) . '</pre>';
+            echo 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
         $content = "<h1>" . $pub->title;
 
-        $iconFlags = 0x2;
         if ($this->access_level > 0) {
-            $iconFlags |= 0xC;
+            $content .= $this->getPubIcons($pub, 0xc);
         }
 
-        $content .= $this->getPubIcons($pub, $iconFlags)
-            . "</h1>\n" . $pub->authorsToHtml();
+        $content .= "</h1>\n" . $pub->authorsToHtml();
 
         if (isset($pub->paper) && ($pub->paper != 'No paper')
             && (basename($pub->paper) != 'paper_')) {
@@ -133,7 +131,11 @@ class view_publication extends pdHtmlPage {
                                       'cellpadding' => '6',
                                       'cellspacing' => '0'));
 
-        $table->addRow(array('Category:', $pub->category->category));
+        $category = '';
+        if (isset($pub->category) && isset($pub->category->category))
+            $category = $pub->category->category;
+
+        $table->addRow(array('Category:', $category));
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
 
         if ($this->access_level >= 1)
@@ -187,10 +189,8 @@ class view_publication extends pdHtmlPage {
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
 
-        $this->contentPre .= $content . '<span id="small">' . $updateStr
+        echo $content . '<span id="small">' . $updateStr
             . '</span>';
-
-        $this->db->close();
     }
 
     function lastUpdateGet(&$pub) {

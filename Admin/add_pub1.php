@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.22 2007/03/13 14:03:31 loyola Exp $
+// $Id: add_pub1.php,v 1.23 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -33,12 +33,7 @@ class add_pub1 extends add_pub_base {
     function add_pub1() {
         session_start();
 
-        foreach (array_keys(get_class_vars('add_pub1')) as $name) {
-            if (isset($_GET[$name]) && ($_GET[$name] != ''))
-                $this->$name = stripslashes($_GET[$name]);
-            else
-                $this->$name = null;
-        }
+        $this->loadHttpVars(true, false);
 
         if (isset($_SESSION['pub'])) {
             // according to session variables, we are already editing a
@@ -52,7 +47,6 @@ class add_pub1 extends add_pub_base {
             $result = $this->pub->dbLoad($this->db, $this->pub_id);
             if (!$result) {
                 $this->pageError = true;
-                $this->db->close();
                 return;
             }
 
@@ -161,8 +155,6 @@ class add_pub1 extends add_pub_base {
         if ($this->debug) {
             echo 'values<pre>' . print_r($this->pub, true) . '</pre>';
         }
-
-        $this->db->close();
     }
 
     function renderForm() {

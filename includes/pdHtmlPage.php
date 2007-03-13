@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.61 2007/03/13 14:03:32 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.62 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -44,8 +44,6 @@ class pdHtmlPage {
     var $form;
     var $renderer;
     var $js;
-    var $contentPre;
-    var $contentPost;
     var $useStdLayout;
     var $hasHelpTooltips;
     var $form_controller;
@@ -84,6 +82,9 @@ class pdHtmlPage {
             exit;
         }
 
+        // start buffering output, it will be displayed in the toHtml() method
+        ob_start();
+
         // a derived page may already have needed access to the database prior
         // to invoking the base class constructor, so only create the database
         // object if not already set
@@ -94,8 +95,7 @@ class pdHtmlPage {
             switch (mysql_errno()) {
                 case 1045:
                 case 2000:
-                    $this->contentPre
-                        .= 'failed due to authentication errors. '
+                    echo 'failed due to authentication errors. '
                         . 'Check database username and password<br>/';
                     break;
 
@@ -103,8 +103,7 @@ class pdHtmlPage {
                 case 2003:
                 default:
                     // General connection problem
-                    $this->contentPre
-                        .= 'failed with error [' . $errno . '] '
+                    echo 'failed with error [' . $errno . '] '
                         . htmlspecialchars(mysql_error()) . '.<br>';
                     break;
             }
@@ -130,13 +129,6 @@ class pdHtmlPage {
             $this->login_level  = $login_level;
         }
 
-        // ensure that the user is logged in if a page requires login access
-        if (($this->login_level >= PD_NAV_MENU_LOGIN_REQUIRED)
-            && ($this->access_level < 1)) {
-            $this->loginError = true;
-            return;
-        }
-
         $this->redirectTimeout = 0;
         $this->table           = null;
         $this->form            = null;
@@ -146,8 +138,13 @@ class pdHtmlPage {
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
 
-        // start buffering output, it will be displayed in the toHtml() method
-        ob_start();
+        // ensure that the user is logged in if a page requires login access
+        if ((($this->login_level >= PD_NAV_MENU_LOGIN_REQUIRED)
+             || (strpos($this->relative_url, 'Admin/') !== false))
+            && ($this->access_level < 1)) {
+            $this->loginError = true;
+            return;
+        }
     }
 
     function dbIntegrityCheck() {
@@ -213,6 +210,24 @@ class pdHtmlPage {
         }
     }
 
+    function loadHttpVars($get = true, $post = true) {
+        if ($get && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
+            if (!isset($_GET)) return;
+
+            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+                if (isset($_GET[$member]))
+                    $this->$member = $_GET[$member];
+            }
+        }
+        else if ($post && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
+            if (!isset($_POST)) return;
+
+            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+                if (isset($_POST[$member]))
+                    $this->$member = $_POST[$member];
+            }
+        }
+    }
 
     function htmlPageHeader() {
         $result =
@@ -239,12 +254,11 @@ class pdHtmlPage {
                 . $this->redirectUrl . '" />' . "\n";
         }
 
+        $url_prefix = '';
         if (strstr($this->relative_url, '/'))
-            $cssFile = '../style.css';
-        else
-            $cssFile = 'style.css';
+            $url_prefix = '../';
 
-        $result .= '<link rel="stylesheet" href="' . $cssFile . '" />' . "\n"
+        $result .= '<link rel="stylesheet" href="' . $url_prefix . 'style.css" />' . "\n"
             . "</head>\n"
             . $this->js
             . "\n<body>\n";
@@ -309,44 +323,24 @@ class pdHtmlPage {
             return;
         }
 
-        $result = $this->htmlPageHeader();
+        $result = $this->htmlPageHeader() . ob_get_contents();
+        ob_end_clean();
 
-        if ($this->loginError) {
-            if (isset($this->contentPre))
-                $result .= $this->contentPre;
-            else
-                $result .= $this->loginErrorMessage();
+        if ($this->loginError)
+            $result .= $this->loginErrorMessage();
+        else if ($this->pageError)
+            $result .= $this->errorMessage();
+        else if (($this->renderer != null) && ($this->table != null))
+            $result .= $this->renderer->toHtml($this->table->toHtml());
+        else if ($this->renderer != null)
+            $result .= $this->renderer->toHtml();
+        else if ($this->table != null)
+            $result .= $this->table->toHtml();
 
-            if (isset($this->contentPost))
-                $result .= $this->contentPost;
-        }
-        else if ($this->pageError) {
-            if (isset($this->contentPre))
-                $result .= $this->contentPre;
-            else
-                $result .= $this->errorMessage();
-
-            if (isset($this->contentPost))
-                $result .= $this->contentPost;
-        }
-        else {
-            $result .= ob_get_contents();
-            ob_end_clean();
-
-            // debug
-            //$this->contentPost .= '<pre>' . print_r($this, true) . '</pre>';
-
-            if ($this->renderer != null) {
-                if ($this->table != null)
-                    $result .= $this->renderer->toHtml($this->table->toHtml());
-                else
-                    $result .= $this->renderer->toHtml();
-            }
-            else if ($this->table != null) {
-                $result .= $this->table->toHtml();
-            }
-        }
         $result .= $this->htmlPageFooter();
+
+        // assume no more need for the database connection
+        $this->db->close();
 
         return $result;
     }
@@ -562,16 +556,6 @@ END;
     function navMenuItemEnable($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
         $this->nav_menu->nav_items[$page_id]->enabled = $enable;
-    }
-
-    function debugVar($name,$data) {
-        $captured = explode("\n",debug_capture_print_r($data));
-        $this->contentPost .= $name . "<br/>\n<pre>";
-        foreach  ($captured as $line) {
-            $this->contentPost .= debug_colorize_string($line)
-                . "\n";
-        }
-        $this->contentPost .= "</pre>\n";
     }
 
     function getPubIcons(&$pub, $flags = 0xf) {

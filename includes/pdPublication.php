@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.80 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: pdPublication.php,v 1.81 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -201,7 +201,7 @@ class pdPublication {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
         }
-        $this->deleteFiles();
+        $this->deleteFiles($db);
     }
 
     function dbSave(&$db) {
@@ -359,7 +359,7 @@ class pdPublication {
         foreach ($this->additional_info as $k => $o) {
             if (basename($o->location) == basename($filename)) {
                 $dbfilename = $o->location;
-                unset($pub->additional_info[$k]);
+                unset($this->additional_info[$k]);
             }
         }
 
@@ -597,7 +597,7 @@ class pdPublication {
             $path .= '/uploaded_files/' . $this->pub_id . '/';
         $path .= $this->paper;
 
-        return file_exists($path);
+        return is_file($path);
     }
 
     function attExists(&$att) {
@@ -606,7 +606,7 @@ class pdPublication {
             $path .= '/uploaded_files/';
         $path .= $att->location;
 
-        return file_exists($path);
+        return is_file($path);
     }
 
     function paperSave($db, $papername) {
@@ -630,7 +630,7 @@ class pdPublication {
         $filename = $pub_path . $basename;
 
         // create the publication's path if it does not exist
-        if (!file_exists($pub_path)) {
+        if (!is_file($pub_path)) {
             mkdir($pub_path, 0777);
             // mkdir permissions with 0777 does not seem to work
             chmod($pub_path, 0777);
@@ -664,7 +664,7 @@ class pdPublication {
         $filename = $pub_path . $basename;
 
         // create the publication's path if it does not exist
-        if (!file_exists($pub_path)) {
+        if (!is_dir($pub_path)) {
             mkdir($pub_path, 0777);
             // mkdir permissions with 0777 does not seem to work
             chmod($pub_path, 0777);
@@ -672,17 +672,19 @@ class pdPublication {
 
         if (rename($att_name, $filename)) {
             chmod($filename, 0777);
-            $this->dbAttRemove($db, $att->location);
+            $this->dbAttUpdate($db, $basename, $att_type);
         }
     }
 
     function deletePaper(&$db) {
         assert('isset($this->pub_id)');
 
+        if (!isset($this->paper)) return;
+
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
         $filepath = $pub_path . basename($this->paper);
 
-        if (file_exists($filepath))
+        if (is_file($filepath))
             unlink($filepath);
 
         $this->paper = 'No paper';
@@ -695,22 +697,23 @@ class pdPublication {
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
         $filepath = $pub_path . basename($att->location);
 
-        if (file_exists($filepath))
+        if (is_file($filepath))
             unlink($filepath);
-        $this->dbAttUpdate($db, $basename, $att_type);
+        $this->dbAttRemove($db, $att->location);
     }
 
-    function deleteFiles() {
-        $this->deletePaper();
+    function deleteFiles(&$db) {
+        $this->deletePaper($db);
 
         if (count($this->additional_info) > 0) {
             foreach ($this->additional_info as $att) {
-                $this->deleteAtt($att);
+                $this->deleteAtt($db, $att);
             }
         }
 
-        if (file_exists(FS_PATH_UPLOAD . $this->pub_id))
-            rmdir($pub_path);
+        $pub_path = FS_PATH_UPLOAD . $this->pub_id;
+
+        rm($pub_path);
     }
 
     function attFilenameGet($num) {
@@ -909,47 +912,57 @@ class pdPublication {
     function getBibtex() {
         $bibtex = '';
 
-        if ($this->category->category == 'In Conference') {
-            $bibtex .= '@inconference{';
+        if (isset($this->category) && isset($this->category->category)) {
+            if ($this->category->category == 'In Conference') {
+                $bibtex .= '@inconference{';
+            }
+            else if ($this->category->category == 'In Journal') {
+                $bibtex .= '@article{';
+            }
+            else if ($this->category->category == 'In Book') {
+                $bibtex .= '@book{';
+            }
+            else {
+                $bibtex .= '@article{';
+            }
         }
-        else if ($this->category->category == 'In Journal') {
+        else {
             $bibtex .= '@article{';
         }
-        else if ($this->category->category == 'In Book') {
-            $bibtex .= '@book{';
-        }
-        else
-            return false;
 
         $pub_date = split('-', $this->published);
+        $venue_short = '';
         if (is_object($this->venue)) {
-            if ($this->venue->title != '')
-                $venue_short = preg_replace("/['-]\d+/", '', $this->venue->title);
-            else
-                $venue_short = '';
+            if (isset($this->venue->title))
+                $venue_short = preg_replace("/['-]\d+/", '',
+                                            $this->venue->title);
 
             $venue_name = $this->venue->nameGet();
         }
 
-        $auth_count = count($this->authors);
-        if ($auth_count > 0) {
-            $bibtex .= $this->authors[0]->lastname;
-            if ($auth_count == 2)
-                $bibtex .= '+' . $this->authors[1]->lastname;
-            else if ($auth_count > 2)
-                $bibtex .= '+al';
+        if (isset($this->authors)) {
+            $auth_count = count($this->authors);
+            if ($auth_count > 0) {
+                $bibtex .= $this->authors[0]->lastname;
+                if ($auth_count == 2)
+                    $bibtex .= '+' . $this->authors[1]->lastname;
+                else if ($auth_count > 2)
+                    $bibtex .= '+al';
 
-            if (isset($venue_short))
-                $bibtex .= ':' . $venue_short;
+                if (isset($venue_short))
+                    $bibtex .= ':' . $venue_short;
 
-            $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
+                $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
 
-            $arr = array();
-            foreach ($this->authors as $auth) {
-                $arr[] = $auth->firstname . ' ' . $auth->lastname;
+                $arr = array();
+                foreach ($this->authors as $auth) {
+                    $arr[] = $auth->firstname . ' ' . $auth->lastname;
+                }
+                $bibtex .= implode(' and ', $arr) . "},\n";
             }
-            $bibtex .= implode(' and ', $arr) . "},\n";
         }
+        else
+            $bibtex .= $this->pub_id . ",\n";
 
         $bibtex .= '  title = {' . $this->title . "},\n";
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.5 2007/03/13 14:03:31 loyola Exp $
+// $Id: batch_add_authors.php,v 1.6 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -89,7 +89,7 @@ class batch_add_authors extends pdHtmlPage {
                         . '<ul>';
                 }
                 else {
-                    echo 'These authors were added to the database?<ul>';
+                    echo 'These authors were added to the database:<ul>';
                 }
 
                 foreach ($new_auths as $auth_name) {
@@ -130,9 +130,8 @@ class batch_add_authors extends pdHtmlPage {
             $this->renderer =& $renderer;
             $this->javascript();
         }
-
-        $this->db->close();
     }
+
     function javascript() {
         $this->js = <<<JS_END
             <script language="JavaScript" type="text/JavaScript">

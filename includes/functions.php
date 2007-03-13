@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.31 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: functions.php,v 1.32 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -168,6 +168,51 @@ function pubSessionInit() {
 }
 
 /**
+ * rm() -- Vigorously erase files and directories.
+ *
+ * @param $fileglob mixed If string, must be a file name (foo.txt), glob
+ * pattern (*.txt), or directory name.  If array, must be an array of file
+ * names, glob patterns, or directories.
+ */
+function rm($fileglob) {
+    if (is_string($fileglob)) {
+        if (is_file($fileglob)) {
+            return unlink($fileglob);
+        }
+        else if (is_dir($fileglob)) {
+            $ok = rm("$fileglob/*");
+            if (! $ok) {
+                return false;
+            }
+            return rmdir($fileglob);
+        }
+        else {
+            $matching = glob($fileglob);
+            if ($matching === false) {
+                trigger_error(sprintf('No files match supplied glob %s', $fileglob), E_USER_WARNING);
+                return false;
+            }
+            $rcs = array_map('rm', $matching);
+            if (in_array(false, $rcs)) {
+                return false;
+            }
+        }
+    }
+    else if (is_array($fileglob)) {
+        $rcs = array_map('rm', $fileglob);
+        if (in_array(false, $rcs)) {
+            return false;
+        }
+    }
+    else {
+        trigger_error('Param #1 must be filename or glob pattern, or array of filenames or glob patterns', E_USER_ERROR);
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Initializes a search session.
  */
 function searchSessionInit() {
@@ -189,8 +234,7 @@ function papersdb_backtrace() {
     foreach($traceArr as $arr) {
         if (isset($arr['class'])) $s .= $arr['class'].'.';
         $args = array();
-        if(!empty($arr['args'])) foreach($arr['args'] as $v)
-        {
+        if(!empty($arr['args'])) foreach($arr['args'] as $v) {
             if (is_null($v)) $args[] = 'null';
             else if (is_array($v)) $args[] = 'Array['.sizeof($v).']';
             else if (is_object($v)) $args[] = 'Object:'.get_class($v);
@@ -202,10 +246,10 @@ function papersdb_backtrace() {
                 $args[] = "\"".$str."\"";
             }
         }
-        $s .= $arr['function'].'('.implode(', ',$args).')</font>';
+        $s .= $arr['function'].'('.implode(', ',$args).')';
         $Line = (isset($arr['line'])? $arr['line'] : "unknown");
         $File = (isset($arr['file'])? $arr['file'] : "unknown");
-        $s .= sprintf("<font color=#808080> # line %4d, file: <a href=\"file:/%s\">%s</a></font>",
+        $s .= sprintf("<br/>  line %4d, file: <a href=\"file:/%s\">%s</a>",
                       $Line, $File, $File);
         $s .= "\n";
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.29 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: login.php,v 1.30 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -31,7 +31,7 @@ class login extends pdHtmlPage {
         $this->passwd_hash = "aicml";
 
         if ($this->access_level > 0) {
-            $this->contentPre .= 'You are already logged in as '
+            echo 'You are already logged in as '
                 . $_SESSION['user']->login . '.';
             $this->pageError = true;
             return;
@@ -83,7 +83,7 @@ class login extends pdHtmlPage {
         }
 
         // only get here if form hasn't been submitted
-        $this->contentPre = '<h2>Log In or Create a New Account</h2>';
+        echo '<h2>Log In or Create a New Account</h2>';
 
         $this->renderer =& $this->form->defaultRenderer();
 
@@ -114,8 +114,7 @@ class login extends pdHtmlPage {
                                                . $values['passwd']));
 
           if ($values['passwd'] != $user->password) {
-            $this->contentPre
-              .='Incorrect password, please try again.';
+            echo'Incorrect password, please try again.';
             $this->pageError = true;
             return;
           }
@@ -131,7 +130,7 @@ class login extends pdHtmlPage {
           $this->access_level = $_SESSION['user']->access_level;
 
           if ($this->access_level == 0) {
-            $this->contentPre .= 'Your login request has not been '
+            echo 'Your login request has not been '
               . 'processed yet.';
             return;
           }
@@ -141,7 +140,7 @@ class login extends pdHtmlPage {
             $this->redirectTimeout = 0;
           }
           else {
-            $this->contentPre .= '<h2>Logged in</h1>'
+            echo '<h2>Logged in</h1>'
               . 'You have succesfully logged in as '
               . $_SESSION['user']->login
               . '<p/>Return to <a href="index.php">main page</a>.'
@@ -152,19 +151,17 @@ class login extends pdHtmlPage {
         else if (isset($values['newaccount'])) {
             // check if username exists in database.
             if (isset($user->login)) {
-                $this->contentPre .= 'Sorry, the username <strong>'
+                echo 'Sorry, the username <strong>'
                     . $values['loginid'] . '</strong> is already taken, '
                     . 'please pick another one.';
                 $this->pageError = true;
-                $this->db->close();
                 return;
             }
 
             // check passwords match
             if ($values['passwd'] != $values['passwd_again']) {
-                $this->contentPre .= 'Passwords did not match.';
+                echo 'Passwords did not match.';
                 $this->pageError = true;
-                $this->db->close();
                 return;
             }
 
@@ -199,7 +196,7 @@ class login extends pdHtmlPage {
                      . 'email: '. $values['email']);
             }
 
-            $this->contentPre = '<h2>Login Request Submitted</h1>'
+            echo '<h2>Login Request Submitted</h1>'
                 . 'A request to create your login <b>'
                 . $values['loginid'] . '</b> has been submitted. '
                 . 'A confirmation email will be sent to <code>'
@@ -208,11 +205,9 @@ class login extends pdHtmlPage {
                 . '<p/>Return to <a href="index.php">main page</a>.';
         }
         else {
-          $this->contentPost
-            .= 'Could not process form<br/>'
+          echo 'Could not process form<br/>'
             . '<pre>' . print_r($values, true) . '</pre>';
         }
-        $this->db->close();
     }
 }
 

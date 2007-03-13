@@ -2,15 +2,32 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.9 2007/03/12 23:05:43 aicmltec Exp $
+# Name: $Id: report.pl,v 1.10 2007/03/13 22:06:11 aicmltec Exp $
 #
 # See $USAGE.
 #
 #------------------------------------------------------------------------------
 
 use strict;
+use File::Basename;
+use Getopt::Long;
 use DBI;
-use Data::Dumper;
+use Data::Dumper;;
+
+my $SCRIPTNAME = basename ($0);
+
+my $USAGE = <<USAGE_END;
+Usage: $SCRIPTNAME [options]
+
+  Queries the AICML Papers Database and gathers publication statistics for the
+  centre's principal investigators, post doctoral fellows and students.
+
+  OPTIONS
+    --noposters  Outputs the information without counting poster information.
+
+USAGE_END
+
+my $noposters;
 
 my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
 
@@ -195,6 +212,10 @@ sub getPubs {
             $statement .= '(' . join(' OR ', @list) . ') ';
         }
 
+        if ($noposters) {
+            $statement .= 'AND category.category NOT LIKE "Poster" ';
+        }
+
         $statement .=  'AND publication.venue_id is NULL '
             . 'AND publication.pub_id=pub_author.pub_id '
             . 'AND author.author_id=pub_author.author_id '
@@ -360,6 +381,11 @@ sub pdfStudentReport {
         printf "%s;%d\n", $authors, scalar(@{ $authors{$authors} });
     }
 }
+
+if (!GetOptions ('noposters' => \$noposters)) {
+    die "ERROR: bad options in command line\n";
+}
+
 
 piReport();
 

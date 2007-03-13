@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.9 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: author_report.php,v 1.10 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -50,7 +50,7 @@ class author_report extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $this->contentPre .= '<h2>AICML Author Report</h2>';
+        echo '<h2>AICML Author Report</h2>';
 
         for ($i = 0; $i < count($this->pi_authors) - 1; $i++) {
             for ($j = $i + 1; $j < count($this->pi_authors); $j++) {
@@ -79,15 +79,15 @@ class author_report extends pdHtmlPage {
             }
         }
 
-        $this->contentPre .= '<h3>Two PIs</h3>';
-        $this->contentPre .= 'Number of publications: ' . count($pi_pubs)
+        echo '<h3>Two PIs</h3>';
+        echo 'Number of publications: ' . count($pi_pubs)
             . '<p/>';
 
         $c = 0;
         foreach ($pi_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
+            echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;' . $this->getPubIcons($pub)
                 . '<br/><span id="small">' . $authors . '</span><p/>';
             $c++;
@@ -124,21 +124,19 @@ class author_report extends pdHtmlPage {
             }
         }
 
-        $this->contentPre .= '<h3>One PI and one PDF</h3>';
-        $this->contentPre .= 'Number of publications: ' . count($pi_pdf_pubs)
+        echo '<h3>One PI and one PDF</h3>';
+        echo 'Number of publications: ' . count($pi_pdf_pubs)
             . '<p/>';
 
         $c = 0;
         foreach ($pi_pdf_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
-            $this->contentPre .= ($c + 1) . '. ' . $pub->getCitationHtml('..')
+            echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;' . $this->getPubIcons($pub)
                 . '<br/><span id="small">' . $authors . '</span><p/>';
             $c++;
         }
-
-        $this->db->close();
     }
 }
 

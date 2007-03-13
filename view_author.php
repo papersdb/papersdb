@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.23 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: view_author.php,v 1.24 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -50,17 +50,15 @@ class view_author extends pdHtmlPage {
             return;
         }
 
-        $this->contentPre .= '<h3>' . $auth->name;
+        echo '<h3>' . $auth->name;
 
         if ($this->access_level > 0) {
-            $this->contentPre .= $this->getAuthorIcons($auth, 0x6);
+            echo $this->getAuthorIcons($auth, 0x6);
         }
 
-        $this->contentPre .= '</h3>';
+        echo '</h3>';
 
         $this->table = $this->authTableCreate($auth);
-
-        $this->db->close();
     }
 
     function authTableCreate(&$auth) {

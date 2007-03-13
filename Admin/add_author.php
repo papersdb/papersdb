@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.44 2007/03/13 14:03:31 loyola Exp $
+// $Id: add_author.php,v 1.45 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -36,33 +36,8 @@ class add_author extends pdHtmlPage {
 
     function add_author() {
         session_start();
-        $author = new pdAuthor();
 
-        $arr = null;
-        if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-            $arr =& $_GET;
-        }
-        else if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            $arr =& $_POST;
-        }
-
-        $valid_parms = array('author_id', 'numNewInterests');
-        foreach ($valid_parms as $parm) {
-            if (isset($arr[$parm]))
-                $this->$parm = $arr[$parm];
-        }
-
-        if ($this->author_id != null) {
-          $result = $author->dbLoad($this->db, $this->author_id,
-                                    PD_AUTHOR_DB_LOAD_BASIC
-                                    | PD_AUTHOR_DB_LOAD_INTERESTS);
-
-            if (!$result) {
-                $this->db->close();
-                $this->pageError = true;
-                return;
-            }
-        }
+        $this->loadHttpVars();
 
         if ($this->author_id == null)
             parent::pdHtmlPage('add_author');
@@ -70,6 +45,19 @@ class add_author extends pdHtmlPage {
             parent::pdHtmlPage('edit_author');
 
         if ($this->loginError) return;
+
+        $author = new pdAuthor();
+
+        if ($this->author_id != null) {
+          $result = $author->dbLoad($this->db, $this->author_id,
+                                    PD_AUTHOR_DB_LOAD_BASIC
+                                    | PD_AUTHOR_DB_LOAD_INTERESTS);
+
+            if (!$result) {
+                $this->pageError = true;
+                return;
+            }
+        }
 
         $form = new HTML_QuickForm('authorForm');
 
@@ -178,9 +166,9 @@ class add_author extends pdHtmlPage {
             $form->addGroup(
                 array(
                     HTML_QuickForm::createElement(
-                        'submit', 'submit', $button_label),
+                        'reset', 'reset', 'Reset'),
                     HTML_QuickForm::createElement(
-                        'reset', 'reset', 'Reset')
+                        'submit', 'submit', $button_label)
                     ),
                 null, null, '&nbsp;');
         }
@@ -195,7 +183,6 @@ class add_author extends pdHtmlPage {
         else {
             $this->renderForm($author);
         }
-        $this->db->close();
     }
 
     function renderForm(&$author) {
@@ -249,7 +236,6 @@ class add_author extends pdHtmlPage {
                     echo '<li>' . $auth . '</li>';
                 }
                 echo '</ul>New author not submitted.';
-                $this->db->close();
                 return;
             }
         }
@@ -260,9 +246,10 @@ class add_author extends pdHtmlPage {
 
         $author->name = $values['lastname'] . ', ' . $values['firstname'];
         $author->title = $values['title'];
-        $author->email = $values['email'];
+        $author->email     = $values['email'];
         $author->organization = $values['organization'];
-        $author->webpage = $values['webpage'];
+        $author->webpage      = $values['webpage'];
+        $author->interests    = array();
 
         if (isset($values['interests']) && (count($values['interests']) > 0))
             $author->interests

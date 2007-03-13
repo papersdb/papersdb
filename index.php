@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.37 2007/03/13 14:03:31 loyola Exp $
+// $Id: index.php,v 1.38 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -32,8 +32,6 @@ class index extends pdHtmlPage {
 
         $this->recentAdditions();
         $this->pubByYears();
-
-        $this->db->close();
     }
 
     function recentAdditions() {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
+// $Id: delete_venue.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -46,7 +46,6 @@ class delete_venue extends pdHtmlPage {
         $result = $venue->dbLoad($this->db, $venue_id);
         if (!$result) {
             $this->pageError = true;
-            $this->db->close();
             return;
         }
 
@@ -67,7 +66,6 @@ class delete_venue extends pdHtmlPage {
                     . '&nbsp;' . $this->getPubIcons($pub, 0xe) . '<p/>';
                 $r = $this->db->fetchObject($q);
             }
-            $this->db->close();
             return;
         }
 
@@ -96,8 +94,6 @@ class delete_venue extends pdHtmlPage {
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-
-        $this->db->close();
     }
 }
 

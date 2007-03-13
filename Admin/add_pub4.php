@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.23 2007/03/13 14:03:31 loyola Exp $
+// $Id: add_pub4.php,v 1.24 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -74,8 +74,6 @@ class add_pub4 extends add_pub_base {
             $this->processForm();
         else
             $this->renderForm();
-
-        $this->db->close();
     }
 
     function formAddAttachments() {

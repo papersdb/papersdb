@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.14 2007/03/13 14:03:32 loyola Exp $
+// $Id: delete_interest.php,v 1.15 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -34,10 +34,20 @@ class delete_interest extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $form =& $this->confirmForm('deleter');
+        $form = new HTML_QuickForm('deleter');
         $interest_list = new pdAuthInterests($this->db);
-        $form->addElement('select', 'interests', null, $interest_list->list,
+        $form->addElement('select', 'interests',
+                          'Select interest(s) to delete:', $interest_list->list,
                           array('multiple' => 'multiple', 'size' => 15));
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'button', 'cancel', 'Cancel',
+                    array('onclick' => 'history.back()')),
+                HTML_QuickForm::createElement(
+                    'submit', 'submit', 'Delete')
+                ),
+            null, null, '&nbsp;', false);
 
 
         if ($form->validate()) {
@@ -55,26 +65,23 @@ class delete_interest extends pdHtmlPage {
                 . '">Delete another interest</a>';
         }
         else {
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer =& $form->defaultRenderer();
+
+            $renderer->setFormTemplate(
+                '<table width="100%" border="0" cellpadding="3" '
+                . 'cellspacing="2" bgcolor="#CCCC99">'
+                . '<form{attributes}>{content}</form></table>');
+            $renderer->setHeaderTemplate(
+                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
+                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
             $form->accept($renderer);
 
-            echo '<h3>Delete Interest </h3><br/>';
-
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '6',
-                                          'cellspacing' => '0'));
-
-            $table->addRow(array('Select interest(s) to delete:',
-                                 $renderer->elementToHtml('interests')));
-            $table->updateColAttributes(0, array('id' => 'emph',
-                                                 'width' => '25%'));
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->table =& $table;
-        }
 
-        $this->db->close();
+            echo '<h3>Delete Interest </h3>';
+        }
     }
 }
 

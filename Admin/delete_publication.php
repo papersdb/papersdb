@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.16 2007/03/13 14:03:32 loyola Exp $
+// $Id: delete_publication.php,v 1.17 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Deletes a publication from the database.
@@ -47,7 +47,6 @@ class delete_publication extends pdHtmlPage {
             $result = $pub->dbLoad($db, $values['pub_id']);
             if (!$result) {
                 $this->pageError = true;
-                $db->close();
                 return;
             }
 
@@ -69,9 +68,7 @@ class delete_publication extends pdHtmlPage {
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id);
             if (!$result) {
-                $db->close();
                 $this->pageError = true;
-                $db->close();
                 return;
             }
 
@@ -85,7 +82,6 @@ class delete_publication extends pdHtmlPage {
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-        $db->close();
     }
 }
 

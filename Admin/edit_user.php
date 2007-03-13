@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.21 2007/03/13 14:03:32 loyola Exp $
+// $Id: edit_user.php,v 1.22 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * This page displays/edits the users information.
@@ -145,7 +145,6 @@ END;
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-        $this->db->close();
 }
 
 function showUser() {
@@ -187,7 +186,6 @@ function showUser() {
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '30%'));
         $this->table =& $table;
-        $this->db->close();
     }
 }
 

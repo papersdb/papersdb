@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
+// $Id: delete_author.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -27,6 +27,8 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  * @package PapersDB
  */
 class delete_author extends pdHtmlPage {
+    var $author_id;
+
     function delete_author() {
         session_start();
         pubSessionInit();
@@ -34,21 +36,20 @@ class delete_author extends pdHtmlPage {
 
         if ($this->loginError) return;
 
+        $this->loadHttpVars();
+
         $form =& $this->confirmForm('deleter');
 
-        if (isset($_GET['author_id']) && ($_GET['author_id'] != '')) {
-            $author_id = intval($_GET['author_id']);
-            $form->addElement('hidden', 'author_id', $author_id);
+        if (isset($this->author_id) && is_numeric($this->author_id)) {
+            $form->addElement('hidden', 'author_id', $this->author_id);
         }
 
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $db = dbCreate();
             $author = new pdAuthor();
-            $result = $author->dbLoad($db, $values['author_id']);
+            $result = $author->dbLoad($this->db, $values['author_id']);
             if (!$result) {
-                $db->close();
                 $this->pageError = true;
                 return;
             }
@@ -67,7 +68,7 @@ class delete_author extends pdHtmlPage {
             else {
                 // This is where the actual deletion happens.
                 $name = $author->name;
-                $author->dbDelete($db);
+                $author->dbDelete($this->db);
 
                 echo 'You have successfully removed the '
                     . 'following author from the database: <p/>'
@@ -75,17 +76,14 @@ class delete_author extends pdHtmlPage {
             }
         }
         else {
-            if ($author_id == null) {
-                echo 'No author id defined';
+            if (!isset($this->author_id) || !is_numeric($this->author_id)) {
                 $this->pageError = true;
                 return;
             }
 
-            $db = dbCreate();
             $author = new pdAuthor();
-            $result = $author->dbLoad($db, $author_id);
+            $result = $author->dbLoad($this->db, $this->author_id);
             if (!$result) {
-                $db->close();
                 $this->pageError = true;
                 return;
             }
@@ -124,7 +122,6 @@ class delete_author extends pdHtmlPage {
             $this->renderer =& $renderer;
             $this->table =& $table;
         }
-        $db->close();
     }
 }
 

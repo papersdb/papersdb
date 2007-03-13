@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.54 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: advanced_search.php,v 1.55 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -67,10 +67,6 @@ class advanced_search extends pdHtmlPage {
             if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
                 $this->$opt = stripslashes($_GET[$opt]);
 
-        if ($this->debug) {
-            $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
-        }
-
         if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
             $this->authorselect = $_GET['authorselect'];
 
@@ -104,7 +100,6 @@ class advanced_search extends pdHtmlPage {
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();
-        $this->db->close();
     }
 
     /**

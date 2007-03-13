@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.6 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: check_attachments.php,v 1.7 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -47,8 +47,6 @@ class check_attachments extends pdHtmlPage {
                                     $paper_arr[1], 1);
                 }
         }
-
-        $this->db->close();
     }
 
     function checkAtt($pub_id, $dbname, $basename, $is_additional) {
@@ -70,14 +68,14 @@ class check_attachments extends pdHtmlPage {
         }
 
         if (!file_exists($filename)) {
-            $this->contentPre .= 'pub_id ' . $pub_id
+            echo 'pub_id ' . $pub_id
                 . ' missing ';
             if ($is_additional)
-                $this->contentPre .= 'additional ';
+                echo 'additional ';
             else
-                $this->contentPre .= 'paper ';
+                echo 'paper ';
 
-            $this->contentPre .= $basename . '<br/>' . "\n";
+            echo $basename . '<br/>' . "\n";
         }
     }
 }

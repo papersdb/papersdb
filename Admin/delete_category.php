@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
+// $Id: delete_category.php,v 1.19 2007/03/13 22:06:11 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -28,6 +28,8 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_category extends pdHtmlPage {
+    var $cat_id;
+
     function delete_category() {
         session_start();
         pubSessionInit();
@@ -35,51 +37,49 @@ class delete_category extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (isset($_GET['cat_id']) && ($_GET['cat_id'] != ''))
-            $cat_id = intval($_GET['cat_id']);
-        else if (isset($_POST['cat_id']) && ($_POST['cat_id'] != ''))
-            $cat_id = intval($_POST['cat_id']);
-        else {
+        $this->loadHttpVars();
+
+        if (!isset($this->cat_id)) {
             echo 'No category id defined';
             $this->pageError = true;
             return;
         }
-
-        $db = dbCreate();
-
-        $category = new pdCategory();
-        $result = $category->dbLoad($db, $cat_id);
-        if (!$result) {
+        else if (!is_numeric($this->cat_id)) {
             $this->pageError = true;
-            $db->close();
             return;
         }
 
-        $q = $db->select('pub_cat', 'pub_id',
-                         array('cat_id' => $cat_id),
+        $category = new pdCategory();
+        $result = $category->dbLoad($this->db, $this->cat_id);
+        if (!$result) {
+            $this->pageError = true;
+            return;
+        }
+
+        $q = $this->db->select('pub_cat', 'pub_id',
+                         array('cat_id' => $this->cat_id),
                          "delete_category::delete_category");
 
-        if ($db->numRows($q) > 0) {
+        if ($this->db->numRows($q) > 0) {
             echo 'Cannot delete category <b>'
                 . $category->category . '</b>.<p/>'
                 . 'The category is used by the following '
                 . 'publications:' . "\n"
                 . '<ul>';
 
-            $r = $db->fetchObject($q);
+            $r = $this->db->fetchObject($q);
             while ($r) {
                 $pub = new pdPublication();
-                $pub->dbLoad($db, $r->pub_id);
+                $pub->dbLoad($this->db, $r->pub_id);
                 echo '<li>' . $pub->getCitationHtml() . '</li>';
-                $r = $db->fetchObject($q);
+                $r = $this->db->fetchObject($q);
             }
             echo '</ul>';
-            $db->close();
             return;
         }
 
         $form =& $this->confirmForm('deleter');
-        $form->addElement('hidden', 'cat_id', $cat_id);
+        $form->addElement('hidden', 'cat_id', $this->cat_id);
 
         $renderer =& $form->defaultRenderer();
         $form->accept($renderer);
@@ -87,7 +87,7 @@ class delete_category extends pdHtmlPage {
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $pub_list = new pdPubList($db, array('cat_id' => $this->cat_id));
+            $pub_list = new pdPubList($this->db, array('cat_id' => $this->cat_id));
 
             if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
                 echo '<b>Deletion Failed</b><p/>'
@@ -101,7 +101,7 @@ class delete_category extends pdHtmlPage {
             }
             else {
                 // This is where the actual deletion happens.
-                $category->dbDelete($db);
+                $category->dbDelete($this->db);
 
                 echo 'Category <b>' . $category->category
                     . '</b> removed from the database.';
@@ -109,10 +109,9 @@ class delete_category extends pdHtmlPage {
         }
         else {
             $category = new pdCategory();
-            $result = $category->dbLoad($db, $cat_id);
+            $result = $category->dbLoad($this->db, $this->cat_id);
             if (!$result) {
                 $this->pageError = true;
-                $db->close();
                 return;
             }
 
@@ -122,8 +121,6 @@ class delete_category extends pdHtmlPage {
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-
-        $db->close();
     }
 }
 
