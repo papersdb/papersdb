@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.21 2007/03/12 05:25:45 loyola Exp $
+// $Id: add_pub1.php,v 1.22 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -159,8 +159,7 @@ class add_pub1 extends add_pub_base {
         }
 
         if ($this->debug) {
-            $this->contentPost
-                .= 'values<pre>' . print_r($this->pub, true) . '</pre>';
+            echo 'values<pre>' . print_r($this->pub, true) . '</pre>';
         }
 
         $this->db->close();
@@ -197,8 +196,7 @@ class add_pub1 extends add_pub_base {
         }
 
         if ($this->debug) {
-            $this->contentPost
-                .= 'defaults<pre>' . print_r($defaults, true) . '</pre>';
+            echo 'defaults<pre>' . print_r($defaults, true) . '</pre>';
         }
 
         $this->form->setDefaults($defaults);
@@ -206,7 +204,7 @@ class add_pub1 extends add_pub_base {
         if (isset($_SESSION['pub']) && ($_SESSION['pub']->title != '')) {
             $this->pub =& $_SESSION['pub'];
 
-            $this->contentPre .= '<h3>Adding Following Publication</h3>'
+            echo '<h3>Adding Following Publication</h3>'
                 . $this->pub->getCitationHtml('..', false) . '<p/>'
                 . add_pub_base::similarPubsHtml();
         }
@@ -257,7 +255,7 @@ class add_pub1 extends add_pub_base {
             $_SESSION['similar_pubs'] = $result;
 
         if ($this->debug)
-            $this->contentPre .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+            echo '<pre>' . print_r($_SESSION, true) . '</pre>';
         else if (isset($values['add_venue']))
             header('Location: add_venue.php');
         else if (isset($values['finish']))

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.36 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: index.php,v 1.37 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -41,7 +41,7 @@ class index extends pdHtmlPage {
 
         if (!isset($pub_list->list)) return;
 
-        $this->contentPre = '<h2>Recent Additions:</h2><ul>';
+        echo '<h2>Recent Additions:</h2><ul>';
         $stringlength = 0;
         foreach ($pub_list->list as $pub) {
             if ($stringlength > 5000) break;
@@ -56,10 +56,10 @@ class index extends pdHtmlPage {
 
             $stringlength += strlen($citation);
 
-            $this->contentPre .= $citation;
+            echo $citation;
 
         }
-        $this->contentPre .= '</ul>';
+        echo '</ul>';
     }
 
     function pubByYears() {
@@ -78,7 +78,7 @@ class index extends pdHtmlPage {
 
         $table->addRow(array($text));
 
-        $this->contentPre .= '<h2>Publications by Year:</h2><ul>'
+        echo '<h2>Publications by Year:</h2><ul>'
             . $table->toHtml();
     }
 }

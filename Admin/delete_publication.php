@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.15 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: delete_publication.php,v 1.16 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * Deletes a publication from the database.
@@ -55,12 +55,12 @@ class delete_publication extends pdHtmlPage {
             $title = $pub->title;
             $pub->dbDelete($db);
 
-            $this->contentPre .= 'You have successfully removed the following '
+            echo 'You have successfully removed the following '
                 . 'publication from the database: <p/><b>' . $title . '</b>';
         }
         else {
             if ($pub_id == null) {
-                $this->contentPre .= 'No pub id defined';
+                echo 'No pub id defined';
                 $this->pageError = true;
                 return;
             }
@@ -78,7 +78,7 @@ class delete_publication extends pdHtmlPage {
             $renderer =& $form->defaultRenderer();
             $form->accept($renderer);
 
-            $this->contentPre .= '<h3>Delete Publication</h3>'
+            echo '<h3>Delete Publication</h3>'
                 . 'Delete the following paper?<p/>'
                 . $pub->getCitationHtml();
 

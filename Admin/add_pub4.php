@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.22 2007/03/13 00:16:50 aicmltec Exp $
+// $Id: add_pub4.php,v 1.23 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -264,7 +264,7 @@ class add_pub4 extends add_pub_base {
 
         $form->setDefaults($defaults);
 
-        $this->contentPre .= '<h3>Adding Following Publication</h3>'
+        echo '<h3>Adding Following Publication</h3>'
             . $this->pub->getCitationHtml('', false) . '<p/>'
             . add_pub_base::similarPubsHtml();
 
@@ -371,8 +371,7 @@ class add_pub4 extends add_pub_base {
         }
 
         if ($this->debug) {
-            $this->contentPre
-                .= 'element<pre>' . print_r($form, true) . '</pre>'
+            echo 'element<pre>' . print_r($form, true) . '</pre>'
                 . 'sess<pre>' . print_r($_SESSION, true) . '</pre>'
                 . 'values<pre>' . print_r($values, true) . '</pre>';
             //return;

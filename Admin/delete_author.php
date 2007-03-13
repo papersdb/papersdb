@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.17 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: delete_author.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -54,15 +54,14 @@ class delete_author extends pdHtmlPage {
             }
 
             if (isset($author->pub_list) && (count($author->pub_list) > 0)) {
-                $this->contentPre .= '<b>Deletion Failed</b><p/>'
+                echo '<b>Deletion Failed</b><p/>'
                     . 'This author is listed as author for the following '
                     . 'publications:<p/>';
 
                 foreach ($author->pub_list->list as $pub)
-                    $this->contentPre .= '<b>' . $pub->title . '</b><br/>';
+                    echo '<b>' . $pub->title . '</b><br/>';
 
-                $this->contentPre
-                    .= '<p/>You must change or remove the author of the '
+                echo '<p/>You must change or remove the author of the '
                     . 'following publication(s) in order to delete this author.';
             }
             else {
@@ -70,14 +69,14 @@ class delete_author extends pdHtmlPage {
                 $name = $author->name;
                 $author->dbDelete($db);
 
-                $this->contentPre .= 'You have successfully removed the '
+                echo 'You have successfully removed the '
                     . 'following author from the database: <p/>'
                     . '<b>' . $name . '</b>';
             }
         }
         else {
             if ($author_id == null) {
-                $this->contentPre .= 'No author id defined';
+                echo 'No author id defined';
                 $this->pageError = true;
                 return;
             }
@@ -118,7 +117,7 @@ class delete_author extends pdHtmlPage {
             $table->updateColAttributes(0, array('id' => 'emph',
                                                  'width' => '25%'));
 
-            $this->contentPre .= '<h3>Delete Author</h3><p/>'
+            echo '<h3>Delete Author</h3><p/>'
                 . 'Delete the following author?';
 
             $this->form =& $form;

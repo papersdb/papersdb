@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.4 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.5 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -75,37 +75,36 @@ class batch_add_authors extends pdHtmlPage {
             }
 
             if (count($in_db_auths) > 0) {
-                $this->contentPre .= 'These authors were already in the '
+                echo 'These authors were already in the '
                     . 'database:<ul>';
                 foreach ($in_db_auths as $auth_name) {
-                    $this->contentPre .= '<li>' . $auth_name . '</li>';
+                    echo '<li>' . $auth_name . '</li>';
                 }
             }
 
             if (count($new_auths) > 0) {
                 if (count($in_db_auths) > 0) {
-                    $this->contentPre .= '</ul>'
+                    echo '</ul>'
                         . 'Only these authors were added to the database:'
                         . '<ul>';
                 }
                 else {
-                    $this->contentPre
-                        .= 'These authors were added to the database?<ul>';
+                    echo 'These authors were added to the database?<ul>';
                 }
 
                 foreach ($new_auths as $auth_name) {
-                    $this->contentPre .= '<li>' . $auth_name . '</li>';
+                    echo '<li>' . $auth_name . '</li>';
                 }
 
-                $this->contentPre .= '</ul>';
+                echo '</ul>';
             }
             else {
-                $this->contentPre .= '</ul>'
+                echo '</ul>'
                     . 'No authors were added to the database.';
             }
         }
         else {
-            $this->contentPre .= '<h2>Batch Add Authors</h2>';
+            echo '<h2>Batch Add Authors</h2>';
 
             $renderer =& $form->defaultRenderer();
 

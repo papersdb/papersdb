@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.17 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: delete_venue.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -37,7 +37,7 @@ class delete_venue extends pdHtmlPage {
         else if (isset($_POST['venue_id']) && ($_POST['venue_id'] != ''))
             $venue_id = intval($_POST['venue_id']);
         else {
-            $this->contentPre .= 'No venue id defined';
+            echo 'No venue id defined';
             $this->pageError = true;
             return;
         }
@@ -55,7 +55,7 @@ class delete_venue extends pdHtmlPage {
                                "delete_venue::delete_venue");
 
         if ($this->db->numRows($q) > 0) {
-            $this->contentPre .= 'Cannot delete venue <b>'
+            echo 'Cannot delete venue <b>'
                 . $venue->nameGet() . '</b>.<p/>'
                 . 'The venue is used by the following publications:<p/>' . "\n";
 
@@ -63,8 +63,7 @@ class delete_venue extends pdHtmlPage {
             while ($r) {
                 $pub = new pdPublication();
                 $pub->dbLoad($this->db, $r->pub_id);
-                $this->contentPre
-                    .= $pub->getCitationHtml()
+                echo $pub->getCitationHtml()
                     . '&nbsp;' . $this->getPubIcons($pub, 0xe) . '<p/>';
                 $r = $this->db->fetchObject($q);
             }
@@ -78,7 +77,7 @@ class delete_venue extends pdHtmlPage {
         if ($form->validate()) {
             $venue->dbDelete($this->db);
 
-            $this->contentPre .= 'Venue <b>' . $venue->title
+            echo 'Venue <b>' . $venue->title
                 . '</b> successfully removed from database.';
         }
         else {
@@ -90,7 +89,7 @@ class delete_venue extends pdHtmlPage {
             else
                 $disp_name = $venue->nameGet();
 
-            $this->contentPre .= '<h3>Confirm</h3><p/>'
+            echo '<h3>Confirm</h3><p/>'
                 . 'Delete Venue <b>' . $disp_name
                 . '</b> from the database?';
 

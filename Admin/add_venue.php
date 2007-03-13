@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.28 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: add_venue.php,v 1.29 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -207,7 +207,7 @@ class add_venue extends pdHtmlPage {
             $venue->load($values);
 
             if ($this->debug) {
-                $this->contentPre .= '<pre>' . print_r($values, true)
+                echo '<pre>' . print_r($values, true)
                     . '</pre>';
             }
             else {
@@ -241,7 +241,7 @@ class add_venue extends pdHtmlPage {
                     $pub =& $_SESSION['pub'];
                     $pub->addVenue($this->db, $venue);
 
-                    $this->contentPost .= '<pre>' . print_r($_SESSION, true) . '</pre>';
+                    echo '<pre>' . print_r($_SESSION, true) . '</pre>';
 
                     if ($this->debug) return;
 
@@ -252,14 +252,12 @@ class add_venue extends pdHtmlPage {
                 }
                 else {
                     if (!isset($this->venue_id) || ($this->venue_id == '')) {
-                        $this->contentPre
-                            .= 'You have successfully added the venue "'
+                        echo 'You have successfully added the venue "'
                             .  $venue->title . '".'
                             . '<br><a href="./add_venue.php">Add another venue</a>';
                     }
                     else {
-                        $this->contentPre
-                            .= 'You have successfully edited the venue "'
+                        echo 'You have successfully edited the venue "'
                             . $venue->title . '".';
                     }
                 }
@@ -318,7 +316,7 @@ class add_venue extends pdHtmlPage {
                 assert('isset($_SESSION["pub"])');
                 $pub =& $_SESSION['pub'];
 
-                $this->contentPre .= '<h3>Adding Following Publication</h3>'
+                echo '<h3>Adding Following Publication</h3>'
                     . $pub->getCitationHtml('..', false) . '<p/>'
                     . add_pub_base::similarPubsHtml();
             }

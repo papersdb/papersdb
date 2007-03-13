@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.20 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: edit_user.php,v 1.21 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -117,10 +117,10 @@ END;
             }
 
             $user->dbSave($this->db);
-            $this->contentPre .= 'Change to user information submitted.';
+            echo 'Change to user information submitted.';
         }
         else {
-            $this->contentPre .= '<h2>Login Information</h2>';
+            echo '<h2>Login Information</h2>';
 
             $defaults = array('name' => $user->name,
                               'email' => $user->email);
@@ -152,7 +152,7 @@ function showUser() {
     $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
-        $this->contentPre .= '<h2>Login Information&nbsp;&nbsp;'
+        echo '<h2>Login Information&nbsp;&nbsp;'
             . '<a href="edit_user.php?status=edit">'
             . '<img src="../images/pencil.png" title="edit" '
             . 'alt="edit" height="16" width="16" border="0" '

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.43 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: add_author.php,v 1.44 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -215,7 +215,7 @@ class add_author extends pdHtmlPage {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
 
-            $this->contentPre .= '<h3>Adding Following Publication</h3>'
+            echo '<h3>Adding Following Publication</h3>'
                 . $pub->getCitationHtml('..', false) . '<p/>'
                 . add_pub_base::similarPubsHtml();
         }
@@ -244,12 +244,11 @@ class add_author extends pdHtmlPage {
             $like_authors = new pdAuthorList($this->db, $values['firstname'],
                                              $values['lastname']);
             if (count($like_authors->list) > 0) {
-                $this->contentPre
-                    .= 'The following authors have similar names:<ul>';
+                echo 'The following authors have similar names:<ul>';
                 foreach ($like_authors->list as $auth) {
-                    $this->contentPre .= '<li>' . $auth . '</li>';
+                    echo '<li>' . $auth . '</li>';
                 }
-                $this->contentPre .= '</ul>New author not submitted.';
+                echo '</ul>New author not submitted.';
                 $this->db->close();
                 return;
             }
@@ -294,14 +293,14 @@ class add_author extends pdHtmlPage {
         else {
 
             if ($this->author_id == null)
-              $this->contentPre .= 'Author "' . $values['firstname'] . ' '
+              echo 'Author "' . $values['firstname'] . ' '
                 . $values['lastname'] . '" '
                 . 'succesfully added to the database.'
                 . '<p/>'
                 . '<a href="' . $_SERVER['PHP_SELF'] . '">'
                 . 'Add another new author</a>';
             else
-              $this->contentPre .= 'Changes to author "'
+              echo 'Changes to author "'
                 . $values['firstname'] . ' ' . $values['lastname'] . '" '
                 . 'submitted to the database.';
         }

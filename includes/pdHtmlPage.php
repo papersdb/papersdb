@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.60 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.61 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -145,6 +145,9 @@ class pdHtmlPage {
         $this->pageError       = false;
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
+
+        // start buffering output, it will be displayed in the toHtml() method
+        ob_start();
     }
 
     function dbIntegrityCheck() {
@@ -327,8 +330,8 @@ class pdHtmlPage {
                 $result .= $this->contentPost;
         }
         else {
-            if (isset($this->contentPre))
-                $result .= $this->contentPre;
+            $result .= ob_get_contents();
+            ob_end_clean();
 
             // debug
             //$this->contentPost .= '<pre>' . print_r($this, true) . '</pre>';
@@ -342,9 +345,6 @@ class pdHtmlPage {
             else if ($this->table != null) {
                 $result .= $this->table->toHtml();
             }
-
-            if (isset($this->contentPost))
-                $result .= $this->contentPost;
         }
         $result .= $this->htmlPageFooter();
 

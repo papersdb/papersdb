@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.17 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: delete_category.php,v 1.18 2007/03/13 14:03:32 loyola Exp $
 
 /**
  * Deletes a category from the database.
@@ -40,7 +40,7 @@ class delete_category extends pdHtmlPage {
         else if (isset($_POST['cat_id']) && ($_POST['cat_id'] != ''))
             $cat_id = intval($_POST['cat_id']);
         else {
-            $this->contentPre .= 'No category id defined';
+            echo 'No category id defined';
             $this->pageError = true;
             return;
         }
@@ -60,7 +60,7 @@ class delete_category extends pdHtmlPage {
                          "delete_category::delete_category");
 
         if ($db->numRows($q) > 0) {
-            $this->contentPre .= 'Cannot delete category <b>'
+            echo 'Cannot delete category <b>'
                 . $category->category . '</b>.<p/>'
                 . 'The category is used by the following '
                 . 'publications:' . "\n"
@@ -70,11 +70,10 @@ class delete_category extends pdHtmlPage {
             while ($r) {
                 $pub = new pdPublication();
                 $pub->dbLoad($db, $r->pub_id);
-                $this->contentPre
-                    .= '<li>' . $pub->getCitationHtml() . '</li>';
+                echo '<li>' . $pub->getCitationHtml() . '</li>';
                 $r = $db->fetchObject($q);
             }
-            $this->contentPre .= '</ul>';
+            echo '</ul>';
             $db->close();
             return;
         }
@@ -91,21 +90,20 @@ class delete_category extends pdHtmlPage {
             $pub_list = new pdPubList($db, array('cat_id' => $this->cat_id));
 
             if (isset($pub_list->list) && (count($category->pub_list) > 0)) {
-                $this->contentPre .= '<b>Deletion Failed</b><p/>'
+                echo '<b>Deletion Failed</b><p/>'
                     . 'This category is used by the following publications:<p/>';
 
                 foreach ($pub_list->list as $pub)
-                    $this->contentPre .= '<b>' . $pub->title . '</b><br/>';
+                    echo '<b>' . $pub->title . '</b><br/>';
 
-                $this->contentPre
-                    .= '<p/>To remove this category these publication(s) '
+                echo '<p/>To remove this category these publication(s) '
                     . 'must be changed.';
             }
             else {
                 // This is where the actual deletion happens.
                 $category->dbDelete($db);
 
-                $this->contentPre .= 'Category <b>' . $category->category
+                echo 'Category <b>' . $category->category
                     . '</b> removed from the database.';
             }
         }
@@ -118,7 +116,7 @@ class delete_category extends pdHtmlPage {
                 return;
             }
 
-            $this->contentPre .= '<h3>Confirm</h3>'
+            echo '<h3>Confirm</h3>'
                 . 'Delete category <b>' . $category->category . '</b>?<p/>';
 
             $this->form =& $form;

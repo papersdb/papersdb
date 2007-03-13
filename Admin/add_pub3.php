@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.15 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: add_pub3.php,v 1.16 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -48,8 +48,6 @@ class add_pub3 extends add_pub_base {
             $cat_id = $this->pub->category->cat_id;
 
         $this->addPubDisableMenuItems();
-
-        //$this->contentPre .= '<pre>' . print_r($this, true) . '</pre>';
 
         $form = new HTML_QuickForm('add_pub3');
 
@@ -155,7 +153,7 @@ class add_pub3 extends add_pub_base {
 
         $defaults = $_GET;
 
-        $this->contentPre .= '<h3>Adding Following Publication</h3>'
+        echo '<h3>Adding Following Publication</h3>'
             . $this->pub->getCitationHtml('..', false) . '<p/>'
             . add_pub_base::similarPubsHtml();
 

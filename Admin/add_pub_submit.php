@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.13 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.14 2007/03/13 14:03:31 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -48,12 +48,10 @@ class add_pub_submit extends pdHtmlPage {
         $user =& $_SESSION['user'];
 
         if ($pub->pub_id != null) {
-          $this->contentPre
-            .= 'The change to the following publication has been submitted:<p/>';
+          echo 'The change to the following publication has been submitted:<p/>';
         }
         else {
-          $this->contentPre
-            .= 'The following publication has been added to the database:<p/>';
+          echo 'The following publication has been added to the database:<p/>';
         }
 
         $pub->submit = $user->name;
@@ -83,12 +81,10 @@ class add_pub_submit extends pdHtmlPage {
                 $pub->dbAttRemove($this->db, $filename);
 
         if ($this->debug) {
-            $this->contentPost
-                .= 'pub<pre>' . print_r($pub, true) . '</pre>';
+            echo 'pub<pre>' . print_r($pub, true) . '</pre>';
         }
 
-          $this->contentPre .= $pub->getCitationHtml()
-              . $this->getPubIcons($pub);
+          echo $pub->getCitationHtml() . $this->getPubIcons($pub);
 
         pubSessionInit();
         $this->db->close();
