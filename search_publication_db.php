@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.52 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.53 2007/03/13 23:47:19 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -195,6 +195,8 @@ class search_publication_db extends pdHtmlPage {
      * adds the queried pub_ids to the array, checking for repeats as well
      */
     function add_to_array($query, &$thearray) {
+        debugVar('query', $query);
+
         if ($thearray == null)
             $thearray = array();
 
@@ -262,12 +264,14 @@ class search_publication_db extends pdHtmlPage {
                     . quote_smart("%".$or_terms."%"));
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $author_id = $search_array['author_id'];
-                    if($author_id != null) {
-                        $this->add_to_array(
-                            'SELECT DISTINCT pub_id from pub_author '
-                            . 'WHERE author_id=' . quote_smart($author_id),
-                            $union_array);
+                    if ($search_array !== false) {
+                        $author_id = $search_array['author_id'];
+                        if($author_id != null) {
+                            $this->add_to_array(
+                                'SELECT DISTINCT pub_id from pub_author '
+                                . 'WHERE author_id=' . quote_smart($author_id),
+                                $union_array);
+                        }
                     }
                 }
             }
@@ -405,17 +409,23 @@ class search_publication_db extends pdHtmlPage {
                     $authors[] = $search_array['author_id'];
                 }
 
-                $terms = array();
-                $search_query = "SELECT DISTINCT pub_id from pub_author WHERE ";
+                if (count($authors) > 0) {
+                    $terms = array();
+                    $search_query = "SELECT DISTINCT pub_id from pub_author WHERE ";
 
-                foreach ($authors as $author_id) {
-                    $terms[] = 'author_id=' . quote_smart($author_id);
+                    foreach ($authors as $author_id) {
+                        $terms[] = 'author_id=' . quote_smart($author_id);
+                    }
+                    $search_query .= implode(' OR ', $terms);
+                    $this->add_to_array($search_query, $author_pubs);
+
+                    $this->result_pubs = array_intersect($this->result_pubs,
+                                                         $author_pubs);
                 }
-                $search_query .= implode(' OR ', $terms);
-                $this->add_to_array($search_query, $author_pubs);
-
-                $this->result_pubs = array_intersect($this->result_pubs,
-                                                     $author_pubs);
+                else {
+                    // no such author
+                    $this->result_pubs = array();
+                }
             }
         }
 

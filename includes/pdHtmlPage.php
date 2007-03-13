@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.63 2007/03/13 22:59:12 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.64 2007/03/13 23:47:19 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -189,6 +189,9 @@ class pdHtmlPage {
         $q = $this->db->selectRow('user', 'password',
                                   array('login' => $_SESSION['user']->login),
                                   "Admin/check_login.php");
+
+        // make sure user exists
+        if ($q === false) return;
 
         // now we have encrypted pass from DB in $q->password,
         // stripslashes() just incase:
