@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.53 2007/03/13 23:47:19 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.54 2007/03/13 23:51:38 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -493,6 +493,8 @@ class search_publication_db extends pdHtmlPage {
 
     function venuesSearch($field, $value, &$union_array) {
         assert('($field == "name") || ($field == "title")');
+
+        $union_array = array();
 
         $search_result = query_db('SELECT venue_id from venue WHERE ' . $field
                                   . ' LIKE ' . quote_smart('%'. $value . '%'));
