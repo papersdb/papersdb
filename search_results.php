@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.14 2007/03/13 22:59:12 aicmltec Exp $
+// $Id: search_results.php,v 1.15 2007/03/14 20:23:58 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -127,16 +127,41 @@ class search_results extends pdHtmlPage {
             return;
         }
 
-        $search_url =& $_SESSION['search_url'];
+        $this->form = $this->otherFormatForm($_SESSION['search_results']);
+
+        if ($this->form->validate())
+            $this->processForm();
+        else
+            $this->renderForm();
+    }
+
+    /**
+     *
+     */
+    function otherFormatForm(&$result_pubs) {
+        if ($result_pubs == null) return;
+
+        $form = new HTML_QuickForm('otherFormatForm');
+        $form->addElement('hidden', 'pub_ids', implode(",", $result_pubs));
+
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'submit', 'cv_format', 'Show results in CV format'),
+                HTML_QuickForm::createElement(
+                    'submit', 'bibtex_format', 'Show results in BibTex format')
+                ),
+            null, null, '&nbsp;');
+
+        return $form;
+    }
+
+    function renderForm() {
+        $renderer =& $this->form->defaultRenderer();
+        $this->form->accept($renderer);
 
         $pubs = new pdPubList(
             $this->db, array('pub_ids' => $_SESSION['search_results']));
-
-        $cvForm = $this->cvFormCreate($_SESSION['search_results']);
-        if ($cvForm != null) {
-            $renderer =& $cvForm->defaultRenderer();
-            $cvForm->accept($renderer);
-        }
 
         echo $renderer->toHtml() . $this->displayPubList($pubs);
 
@@ -144,6 +169,9 @@ class search_results extends pdHtmlPage {
                                                 'border' => '0',
                                                 'cellpadding' => '0',
                                                 'cellspacing' => '0'));
+
+        $search_url =& $_SESSION['search_url'];
+
         $searchLinkTable->addRow(
             array('<a href="' . $search_url . '">'
                   . '<img src="images/link.png" title="view" alt="view" '
@@ -153,18 +181,13 @@ class search_results extends pdHtmlPage {
         echo '<hr/>' . $searchLinkTable->toHtml();
     }
 
-    /**
-     *
-     */
-    function cvFormCreate(&$result_pubs) {
-        if ($result_pubs == null) return;
+    function processForm() {
+        $values = $this->form->exportValues();
 
-        $form = new HTML_QuickForm('cvForm', 'post', 'cv.php', '_blank',
-                                   'multipart/form-data');
-        $form->addElement('hidden', 'pub_ids', implode(",", $result_pubs));
-        $form->addElement('submit', 'submit', 'Output these results to CV format');
-
-        return $form;
+        if (isset($values['cv_format']))
+            header('Location: cv.php?pub_ids=' . $values['pub_ids']);
+        else if (isset($values['bibtex_format']))
+            header('Location: bibtex.php?pub_ids=' . $values['pub_ids']);
     }
 }
 

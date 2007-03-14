@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.10 2007/03/13 22:06:11 aicmltec Exp $
+# Name: $Id: report.pl,v 1.11 2007/03/14 20:23:58 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -22,12 +22,7 @@ Usage: $SCRIPTNAME [options]
   Queries the AICML Papers Database and gathers publication statistics for the
   centre's principal investigators, post doctoral fellows and students.
 
-  OPTIONS
-    --noposters  Outputs the information without counting poster information.
-
 USAGE_END
-
-my $noposters;
 
 my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
 
@@ -142,6 +137,12 @@ my @student_authors = ('Antonie, L',
                        'Zheng, T',
                        'Zhu, T');
 
+my $nonTier1CategoryCriteria
+    = 'AND (category.category LIKE "%In Conference%" '
+      . 'OR category.category LIKE "%In Journal%" '
+      . 'OR category.category LIKE "%In Workshop%" '
+      . 'OR category.category LIKE "%In Book%") ';
+
 my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman.cs.ualberta.ca', 'papersdb', '')
     || die "Could not connect to database: $DBI::errstr";
 
@@ -165,26 +166,30 @@ sub getPubs {
     my $tier1only = shift;
     my $statement;
 
-    $statement = 'SELECT DISTINCT publication.pub_id, publication.title FROM '
-        . 'publication, author, pub_author, venue WHERE ';
+    if ((defined $tier1only) && ($tier1only eq "Y")) {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM '
+            . 'publication, author, pub_author, venue WHERE '
+            . 'venue.title IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') ';
+    }
+    else {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM '
+            . 'publication, author, pub_author, venue, category, pub_cat '
+            . 'WHERE venue.title NOT IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . $nonTier1CategoryCriteria
+            . 'AND category.cat_id=pub_cat.cat_id '
+            . 'AND publication.pub_id=pub_cat.pub_id ';
+    }
 
     if ((defined @$authors) && (@$authors > 0)) {
         my @list;
         foreach my $author (@$authors) {
             push(@list, 'author.name LIKE "%' . $author . '%"');
         }
-        $statement .= '(' . join(' OR ', @list) . ') ';
-    }
-
-    if (defined $tier1only) {
-        if ($tier1only eq "Y") {
-            $statement .= 'AND venue.title IN ('
-                . join(', ', map { $dbh->quote($_) } @tier1venues) . ') ';
-        }
-        else {
-            $statement .= 'AND venue.title NOT IN ('
-                . join(', ', map { $dbh->quote($_) } @tier1venues) . ') ';
-        }
+        $statement .= 'AND (' . join(' OR ', @list) . ') ';
     }
 
     $statement .= 'AND publication.pub_id=pub_author.pub_id '
@@ -212,11 +217,8 @@ sub getPubs {
             $statement .= '(' . join(' OR ', @list) . ') ';
         }
 
-        if ($noposters) {
-            $statement .= 'AND category.category NOT LIKE "Poster" ';
-        }
-
-        $statement .=  'AND publication.venue_id is NULL '
+        $statement .= $nonTier1CategoryCriteria
+            .  'AND publication.venue_id is NULL '
             . 'AND publication.pub_id=pub_author.pub_id '
             . 'AND author.author_id=pub_author.author_id '
             . 'AND category.cat_id=pub_cat.cat_id '
@@ -382,9 +384,9 @@ sub pdfStudentReport {
     }
 }
 
-if (!GetOptions ('noposters' => \$noposters)) {
-    die "ERROR: bad options in command line\n";
-}
+#if (!GetOptions ('noposters' => \$noposters)) {
+#    die "ERROR: bad options in command line\n";
+#}
 
 
 piReport();

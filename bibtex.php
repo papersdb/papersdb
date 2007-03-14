@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.20 2007/03/14 20:23:58 aicmltec Exp $
+// $Id: bibtex.php,v 1.1 2007/03/14 20:23:58 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -16,20 +16,20 @@
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdPubList.php';
+require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
  *
  * @package PapersDB
  */
-class cv extends pdHtmlPage {
+class bibtex extends pdHtmlPage {
     var $pub_ids;
 
-    function cv() {
+    function bibtex() {
         session_start();
         pubSessionInit();
-        parent::pdHtmlPage('cv', null, false);
+        parent::pdHtmlPage('bibtex', null, false);
 
         if ($this->loginError) return;
 
@@ -54,6 +54,12 @@ class cv extends pdHtmlPage {
             return;
         }
 
+        $table = new HTML_Table(array('width' => '100%',
+                                      'border' => '0',
+                                      'cellpadding' => '0',
+                                      'cellspacing' => '0'));
+        $table->setAutoGrow(true);
+
         $pub_count = 0;
         foreach ($pub_list->list as $pub) {
             $pub_count++;
@@ -64,13 +70,27 @@ class cv extends pdHtmlPage {
                 return;
             }
 
-            echo '<b>[' . $pub_count . ']</b> '
-              . $pub->getCitationText() . '<p/>';
+            $table->addRow(array($pub_count,
+                                 '<pre>' . $pub->getBibtex() . '</pre>'));
         }
+
+        // now assign table attributes including highlighting for even and odd
+        // rows
+        for ($i = 0; $i < $table->getRowCount(); $i++) {
+            if ($i & 1)
+                $table->updateRowAttributes($i, array('class' => 'even'), true);
+            else
+                $table->updateRowAttributes($i, array('class' => 'odd'), true);
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
+        }
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'id' => 'publist'), true);
+
+        echo $table->toHtml();
     }
 }
 
-$page = new cv();
+$page = new bibtex();
 echo $page->toHtml();
 
 ?>

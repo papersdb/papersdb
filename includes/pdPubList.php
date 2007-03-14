@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.17 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdPubList.php,v 1.18 2007/03/14 20:23:58 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -221,6 +221,8 @@ class pdPubList {
         if (count($pub_ids) == 0) return;
 
         foreach ($pub_ids as $pub_id) {
+            if (!is_numeric($pub_id)) continue;
+
             $q = $db->selectRow('publication', '*', array('pub_id' => $pub_id),
                                 "pdPubList::arrayPubsDBLoad",
                                 array('ORDER BY' => 'title ASC'));
@@ -230,7 +232,8 @@ class pdPubList {
             $this->list[] = new pdPublication($q);
         }
 
-        uasort($this->list, array('pdPublication', 'pubsTitleSort'));
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsTitleSort'));
     }
 
     function toPubIdList() {
