@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.23 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_pub1.php,v 1.24 2007/03/14 22:14:03 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -75,10 +75,17 @@ class add_pub1 extends add_pub_base {
         // Venue
         $venue_sel1 = array('All Venues', 'Journal', 'Conference',
                             'Workshop');
-        $venues = array(new pdVenueList($this->db),
-                        new pdVenueList($this->db, 'Journal'),
-                        new pdVenueList($this->db, 'Conference'),
-                        new pdVenueList($this->db, 'Workshop'));
+        $venues = array(new pdVenueList($this->db,
+                                        array('concat' => true)),
+                        new pdVenueList($this->db,
+                                        array('type' => 'Journal',
+                                              'concat' => true)),
+                        new pdVenueList($this->db,
+                                        array('type' => 'Conference',
+                                              'concat' => true)),
+                        new pdVenueList($this->db,
+                                        array('type' => 'Workshop',
+                                              'concat' => true)));
 
         $venue_sel2[0] = array('' => '--Select Venue--') + $venues[0]->list;
         $venue_sel2[1] = array('' => '--Select Venue--') + $venues[1]->list;

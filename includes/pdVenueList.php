@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.9 2006/10/20 23:11:47 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.10 2007/03/14 22:14:03 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -23,22 +23,59 @@ class pdVenueList {
      * By default venues with URLs in the name are not part of the list. Set $all
      * to true to get venues with URLs in the name also.
      */
-    function pdVenueList(&$db, $type = null, $all = false) {
-        if ($type == null)
-            $q = $db->select('venue', array('venue_id', 'title', 'name'), '',
+    function pdVenueList(&$db, $options = null) {
+        if (isset($options['type']))
+            $q = $db->select('venue', array('venue_id', 'title', 'name'),
+                             array('type' => $options['type']),
                              "pdVenueList::dbLoad");
         else
-            $q = $db->select('venue', array('venue_id', 'title', 'name'),
-                             array('type' => $type),
+            $q = $db->select('venue', array('venue_id', 'title', 'name'), '',
                              "pdVenueList::dbLoad");
 
         if ($q === false) return;
         $r = $db->fetchObject($q);
         while ($r) {
-            if ($r->title != '')
+            if (isset($options['concat'])) {
+                $title = '';
+                $name = '';
+
+                if ($r->title != '') {
+                    if (strlen($r->title) < 15) {
+                        $title =& $r->title;
+                        $name = $r->name;
+                    }
+                    else {
+                        // title longer than 15 chars, dont show name
+                        if (strlen($r->title) > 70) {
+                            $title = substr($r->title, 0, 70) . '...';
+                        }
+                        else
+                            $title =& $r->title;
+                        $name = '';
+                    }
+                }
+                else
+                    $name = $r->name;
+
+                if (($name != '') && (strlen($name) > 70))
+                    $name = substr($name, 0, 70) . '...';
+
+                if (($title != '') && ($name != '')) {
+                    $this->list[$r->venue_id] = $title . ' - ' . $name;
+                }
+                else if (($title == '') && ($name != '')) {
+                    $this->list[$r->venue_id] = $name;
+                }
+                else {
+                    $this->list[$r->venue_id] = $title;
+                }
+            }
+            else if ($r->title != '') {
                 $this->list[$r->venue_id] = $r->title;
+            }
             else if (($r->name != '')
-                     && ($all || (strpos($r->name, 'href') === false))) {
+                     && (isset($options['all'])
+                         || (strpos($r->name, 'href') === false))) {
                 if (strlen($r->name) > 70)
                     $this->list[$r->venue_id] = substr($r->name, 0, 70) . '...';
                 else

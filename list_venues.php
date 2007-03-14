@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.21 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: list_venues.php,v 1.22 2007/03/14 22:14:03 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -27,7 +27,7 @@ class list_venues extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $venue_list = new pdVenueList($this->db, null, true);
+        $venue_list = new pdVenueList($this->db, array('all' => true));
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
