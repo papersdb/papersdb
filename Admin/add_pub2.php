@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.16 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_pub2.php,v 1.17 2007/03/14 22:51:18 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -147,6 +147,8 @@ class add_pub2 extends add_pub_base {
             }
             $this->pub->addAuthor($this->db, $values['authors']);
         }
+
+        //debugVar('values', $values);
 
         if ($this->debug) return;
 

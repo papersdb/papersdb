@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.19 2007/03/10 01:23:05 aicmltec Exp $
+// $Id: authorselect.php,v 1.20 2007/03/14 22:51:18 aicmltec Exp $
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
@@ -379,7 +379,7 @@ END;
             }
 
             // Don't do anything if nothing selected. Otherwise we throw
-            // javascript errors.
+            // javascript errors.b
             if ((menuFrom.selectedIndex == -1) && ((action == 'add') || (action == 'remove'))) {
                 return;
             }

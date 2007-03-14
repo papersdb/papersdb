@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.84 2007/03/14 20:27:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.85 2007/03/14 22:51:18 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -528,6 +528,9 @@ class pdPublication extends pdDbAccessor {
             return;
         }
         else if (is_array($mixed)) {
+            // replaces all authors
+            unset($this->authors);
+
             // assigns each author
             foreach ($mixed as $index => $author_id) {
                 $author = new pdAuthor();
