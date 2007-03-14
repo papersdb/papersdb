@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.66 2007/03/14 15:11:07 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.67 2007/03/14 20:35:29 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -157,9 +157,11 @@ class pdHtmlPage {
             die();
         }
 
+        $member = 'Tables_in_' . DB_NAME;
+
         $r = $this->db->fetchObject($q);
         while ($r) {
-            $tables[] = $r->Tables_in_pubDBdev;
+            $tables[] = $r->$member;
             $r = $this->db->fetchObject($q);
         }
 
