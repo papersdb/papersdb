@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.22 2007/03/14 02:58:47 loyola Exp $
+// $Id: pdVenue.php,v 1.23 2007/03/14 20:27:40 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -29,7 +29,7 @@ class pdVenue extends pdDbAccessor {
     /**
      * Constructor.
      */
-    function pdVenue(&$mixed = null) {
+    function pdVenue($mixed = null) {
         parent::pdDbAccessor($mixed);
     }
 
