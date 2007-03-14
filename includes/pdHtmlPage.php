@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.65 2007/03/14 02:58:47 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.66 2007/03/14 15:11:07 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -224,7 +224,7 @@ class pdHtmlPage {
             $arr =& $_POST;
         }
 
-        if (!is_array($arr)) return;
+        if (!is_array($arr) || (count($arr) == 0)) return;
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
             if (isset($arr[$member])) {
