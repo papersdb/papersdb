@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.32 2007/03/14 21:18:58 aicmltec Exp $
+// $Id: add_venue.php,v 1.33 2007/03/14 21:23:38 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -196,8 +196,6 @@ class add_venue extends pdHtmlPage {
         if ($form->validate()) {
             $values = $form->exportValues();
             $venue->load($values);
-
-            debugVar('values', $values);
 
             //add http:// to webpage address if needed
             if (($venue->url != '')
