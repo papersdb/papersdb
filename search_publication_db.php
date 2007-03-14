@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.54 2007/03/13 23:51:38 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.55 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -95,9 +95,9 @@ class search_publication_db extends pdHtmlPage {
      * and 'enddate' fields in an array named 'datesGroup.'
      */
     function optionsGet() {
-        if (count($_POST) > 0)
+        if (($_SERVER['REQUEST_METHOD'] == 'POST') && (count($_POST) > 0))
             $arr =& $_POST;
-        else
+        else if ($_SERVER['REQUEST_METHOD'] == 'GET')
             $arr =& $_GET;
 
         if ($this->debug) {

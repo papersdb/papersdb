@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.24 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: view_author.php,v 1.25 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -27,6 +27,8 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class view_author extends pdHtmlPage {
+    var $author_id;
+
     function view_author() {
         session_start();
         pubSessionInit();
@@ -34,21 +36,18 @@ class view_author extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (!isset($_GET['author_id'])) {
+        $this->loadHttpVars(true, false);
+
+        // check if this author id is valid
+        if (!isset($this->author_id) || !is_numeric($this->author_id)) {
             $this->pageError = true;
             return;
         }
 
         $auth = new pdAuthor();
-        $auth->dbLoad($this->db, $_GET['author_id'],
+        $auth->dbLoad($this->db, $this->author_id,
                       (PD_AUTHOR_DB_LOAD_PUBS_MIN
                        | PD_AUTHOR_DB_LOAD_INTERESTS));
-
-        // check if this author id is valid
-        if (!isset($auth->author_id)) {
-            $this->pageError = true;
-            return;
-        }
 
         echo '<h3>' . $auth->name;
 

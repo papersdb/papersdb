@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.82 2007/03/14 00:54:00 loyola Exp $
+// $Id: pdPublication.php,v 1.83 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -11,6 +11,7 @@
  */
 
 /** Requires author, category and venue classes. */
+require_once 'includes/pdDbAccessor.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdVenue.php';
@@ -34,7 +35,7 @@ define('NEW_VENUE', 1);
  *
  * @package PapersDB
  */
-class pdPublication {
+class pdPublication extends pdDbAccessor {
     var $pub_id;
     var $title;
     var $paper;
@@ -55,11 +56,10 @@ class pdPublication {
     var $additional_info; // these are the additional attached files
     var $user;
 
-    function pdPublication($obj = NULL) {
+    function pdPublication(&$mixed = NULL) {
         $this->paper = 'No Paper';
 
-        if (isset($obj))
-            $this->load($obj);
+        parent::pdDbAccessor($mixed);
     }
 
     /**
@@ -491,7 +491,7 @@ class pdPublication {
             $this->category = $mixed;
         }
         else if (is_numeric($mixed)) {
-            if (($this->category != null)
+            if (is_object($this->category)
                 && ($this->category->cat_id == $mixed)) return;
 
             $this->category = new pdCategory();
@@ -1022,24 +1022,6 @@ class pdPublication {
             }
         }
         return $similarPubs;
-    }
-
-    /**
-     * Loads publication data from the object or array passed in
-     */
-    function load(&$mixed) {
-        if (is_object($mixed)) {
-            foreach (array_keys(get_class_vars('pdPublication')) as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('pdPublication')) as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
-            }
-        }
     }
 
     function pubsTitleSort($a , $b) {

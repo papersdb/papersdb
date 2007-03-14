@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.30 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_venue.php,v 1.31 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -248,7 +248,12 @@ class add_venue extends pdHtmlPage {
             }
         }
         else {
-            $form->setConstants($_GET);
+            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+                $defaults[$member] = $this->$member;
+            }
+
+            $form->setConstants($defaults);
+
             if ($this->venue_id != '') {
                 $arr = array('title'      => $venue->title,
                              'name'       => $venue->nameGet(),

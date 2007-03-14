@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.55 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: advanced_search.php,v 1.56 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -57,18 +57,7 @@ class advanced_search extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if(isset($_GET['search']) && ($_GET['search'] != ''))
-            $this->search = stripslashes($_GET['search']);
-
-        $options = array('search', 'cat_id', 'title', 'authortyped',
-                         'paper', 'abstract', 'venue', 'keywords');
-
-        foreach ($options as $opt)
-            if(isset($_GET[$opt]) && ($_GET[$opt] != ''))
-                $this->$opt = stripslashes($_GET[$opt]);
-
-        if (isset($_GET['authorselect']) && (count($_GET['authorselect']) > 0))
-            $this->authorselect = $_GET['authorselect'];
+        $this->loadHttpVars(true, false);
 
         $this->cat_list = new pdCatList($this->db);
 
@@ -122,8 +111,7 @@ class advanced_search extends pdHtmlPage {
                           array('size' => 60, 'maxlength' => 250));
         $form->addElement('select', 'cat_id', 'Category:',
                           array('' => '-- All Categories --')
-                          + $this->cat_list->list,
-                          array('onChange' => 'dataKeep(0);'));
+                          + $this->cat_list->list);
 
         $auth_list = new pdAuthorList($this->db);
 
@@ -164,12 +152,6 @@ class advanced_search extends pdHtmlPage {
         $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
                         false);
 
-        if (($this->category != null) && ($this->category->info != null)) {
-            foreach ($this->category->info as $info => $name) {
-                $form->addElement('text', strtolower($name), $name . ':',
-                                  array('size' => 60, 'maxlength' => 250));
-            }
-        }
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
@@ -198,7 +180,7 @@ class advanced_search extends pdHtmlPage {
      * Assigns the form's values as per the HTTP GET string.
      */
     function setFormValues() {
-        $defaultValues = array(
+        $defaults = array(
             'search'     => $this->search,
             'cat_id'     => $this->cat_id,
             'title'      => $this->title,
@@ -212,18 +194,10 @@ class advanced_search extends pdHtmlPage {
             'enddate'    => array('Y' => $this->enddate['Y'],
                                   'M' => $this->enddate['M']));
 
-        if (is_object($this->category)
-            && is_array($this->category->info)) {
-            foreach ($this->category->info as $info) {
-                $defaultValues[strtolower($info->name)]
-                    = $_GET[$info->name];
-            }
-        }
-
         if (count($this->authorselect) > 0)
-            $defaultValues['authorselect'] =& $this->authorselect;
+            $defaults['authorselect'] =& $this->authorselect;
 
-        $this->form->setConstants($defaultValues);
+        $this->form->setConstants($defaults);
     }
 
     /**

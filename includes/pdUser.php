@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.28 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdUser.php,v 1.29 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -10,6 +10,7 @@
  */
 
 /** Required to get the used author rank. */
+require_once 'includes/pdDbAccessor.php';
 require_once 'pdAuthorList.php';
 
 /**
@@ -17,7 +18,7 @@ require_once 'pdAuthorList.php';
  *
  * @package PapersDB
  */
-class pdUser {
+class pdUser extends pdDbAccessor {
     var $login;
     var $password;
     var $name;
@@ -35,10 +36,8 @@ class pdUser {
     /**
      * Constructor.
      */
-    function pdUser($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
-
+    function pdUser(&$mixed = null) {
+        parent::pdDbAccessor($mixed);
         $this->search_params = null;
     }
 
@@ -184,24 +183,6 @@ class pdUser {
             if ($r->title != '')
                 $this->venue_ids[$r->venue_id] = $r->title;
             $r = $db->fetchObject($q);
-        }
-    }
-
-    /**
-     * Loads user data from the object or array passed in
-     */
-    function load(&$mixed) {
-        if (is_object($mixed)) {
-            foreach (array_keys(get_class_vars('pdUser')) as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('pdUser')) as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
-            }
         }
     }
 }

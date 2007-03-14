@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.22 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: edit_user.php,v 1.23 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -24,6 +24,8 @@ require_once 'includes/pdAuthorList.php';
  * @package PapersDB
  */
 class edit_user extends pdHtmlPage {
+    var $status;
+
     function edit_user() {
         session_start();
         pubSessionInit();
@@ -31,8 +33,9 @@ class edit_user extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if ((isset($_GET['status']) && ($_GET['status'] == 'edit'))
-            || (isset($_POST['status']) && ($_POST['status'] == 'edit')))
+        $this->loadHttpVars();
+
+        if (isset($this->status) && ($this->status == 'edit'))
             $this->editUser();
         else
             $this->showUser();

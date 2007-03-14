@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.21 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: pdVenue.php,v 1.22 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -8,13 +8,14 @@
  * @package PapersDB
  * @subpackage DB_Access
  */
+require_once 'includes/pdDbAccessor.php';
 
 /**
  * Class that accesses venue information from the database.
  *
  * @package PapersDB
  */
-class pdVenue {
+class pdVenue extends pdDbAccessor {
     var $venue_id;
     var $title;
     var $name;
@@ -28,13 +29,12 @@ class pdVenue {
     /**
      * Constructor.
      */
-    function pdVenue($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
+    function pdVenue(&$mixed = null) {
+        parent::pdDbAccessor($mixed);
     }
 
     /**
-     * Loads a specific publication from the database.
+     * Loads a specific publication frobm the database.
      *
      * Use flags to load individual tables
      */
@@ -170,23 +170,6 @@ class pdVenue {
         }
 
         return $str;
-    }
-    /**
-     * Loads publication data from the object passed in
-     */
-    function load(&$mixed) {
-        if (is_object($mixed)) {
-            foreach (array_keys(get_class_vars('pdVenue')) as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('pdVenue')) as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
-            }
-        }
     }
 
     function urlGet($year = null) {

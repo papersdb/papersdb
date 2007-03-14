@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.64 2007/03/13 23:47:19 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.65 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -214,20 +214,27 @@ class pdHtmlPage {
     }
 
     function loadHttpVars($get = true, $post = true) {
+        $arr = null;
         if ($get && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
             if (!isset($_GET)) return;
-
-            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
-                if (isset($_GET[$member]))
-                    $this->$member = $_GET[$member];
-            }
+            $arr =& $_GET;
         }
         else if ($post && ($_SERVER['REQUEST_METHOD'] == 'POST')) {
             if (!isset($_POST)) return;
+            $arr =& $_POST;
+        }
 
-            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
-                if (isset($_POST[$member]))
-                    $this->$member = $_POST[$member];
+        if (!is_array($arr)) return;
+
+        foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+            if (isset($arr[$member])) {
+                if (is_array($arr[$member])) {
+                    foreach ($arr[$member] as $key => $value) {
+                        $this->$member[$key] = $value;
+                    }
+                }
+                else
+                    $this->$member = stripslashes($_GET[$member]);
             }
         }
     }

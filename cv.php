@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.18 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: cv.php,v 1.19 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -24,6 +24,8 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class cv extends pdHtmlPage {
+    var $pub_ids;
+
     function cv() {
         session_start();
         pubSessionInit();
@@ -31,13 +33,15 @@ class cv extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (!isset($_POST['pub_ids'])) {
+        $this->loadHttpVars(false, true);
+
+        if (!isset($this->pub_ids)) {
             $this->pageError = true;
             return;
         }
 
         $pub_count = 0;
-        foreach (split(",", $_POST['pub_ids']) as $pub_id) {
+        foreach (explode(',', $this->pub_ids) as $pub_id) {
             $pub_count++;
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);

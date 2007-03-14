@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.21 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.22 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -10,8 +10,9 @@
  */
 
 /** Requries classes to access the database. */
-require_once 'pdPubList.php';
-require_once 'pdAuthInterests.php';
+require_once 'includes/pdDbAccessor.php';
+require_once 'includes/pdPubList.php';
+require_once 'includes/pdAuthInterests.php';
 
 define('PD_AUTHOR_DB_LOAD_BASIC',     0);
 define('PD_AUTHOR_DB_LOAD_MIN',       1);
@@ -26,7 +27,7 @@ define('PD_AUTHOR_DB_LOAD_ALL',       0xF);
  *
  * @package PapersDB
  */
-class pdAuthor {
+class pdAuthor extends pdDbAccessor{
     var $author_id;
     var $title;
     var $webpage;
@@ -43,9 +44,8 @@ class pdAuthor {
     /**
      * Constructor.
      */
-    function pdAuthor($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
+    function pdAuthor(&$mixed = NULL) {
+        parent::pdDbAccessor($mixed);
     }
 
     function makeNull() {

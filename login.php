@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.30 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: login.php,v 1.31 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -19,6 +19,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class login extends pdHtmlPage {
+    var $redirect;
     var $passwd_hash;
 
     function login() {
@@ -27,6 +28,8 @@ class login extends pdHtmlPage {
         parent::pdHtmlPage('login');
 
         if ($this->loginError) return;
+
+        $this->loadHttpVars(true, false);
 
         $this->passwd_hash = "aicml";
 
@@ -37,14 +40,9 @@ class login extends pdHtmlPage {
             return;
         }
 
-        if (isset($_GET['redirect']) && ($_GET['redirect'] != ''))
-            $redirect = $_GET['redirect'];
-        else
-            $redirect = '';
-
-        if (strpos($redirect, 'login.php')) {
+        if (strpos($this->redirect, 'login.php') !== false) {
             // never redirect to the login page
-            $redirect = 'index.php';
+            $this->redirect = 'index.php';
         }
 
         $form = new HTML_QuickForm('login');
@@ -73,7 +71,7 @@ class login extends pdHtmlPage {
                           array('size' => 25, 'maxlength' => 80));
         $form->addElement('submit', 'newaccount', 'Create new account');
 
-        $form->addElement('hidden', 'redirect', $redirect);
+        $form->addElement('hidden', 'redirect', $this->redirect);
 
         $this->form =& $form;
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.17 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_pub3.php,v 1.18 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -24,28 +24,31 @@ require_once 'includes/pdExtraInfoList.php';
  * @package PapersDB
  */
 class add_pub3 extends add_pub_base {
+    var $cat_id;
+    var $booktitle;
+    var $publisher;
+    var $edition;
+    var $editor;
+    var $volume;
+    var $number;
+    var $pages;
     var $author_id = null;
+
+    // cat_id=1&booktitle=asdfasdf&publisher=asdfasdf&editor=asdfasdf&edition=asdfasdf&volume=asdfasd&number=asdfasd&pages=asdfasdf
 
     function add_pub3() {
         session_start();
+        $this->loadHttpVars(true, false);
         $this->pub =& $_SESSION['pub'];
 
         parent::add_pub_base();
 
         if ($this->loginError) return;
 
-        $options = array('cat_id');
-        foreach ($options as $opt) {
-            if (isset($_GET[$opt]) && ($_GET[$opt] != ''))
-                $$opt = stripslashes($_GET[$opt]);
-            else
-                $$opt = null;
-        }
-
-        if (isset($cat_id))
-            $this->pub->addCategory($this->db, $cat_id);
+        if (isset($this->cat_id))
+            $this->pub->addCategory($this->db, $this->cat_id);
         else if (is_object($this->pub->category))
-            $cat_id = $this->pub->category->cat_id;
+            $this->cat_id = $this->pub->category->cat_id;
 
         $this->addPubDisableMenuItems();
 
@@ -62,13 +65,14 @@ class add_pub3 extends add_pub_base {
             + $category_list->list,
             array('onchange' => 'dataKeep();'));
 
-        if ($cat_id > 0) {
-            if ($this->pub->category->info != null) {
-                foreach (array_values($this->pub->category->info) as $name) {
-                    $element = preg_replace("/\s+/", '', $name);
-                    $form->addElement('text', $element, ucfirst($name) . ':',
-                                      array('size' => 50, 'maxlength' => 250));
-                }
+        if (($this->cat_id > 0)
+            && is_object($this->pub->category)
+            && is_array($this->pub->category->info)) {
+            foreach (array_values($this->pub->category->info) as $name) {
+                $element = preg_replace("/\s+/", '', $name);
+                $form->addElement('text', strtolower($element),
+                                  ucfirst($name) . ':',
+                                  array('size' => 50, 'maxlength' => 250));
             }
         }
 
@@ -139,18 +143,18 @@ class add_pub3 extends add_pub_base {
 
         $this->form =& $form;
 
-        if ($form->validate()) {
+        if ($form->validate())
             $this->processForm();
-        }
-        else {
+        else
             $this->renderForm();
-        }
     }
 
     function renderForm() {
         $form =& $this->form;
 
-        $defaults = $_GET;
+        foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+            $defaults[$member] = $this->$member;
+        }
 
         echo '<h3>Adding Following Publication</h3>'
             . $this->pub->getCitationHtml('..', false) . '<p/>'

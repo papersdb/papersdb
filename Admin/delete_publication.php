@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.17 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: delete_publication.php,v 1.18 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Deletes a publication from the database.
@@ -25,6 +25,8 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_publication extends pdHtmlPage {
+    var $pub_id;
+
     function delete_publication() {
         session_start();
         pubSessionInit();
@@ -32,41 +34,41 @@ class delete_publication extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $pub_id = null;
-        if (isset($_GET['pub_id']) && ($_GET['pub_id'] != ''))
-            $pub_id = intval($_GET['pub_id']);
+        $this->loadHttpVars();
+
+        if (isset($this->pub_id) && !is_numeric($this->pub_id)) {
+            $this->pageError = true;
+            return;
+        }
 
         $form =& $this->confirmForm('deleter');
-        $form->addElement('hidden', 'pub_id', $pub_id);
+        $form->addElement('hidden', 'pub_id', $this->pub_id);
 
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            $db = dbCreate();
             $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $values['pub_id']);
+            $result = $pub->dbLoad($this->db, $values['pub_id']);
             if (!$result) {
                 $this->pageError = true;
                 return;
             }
 
-
             $title = $pub->title;
-            $pub->dbDelete($db);
+            $pub->dbDelete($this->db);
 
             echo 'You have successfully removed the following '
                 . 'publication from the database: <p/><b>' . $title . '</b>';
         }
         else {
-            if ($pub_id == null) {
+            if ($this->pub_id == null) {
                 echo 'No pub id defined';
                 $this->pageError = true;
                 return;
             }
 
-            $db = dbCreate();
             $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $pub_id);
+            $result = $pub->dbLoad($this->db, $this->pub_id);
             if (!$result) {
                 $this->pageError = true;
                 return;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.67 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: view_publication.php,v 1.68 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * View Publication
@@ -36,13 +36,12 @@ class view_publication extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        if (!isset($_GET['pub_id'])) {
+        $this->loadHttpVars(true, false);
+
+        if (!isset($this->pub_id) || !is_numeric($this->pub_id)) {
             $this->pageError = true;
             return;
         }
-
-        $this->pub_id = intval($_GET['pub_id']);
-        isValid($this->pub_id);
 
         $pub = new pdPublication();
         $result = $pub->dbLoad($this->db, $this->pub_id);

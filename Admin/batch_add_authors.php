@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.6 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.7 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -59,7 +59,7 @@ class batch_add_authors extends pdHtmlPage {
             $values['new_authors'] = preg_replace("/;\s*;/", ';',
                                                   $values['new_authors']);
 
-            $new_authors = explode('; ', $values['new_authors']);
+            $new_authors = split(';\s*', $values['new_authors']);
 
             $auth_list = new pdAuthorList($this->db);
             assert('is_array($auth_list->list)');

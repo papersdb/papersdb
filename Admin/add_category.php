@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.31 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_category.php,v 1.32 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -139,16 +139,19 @@ class add_category extends pdHtmlPage {
                 . 'Add another new category</a>';
         }
         else {
-            $form->setDefaults($_GET);
+            foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+                $defaults[$member] = $this->$member;
+            }
+
             $defaults['catname'] = $category->category;
 
             if (isset($category->info) && (count($category->info) > 0)) {
                 foreach ($category->info as $info_id => $name) {
                     $defaults['info['.$info_id.']'] = $name;
                 }
-                $form->setDefaults($defaults);
             }
 
+            $form->setDefaults($defaults);
             $renderer =& $form->defaultRenderer();
 
             $renderer->setFormTemplate(

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdCategory.php,v 1.13 2007/03/14 02:58:47 loyola Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -8,6 +8,7 @@
  * @package PapersDB
  * @subpackage DB_Access
  */
+require_once 'includes/pdDbAccessor.php';
 
 /** Flags used when loading information from the database. */
 define('PD_CATEGORY_DB_LOAD_BASIC',         0);
@@ -19,7 +20,7 @@ define('PD_CATEGORY_DB_LOAD_ALL',           1);
  *
  * @package PapersDB
  */
-class pdCategory {
+class pdCategory extends pdDbAccessor {
     var $cat_id;
     var $category;
     var $info;
@@ -28,9 +29,8 @@ class pdCategory {
     /**
      * Constructor.
      */
-    function pdCategory($obj = NULL) {
-        if (!is_null($obj))
-            $this->load($obj);
+    function pdCategory(&$mixed = null) {
+        parent::pdDbAccessor($mixed);
     }
 
     /**
@@ -156,24 +156,6 @@ class pdCategory {
 
     function asArray() {
         return get_object_vars($this);
-    }
-
-    /**
-     * Loads publication data from the object passed in
-     */
-    function load(&$mixed) {
-        if (is_object($mixed)) {
-            foreach (array_keys(get_class_vars('pdCategory')) as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('pdCategory')) as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
-            }
-        }
     }
 }
 
