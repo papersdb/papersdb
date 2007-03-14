@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.81 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: pdPublication.php,v 1.82 2007/03/14 00:54:00 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -95,11 +95,12 @@ class pdPublication {
 
             if ($this->category->info != null) {
                 foreach ($this->category->info as $info_id => $name) {
-                    $r = $db->selectRow('pub_cat_info', array('value'),
-                                        array('pub_id' => $id,
-                                              'cat_id' => quote_smart($this->category->cat_id),
-                                              'info_id' => quote_smart($info_id)),
-                                        "pdPublication::dbLoad");
+                    $r = $db->selectRow(
+                        'pub_cat_info', array('value'),
+                        array('pub_id' => $id,
+                              'cat_id' => quote_smart($this->category->cat_id),
+                              'info_id' => quote_smart($info_id)),
+                        "pdPublication::dbLoad");
                     if ($r !== false)
                         $this->info[$name] = $r->value;
                     else
@@ -912,7 +913,7 @@ class pdPublication {
     function getBibtex() {
         $bibtex = '';
 
-        if (isset($this->category) && isset($this->category->category)) {
+        if (is_object($this->category) && isset($this->category->category)) {
             if ($this->category->category == 'In Conference') {
                 $bibtex .= '@inconference{';
             }
@@ -979,7 +980,7 @@ class pdPublication {
             }
         }
 
-        if (isset($venue_name)) {
+        if (isset($venue_name) && is_object($this->category)) {
             if ($this->category->category == 'In Conference') {
                 $bibtex .= '  booktitle = {' . $venue_name . "},\n";
             }
