@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.67 2007/03/14 20:35:29 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.68 2007/03/14 21:23:38 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -236,7 +236,7 @@ class pdHtmlPage {
                     }
                 }
                 else
-                    $this->$member = stripslashes($_GET[$member]);
+                    $this->$member = stripslashes($arr[$member]);
             }
         }
     }

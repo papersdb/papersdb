@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.31 2007/03/14 02:58:47 loyola Exp $
+// $Id: add_venue.php,v 1.32 2007/03/14 21:18:58 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -28,6 +28,9 @@ class add_venue extends pdHtmlPage {
     var $venue_id = null;
     var $type;
     var $numNewOccurrences;
+    var $newOccurrenceLocation;
+    var $newOccurrenceDate;
+    var $newOccurrenceUrl;
 
     function add_venue() {
         session_start();
@@ -262,14 +265,15 @@ class add_venue extends pdHtmlPage {
                              'data'       => $venue->data,
                              'editor'     => $venue->editor,
                              'venue_date' => $venue->date);
+
                 if (isset($this->numNewOccurrences)) {
                     for ($i = 0; $i < $this->numNewOccurrences; $i++) {
-                        $arr['newOccurrenceLocation'][$c]
-                            = $this->newOccurrenceLocation[$c];
-                        $arr['newOccurrenceDate'][$c]
-                            = $this->newOccurrenceDate[$c];
-                        $arr['newOccurrenceUrl'][$c]
-                            = $this->newOccurrenceUrl[$c];
+                        $arr['newOccurrenceLocation'][$i]
+                            = $this->newOccurrenceLocation[$i];
+                        $arr['newOccurrenceDate'][$i]
+                            = $this->newOccurrenceDate[$i];
+                        $arr['newOccurrenceUrl'][$i]
+                            = $this->newOccurrenceUrl[$i];
                     }
                 }
                 else if (count($venue->occurrences) > 0) {
