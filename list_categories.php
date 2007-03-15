@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.13 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: list_categories.php,v 1.14 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -21,8 +21,6 @@ require_once 'includes/pdCategory.php';
  */
 class list_categories extends pdHtmlPage {
     function list_categories() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('all_categories');
 
         if ($this->loginError) return;

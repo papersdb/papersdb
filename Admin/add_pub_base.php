@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.3 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: add_pub_base.php,v 1.4 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -20,10 +20,7 @@ class add_pub_base extends pdHtmlPage {
     var $pub_id;
 
     function add_pub_base() {
-        if ($this->pub->pub_id != '')
-            parent::pdHtmlPage('edit_publication');
-        else
-            parent::pdHtmlPage('add_publication');
+        parent::pdHtmlPage('add_publication');
 
         if ($this->loginError) return;
 

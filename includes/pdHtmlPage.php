@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.68 2007/03/14 21:23:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.69 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -82,8 +82,21 @@ class pdHtmlPage {
             exit;
         }
 
+        session_start();
+
         // start buffering output, it will be displayed in the toHtml() method
         ob_start();
+
+        // initialize session variables
+        if ((get_class($this) != 'add_pub1')
+            && (get_class($this) != 'add_pub2')
+            && (get_class($this) != 'add_pub3')
+            && (get_class($this) != 'add_pub4')
+            && (get_class($this) != 'add_pub_submit')
+            && (get_class($this) != 'add_author')
+            && (get_class($this) != 'add_venue')) {
+            pubSessionInit();
+        }
 
         // a derived page may already have needed access to the database prior
         // to invoking the base class constructor, so only create the database
@@ -782,6 +795,20 @@ END;
                                              'id' => 'publist'), true);
 
         return $table->toHtml();
+    }
+
+    function alphaSelMenu($viewTab, $page) {
+        $text = '<div id="selalpha"><ul>';
+        for ($c = 65; $c <= 90; ++$c) {
+            if ($c == ord($viewTab))
+                $text .= '<li class="selected">' . chr($c). '</li>';
+            else
+                $text .= '<li><a href="' . $page . '?tab='. chr($c)
+                    . '">' . chr($c) . "</a></li>\n";
+        }
+        $text .= '</ul></div><br/>';
+
+        return $text;
     }
 }
 

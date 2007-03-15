@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.15 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: delete_interest.php,v 1.16 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Deletes author interests from the database.
@@ -28,8 +28,6 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class delete_interest extends pdHtmlPage {
     function delete_interest() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('delete_interest');
 
         if ($this->loginError) return;

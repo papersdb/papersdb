@@ -302,7 +302,59 @@ div#sel li a:hover {
   color: #006633;
 }
 
-div#sel li a:visited {
+
+div#selalpha ul {
+  font-size: 0.9em;
+  list-style-type: none;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+
+div#selalpha li {
+  display: inline;
+  margin: 0 0.15em;
+  position: relative;
+}
+
+div#selalpha li a {
+  background: #f4f4f4;
+  border-bottom: 0;
+  border-left: 4px solid #cccccc;
+  color: #006633;
+  display: block;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 3px;
+  text-align: left;
+  text-decoration: none;
+  vertical-align: center;
+  width: 2ex;
+}
+
+div#selalpha li.selected {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 3px;
+  text-align: left;
+  text-decoration: none;
+  vertical-align: center;
+  width: 2ex;
+}
+
+div#selalpha li a:hover {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
+}
+
+div#selalpha li a:visited {
 }
 
 /* Fix IE. Hide from IE Mac \*/

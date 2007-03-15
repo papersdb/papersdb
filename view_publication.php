@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.68 2007/03/14 02:58:47 loyola Exp $
+// $Id: view_publication.php,v 1.69 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * View Publication
@@ -30,8 +30,6 @@ class view_publication extends pdHtmlPage {
     var $pub_id;
 
     function view_publication() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('view_publication');
 
         if ($this->loginError) return;

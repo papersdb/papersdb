@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.20 2007/03/13 22:59:12 aicmltec Exp $
+// $Id: delete_author.php,v 1.21 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -30,8 +30,6 @@ class delete_author extends pdHtmlPage {
     var $author_id;
 
     function delete_author() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('delete_author');
 
         if ($this->loginError) return;

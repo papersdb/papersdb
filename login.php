@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.31 2007/03/14 02:58:47 loyola Exp $
+// $Id: login.php,v 1.32 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -23,8 +23,6 @@ class login extends pdHtmlPage {
     var $passwd_hash;
 
     function login() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('login');
 
         if ($this->loginError) return;

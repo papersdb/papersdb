@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.18 2007/03/14 02:58:47 loyola Exp $
+// $Id: add_pub3.php,v 1.19 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -34,14 +34,13 @@ class add_pub3 extends add_pub_base {
     var $pages;
     var $author_id = null;
 
-    // cat_id=1&booktitle=asdfasdf&publisher=asdfasdf&editor=asdfasdf&edition=asdfasdf&volume=asdfasd&number=asdfasd&pages=asdfasdf
-
     function add_pub3() {
-        session_start();
+        parent::add_pub_base();
+
+        if ($this->loginError) return;
+
         $this->loadHttpVars(true, false);
         $this->pub =& $_SESSION['pub'];
-
-        parent::add_pub_base();
 
         if ($this->loginError) return;
 

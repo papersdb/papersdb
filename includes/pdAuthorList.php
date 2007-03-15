@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.14 2007/02/10 22:23:08 loyola Exp $
+// $Id: pdAuthorList.php,v 1.15 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -25,21 +25,23 @@ class pdAuthorList {
     function pdAuthorList(&$db, $firstname = null, $lastname = null) {
         assert('is_object($db)');
 
-        if ($firstname != null) {
-            if ($lastname != null)
-                $name = '%' . $lastname . ', ' . $firstname[0] . '%';
+        if (($firstname == null) && ($lastname == null)) {
+            $q = $db->select('author', array('author_id', 'name'), '',
+                             "pdAuthorList::dbLoad",
+                             array('ORDER BY' => 'name ASC'));
+            if ($q === false) return false;
+        }
+        else {
+            if (($lastname != null) && ($firstname == null))
+                $name = $lastname . '%';
+            else if (($lastname == null) && ($firstname != null))
+                $name = '%' . $firstname . '%';
             else
-                $name = '%' . $lastname . '%';
+                $name = $lastname . ', ' . $firstname[0] . '%';
 
             $q = $db->select('author', '*',
                              array('name LIKE ' . $db->addQuotes($name)),
                              "pdAuthorList::pdAuthorList");
-            if ($q === false) return false;
-        }
-        else {
-            $q = $db->select('author', array('author_id', 'name'), '',
-                             "pdAuthorList::dbLoad",
-                             array('ORDER BY' => 'name ASC'));
             if ($q === false) return false;
         }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.20 2007/03/14 20:23:58 aicmltec Exp $
+// $Id: cv.php,v 1.21 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -27,8 +27,6 @@ class cv extends pdHtmlPage {
     var $pub_ids;
 
     function cv() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('cv', null, false);
 
         if ($this->loginError) return;

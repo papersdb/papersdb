@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.24 2007/03/14 22:14:03 aicmltec Exp $
+// $Id: add_pub1.php,v 1.25 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -31,7 +31,9 @@ class add_pub1 extends add_pub_base {
     var $debug = 0;
 
     function add_pub1() {
-        session_start();
+        parent::add_pub_base();
+
+        if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
 
@@ -58,9 +60,8 @@ class add_pub1 extends add_pub_base {
             $_SESSION['pub'] =& $this->pub;
         }
 
-        parent::add_pub_base();
-
-        if ($this->loginError) return;
+        if ($this->pub->pub_id != '')
+            $this->page_title = 'edit_publication';
 
         $form = new HTML_QuickForm('add_pub2');
         $form->addElement('header', null, 'Add Publication');

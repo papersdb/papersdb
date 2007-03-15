@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.55 2007/03/14 02:58:47 loyola Exp $
+// $Id: search_publication_db.php,v 1.56 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -33,8 +33,6 @@ class search_publication_db extends pdHtmlPage {
     var $parse_search_add_word_or_next = false;
 
     function search_publication_db() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('search_results');
 
         if ($this->loginError) return;

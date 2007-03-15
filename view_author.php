@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.25 2007/03/14 02:58:47 loyola Exp $
+// $Id: view_author.php,v 1.26 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -30,8 +30,6 @@ class view_author extends pdHtmlPage {
     var $author_id;
 
     function view_author() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('view_authors');
 
         if ($this->loginError) return;

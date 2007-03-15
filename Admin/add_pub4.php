@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.24 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: add_pub4.php,v 1.25 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -28,12 +28,11 @@ class add_pub4 extends add_pub_base {
     var $debug = 1;
 
     function add_pub4() {
-        session_start();
-        $this->pub =& $_SESSION['pub'];
-
         parent::add_pub_base();
 
         if ($this->loginError) return;
+
+        $this->pub =& $_SESSION['pub'];
 
         // initialize attachments
         if (!isset($_SESSION['paper']) && !isset($_SESSION['attachments'])) {

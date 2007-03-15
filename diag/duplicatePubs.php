@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.5 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: duplicatePubs.php,v 1.6 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -22,8 +22,6 @@ require_once 'includes/pdPubList.php';
  */
 class duplicatePubs extends pdHtmlPage {
     function duplicatePubs() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('duplicatePubs');
 
         if ($this->loginError) return;

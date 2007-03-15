@@ -22,17 +22,34 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class list_author extends pdHtmlPage {
+    var $tab;
+
     function list_author() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('all_authors');
 
         if ($this->loginError) return;
 
-        // Performing SQL query
-        $auth_list = new pdAuthorList($this->db);
+        $this->loadHttpVars(true, false);
 
-        echo "<h1>Authors</h1>";
+        if (!isset($this->tab))
+            $this->tab = 'A';
+        else if ((strlen($this->tab) != 1) || (ord($this->tab) < ord('A'))
+                 || (ord($this->tab) > ord('Z'))) {
+            $this->pageError = true;
+            return;
+        }
+
+        $auth_list = new pdAuthorList($this->db, null, $this->tab);
+
+        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
+
+        echo "<h2>Authors</h2>";
+
+        if (!isset($auth_list->list) || (count($auth_list->list) == 0)) {
+            echo 'No authors with last name starting with ' . $this->tab
+                . '<br/>';
+            return;
+        }
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
@@ -40,27 +57,22 @@ class list_author extends pdHtmlPage {
                                       'cellspacing' => '0'));
         $table->setAutoGrow(true);
 
-        if (count($auth_list->list) > 0) {
-            foreach ($auth_list->list as $author_id => $name) {
-                $author = new pdAuthor();
-                $author->dbLoad($this->db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
+        foreach ($auth_list->list as $author_id => $name) {
+            $author = new pdAuthor();
+            $author->dbLoad($this->db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
 
-                $info = '<a href="view_author.php?author_id='
-                    . $author_id . '">' . $name . '</a>';
+            $info = '<a href="view_author.php?author_id='
+                . $author_id . '">' . $name . '</a>';
 
-                if ($author->title != '')
-                    $info .= '<br/><span id="small">'
-                        . $author->title . '</span>';
+            if ($author->title != '')
+                $info .= '<br/><span id="small">'
+                    . $author->title . '</span>';
 
-                if ($author->organization != '')
-                    $info .= '<br/><span id="small">'
-                        . $author->organization . '</span>';
+            if ($author->organization != '')
+                $info .= '<br/><span id="small">'
+                    . $author->organization . '</span>';
 
-                $table->addRow(array($info, $this->getAuthorIcons($author)));
-            }
-        }
-        else {
-            $table->addRow(array('No Authors'));
+            $table->addRow(array($info, $this->getAuthorIcons($author)));
         }
 
         // now assign table attributes including highlighting for even and odd

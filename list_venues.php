@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.22 2007/03/14 22:14:03 aicmltec Exp $
+// $Id: list_venues.php,v 1.23 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -20,14 +20,35 @@ require_once 'includes/pdVenue.php';
  * @package PapersDB
  */
 class list_venues extends pdHtmlPage {
+    var $tab;
+
     function list_venues() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('all_venues');
 
         if ($this->loginError) return;
 
-        $venue_list = new pdVenueList($this->db, array('all' => true));
+        if (!isset($this->tab))
+            $this->tab = 'A';
+        else if ((strlen($this->tab) != 1) || (ord($this->tab) < ord('A'))
+                 || (ord($this->tab) > ord('Z'))) {
+            $this->pageError = true;
+            return;
+        }
+
+        $this->loadHttpVars(true, false);
+
+        $venue_list = new pdVenueList($this->db,
+                                      array('starting_with' => $this->tab));
+
+        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
+
+        echo '<h2>Publication Venues</h2>';
+
+        if (!isset($venue_list->list) || (count($venue_list->list) == 0)) {
+            echo 'No venues with name starting with ' . $this->tab
+                . '<br/>';
+            return;
+        }
 
         $this->table = new HTML_Table(array('width' => '100%',
                                             'border' => '0',
@@ -36,11 +57,8 @@ class list_venues extends pdHtmlPage {
         $table =& $this->table;
         $table->setAutoGrow(true);
 
-        foreach (array_keys($venue_list->list) as $venue_id) {
+        foreach ($venue_list->list as $venue) {
             unset($cells);
-            unset($venue);
-            $venue = new pdVenue();
-            $venue->dbLoad($this->db, $venue_id);
             $text = '';
             if ($venue->title != '')
                 $text .= '<b>' . $venue->title . '</b>';
@@ -129,8 +147,6 @@ class list_venues extends pdHtmlPage {
                                                           'class' => 'small'));
             }
         }
-
-        echo '<h1>Publication Venues</h1>';
     }
 }
 

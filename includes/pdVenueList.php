@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.10 2007/03/14 22:14:03 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.11 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -20,11 +20,15 @@ class pdVenueList {
     /**
      * Constructor.
      *
-     * By default venues with URLs in the name are not part of the list. Set $all
-     * to true to get venues with URLs in the name also.
+     * By default venues with URLs in the name are not part of the list. Set
+     * $all to true to get venues with URLs in the name also.
      */
     function pdVenueList(&$db, $options = null) {
-        if (isset($options['type']))
+        if (isset($options['starting_with'])) {
+            $this->loadStartingWith($db, $options['starting_with']);
+            return;
+        }
+        else if (isset($options['type']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
                              array('type' => $options['type']),
                              "pdVenueList::dbLoad");
@@ -85,6 +89,33 @@ class pdVenueList {
         }
         assert('is_array($this->list)');
         asort($this->list);
+    }
+
+    function loadStartingWith(&$db, $letter) {
+        assert('strlen($letter) == 1');
+
+        $letter .= '%';
+        $fields = array('title', 'name');
+
+        foreach ($fields as $field) {
+            if ($field == 'title')
+                $q = $db->select('venue', '*',
+                                 array('title LIKE ' . $db->addQuotes($letter)),
+                                 "pdVenueList::loadStartingWith");
+            else
+                $q = $db->select('venue', '*',
+                                 array('name LIKE ' . $db->addQuotes($letter),
+                                       'title is NULL'),
+                                 "pdVenueList::loadStartingWith");
+
+            if ($q === false) return;
+
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->list[] = new pdVenue($r);
+                $r = $db->fetchObject($q);
+            }
+        }
     }
 }
 

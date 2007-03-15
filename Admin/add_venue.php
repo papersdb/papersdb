@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.33 2007/03/14 21:23:38 aicmltec Exp $
+// $Id: add_venue.php,v 1.34 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -33,7 +33,6 @@ class add_venue extends pdHtmlPage {
     var $newOccurrenceUrl;
 
     function add_venue() {
-        session_start();
         parent::pdHtmlPage('add_venue');
 
         if ($this->loginError) return;
@@ -177,7 +176,7 @@ class add_venue extends pdHtmlPage {
 
             $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
-            $this->addPubDisableMenuItems();
+            add_pub_base::addPubDisableMenuItems();
         }
         else {
             if ($this->venue_id != '')

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.86 2007/03/15 00:24:26 aicmltec Exp $
+// $Id: pdPublication.php,v 1.87 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -218,19 +218,17 @@ class pdPublication extends pdDbAccessor {
                      'updated'    => date("Y-m-d"),
                      'submit'     => $this->submit);
 
+        if (is_object($this->venue)) {
+            $arr['venue_id'] = $this->venue->venue_id;
+        }
+
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
                         'pdPublication::dbSave');
         }
         else {
-
             $db->insert('publication', $arr, 'pdPublication::dbSave');
             $this->pub_id = $db->insertId();
-        }
-
-
-        if (is_object($this->venue)) {
-            $arr['venue_id'] = $this->venue->venue_id;
         }
 
         $db->delete('pointer', array('pub_id' => $this->pub_id),
@@ -654,13 +652,14 @@ class pdPublication extends pdDbAccessor {
 
         $user =& $_SESSION['user'];
 
+        if (count($this->additional_info) > 0)
+            foreach ($this->additional_info as $att) {
+                if (basename($att_name) == basename($att->location))
+                    return;
+            }
+
         // make sure this attachment is not already in the list
         $basename = basename($att_name, '.' . $user->login);
-
-        if (count($this->additional_info) > 0)
-            foreach ($this->additional_info as $att)
-                if ($att_name == basename($att->location))
-                    return;
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
 

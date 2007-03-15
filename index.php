@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.38 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: index.php,v 1.39 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -23,9 +23,6 @@ require_once 'includes/pdPubList.php';
  */
 class index extends pdHtmlPage {
     function index() {
-        session_start();
-        pubSessionInit();
-
         parent::pdHtmlPage('home');
 
         if ($this->loginError) return;

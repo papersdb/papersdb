@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.33 2007/03/13 22:59:12 aicmltec Exp $
+// $Id: list_publication.php,v 1.34 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -36,8 +36,6 @@ class list_publication extends pdHtmlPage {
     var $by;
 
     function list_publication() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('view_publications');
 
         if ($this->loginError) return;
@@ -259,8 +257,8 @@ class list_publication extends pdHtmlPage {
             if ($pcat == $viewCat)
                 $text .= '<li class="selected">By ' . ucwords($pcat) . '</li>';
             else
-            $text .= '<li><a href="list_publication.php?by='. $pcat
-                . '">By ' . ucwords($pcat) . '</a></li>';
+                $text .= '<li><a href="list_publication.php?by='. $pcat
+                    . '">By ' . ucwords($pcat) . '</a></li>';
         }
         $text .= '</ul></div>';
 

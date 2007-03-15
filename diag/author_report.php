@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.10 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: author_report.php,v 1.11 2007/03/15 19:52:41 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -44,8 +44,6 @@ class author_report extends pdHtmlPage {
     var $pi_pdf_pubs;
 
     function author_report() {
-        session_start();
-        pubSessionInit();
         parent::pdHtmlPage('author_report');
 
         if ($this->loginError) return;
