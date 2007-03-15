@@ -249,17 +249,38 @@ div#nav li a:hover {
 
 div#sel {
   margin-bottom: 1em;
+  margin: 10px auto 0px auto;
+  z-index: 1;
 }
 
 div#sel ul {
   font-size: 0.9em;
-  list-style: none;
+  list-style-type: none;
+  text-align: center;
   margin: 0;
   padding: 0;
+  z-index: 2;
 }
 
 div#sel li {
+  display: inline;
   margin: 0 0.15em;
+  position: relative;
+}
+
+div#sel li a {
+  background: #f4f4f4;
+  border-bottom: 0;
+  border-left: 4px solid #cccccc;
+  color: #006633;
+  display: block;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  vertical-align: center;
+  width: 16ex;
 }
 
 div#sel li.selected {
@@ -275,24 +296,19 @@ div#sel li.selected {
   width: 14ex;
 }
 
-div#sel li a {
-  background: #f4f4f4;
-  border-left: 4px solid #cccccc;
-  color: #006633;
-  float: left;
-  font-weight: bold;
-  height: 3ex;
-  padding: 0 0 0 10px;
-  text-decoration: none;
-  vertical-align: center;
-  width: 14ex;
-}
-
 div#sel li a:hover {
   background: #CCCC99;
   border-left: 4px solid #006633;
   color: #006633;
 }
+
+div#sel li a:visited {
+}
+
+/* Fix IE. Hide from IE Mac \*/
+* html ul li { float: left; }
+* html ul li a { height: 1%; }
+/* End */
 
 div#content {
   background-color: #FFFFFF;
