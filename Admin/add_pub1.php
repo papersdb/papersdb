@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.25 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub1.php,v 1.26 2007/03/15 21:13:50 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -88,17 +88,20 @@ class add_pub1 extends add_pub_base {
                                         array('type' => 'Workshop',
                                               'concat' => true)));
 
-        $venue_sel2[0] = array('' => '--Select Venue--') + $venues[0]->list;
-        $venue_sel2[1] = array('' => '--Select Venue--') + $venues[1]->list;
-        $venue_sel2[2] = array('' => '--Select Venue--') + $venues[2]->list;
-        $venue_sel2[3] = array('' => '--Select Venue--') + $venues[3]->list;
+        $common = array(''   => '--Select Venue--',
+                        '-1' => '--No venue--');
+
+        $venue_sel2[0] = $common + $venues[0]->list;
+        $venue_sel2[1] = $common + $venues[1]->list;
+        $venue_sel2[2] = $common + $venues[2]->list;
+        $venue_sel2[3] = $common + $venues[3]->list;
 
         // check if user info has 'Used by me' to venues
         $user =& $_SESSION['user'];
         $user->venueIdsGet($this->db);
         if (count($user->venue_ids) > 0) {
             array_push($venue_sel1, 'Used by me');
-            $venue_sel2[4] = array('' => '--Select Venue--') + $user->venue_ids;
+            $venue_sel2[4] = $common + $user->venue_ids;
         }
 
         $sel =& $form->addElement(
@@ -153,16 +156,10 @@ class add_pub1 extends add_pub_base {
         $this->db =& $this->db;
         $this->form =& $form;
 
-        if ($form->validate()) {
+        if ($form->validate())
             $this->processForm();
-        }
-        else {
+        else
             $this->renderForm();
-        }
-
-        if ($this->debug) {
-            echo 'values<pre>' . print_r($this->pub, true) . '</pre>';
-        }
     }
 
     function renderForm() {
@@ -193,10 +190,6 @@ class add_pub1 extends add_pub_base {
 
             $defaults['pub_date']['Y'] = $date[0];
             $defaults['pub_date']['M'] = $date[1];
-        }
-
-        if ($this->debug) {
-            echo 'defaults<pre>' . print_r($defaults, true) . '</pre>';
         }
 
         $this->form->setDefaults($defaults);
@@ -238,25 +231,27 @@ class add_pub1 extends add_pub_base {
 
         $values = $form->exportValues();
 
-        if ($this->debug) {
-            echo 'values<pre>' . print_r($values, true) . '</pre>';
-        }
-
         $this->pub->load($values);
         $this->pub->published = $values['pub_date']['Y'] . '-'
             .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
-        if (isset($values['venue_id'][1]) && ($values['venue_id'][1] > 0))
-            $this->pub->addVenue($this->db, $values['venue_id'][1]);
+        if (isset($values['venue_id'][1]) && is_numeric($values['venue_id'][1]))
+            if ($values['venue_id'][1] > 0)
+                $this->pub->addVenue($this->db, $values['venue_id'][1]);
+            else if (($values['venue_id'][1] == -1)
+                     && is_object($this->pub->venue)) {
+                unset($this->pub->venue);
+                unset($this->pub->venue_id);
+            }
 
         $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)
             $_SESSION['similar_pubs'] = $result;
 
-        if ($this->debug)
-            echo '<pre>' . print_r($_SESSION, true) . '</pre>';
-        else if (isset($values['add_venue']))
+        if ($this->debug) return;
+
+        if (isset($values['add_venue']))
             header('Location: add_venue.php');
         else if (isset($values['finish']))
             header('Location: add_pub_submit.php');

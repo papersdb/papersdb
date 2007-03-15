@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.88 2007/03/15 20:34:34 aicmltec Exp $
+// $Id: pdPublication.php,v 1.89 2007/03/15 21:13:50 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -218,9 +218,10 @@ class pdPublication extends pdDbAccessor {
                      'updated'    => date("Y-m-d"),
                      'submit'     => $this->submit);
 
-        if (is_object($this->venue)) {
+        if (!isset($this->venue))
+            $arr['venue_id'] = null;
+        else if (is_object($this->venue))
             $arr['venue_id'] = $this->venue->venue_id;
-        }
 
         if (isset($this->pub_id)) {
             $db->update('publication', $arr, array('pub_id' => $this->pub_id),
@@ -303,7 +304,9 @@ class pdPublication extends pdDbAccessor {
         $db->delete('pub_cat', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
 
-        if (is_object($this->category) && ($this->category->cat_id > 0)) {
+        if (is_object($this->venue)) {
+        }
+        else if (is_object($this->category) && ($this->category->cat_id > 0)) {
             $db->insert('pub_cat', array('cat_id' => $this->category->cat_id,
                                          'pub_id' => $this->pub_id),
                         'pdPublication::dbSave');
