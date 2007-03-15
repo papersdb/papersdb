@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.85 2007/03/14 22:51:18 aicmltec Exp $
+// $Id: pdPublication.php,v 1.86 2007/03/15 00:24:26 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -914,24 +914,19 @@ class pdPublication extends pdDbAccessor {
     }
 
     function getBibtex() {
-        $bibtex = '';
+        $bibtex = '@inproceedings{';
 
         if (is_object($this->category) && isset($this->category->category)) {
             if ($this->category->category == 'In Conference') {
-                $bibtex .= '@inconference{';
+                $bibtex = '@inconference{';
             }
             else if ($this->category->category == 'In Journal') {
-                $bibtex .= '@article{';
+                $bibtex = '@article{';
             }
-            else if ($this->category->category == 'In Book') {
-                $bibtex .= '@book{';
+            else if (($this->category->category == 'In Book')
+                     || ($this->category->category == 'Book')) {
+                $bibtex = '@book{';
             }
-            else {
-                $bibtex .= '@article{';
-            }
-        }
-        else {
-            $bibtex .= '@article{';
         }
 
         $pub_date = split('-', $this->published);
