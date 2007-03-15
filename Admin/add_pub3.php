@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.19 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub3.php,v 1.20 2007/03/15 21:32:01 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -67,10 +67,8 @@ class add_pub3 extends add_pub_base {
         if (($this->cat_id > 0)
             && is_object($this->pub->category)
             && is_array($this->pub->category->info)) {
-            foreach (array_values($this->pub->category->info) as $name) {
-                $element = preg_replace("/\s+/", '', $name);
-                $form->addElement('text', strtolower($element),
-                                  ucfirst($name) . ':',
+            foreach ($this->formInfoElementsGet() as $element => $name) {
+                $form->addElement('text', $element, $name . ':',
                                   array('size' => 50, 'maxlength' => 250));
             }
         }
@@ -166,8 +164,7 @@ class add_pub3 extends add_pub_base {
 
         // assign category info items
         if (count($this->pub->info) > 0)
-            foreach (array_values($this->pub->category->info) as $name) {
-                $element = preg_replace("/\s+/", '', $name);
+            foreach ($this->formInfoElementsGet() as $element => $name) {
                 $defaults[$element] = $this->pub->info[$name];
             }
 
@@ -196,8 +193,7 @@ class add_pub3 extends add_pub_base {
             $this->pub->addCategory($this->db, $values['cat_id']);
 
         if ($this->pub->category->info != null) {
-            foreach (array_values($this->pub->category->info) as $name) {
-                $element = preg_replace("/\s+/", '', $name);
+            foreach ($this->formInfoElementsGet() as $element => $name) {
                 if (isset($values[$element]))
                     $this->pub->info[$name] = $values[$element];
             }
@@ -221,6 +217,18 @@ class add_pub3 extends add_pub_base {
             header('Location: add_pub_submit.php');
         else
             header('Location: add_pub4.php');
+    }
+
+    function &formInfoElementsGet() {
+        $infoElements = array_values($this->pub->category->info);
+
+        if (count($infoElements) == 0) return null;
+
+        foreach (array_values($this->pub->category->info) as $name) {
+            $element = strtolower(preg_replace("/\s+/", '', $name));
+            $formElements[$element] = $name;
+        }
+        return $formElements;
     }
 
     function javascript() {
