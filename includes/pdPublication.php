@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.87 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: pdPublication.php,v 1.88 2007/03/15 20:34:34 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -314,13 +314,15 @@ class pdPublication extends pdDbAccessor {
                 (count($this->category->info) > 0)) {
                 $arr = array();
                 foreach ($this->category->info as $info_id => $name) {
-                    array_push($arr,
-                               array('pub_id'  => $this->pub_id,
-                                     'cat_id'  => $this->category->cat_id,
-                                     'info_id' => $info_id,
-                                     'value'   => $this->info[$name]));
+                    if (isset($this->info[$name]))
+                        array_push($arr,
+                                   array('pub_id'  => $this->pub_id,
+                                         'cat_id'  => $this->category->cat_id,
+                                         'info_id' => $info_id,
+                                         'value'   => $this->info[$name]));
                 }
-                $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
+                if (count($arr) > 0)
+                    $db->insert('pub_cat_info', $arr, 'pdPublication::dbSave');
             }
         }
     }
