@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.26 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: view_author.php,v 1.27 2007/03/16 01:15:07 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -97,14 +97,8 @@ class view_author extends pdHtmlPage {
                 assert('is_array($auth->pub_list->list)');
                 $headingCell = 'Publications:';
 
-                foreach ($auth->pub_list->list as $pub) {
-                    if (isset($pub->title) && ($pub->title != '')) {
-                        $title = "<a href='view_publication.php?pub_id="
-                            . $pub->pub_id . "'>". $pub->title . "</a>";
-                        $table->addRow(array($headingCell, $title));
-                    }
-                    $headingCell = '';
-                }
+                $table->addRow(array($headingCell));
+                $table->addRow(array($this->displayPubList($auth->pub_list)));
             }
             else {
                 $table->addRow(

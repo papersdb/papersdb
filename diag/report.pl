@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.11 2007/03/14 20:23:58 aicmltec Exp $
+# Name: $Id: report.pl,v 1.12 2007/03/16 01:15:07 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -151,9 +151,15 @@ sub getNumPubsForPeriod {
     my $enddate = shift;
     my $statement;
 
-    $statement = 'SELECT pub_id FROM publication WHERE '
-        . 'publication.published BETWEEN \''
+    $statement = 'SELECT DISTINCT publication.pub_id, publication.title '
+        . 'FROM publication, category, pub_cat WHERE '
+        . ' category.cat_id=pub_cat.cat_id '
+        . 'AND publication.pub_id=pub_cat.pub_id '
+        . $nonTier1CategoryCriteria
+        . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
+
+    #print $statement . "\n";
 
     my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
     return scalar(keys %rv);
@@ -392,6 +398,18 @@ sub pdfStudentReport {
 piReport();
 
 pdfStudentReport();
+
+print "\n\nPDFs or Students not in Database\n";
+
+my @all_authors = (@pdf_authors, @student_authors);
+foreach my $author (@all_authors) {
+    my $statement = 'SELECT author_id, name FROM author WHERE name like "%'
+        . $author . '%"';
+    my %rv = %{ $dbh->selectall_hashref($statement, 'author_id') };
+    if (scalar(keys %rv) == 0) {
+        print $author . "\n";
+    }
+}
 
 $dbh->disconnect();
 
