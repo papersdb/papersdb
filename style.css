@@ -80,7 +80,7 @@ tr.odd {background-color: #eee;}
 tr.even {background-color:#fff;}
 td#large {font-size:1.3em;}
 td#standard {font-size:1em;}
-td#small {font-size: .5em;}
+td#small {font-size:0.75em;}
 
 a:link { text-decoration: underline; color: #006633;}
 a:visited { text-decoration: underline; color: #669933;}
@@ -124,7 +124,7 @@ a:hover { text-decoration: underline; color: #666600;}
 }
 
 #small {
-  font-size:9px;
+  font-size:0.75em;
 }
 
 #statusbar {

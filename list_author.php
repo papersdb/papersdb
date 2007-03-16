@@ -53,47 +53,45 @@ class list_author extends pdHtmlPage {
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
-                                      'cellpadding' => '6',
+                                      'cellpadding' => '0',
                                       'cellspacing' => '0'));
         $table->setAutoGrow(true);
 
         foreach ($auth_list->list as $author_id => $name) {
             $author = new pdAuthor();
-            $author->dbLoad($this->db, $author_id, PD_AUTHOR_DB_LOAD_BASIC);
+            $author->dbLoad($this->db, $author_id,
+                            PD_AUTHOR_DB_LOAD_BASIC
+                            | PD_AUTHOR_DB_LOAD_PUBS_MIN);
 
-            $info = '<a href="view_author.php?author_id='
-                . $author_id . '">' . $name . '</a>';
+            $name = '<span id="emph"><a href="view_author.php?author_id='
+                . $author_id . '">' . $name . '</a>&nbsp;'
+                . $this->getAuthorIcons($author) . '</span>';
 
+            $info = array();
             if ($author->title != '')
-                $info .= '<br/><span id="small">'
-                    . $author->title . '</span>';
+                $info[] = '<span id="small">' . $author->title . '</span>';
 
             if ($author->organization != '')
-                $info .= '<br/><span id="small">'
-                    . $author->organization . '</span>';
+                $info[] = '<span id="small">' . $author->organization
+                    . '</span>';
 
-            $table->addRow(array($info, $this->getAuthorIcons($author)));
+            $info[] = '<span id="small">Number of publication entries in '
+                . 'database: ' . $author->totalPublications . '</span>';
+
+            $table->addRow(array($name, implode('<br/>', $info)));
         }
 
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
-            $table->updateCellAttributes($i, 0, array('class' => 'standard'));
-
-            if ($i & 1) {
+            if ($i & 1)
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
-            }
-            else {
+            else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            }
-
-            if ($this->access_level > 0) {
-                $table->updateCellAttributes($i, 1, array('id' => 'emph',
-                                                          'class' => 'small'));
-                $table->updateCellAttributes($i, 2, array('id' => 'emph',
-                                                          'class' => 'small'));
-            }
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'id' => 'publist'), true);
 
         $this->table =& $table;
     }

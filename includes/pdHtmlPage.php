@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.69 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.70 2007/03/16 04:09:48 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -776,7 +776,7 @@ END;
             ++$count;
             $pub->dbload($this->db, $pub->pub_id);
 
-            $citation = $pub->getCitationHtml()
+            $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
 
             $table->addRow(array($count, $citation));

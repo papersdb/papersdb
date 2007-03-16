@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.18 2007/03/14 20:23:58 aicmltec Exp $
+// $Id: pdPubList.php,v 1.19 2007/03/16 04:09:48 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -135,7 +135,7 @@ class pdPubList {
                                'pub_author.author_id'
                                => quote_smart($author_id)),
                          "pdPubList::authorIdPubsDbLoad",
-                         array('ORDER BY' => 'publication.title ASC'));
+                         array('ORDER BY' => 'publication.published ASC'));
 
         if ($db->numRows($q) == 0) return;
 

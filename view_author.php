@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.27 2007/03/16 01:15:07 aicmltec Exp $
+// $Id: view_author.php,v 1.28 2007/03/16 04:09:48 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -53,12 +53,12 @@ class view_author extends pdHtmlPage {
             echo $this->getAuthorIcons($auth, 0x6);
         }
 
-        echo '</h3>';
-
-        $this->table = $this->authTableCreate($auth);
+        echo '</h3>' .  $this->authorShow($auth);
     }
 
-    function authTableCreate(&$auth) {
+    function authorShow(&$auth) {
+        $result = '';
+
         $table = new HTML_Table(array('width' => '600',
                                       'border' => '0',
                                       'cellpadding' => '6',
@@ -92,30 +92,32 @@ class view_author extends pdHtmlPage {
         }
         $table->addRow(array('Interest(s):', $interestStr));
 
-        if ($auth->totalPublications > 0) {
-            if ($auth->totalPublications <= 6) {
-                assert('is_array($auth->pub_list->list)');
-                $headingCell = 'Publications:';
-
-                $table->addRow(array($headingCell));
-                $table->addRow(array($this->displayPubList($auth->pub_list)));
-            }
-            else {
-                $table->addRow(
-                    array('Publications:',
-                          '<a href="./list_publication.php?'
-                          . 'type=view&author_id=' . $auth->author_id
-                          . '">View Publications by this author</a>'));
-            }
-        }
-        else {
+        if ($auth->totalPublications == 0) {
             $table->addRow(array('No publications by this author'),
                            array('colspan' => 2));
+        }
+        else if ($auth->totalPublications <= 6) {
+            assert('is_array($auth->pub_list->list)');
+            $headingCell = 'Publications:';
+
+            $table->addRow(array($headingCell));
+        }
+        else {
+            $table->addRow(
+                array('Publications:',
+                      '<a href="./list_publication.php?'
+                      . 'type=view&author_id=' . $auth->author_id
+                      . '">View Publications by this author</a>'));
         }
 
         $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
 
-        return $table;
+        $result .= $table->toHtml();
+        if (($auth->totalPublications > 0)
+            && ($auth->totalPublications <= 6))
+            $result .= $this->displayPubList($auth->pub_list);
+
+        return $result;
     }
 }
 

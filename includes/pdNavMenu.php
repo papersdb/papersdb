@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.13 2007/03/12 05:25:45 loyola Exp $
+// $Id: pdNavMenu.php,v 1.14 2007/03/16 04:09:48 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -98,11 +98,11 @@ class pdNavMenu {
         'view_publications'  => array('View Publications',
                                       'list_publication.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
-        'all_authors'        => array('All Authors', 'list_author.php',
+        'all_authors'        => array('View Authors', 'list_author.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
-        'all_categories'     => array('All Categories', 'list_categories.php',
+        'all_categories'     => array('View Categories', 'list_categories.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
-        'all_venues'         => array('All Venues', 'list_venues.php',
+        'all_venues'         => array('View Venues', 'list_venues.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'logout'             => array('Logout', 'logout.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
