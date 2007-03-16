@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.15 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.16 2007/03/16 15:33:18 aicmltec Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -41,7 +41,8 @@ class pdAuthorList {
 
             $q = $db->select('author', '*',
                              array('name LIKE ' . $db->addQuotes($name)),
-                             "pdAuthorList::pdAuthorList");
+                             "pdAuthorList::pdAuthorList",
+                             array('ORDER BY' => 'name ASC'));
             if ($q === false) return false;
         }
 
