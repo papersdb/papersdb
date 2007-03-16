@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.12 2007/03/16 01:15:07 aicmltec Exp $
+# Name: $Id: report.pl,v 1.13 2007/03/16 21:57:32 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -51,7 +51,7 @@ my @pdf_authors = ('Botea, A',
                    'Kirshner, S',
                    'Li, Y',
                    'Ludvig, E',
-                   'Price,  R',
+                   'Price,  B',
                    'Ringlstetter, C',
                    'Southey, F',
                    'Sturtevant, N',
@@ -60,7 +60,7 @@ my @pdf_authors = ('Botea, A',
                    'Zinkevich, M'
                );
 
-my @student_authors = ('Antonie, L',
+my @student_authors = ('Antonie, M',
                        'Asgarian, N',
                        'Ball, M',
                        'Bard, N',
@@ -102,7 +102,7 @@ my @student_authors = ('Antonie, L',
                        'Neufeld, J',
                        'Newton, J',
                        'Newton, J',
-                       'Niewiandomski, R',
+                       'Niewiadomski, R',
                        'Niu, Y',
                        'O\'Connell, D',
                        'Onuczko, C',

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.34 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: list_publication.php,v 1.35 2007/03/16 21:57:32 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -255,12 +255,13 @@ class list_publication extends pdHtmlPage {
         $text = '<div id="sel"><ul>';
         foreach($pubShowCats as $pcat) {
             if ($pcat == $viewCat)
-                $text .= '<li class="selected">By ' . ucwords($pcat) . '</li>';
+                $text .= '<li><a href="#" class="selected">By '
+                    . ucwords($pcat) . '</a></li>';
             else
                 $text .= '<li><a href="list_publication.php?by='. $pcat
                     . '">By ' . ucwords($pcat) . '</a></li>';
         }
-        $text .= '</ul></div>';
+        $text .= '</ul></div><br/>';
 
         return $text;
     }

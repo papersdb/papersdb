@@ -207,27 +207,19 @@ div#nav {
   min-width:180px;
   max-width:180px;
   padding: 3px 5px 0 0;
-  width: 24%;
+  width: 180px;
 }
 
 div#nav ul {
   font-size: 1.1em;
   list-style: none;
   margin: 0 0 20px 0;
-  padding: 0;
+  padding: 0;1
 }
 
 div#nav li {
   margin-bottom: 4px;
-}
-
-div#nav li.selected {
-  background: #CCCC99;
-  border-left: 4px solid #006633;
-  color: #006633;
-  font-weight: bold;
-  height: 20px;
-  padding: 0 0 0 10px;
+  width:180px;
 }
 
 div#nav li a {
@@ -236,15 +228,14 @@ div#nav li a {
   color: #006633;
   display: block;
   font-weight: bold;
-  height: 20px;
+  height: 20px !important;
   padding: 0 0 0 10px;
   text-decoration: none;
 }
 
-div#nav li a:hover {
+div#nav li a:hover, div#nav li a.selected {
   background: #CCCC99;
   border-left: 4px solid #006633;
-  color: #006633;
 }
 
 div#sel {
@@ -255,8 +246,7 @@ div#sel {
 
 div#sel ul {
   font-size: 0.9em;
-  list-style-type: none;
-  text-align: center;
+  list-style: none;
   margin: 0;
   padding: 0;
   z-index: 2;
@@ -273,35 +263,27 @@ div#sel li a {
   border-bottom: 0;
   border-left: 4px solid #cccccc;
   color: #006633;
-  display: block;
   float: left;
   font-weight: bold;
   height: 3ex;
   padding: 0 0 0 10px;
   text-decoration: none;
   vertical-align: center;
-  width: 16ex;
+  width: 18ex;
 }
 
-div#sel li.selected {
-  background: #CCCC99;
-  border-left: 4px solid #006633;
-  color: #006633;
-  float: left;
-  font-weight: bold;
-  height: 3ex;
-  padding: 0 0 0 10px;
-  text-decoration: none;
-  vertical-align: center;
-  width: 14ex;
-}
-
-div#sel li a:hover {
+div#sel li a:hover,  div#sel li a.selected {
   background: #CCCC99;
   border-left: 4px solid #006633;
   color: #006633;
 }
 
+
+div#selalpha {
+  margin-bottom: 1em;
+  margin: 10px auto 0px auto;
+  z-index: 1;
+}
 
 div#selalpha ul {
   font-size: 0.9em;
@@ -323,7 +305,6 @@ div#selalpha li a {
   border-bottom: 0;
   border-left: 4px solid #cccccc;
   color: #006633;
-  display: block;
   float: left;
   font-weight: bold;
   height: 3ex;
@@ -334,21 +315,7 @@ div#selalpha li a {
   width: 2ex;
 }
 
-div#selalpha li.selected {
-  background: #CCCC99;
-  border-left: 4px solid #006633;
-  color: #006633;
-  float: left;
-  font-weight: bold;
-  height: 3ex;
-  padding: 0 0 0 3px;
-  text-align: left;
-  text-decoration: none;
-  vertical-align: center;
-  width: 2ex;
-}
-
-div#selalpha li a:hover {
+div#selalpha li a:hover, div#selalpha li a.selected {
   background: #CCCC99;
   border-left: 4px solid #006633;
   color: #006633;

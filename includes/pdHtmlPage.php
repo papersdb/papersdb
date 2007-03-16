@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.70 2007/03/16 04:09:48 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.71 2007/03/16 21:57:32 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -427,7 +427,7 @@ class pdHtmlPage {
         if (is_array($options))
             foreach ($options as $key => $value) {
                 if ($value == '')
-                    $result .= '<li class="selected">' . $key . '</li>';
+                    $result .= '<li><a class="selected" href="#">' . $key . '</a></li>';
                 else
                     $result
                         .= '<li><a href="' . $value . '">' . $key . '</a></li>';
@@ -801,7 +801,7 @@ END;
         $text = '<div id="selalpha"><ul>';
         for ($c = 65; $c <= 90; ++$c) {
             if ($c == ord($viewTab))
-                $text .= '<li class="selected">' . chr($c). '</li>';
+                $text .= '<li><a href="#" class="selected">' . chr($c). '</a></li>';
             else
                 $text .= '<li><a href="' . $page . '?tab='. chr($c)
                     . '">' . chr($c) . "</a></li>\n";
