@@ -339,6 +339,7 @@ div#content {
   min-width: 600px;
   padding-bottom: 3px;
   padding-top: 3px;
+  _width: 98%; /* IE6 bug */
 }
 
 div#footer {
