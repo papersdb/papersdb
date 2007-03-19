@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.13 2007/03/16 21:57:32 aicmltec Exp $
+# Name: $Id: report.pl,v 1.14 2007/03/19 23:12:53 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -51,10 +51,9 @@ my @pdf_authors = ('Botea, A',
                    'Kirshner, S',
                    'Li, Y',
                    'Ludvig, E',
-                   'Price,  B',
+                   'Price, B',
                    'Ringlstetter, C',
                    'Southey, F',
-                   'Sturtevant, N',
                    'Wang, S',
                    'Zheng, T',
                    'Zinkevich, M'
@@ -62,11 +61,9 @@ my @pdf_authors = ('Botea, A',
 
 my @student_authors = ('Antonie, M',
                        'Asgarian, N',
-                       'Ball, M',
                        'Bard, N',
                        'Billings, D',
                        'Botea, A',
-                       'Chen, J',
                        'Chen, J',
                        'Coulthard, E',
                        'Davison, K',
@@ -92,8 +89,6 @@ my @student_authors = ('Antonie, M',
                        'Lee, M',
                        'Levner, I',
                        'Li, L',
-                       'Li, Y',
-                       'Lizotte, D',
                        'Lizotte, D',
                        'Lu, Z',
                        'McCracken, P',
@@ -101,44 +96,31 @@ my @student_authors = ('Antonie, M',
                        'Morris, M',
                        'Neufeld, J',
                        'Newton, J',
-                       'Newton, J',
-                       'Niewiadomski, R',
                        'Niu, Y',
-                       'O\'Connell, D',
-                       'Onuczko, C',
                        'Paduraru, C',
-                       'Patrascu, R',
                        'Poulin, B',
                        'Rafols, E',
-                       'Ryder, J',
                        'Schauenberg, T',
                        'Schmidt, M',
                        'Silver, D',
                        'Singh, A',
-                       'Smith, M',
-                       'Sun, L',
-                       'Tanner, B',
                        'Tanner, B',
                        'Wang, P',
                        'Wang, Q',
                        'Wang, T',
                        'Wang, Y',
-                       'Wang, Y',
                        'White, A',
                        'Wilkinson, D',
                        'Wu, J',
                        'Wu, X',
-                       'Wu, Y',
                        'Xiao, G',
                        'Xu, L',
-                       'Yang, F',
-                       'Zhang, H',
                        'Zhang, Q',
                        'Zheng, T',
                        'Zhu, T');
 
 my $nonTier1CategoryCriteria
-    = 'AND (category.category LIKE "%In Conference%" '
+    = ' (category.category LIKE "%In Conference%" '
       . 'OR category.category LIKE "%In Journal%" '
       . 'OR category.category LIKE "%In Workshop%" '
       . 'OR category.category LIKE "%In Book%") ';
@@ -155,7 +137,7 @@ sub getNumPubsForPeriod {
         . 'FROM publication, category, pub_cat WHERE '
         . ' category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
-        . $nonTier1CategoryCriteria
+        . 'AND ' . $nonTier1CategoryCriteria
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
 
@@ -177,14 +159,24 @@ sub getPubs {
             . 'publication.title FROM '
             . 'publication, author, pub_author, venue WHERE '
             . 'venue.title IN ('
-            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') ';
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'AND publication.venue_id=venue.venue_id ';
     }
-    else {
+    elsif ((defined $tier1only) && ($tier1only eq "N")) {
         $statement = 'SELECT DISTINCT publication.pub_id, '
             . 'publication.title FROM '
             . 'publication, author, pub_author, venue, category, pub_cat '
             . 'WHERE venue.title NOT IN ('
             . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'AND ' . $nonTier1CategoryCriteria
+            . 'AND category.cat_id=pub_cat.cat_id '
+            . 'AND publication.pub_id=pub_cat.pub_id '
+            . 'AND publication.venue_id=venue.venue_id ';
+    }
+    elsif (!defined $tier1only) {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM '
+            . 'publication, author, pub_author, category, pub_cat WHERE '
             . $nonTier1CategoryCriteria
             . 'AND category.cat_id=pub_cat.cat_id '
             . 'AND publication.pub_id=pub_cat.pub_id ';
@@ -193,7 +185,7 @@ sub getPubs {
     if ((defined @$authors) && (@$authors > 0)) {
         my @list;
         foreach my $author (@$authors) {
-            push(@list, 'author.name LIKE "%' . $author . '%"');
+            push(@list, 'author.name LIKE "' . $author . '%"');
         }
         $statement .= 'AND (' . join(' OR ', @list) . ') ';
     }
@@ -201,7 +193,6 @@ sub getPubs {
     $statement .= 'AND publication.pub_id=pub_author.pub_id '
         . 'AND publication.keywords LIKE "%machine learning%" '
         . 'AND author.author_id=pub_author.author_id '
-        . 'AND publication.venue_id=venue.venue_id '
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
 
@@ -223,7 +214,7 @@ sub getPubs {
             $statement .= '(' . join(' OR ', @list) . ') ';
         }
 
-        $statement .= $nonTier1CategoryCriteria
+        $statement .= 'AND ' . $nonTier1CategoryCriteria
             .  'AND publication.venue_id is NULL '
             . 'AND publication.pub_id=pub_author.pub_id '
             . 'AND author.author_id=pub_author.author_id '
@@ -336,12 +327,13 @@ sub pdfStudentReport {
     my %authors;
     my %author_pubs;
     my @all_authors = (@pdf_authors, @student_authors);
+    my @pi_pdf_students = (@pi_authors, @pdf_authors, @student_authors);
 
     foreach my $year (sort keys %years) {
         %pubs = getPubs(\@all_authors, $years{$year}[0], $years{$year}[1]);
 
         foreach my $pub_id (sort keys %pubs) {
-            my %pub_authors = getPubAuthors($pub_id, \@all_authors);
+            my %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students);
 
             my $num_authors = scalar(keys %pub_authors);
             my $authors = join(':', keys %pub_authors);
