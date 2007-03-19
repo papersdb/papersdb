@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.25 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub4.php,v 1.26 2007/03/19 15:31:27 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -38,7 +38,8 @@ class add_pub4 extends add_pub_base {
         if (!isset($_SESSION['paper']) && !isset($_SESSION['attachments'])) {
             $_SESSION['paper'] = $this->pub->paperFilenameGet();
             if (count($this->pub->additional_info) > 0)
-                for ($i = 0; $i < count($this->pub->additional_info); $i++) {
+                for ($i = 0, $n = count($this->pub->additional_info);
+                     $i < $n; $i++) {
                     $_SESSION['attachments'][$i]
                         = $this->pub->attFilenameGet($i);
                     $_SESSION['att_types'][$i]

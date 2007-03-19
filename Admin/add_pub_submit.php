@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.17 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.18 2007/03/19 15:31:27 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -62,7 +62,7 @@ class add_pub_submit extends pdHtmlPage {
 
         if (isset($_SESSION['attachments'])
             && (count($_SESSION['attachments']) > 0))
-            for ($i = 0; $i < count( $_SESSION['attachments']); $i++) {
+            for ($i = 0, $n = count( $_SESSION['attachments']); $i < $n; $i++) {
                 assert('isset($_SESSION["att_types"][$i])');
 
                 $pub->attSave($this->db, $_SESSION['attachments'][$i],

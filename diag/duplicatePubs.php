@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.6 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: duplicatePubs.php,v 1.7 2007/03/19 15:31:27 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -42,8 +42,8 @@ class duplicatePubs extends pdHtmlPage {
         //$this->debugVar('titles', $titles);
 
         $count = 1;
-        for ($i = 0; $i < count($titles) - 1; ++$i) {
-            for ($j = $i + 1; $j < count($titles); ++$j) {
+        for ($i = 0, $n = count($titles); $i < $n - 1; ++$i) {
+            for ($j = $i + 1; $j < $n; ++$j) {
                 if ($titles[$i][1] == $titles[$j][1]) {
                     echo '<h2>Match ' . $count . '</h2>';
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.56 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.57 2007/03/19 15:31:27 loyola Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -118,8 +118,8 @@ class search_publication_db extends pdHtmlPage {
                               "too","up","use", "what","when","where", "who",
                               "why","you");
 
-        for ($a =0; $a< count($common_words); $a++)
-            if($string == $common_words[$a])
+        foreach ($common_words) as $word)
+            if($string == $words)
                 return true;
 
         return false;
