@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.47 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_author.php,v 1.48 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -183,7 +183,7 @@ class add_author extends pdHtmlPage {
         }
     }
 
-    function renderForm(&$author) {
+    function renderForm($author) {
         $form =& $this->form;
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {

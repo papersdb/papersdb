@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.4 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdExtraInfoList.php,v 1.5 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Retrieves the extra information items from the database.
@@ -20,7 +20,7 @@ class pdExtraInfoList {
     /**
      * Constructor.
      */
-    function pdExtraInfoList(&$db) {
+    function pdExtraInfoList($db) {
         assert('is_object($db)');
 
         $this->list = array();

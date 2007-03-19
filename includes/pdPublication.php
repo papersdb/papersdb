@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.89 2007/03/15 21:13:50 aicmltec Exp $
+// $Id: pdPublication.php,v 1.90 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -67,7 +67,7 @@ class pdPublication extends pdDbAccessor {
      *
      * Use $flags to load information from other tables.
      */
-    function dbLoad(&$db, $id, $flags = PD_PUB_DB_LOAD_ALL) {
+    function dbLoad($db, $id, $flags = PD_PUB_DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
@@ -96,11 +96,12 @@ class pdPublication extends pdDbAccessor {
             if ($this->category->info != null) {
                 foreach ($this->category->info as $info_id => $name) {
                     $r = $db->selectRow(
-                        'pub_cat_info', array('value'),
+                        'pub_cat_info', 'value',
                         array('pub_id' => $id,
                               'cat_id' => quote_smart($this->category->cat_id),
                               'info_id' => quote_smart($info_id)),
                         "pdPublication::dbLoad");
+
                     if ($r !== false)
                         $this->info[$name] = $r->value;
                     else
@@ -174,7 +175,7 @@ class pdPublication extends pdDbAccessor {
         return true;
     }
 
-    function dbLoadVenue(&$db) {
+    function dbLoadVenue($db) {
         assert("($this->dbLoadFlags & PD_PUB_DB_LOAD_VENUE)");
 
         if (($this->venue_id == null) || ($this->venue_id == '')
@@ -184,7 +185,7 @@ class pdPublication extends pdDbAccessor {
         $this->venue->dbload($db, $this->venue_id);
     }
 
-    function dbDelete(&$db) {
+    function dbDelete($db) {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
@@ -205,7 +206,7 @@ class pdPublication extends pdDbAccessor {
         $this->deleteFiles($db);
     }
 
-    function dbSave(&$db) {
+    function dbSave($db) {
         assert('is_object($db)');
 
         $arr = array('title'      => $this->title,
@@ -304,20 +305,19 @@ class pdPublication extends pdDbAccessor {
         $db->delete('pub_cat', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
 
-        if (is_object($this->venue)) {
-        }
-        else if (is_object($this->category) && ($this->category->cat_id > 0)) {
+        if (is_object($this->category) && ($this->category->cat_id > 0)) {
             $db->insert('pub_cat', array('cat_id' => $this->category->cat_id,
                                          'pub_id' => $this->pub_id),
                         'pdPublication::dbSave');
 
             $db->delete('pub_cat_info', array('pub_id' => $this->pub_id),
                         'pdPublication::dbSave');
-            if (($this->category->info != null) &&
-                (count($this->category->info) > 0)) {
+            if (isset($this->category->info)
+                && (count($this->category->info) > 0)) {
                 $arr = array();
                 foreach ($this->category->info as $info_id => $name) {
-                    if (isset($this->info[$name]))
+                    if (isset($this->info[$name])
+                        && ($this->info[$name] != ''))
                         array_push($arr,
                                    array('pub_id'  => $this->pub_id,
                                          'cat_id'  => $this->category->cat_id,
@@ -330,7 +330,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function dbAttUpdate(&$db, $filename, $type) {
+    function dbAttUpdate($db, $filename, $type) {
         assert('$this->pub_id != null');
 
         $filename = $this->pub_id . '/' . $filename;
@@ -356,7 +356,7 @@ class pdPublication extends pdDbAccessor {
                     'pdPublication::dbAttUpdate');
     }
 
-    function dbAttRemove(&$db, $filename) {
+    function dbAttRemove($db, $filename) {
         assert('$this->pub_id != null');
         assert('count($this->additional_info) > 0');
 
@@ -452,7 +452,7 @@ class pdPublication extends pdDbAccessor {
         $this->extra_info = $words;
     }
 
-    function addVenue(&$db, $mixed) {
+    function addVenue($db, $mixed) {
         if (is_object($mixed)) {
             $this->venue = $mixed;
             $this->venue_id = $this->venue->venue_id;
@@ -489,7 +489,7 @@ class pdPublication extends pdDbAccessor {
         assert('false');
     }
 
-    function addCategory(&$db, $mixed) {
+    function addCategory($db, $mixed) {
         if (is_object($mixed)) {
             $this->category = $mixed;
         }
@@ -518,7 +518,7 @@ class pdPublication extends pdDbAccessor {
         unset($this->authors);
     }
 
-    function addAuthor(&$db, $mixed) {
+    function addAuthor($db, $mixed) {
         if (is_object($mixed)) {
             // check if publication already has this author
             if ($this->authors != null)
@@ -573,7 +573,7 @@ class pdPublication extends pdDbAccessor {
         $this->pub_links[] = $pub_id;
     }
 
-    function paperDbUpdate(&$db, $paper) {
+    function paperDbUpdate($db, $paper) {
         $this->paper = $paper;
         $db->update('publication', array('paper' => $this->paper),
                     array('pub_id' => $this->pub_id),
@@ -607,7 +607,7 @@ class pdPublication extends pdDbAccessor {
         return is_file($path);
     }
 
-    function attExists(&$att) {
+    function attExists($att) {
         $path = FS_PATH;
         if (strpos($att->location, 'uploaded_files/') === false)
             $path .= '/uploaded_files/';
@@ -684,7 +684,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function deletePaper(&$db) {
+    function deletePaper($db) {
         assert('isset($this->pub_id)');
 
         if (!isset($this->paper)) return;
@@ -699,7 +699,7 @@ class pdPublication extends pdDbAccessor {
         $this->paperDbUpdate($db, 'No paper');
     }
 
-    function deleteAtt(&$db, &$att) {
+    function deleteAtt($db, $att) {
         assert('isset($this->pub_id)');
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
@@ -710,7 +710,7 @@ class pdPublication extends pdDbAccessor {
         $this->dbAttRemove($db, $att->location);
     }
 
-    function deleteFiles(&$db) {
+    function deleteFiles($db) {
         $this->deletePaper($db);
 
         if (count($this->additional_info) > 0) {
@@ -783,7 +783,7 @@ class pdPublication extends pdDbAccessor {
       }
 
       // Title
-      $citation .= '<span id="pub_title">&quot;' . $this->title
+      $citation .= '<span class="pub_title">&quot;' . $this->title
         . '&quot;</span>. ';
 
       // Additional Information - Outputs the category specific information

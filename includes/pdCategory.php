@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.14 2007/03/14 20:27:40 aicmltec Exp $
+// $Id: pdCategory.php,v 1.15 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -38,7 +38,7 @@ class pdCategory extends pdDbAccessor {
      *
      * Use flags to load individual tables
      */
-    function dbLoad(&$db, $id, $name = null, $flags = PD_CATEGORY_DB_LOAD_ALL) {
+    function dbLoad($db, $id, $name = null, $flags = PD_CATEGORY_DB_LOAD_ALL) {
         $this->dbLoadFlags = $flags;
 
         if (isset($id)) {
@@ -62,7 +62,7 @@ class pdCategory extends pdDbAccessor {
     }
 
 
-    function dbLoadCategoryInfo(&$db) {
+    function dbLoadCategoryInfo($db) {
         assert ('isset($this->cat_id)');
 
         // only load this once
@@ -86,7 +86,7 @@ class pdCategory extends pdDbAccessor {
     /**
      *
      */
-    function dbSave(&$db) {
+    function dbSave($db) {
         if (isset($this->cat_id)) {
 
             $table->updateColAttributes(0, array('id' => 'emph',
@@ -108,7 +108,7 @@ class pdCategory extends pdDbAccessor {
         $this->dbSaveInfo($db);
     }
 
-    function dbSaveInfo (&$db) {
+    function dbSaveInfo ($db) {
         if (!isset($this->info))  return;
 
         $info_list = new pdInfoList($db);
@@ -138,7 +138,7 @@ class pdCategory extends pdDbAccessor {
             $db->insert('cat_info', $arr, 'pdCategory::dbSaveInfo');
     }
 
-    function dbDelete(&$db) {
+    function dbDelete($db) {
         $db->delete('cat_info', array('cat_id' => $this->cat_id),
                     'pdCategory::dbDelete');
         $db->delete('category', array('cat_id' => $this->cat_id),

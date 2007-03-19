@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.71 2007/03/16 21:57:32 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.72 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -291,7 +291,7 @@ class pdHtmlPage {
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
             $result .= $this->navMenu();
-            $result .= '<div id="content">';
+            $result .= '<div id="content"><p/>';
         }
 
         return $result;
@@ -583,7 +583,7 @@ END;
         $this->nav_menu->nav_items[$page_id]->enabled = $enable;
     }
 
-    function getPubIcons(&$pub, $flags = 0xf) {
+    function getPubIcons($pub, $flags = 0xf) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -595,17 +595,17 @@ END;
             if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {
                 $html .= '<img src="' . $url_prefix
                     . 'images/pdf.gif" alt="PDF" '
-                    . 'height="18" width="17" border="0" align="top">';
+                    . 'height="18" width="17" border="0" align="top" />';
             }
             else if (preg_match("/\.(ppt|PPT)$/", $pub->paper)) {
                 $html .= '<img src="' . $url_prefix
                     . 'images/ppt.gif" alt="PPT" height="18" '
-                    . 'width="17" border="0" align="top">';
+                    . 'width="17" border="0" align="top" />';
             }
             else if (preg_match("/\.(ps|PS)$/", $pub->paper)) {
                 $html .= '<img src="' . $url_prefix
                     . 'images/ps.gif" alt="PS" height="18" '
-                    . 'width="17" border="0" align="top">';
+                    . 'width="17" border="0" align="top" />';
             }
             $html .= '</a>';
         }
@@ -641,7 +641,7 @@ END;
         return $html;
     }
 
-    function getPubAddAttIcons(&$att) {
+    function getPubAddAttIcons($att) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -669,7 +669,7 @@ END;
         return $html;
     }
 
-    function getAuthorIcons(&$author, $flags = 0x7) {
+    function getAuthorIcons($author, $flags = 0x7) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -704,7 +704,7 @@ END;
         return $html;
     }
 
-    function getCategoryIcons(&$category, $flags = 0x3) {
+    function getCategoryIcons($category, $flags = 0x3) {
         if ($this->access_level < 1) return null;
 
         $html = '';
@@ -731,7 +731,7 @@ END;
         return $html;
     }
 
-    function getVenueIcons(&$venue, $flags = 0x3) {
+    function getVenueIcons($venue, $flags = 0x3) {
         if ($this->access_level < 1) return null;
 
         $html = '';
@@ -758,7 +758,7 @@ END;
         return $html;
     }
 
-    function displayPubList($pub_list) {
+    function displayPubList($pub_list, $enumerate = true, $max = -1) {
         assert('is_object($pub_list)');
 
         $table = new HTML_Table(array('width' => '100%',
@@ -779,7 +779,14 @@ END;
             $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
 
-            $table->addRow(array($count, $citation));
+            if ($enumerate)
+                $cells = array($count, $citation);
+            else
+                $cells = array(null, $citation);
+
+            $table->addRow($cells);
+
+            if (($max > 0) && ($count >= $max)) break;
         }
 
         // now assign table attributes including highlighting for even and odd

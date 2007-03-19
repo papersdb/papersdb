@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.39 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: index.php,v 1.40 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Main page for PapersDB.
@@ -36,25 +36,9 @@ class index extends pdHtmlPage {
 
         if (!isset($pub_list->list)) return;
 
-        echo '<h2>Recent Additions:</h2><ul>';
-        $stringlength = 0;
-        foreach ($pub_list->list as $pub) {
-            if ($stringlength > 5000) break;
+        echo '<h2>Recent Additions:</h2>';
 
-            // get all info for this pub
-            $pub->dbload($this->db, $pub->pub_id);
-
-            $citation = '<li class="wide">' . $pub->getCitationHtml()
-                . '&nbsp;' . $this->getPubIcons($pub);
-
-            $citation .= '</li>';
-
-            $stringlength += strlen($citation);
-
-            echo $citation;
-
-        }
-        echo '</ul>';
+        echo $this->displayPubList($pub_list, false, 6);
     }
 
     function pubByYears() {
@@ -73,7 +57,7 @@ class index extends pdHtmlPage {
 
         $table->addRow(array($text));
 
-        echo '<h2>Publications by Year:</h2><ul>'
+        echo '<h2>Publications by Year:</h2>'
             . $table->toHtml();
     }
 }

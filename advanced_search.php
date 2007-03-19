@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.57 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: advanced_search.php,v 1.58 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -146,7 +146,7 @@ class advanced_search extends pdHtmlPage {
             array('size' => 60, 'maxlength' => 250));
         $kwElement[1] =& HTML_QuickForm::createElement(
             'static', 'auth_label', null,
-            '<span id="small">seperate using semi-colon (;)</span>');
+            '<span class="small">seperate using semi-colon (;)</span>');
         $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
                         false);
 

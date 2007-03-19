@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.8 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.9 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Storage and retrieval of author interests to / from the
@@ -21,7 +21,7 @@ class pdAuthInterests {
     /**
      * Constructor.
      */
-    function pdAuthInterests(&$db) {
+    function pdAuthInterests($db) {
         $q = $db->select('interest', '*', '', "pdAuthInterests::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {
@@ -39,7 +39,7 @@ class pdAuthInterests {
     /**
      * \param $interest_id mixed.
      */
-    function dbDelete(&$db, $interest_id) {
+    function dbDelete($db, $interest_id) {
         assert('is_array($this->list)');
 
         if ($interest_id == null)

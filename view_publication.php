@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.69 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: view_publication.php,v 1.70 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * View Publication
@@ -190,7 +190,7 @@ class view_publication extends pdHtmlPage {
             . '</span>';
     }
 
-    function lastUpdateGet(&$pub) {
+    function lastUpdateGet($pub) {
         $string = "";
         $published = split("-",$pub->updated);
         if($published[1] != 00)

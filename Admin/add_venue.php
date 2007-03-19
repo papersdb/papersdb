@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.34 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_venue.php,v 1.35 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -66,7 +66,7 @@ class add_venue extends pdHtmlPage {
         $this->pageTitle = $label;
 
         if (($venue->type == 'Conference') || ($venue->type == 'Workshop'))
-            $label .= '&nbsp;<span id="small"><a href="javascript:dataKeep('
+            $label .= '&nbsp;<span class="small"><a href="javascript:dataKeep('
                 . ($newOccurrences+1) .')">[Add Occurrence]</a></span>';
 
         $form->addElement('header', null, $label);

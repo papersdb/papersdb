@@ -6,7 +6,7 @@ body {
   background-color: #F2F2F2;
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size:0.75em;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
 }
 
@@ -109,6 +109,7 @@ a:hover { text-decoration: underline; color: #666600;}
   background-color: #006633;
   border-bottom: 1px solid #FFCC00;
   height: 3.5ex;
+  margin: 0;
   padding: 0;
   text-align: left;
 }
@@ -123,7 +124,7 @@ a:hover { text-decoration: underline; color: #666600;}
   font-weight: bold;
 }
 
-#small {
+.small {
   font-size:0.75em;
 }
 
@@ -204,8 +205,6 @@ div#nav {
   float: left;
   font-size: 0.9em;
   margin: 10px 10px 10px 0;
-  min-width:180px;
-  max-width:180px;
   padding: 3px 5px 0 0;
   width: 180px;
 }
@@ -332,13 +331,10 @@ div#selalpha li a:visited {
 div#content {
   background-color: #FFFFFF;
   line-height:1.4;
-  margin-bottom: 5px;
-  margin-left:200px;
-  margin-top:8px;
+  margin: 8px 0 5px 200px;
   min-height: 500px;
   min-width: 600px;
-  padding-bottom: 3px;
-  padding-top: 3px;
+  padding: 0 0 3px 0;
   _width: 98%; /* IE6 bug */
 }
 
@@ -346,8 +342,10 @@ div#footer {
   background-color: #006633;
   border-top: 2px solid #FFCC00;
   color: #FFFFFF;
+  clear: both;
   font-size:.7em;
   font-weight:bold;
+  margin: 0;
   min-width:800px;
   padding:4px 0;
   text-align:left;
@@ -401,14 +399,14 @@ div#footer2 {
   width: 60px;
 }
 
-#pub_title {
+.pub_title {
   color: #006633;
   font-weight: bold;
   margin: 0;
   padding: 0;
 }
 
-#pub_authors {
+.pub_authors {
   font-size: .6em;
   margin: 0;
   padding: 0;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.26 2007/03/19 15:31:27 loyola Exp $
+// $Id: add_pub4.php,v 1.27 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -186,7 +186,7 @@ class add_pub4 extends add_pub_base {
                     array('size' => 25, 'maxlength' => 250))
                 ),
             'new_web_links_group',
-            'New Link :<br/><span id="small">name&nbsp;:&nbsp;url</span>',
+            'New Link :<br/><span class="small">name&nbsp;:&nbsp;url</span>',
             '&nbsp;', false);
 
         $form->addElement('submit', 'add_web_link', 'Add Web Link');

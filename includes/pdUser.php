@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.30 2007/03/14 20:27:40 aicmltec Exp $
+// $Id: pdUser.php,v 1.31 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -44,7 +44,7 @@ class pdUser extends pdDbAccessor {
     /**
      *
      */
-    function dbLoad(&$db, $id) {
+    function dbLoad($db, $id) {
         assert('is_object($db)');
         $q = $db->selectRow('user', '*', array('login' => $id),
                             "pdUser::dbLoad");
@@ -62,7 +62,7 @@ class pdUser extends pdDbAccessor {
     /**
      *
      */
-    function dbSave(&$db) {
+    function dbSave($db) {
         assert('is_object($db)');
         assert('isset($this->login)');
         $db->update('user', array('name' => $this->name,
@@ -87,7 +87,7 @@ class pdUser extends pdDbAccessor {
     /**
      *
      */
-    function collaboratorsDbLoad(&$db) {
+    function collaboratorsDbLoad($db) {
         assert('is_object($db)');
         assert('isset($this->login)');
 
@@ -111,7 +111,7 @@ class pdUser extends pdDbAccessor {
      * User's most popular Authors, sorted according to number of publications
      * submitted.
      */
-    function popularAuthorsDbLoad(&$db) {
+    function popularAuthorsDbLoad($db) {
         assert('is_object($db)');
         assert('isset($this->login)');
 
@@ -148,7 +148,7 @@ class pdUser extends pdDbAccessor {
         }
     }
 
-    function authorIdGet(&$db) {
+    function authorIdGet($db) {
         assert('$this->name != ""');
         $name = explode(' ', $this->name);
         $count = count($name);
@@ -163,7 +163,7 @@ class pdUser extends pdDbAccessor {
         $this->author_id = $q->author_id;
     }
 
-    function venueIdsGet(&$db) {
+    function venueIdsGet($db) {
         assert('$this->name != ""');
         unset($this->venue_ids);
 

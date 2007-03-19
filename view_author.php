@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.28 2007/03/16 04:09:48 loyola Exp $
+// $Id: view_author.php,v 1.29 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -56,7 +56,7 @@ class view_author extends pdHtmlPage {
         echo '</h3>' .  $this->authorShow($auth);
     }
 
-    function authorShow(&$auth) {
+    function authorShow($auth) {
         $result = '';
 
         $table = new HTML_Table(array('width' => '600',

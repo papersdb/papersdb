@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.12 2007/03/19 15:31:27 loyola Exp $
+// $Id: author_report.php,v 1.13 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -87,7 +87,7 @@ class author_report extends pdHtmlPage {
             $pub->dbLoad($this->db, $pub_id);
             echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;' . $this->getPubIcons($pub)
-                . '<br/><span id="small">' . $authors . '</span><p/>';
+                . '<br/><span class="small">' . $authors . '</span><p/>';
             $c++;
         }
 
@@ -132,7 +132,7 @@ class author_report extends pdHtmlPage {
             $pub->dbLoad($this->db, $pub_id);
             echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
                 . '&nbsp;' . $this->getPubIcons($pub)
-                . '<br/><span id="small">' . $authors . '</span><p/>';
+                . '<br/><span class="small">' . $authors . '</span><p/>';
             $c++;
         }
     }

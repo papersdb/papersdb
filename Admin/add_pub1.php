@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.26 2007/03/15 21:13:50 aicmltec Exp $
+// $Id: add_pub1.php,v 1.27 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -124,7 +124,7 @@ class add_pub1 extends add_pub_base {
                     array('size' => 60, 'maxlength' => 250)),
                 HTML_QuickForm::createElement(
                     'static', 'kwgroup_help', null,
-                    '<span id="small">separate using semi-colons (;)</span>')),
+                    '<span class="small">separate using semi-colons (;)</span>')),
 
             'kwgroup', $this->helpTooltip('Keywords', 'keywordsHelp') . ':',
             '<br/>', false);

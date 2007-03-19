@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.23 2007/03/14 20:27:40 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.24 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -66,7 +66,7 @@ class pdAuthor extends pdDbAccessor{
      *
      * Use flags to load individual tables
      */
-    function dbLoad(&$db, $id, $flags = PD_AUTHOR_DB_LOAD_ALL) {
+    function dbLoad($db, $id, $flags = PD_AUTHOR_DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
@@ -95,7 +95,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    function dbLoadInterests(&$db) {
+    function dbLoadInterests($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -117,7 +117,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    function publicationsDbLoad(&$db) {
+    function publicationsDbLoad($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
         assert('$this->dbLoadFlags & (PD_AUTHOR_DB_LOAD_PUBS_MIN | PD_AUTHOR_DB_LOAD_PUBS_ALL)');
@@ -147,7 +147,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Adds or modifies an author in the database.
      */
-    function dbSave(&$db) {
+    function dbSave($db) {
         assert('is_object($db)');
 
         // add http:// to webpage address if needed
@@ -184,7 +184,7 @@ class pdAuthor extends pdDbAccessor{
         $this->dbSaveInterests($db);
     }
 
-    function dbSaveInterests(&$db) {
+    function dbSaveInterests($db) {
         if (isset($this->author_id)) {
             $db->delete('author_interest',
                         array('author_id' => $this->author_id),
@@ -224,7 +224,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Deletes an author from the database.
      */
-    function dbDelete(&$db) {
+    function dbDelete($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -244,7 +244,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Loads author data from the object passed in
      */
-    function load(&$mixed) {
+    function load($mixed) {
         if (is_object($mixed)) {
             foreach (array_keys(get_class_vars('pdAuthor')) as $member) {
                 if (isset($mixed->$member))

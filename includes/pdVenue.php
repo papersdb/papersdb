@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.23 2007/03/14 20:27:40 aicmltec Exp $
+// $Id: pdVenue.php,v 1.24 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -38,7 +38,7 @@ class pdVenue extends pdDbAccessor {
      *
      * Use flags to load individual tables
      */
-    function dbLoad(&$db, $id) {
+    function dbLoad($db, $id) {
         assert('is_object($db)');
 
         if (count($this->occurrences) > 0)
@@ -63,7 +63,7 @@ class pdVenue extends pdDbAccessor {
     /**
      *
      */
-    function dbSave(&$db) {
+    function dbSave($db) {
         assert('is_object($db)');
 
         $values = array('title'    => $this->title,
@@ -92,7 +92,7 @@ class pdVenue extends pdDbAccessor {
         }
     }
 
-    function dbUpdateOccurrence(&$db) {
+    function dbUpdateOccurrence($db) {
         if (isset($this->venue_id))
             $db->delete('venue_occur', array('venue_id' => $this->venue_id),
                         'pdVenue::dbSave');
@@ -112,7 +112,7 @@ class pdVenue extends pdDbAccessor {
     /**
      *
      */
-    function dbDelete (&$db) {
+    function dbDelete ($db) {
         assert('is_object($db)');
         $db->delete('venue', array('venue_id' => $this->venue_id),
                     'pdVenue::dbDelete');

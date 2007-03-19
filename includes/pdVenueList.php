@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.11 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.12 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -23,7 +23,7 @@ class pdVenueList {
      * By default venues with URLs in the name are not part of the list. Set
      * $all to true to get venues with URLs in the name also.
      */
-    function pdVenueList(&$db, $options = null) {
+    function pdVenueList($db, $options = null) {
         if (isset($options['starting_with'])) {
             $this->loadStartingWith($db, $options['starting_with']);
             return;
@@ -91,7 +91,7 @@ class pdVenueList {
         asort($this->list);
     }
 
-    function loadStartingWith(&$db, $letter) {
+    function loadStartingWith($db, $letter) {
         assert('strlen($letter) == 1');
 
         $letter .= '%';

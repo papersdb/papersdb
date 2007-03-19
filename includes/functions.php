@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.32 2007/03/13 22:06:11 aicmltec Exp $
+// $Id: functions.php,v 1.33 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -84,14 +84,24 @@ function arr2obj($arg_array) {
  * format text into multiple lines not exceeding 80 characters
  */
 function format80($text) {
+    if (!isset($text) || ($text == '')) return;
+
     $lines = explode("\n", $text);
     foreach($lines as $line) {
         preg_match("/^(\s+)/", $line, $m);
+
+        if (isset($m[1]))
+            $indent = $m[1];
+        else
+            $indent = ' ';
+
         if (strlen($line) > 80) {
             while (strlen($line) > 80) {
                 $splt = strrpos(substr($line, 0, 80), ' ');
-                $new_lines[] = substr($line, 0, $splt);
-                $line = $m[1] . $m[1] . substr($line, $splt+1);
+                if ($splt !== false) {
+                    $new_lines[] = substr($line, 0, $splt);
+                    $line = $indent . $indent . substr($line, $splt+1);
+                }
             }
             $new_lines[] = $line;
         }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.5 2006/09/25 19:59:09 aicmltec Exp $
+// $Id: pdInfoList.php,v 1.6 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Class to retrieve information table data.
@@ -20,7 +20,7 @@ class pdInfoList {
     /**
      * Constructor.
      */
-    function pdInfoList(&$db) {
+    function pdInfoList($db) {
         assert('is_object($db)');
         $q = $db->select('info', '*', '', "pdInfoList::dbLoad");
         $r = $db->fetchObject($q);

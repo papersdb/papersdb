@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.16 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: search_results.php,v 1.17 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -137,7 +137,7 @@ class search_results extends pdHtmlPage {
     /**
      *
      */
-    function otherFormatForm(&$result_pubs) {
+    function otherFormatForm($result_pubs) {
         if ($result_pubs == null) return;
 
         $form = new HTML_QuickForm('otherFormatForm');

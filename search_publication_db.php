@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.57 2007/03/19 15:31:27 loyola Exp $
+// $Id: search_publication_db.php,v 1.58 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -47,7 +47,6 @@ class search_publication_db extends pdHtmlPage {
         $pub_id_count = 0;
 
         // We start as the result being every pub_id
-        $this->result_pubs = NULL;
         $search_query = "SELECT DISTINCT pub_id FROM publication";
         $this->add_to_array($search_query, $this->result_pubs);
 
@@ -118,11 +117,7 @@ class search_publication_db extends pdHtmlPage {
                               "too","up","use", "what","when","where", "who",
                               "why","you");
 
-        foreach ($common_words) as $word)
-            if($string == $words)
-                return true;
-
-        return false;
+        return in_array($string, $common_words);
     }
 
     /**
@@ -193,8 +188,6 @@ class search_publication_db extends pdHtmlPage {
      * adds the queried pub_ids to the array, checking for repeats as well
      */
     function add_to_array($query, &$thearray) {
-        debugVar('query', $query);
-
         if ($thearray == null)
             $thearray = array();
 
@@ -332,6 +325,7 @@ class search_publication_db extends pdHtmlPage {
                         . " AND info_id=" . quote_smart($info_id)
                         . " AND value LIKE " . quote_smart("%".$info_name."%");
                     $this->add_to_array($search_query, $temporary_array);
+
                     $this->result_pubs
                         = array_intersect($this->result_pubs, $temporary_array);
                 }

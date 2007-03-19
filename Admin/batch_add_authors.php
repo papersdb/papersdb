@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.8 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.9 2007/03/19 22:04:39 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -37,7 +37,7 @@ class batch_add_authors extends pdHtmlPage {
                     array('cols' => 60, 'rows' => 10)),
                 HTML_QuickForm::createElement(
                     'static', 'kwgroup_help', null,
-                    '<span id="small">separate using semi-colons (;)</span>')),
+                    '<span class="small">separate using semi-colons (;)</span>')),
             'new_auth_group',
             $this->helpTooltip('New Authors:', 'newAuthorHelp'),
             '<br/>', false);
