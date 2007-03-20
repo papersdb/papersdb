@@ -63,19 +63,19 @@ class list_author extends pdHtmlPage {
                             PD_AUTHOR_DB_LOAD_BASIC
                             | PD_AUTHOR_DB_LOAD_PUBS_MIN);
 
-            $name = '<span id="emph"><a href="view_author.php?author_id='
+            $name = '<span class="emph"><a href="view_author.php?author_id='
                 . $author_id . '">' . $name . '</a>&nbsp;'
                 . $this->getAuthorIcons($author) . '</span>';
 
             $info = array();
             if ($author->title != '')
-                $info[] = '<span id="small">' . $author->title . '</span>';
+                $info[] = '<span class="small">' . $author->title . '</span>';
 
             if ($author->organization != '')
-                $info[] = '<span id="small">' . $author->organization
+                $info[] = '<span class="small">' . $author->organization
                     . '</span>';
 
-            $info[] = '<span id="small">Number of publication entries in '
+            $info[] = '<span class="small">Number of publication entries in '
                 . 'database: ' . $author->totalPublications . '</span>';
 
             $table->addRow(array($name, implode('<br/>', $info)));
@@ -90,8 +90,7 @@ class list_author extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
-        $table->updateColAttributes(0, array('class' => 'emph',
-                                             'id' => 'publist'), true);
+        $table->updateColAttributes(0, array('class' => 'publist'), true);
 
         $this->table =& $table;
     }

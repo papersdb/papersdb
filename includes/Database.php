@@ -1904,7 +1904,7 @@ border=\"0\" ALT=\"Google\"></A>
 			$msg = '<p style="color: red"><b>'.$msg."<br />\n" .
 				$cachederror . "</b></p>\n";
 
-			$tag = '<div id="article">';
+			$tag = '<div class="article">';
 			$text = str_replace(
 				$tag,
 				$tag . $msg,

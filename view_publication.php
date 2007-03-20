@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.70 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: view_publication.php,v 1.71 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * View Publication
@@ -172,7 +172,8 @@ class view_publication extends pdHtmlPage {
             }
         }
 
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'width' => '25%'));
 
         $content .= $table->toHtml();
 
@@ -186,7 +187,7 @@ class view_publication extends pdHtmlPage {
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
 
-        echo $content . '<span id="small">' . $updateStr
+        echo $content . '<span class="small">' . $updateStr
             . '</span>';
     }
 

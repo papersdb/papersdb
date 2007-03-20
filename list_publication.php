@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.35 2007/03/16 21:57:32 aicmltec Exp $
+// $Id: list_publication.php,v 1.36 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -127,7 +127,7 @@ class list_publication extends pdHtmlPage {
                 $pub_years = new pdPubList($this->db, array('year_list' => true));
 
                 $table->addRow(array('Year', 'Num. Publications'),
-                               array('id' => 'emph'));
+                               array('class' => 'emph'));
 
                 foreach (array_values($pub_years->list) as $item) {
                     $cells = array();
@@ -193,7 +193,7 @@ class list_publication extends pdHtmlPage {
                 $cl = new pdCatList($this->db);
 
                 $table->addRow(array('Category', 'Num. Publications'),
-                               array('id' => 'emph'));
+                               array('class' => 'emph'));
 
                 foreach ($cl->list as $cat_id => $category) {
                     $cells = array();
@@ -245,8 +245,7 @@ class list_publication extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
-        $table->updateColAttributes(0, array('class' => 'emph',
-                                             'id' => 'publist'), true);
+        $table->updateColAttributes(0, array('class' => 'publist'), true);
     }
 
     function pubSelMenu($viewCat = null) {

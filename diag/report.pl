@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.16 2007/03/20 03:58:54 loyola Exp $
+# Name: $Id: report.pl,v 1.17 2007/03/20 16:47:19 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -51,6 +51,7 @@ my @pdf_authors = ('Botea, A',
                    'Kirshner, S',
                    'Li, Y',
                    'Ludvig, E',
+                   'Madani, O',
                    'Price, B',
                    'Ringlstetter, C',
                    'Southey, F',
@@ -163,7 +164,7 @@ sub getPubsForPeriod {
     my $enddate = shift;
     my $statement;
 
-    $statement = 'SELECT DISTINCT publication.pub_id, publication.title '
+    $statement = 'SELECT DISTINCT publication.pub_id '
         . 'FROM publication, category, pub_cat WHERE '
         . ' category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '

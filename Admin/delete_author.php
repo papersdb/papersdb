@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.21 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: delete_author.php,v 1.22 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Deletes an author from the database.
@@ -103,7 +103,7 @@ class delete_author extends pdHtmlPage {
                 $cell = "none";
 
             $table->addRow(array('Web page:', $cell));
-            $table->updateColAttributes(0, array('id' => 'emph',
+            $table->updateColAttributes(0, array('class' => 'emph',
                                                  'width' => '25%'));
 
             echo '<h3>Delete Author</h3><p/>'

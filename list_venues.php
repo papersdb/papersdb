@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.23 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: list_venues.php,v 1.24 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -141,10 +141,8 @@ class list_venues extends pdHtmlPage {
             }
 
             if ($this->access_level > 0) {
-                $table->updateCellAttributes($i, 1, array('id' => 'emph',
-                                                          'class' => 'small'));
-                $table->updateCellAttributes($i, 2, array('id' => 'emph',
-                                                          'class' => 'small'));
+                $table->updateCellAttributes($i, 1, array('class' => 'small'));
+                $table->updateCellAttributes($i, 2, array('class' => 'small'));
             }
         }
     }

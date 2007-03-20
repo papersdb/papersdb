@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.29 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: view_author.php,v 1.30 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -110,7 +110,8 @@ class view_author extends pdHtmlPage {
                       . '">View Publications by this author</a>'));
         }
 
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '25%'));
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'width' => '25%'));
 
         $result .= $table->toHtml();
         if (($auth->totalPublications > 0)

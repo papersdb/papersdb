@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.15 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdCategory.php,v 1.16 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -89,7 +89,7 @@ class pdCategory extends pdDbAccessor {
     function dbSave($db) {
         if (isset($this->cat_id)) {
 
-            $table->updateColAttributes(0, array('id' => 'emph',
+            $table->updateColAttributes(0, array('class' => 'emph',
                                                  'width' => '25%'));
             $db->update('category', array('category' => $this->category),
                         array('cat_id' => $this->cat_id), 'pdUser::dbSave');

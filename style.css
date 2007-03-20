@@ -63,24 +63,24 @@ table.nomargins td, table th.nomargins  {
   vertical-align: top;
 }
 
-td#middle {
+td.middle {
   vertical-align: middle;
- }
+}
 
 table th {
   background-color: #F2F2F2;
   color: #546654;
 }
 
-table#searchlink {
+table.searchlink {
   max-width: 600px;
 }
 
 tr.odd {background-color: #eee;}
 tr.even {background-color:#fff;}
-td#large {font-size:1.3em;}
-td#standard {font-size:1em;}
-td#small {font-size:0.75em;}
+td.large {font-size:1.3em;}
+td.standard {font-size:1em;}
+td.small {font-size:0.75em;}
 
 a:link { text-decoration: underline; color: #006633;}
 a:visited { text-decoration: underline; color: #669933;}
@@ -114,22 +114,18 @@ a:hover { text-decoration: underline; color: #666600;}
   text-align: left;
 }
 
-#highlight {
+.highlight {
   color: red;
   font-size:10px;
 }
 
-#emph {
+.emph {
   color: #006633;
   font-weight: bold;
 }
 
 .small {
   font-size:0.75em;
-}
-
-#statusbar {
-  font-size: .7em;
 }
 
 h1 {
@@ -144,40 +140,40 @@ h3 {
   color: #006633;
 }
 
-td#emph {
+td.emph {
   font-weight: bold;
 }
 
-td#emph a {
+td.emph a {
   text-decoration: none;
 }
 
-td#emph_large {
+td.emph_large {
   font-size:18px;
   font-weight: bold;
 }
 
-td#footer {
+td.footer {
   font-size: 9px;
   text-align: right;
 }
 
-td#publist {
+td.publist {
   padding: 1ex 1ex 1ex 1ex;
   vertical-align: top;
 }
 
-td.emph#publist {
+td.publist {
   color: #006633;
   font-weight: bold;
 }
 
-div#field {
+div.field {
   color: black;
   font-weight: bold;
 }
 
-div#field:hover {
+div.field:hover {
   color: black;
   text-decoration: underline;
 }

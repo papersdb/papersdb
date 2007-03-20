@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.33 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: functions.php,v 1.34 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -235,7 +235,7 @@ function papersdb_backtrace() {
     $s = '';
     $MAXSTRLEN = 64;
 
-    $s = '<div id="backtrace"><pre align=left>';
+    $s = '<div class="backtrace"><pre align=left>';
     $traceArr = debug_backtrace();
 
     //print_r($traceArr);

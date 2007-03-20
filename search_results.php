@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.18 2007/03/20 15:47:08 aicmltec Exp $
+// $Id: search_results.php,v 1.19 2007/03/20 16:48:49 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -92,7 +92,7 @@ class search_results extends pdHtmlPage {
 
         $searchLinkTable->addRow(
             array('<a href="' . $search_url . '">'
-                  . '<img src="images/link.png" title="view" alt="view" '
+                  . '<img src="images/link.gif" title="view" alt="view" '
                   . 'height="16" width="16" border="0" align="top" />'
                   . ' Link to this search</a></div><br/>'));
 

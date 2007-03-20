@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: authorselect.php,v 1.20 2007/03/14 22:51:18 aicmltec Exp $
+// $Id: authorselect.php,v 1.21 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Custom HTML_QuickForm element that allows a user to select authors from
@@ -66,10 +66,10 @@ class authorselect extends HTML_QuickForm_advmultiselect {
   <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
 </tr>
 <tr>
-  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-  <td valign="top">{selected}</td>
-  <td valign="middle">{add}</td>
-  <td valign="top">{unselected}</td>
+  <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+  <td class="middle">{selected}</td>
+  <td class="middle">{add}</td>
+  <td class="middle">{unselected}</td>
 </tr>
 <tr>
   <td>&nbsp;</td>

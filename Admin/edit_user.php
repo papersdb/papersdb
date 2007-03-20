@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.24 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: edit_user.php,v 1.25 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This page displays/edits the users information.
@@ -86,10 +86,10 @@ class edit_user extends pdHtmlPage {
   <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
 </tr>
 <tr>
-  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-  <td valign="top">{selected}</td>
-  <td valign="middle">{add}</td>
-  <td valign="top">{unselected}</td>
+  <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+  <td class="middle">{selected}</td>
+  <td class="middle">{add}</td>
+  <td class="middle">{unselected}</td>
 </tr>
 </table>
 {javascript}
@@ -185,7 +185,8 @@ function showUser() {
             $table->addRow(array('Favorite Collaborators:', 'None assigned'));
         }
 
-        $table->updateColAttributes(0, array('id' => 'emph', 'width' => '30%'));
+        $table->updateColAttributes(0, array('class' => 'emph',
+                                             'width' => '30%'));
         $this->table =& $table;
     }
 }

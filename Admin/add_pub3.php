@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.20 2007/03/15 21:32:01 aicmltec Exp $
+// $Id: add_pub3.php,v 1.21 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -316,10 +316,10 @@ JS_END;
   <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
 </tr>
 <tr>
-  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-  <td valign="top">{selected}</td>
-  <td valign="middle">{add}</td>
-  <td valign="top">{unselected}</td>
+  <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+  <td class="middle">{selected}</td>
+  <td class="middle">{add}</td>
+  <td class="middle">{unselected}</td>
 </tr>
 </table>
 {javascript}

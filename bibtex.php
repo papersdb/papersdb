@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.2 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: bibtex.php,v 1.3 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -81,8 +81,7 @@ class bibtex extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
-        $table->updateColAttributes(0, array('class' => 'emph',
-                                             'id' => 'publist'), true);
+        $table->updateColAttributes(0, array('class' => 'publist'), true);
 
         echo $table->toHtml();
     }

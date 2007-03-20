@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.27 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: add_pub1.php,v 1.28 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -114,7 +114,7 @@ class add_pub1 extends add_pub_base {
 
         $form->addElement('textarea', 'abstract',
                           $this->helpTooltip('Abstract', 'abstractHelp')
-                          . ':<br/><div id="small">HTML Enabled</div>',
+                          . ':<br/><div class="small">HTML Enabled</div>',
                           array('cols' => 60, 'rows' => 10));
 
         $form->addGroup(

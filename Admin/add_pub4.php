@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.27 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: add_pub4.php,v 1.28 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -453,28 +453,6 @@ class add_pub4 extends add_pub_base {
         }
         </script>
 JS_END;
-    }
-
-    function templateGet() {
-        $template = <<<END
-{javascript}
-<table{class}>
-<tr>
-  <th>&nbsp;</th>
-  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
-  <th>&nbsp;</th>
-  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
-</tr>
-<tr>
-  <td valign="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-  <td valign="top">{selected}</td>
-  <td valign="middle">{add}</td>
-  <td valign="top">{unselected}</td>
-</tr>
-</table>
-{javascript}
-END;
-       return $template;
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.72 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.73 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -488,7 +488,7 @@ END;
 
     function pageFooter() {
         $uofa_logo = 'images/uofa_logo.gif';
-        $aicml_logo = 'images/aicml.png';
+        $aicml_logo = 'images/aicml.gif';
 
         if (strstr($this->relative_url, '/')) {
             $uofa_logo = '../' . $uofa_logo;
@@ -615,7 +615,7 @@ END;
                 . 'view_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="' . $url_prefix
-                .'images/viewmag.png" title="view" alt="view" '
+                .'images/viewmag.gif" title="view" alt="view" '
                 . ' height="16" width="16" border="0" align="top" /></a>';
         }
 
@@ -624,7 +624,7 @@ END;
                 . 'Admin/add_pub1.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/pencil.png" title="edit" alt="edit" '
+                . 'images/pencil.gif" title="edit" alt="edit" '
                 . ' height="16" width="16" border="0" align="top" />'
                 . '</a>';
         }
@@ -634,7 +634,7 @@ END;
                 . 'Admin/delete_publication.php?pub_id='
                 . $pub->pub_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/kill.png" title="delete" alt="delete" '
+                . 'images/kill.gif" title="delete" alt="delete" '
                 . 'height="16" width="16" border="0" align="top" /></a>';
         }
 
@@ -680,7 +680,7 @@ END;
                 . 'view_author.php?author_id='
                 . $author->author_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/viewmag.png" title="view" alt="view" height="16" '
+                . 'images/viewmag.gif" title="view" alt="view" height="16" '
             . 'width="16" border="0" align="top" /></a>';
 
         if ($this->access_level > 0) {
@@ -689,7 +689,7 @@ END;
                     . 'Admin/add_author.php?author_id='
                     . $author->author_id . '">'
                     . '<img src="' . $url_prefix
-                    . 'images/pencil.png" title="edit" alt="edit" '
+                    . 'images/pencil.gif" title="edit" alt="edit" '
                     . 'height="16" width="16" border="0" align="top" /></a>';
 
             if ($flags & 0x4)
@@ -697,7 +697,7 @@ END;
                     . 'Admin/delete_author.php?author_id='
                     . $author->author_id . '">'
                     . '<img src="' . $url_prefix
-                    . 'images/kill.png" title="delete" alt="delete" '
+                    . 'images/kill.gif" title="delete" alt="delete" '
                     . 'height="16" width="16" border="0" align="top" /></a>';
         }
 
@@ -717,7 +717,7 @@ END;
                 . 'Admin/add_category.php?cat_id='
                 . $category->cat_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/pencil.png" title="edit" alt="edit" '
+                . 'images/pencil.gif" title="edit" alt="edit" '
                 . 'height="16" width="16" border="0" align="top" /></a>';
 
         if ($flags & 0x2)
@@ -725,7 +725,7 @@ END;
                 . 'Admin/delete_category.php?cat_id='
                 . $category->cat_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/kill.png" title="delete" alt="delete" '
+                . 'images/kill.gif" title="delete" alt="delete" '
                 . 'height="16" width="16" border="0" align="top" /></a>';
 
         return $html;
@@ -744,16 +744,16 @@ END;
                 . 'Admin/add_venue.php?venue_id='
                 . $venue->venue_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/pencil.png" title="edit" alt="edit" '
-                . 'height="16" width="16" border="0" align="middle" /></a>';
+                . 'images/pencil.gif" title="edit" alt="edit" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
 
         if ($flags & 0x2)
             $html .= '<a href="' . $url_prefix
                 . 'Admin/delete_venue.php?venue_id='
                 . $venue->venue_id . '">'
                 . '<img src="' . $url_prefix
-                . 'images/kill.png" title="delete" alt="delete" '
-                . 'height="16" width="16" border="0" align="middle" /></a>';
+                . 'images/kill.gif" title="delete" alt="delete" '
+                . 'height="16" width="16" border="0" align="top" /></a>';
 
         return $html;
     }
@@ -798,8 +798,7 @@ END;
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
             $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
-        $table->updateColAttributes(0, array('class' => 'emph',
-                                             'id' => 'publist'), true);
+        $table->updateColAttributes(0, array('class' => 'publist'), true);
 
         return $table->toHtml();
     }

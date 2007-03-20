@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.48 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: add_author.php,v 1.49 2007/03/20 16:47:19 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -111,7 +111,7 @@ class add_author extends pdHtmlPage {
 
         $interests = new pdAuthInterests($this->db);
 
-        $ref = '<br/><div id="small"><a href="javascript:dataKeep('
+        $ref = '<br/><div class="small"><a href="javascript:dataKeep('
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
         $form->addElement('select', 'interests', 'Interests:' . $ref,
