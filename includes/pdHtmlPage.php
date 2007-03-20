@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.73 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.74 2007/03/20 19:25:56 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -68,8 +68,7 @@ class pdHtmlPage {
                            'user',
                            'user_author',
                            'venue',
-                           'venue_occur',
-                           'venueold');
+                           'venue_occur');
 
     /**
      * Constructor.

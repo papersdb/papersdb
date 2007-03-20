@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.31 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdUser.php,v 1.32 2007/03/20 19:25:56 aicmltec Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -12,6 +12,8 @@
 /** Required to get the used author rank. */
 require_once 'includes/pdDbAccessor.php';
 require_once 'pdAuthorList.php';
+
+define('PD_USER_OPTION_SHOW_EXTRA_INFO', 1);
 
 /**
  * Class that accesses user information from the database.
@@ -32,6 +34,7 @@ class pdUser extends pdDbAccessor {
     var $search_params;
     var $author_id;
     var $venue_ids;
+    var $options;
 
     /**
      * Constructor.
@@ -65,8 +68,9 @@ class pdUser extends pdDbAccessor {
     function dbSave($db) {
         assert('is_object($db)');
         assert('isset($this->login)');
-        $db->update('user', array('name' => $this->name,
-                                  'email' => $this->email),
+        $db->update('user', array('name'    => $this->name,
+                                  'email'   => $this->email,
+                                  'options' => $this->options),
                     array('login' => $this->login),
                     'pdUser::dbSave');
 

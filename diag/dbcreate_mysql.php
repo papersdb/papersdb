@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.9 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: dbcreate_mysql.php,v 1.10 2007/03/20 19:25:56 aicmltec Exp $
 
 /**
  * Creates the PapersDB database.
@@ -317,6 +317,7 @@ class dbCreate extends pdHtmlPage {
             'CREATE TABLE `user` ('
             . '`search` varchar(100) default "", '
             . '`comments` varchar(100) default "", '
+            . '`options` int(11) NOT NULL default "0",'
             . '`verified` tinyint(1) NOT NULL default "0", '
             . '`access_level` int(11) NOT NULL default "0", '
             . '`email` varchar(100) NOT NULL default "", '

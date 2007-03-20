@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.25 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: edit_user.php,v 1.26 2007/03/20 19:25:56 aicmltec Exp $
 
 /**
  * This page displays/edits the users information.
@@ -46,12 +46,17 @@ class edit_user extends pdHtmlPage {
 
         $form = new HTML_QuickForm('pubForm');
 
-        $form->addElement('static', 'login', 'Login:', $user->login);
+        $form->addElement('static', 'login_label', 'Login:', $user->login);
         $form->addElement('hidden', 'status', 'edit');
+        $form->addElement('hidden', 'login', $user->login);
         $form->addElement('text', 'name', 'Name:',
                           array('size' => 50, 'maxlength' => 100));
         $form->addElement('text', 'email', 'E-mail:',
                           array('size' => 50, 'maxlength' => 100));
+
+        $form->addElement('advcheckbox', 'option_extra_info',
+                          'Options:', 'show extra info', null,
+                          array('No', 'Yes'));
 
         $auth_list = new pdAuthorList($this->db);
         assert('is_array($auth_list->list)');
@@ -102,10 +107,13 @@ END;
         if ($form->validate()) {
             $values = $form->exportValues();
 
-            assert('$values["login"]==$user->login');
+            assert('$values["login"] == $user->login');
 
             $user->name = $values['name'];
             $user->email = $values['email'];
+            $user->options = 0;
+            if ($values['option_extra_info'] == 'Yes')
+                $user->options |= PD_USER_OPTION_SHOW_EXTRA_INFO;
 
             unset($user->collaborators);
             if (count($values['authors']) > 0) {
@@ -124,7 +132,11 @@ END;
             echo '<h2>Login Information</h2>';
 
             $defaults = array('name' => $user->name,
-                              'email' => $user->email);
+                              'email' => $user->email,
+                              'option_extra_info'
+                              => (($user->options
+                                  & PD_USER_OPTION_SHOW_EXTRA_INFO)
+                                  ? 'Yes' : 'No'));
 
             if (count($user->collaborators) >0)
                 $defaults['authors'] = array_keys($user->collaborators);
@@ -152,9 +164,9 @@ function showUser() {
     $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
-        echo '<h2>Login Information&nbsp;&nbsp;'
+        echo '<h2>Login Information&nbsp;'
             . '<a href="edit_user.php?status=edit">'
-            . '<img src="../images/pencil.png" title="edit" '
+            . '<img src="../images/pencil.gif" title="edit" '
             . 'alt="edit" height="16" width="16" border="0" '
             . 'align="top" /></a>'
             . '</h2>';
@@ -168,6 +180,13 @@ function showUser() {
         $table->addRow(array('Login:', $user->login));
         $table->addRow(array('Name:', $user->name));
         $table->addRow(array('E-mail:', $user->email));
+
+        if ($user->options & PD_USER_OPTION_SHOW_EXTRA_INFO)
+            $option_value = 'Yes';
+        else
+            $option_value = 'No';
+
+        $table->addRow(array('Show Extra Info:', $option_value));
 
         if (is_array($user->collaborators)
             && (count($user->collaborators) > 0)) {
