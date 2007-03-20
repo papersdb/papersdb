@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.17 2007/03/20 16:47:19 aicmltec Exp $
+# Name: $Id: report.pl,v 1.18 2007/03/20 18:14:47 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -119,6 +119,60 @@ my @student_authors = ('Antonie, M',
                        'Zhang, Q',
                        'Zheng, T',
                        'Zhu, T');
+
+my @staff_authors = ('Arthur, R',
+                     'Asgarian, N',
+                     'Baich, T',
+                     'Block, D',
+                     'Coghlan, B',
+                     'Coulthard, E',
+                     'Coulthard, E',
+                     'Dacyk, V',
+                     'DeMarco, M',
+                     'Duguid, L',
+                     'Eisner, R',
+                     'Farhangfar, A',
+                     'Flatt, A',
+                     'Fraser, S',
+                     'Grajkowski, J',
+                     'Harrison, E',
+                     'Hiew, A',
+                     'Hoehn, B',
+                     'Homaeian, L',
+                     'Huntley, D',
+                     'Jewell, K',
+                     'Koop, A',
+                     'Larson, B',
+                     'Loh, W',
+                     'Loyola, N',
+                     'Ma, G',
+                     'McMillan, K',
+                     'Melanson, A',
+                     'Morris, M',
+                     'Neufeld, J',
+                     'Newton, J',
+                     'Nicotra, L',
+                     'Pareek, P',
+                     'Parker, D',
+                     'Paulsen, J',
+                     'Poulin, B',
+                     'Radkie, M',
+                     'Roberts, J',
+                     'Shergill, A',
+                     'Smith, C',
+                     'Sokolsky, M',
+                     'Stephure, M',
+                     'Thorne, W',
+                     'Trommelen, M',
+                     'Upright, C',
+                     'Vicentijevic, M',
+                     'Vincent, S',
+                     'Walsh, S',
+                     'White, T',
+                     'Woloschuk, D',
+                     'Young, A',
+                     'Zheng, T',
+                     'Zhu, T');
 
 my $nonTier1CategoryCriteria
     = ' (category.category LIKE "%In Conference%" '
@@ -376,15 +430,14 @@ sub pdfStudentReport {
     my %pubs;
     my %authors;
     my %author_pubs;
-    my @pdf_students = (@pdf_authors, @student_authors);
-    my @pi_pdf_students = (@pi_authors, @pdf_authors, @student_authors);
-
+    my @pdf_students_staff = (@pdf_authors, @student_authors, @staff_authors);
+    my @pi_pdf_students_staff = (@pi_authors, @pdf_authors, @student_authors, @staff_authors);
 
     foreach my $year (sort keys %years) {
         my %pubs = getPubsForPeriod($years{$year}[0], $years{$year}[1]);
 
         foreach my $pub_id (sort keys %pubs) {
-            my %pub_authors = getPubAuthors($pub_id, \@pdf_students);
+            my %pub_authors = getPubAuthors($pub_id, \@pdf_students_staff);
 
             # does this publication have an author that is an AICML PDF or student?
             if (scalar(keys %pub_authors) == 0) {
@@ -398,7 +451,7 @@ sub pdfStudentReport {
             }
 
             # now get all authors for this pub that are PI's, PDF's and students
-            %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students);
+            %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students_staff);
 
             my $num_authors = scalar(keys %pub_authors);
             my $authors = join(':', keys %pub_authors);
