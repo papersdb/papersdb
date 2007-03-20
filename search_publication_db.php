@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.58 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.59 2007/03/20 15:25:37 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -212,12 +212,12 @@ class search_publication_db extends pdHtmlPage {
             $union_array = array();
             foreach ($and_terms as $or_terms) {
                 //Search through the publication table
-                $pub_search = array('title', 'paper', 'abstract', 'keywords',
+                $fields = array('title', 'paper', 'abstract', 'keywords',
                                     'extra_info');
 
-                foreach ($pub_search as $a) {
+                foreach ($fields as $field) {
                     $this->add_to_array(
-                        'SELECT DISTINCT pub_id from publication WHERE ' . $a
+                        'SELECT DISTINCT pub_id from publication WHERE ' . $field
                         . ' LIKE ' . quote_smart('%'.$or_terms.'%'),
                         $union_array);
                 }
@@ -333,10 +333,10 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // PUBLICATION FIELDS SEARCH ------------------------------------------
-        $pub_search = array ("title",  "paper", "abstract", "keywords",
+        $fields = array ("title",  "paper", "abstract", "keywords",
                              "extra_info");
         //same thing happening as category, just with each of these fields
-        foreach ($pub_search as $field) {
+        foreach ($fields as $field) {
             if (isset($this->search_params->$field)
                 && ($this->search_params->$field != '')) {
                 $the_search_array
@@ -486,15 +486,14 @@ class search_publication_db extends pdHtmlPage {
     function venuesSearch($field, $value, &$union_array) {
         assert('($field == "name") || ($field == "title")');
 
-        $union_array = array();
-
         $search_result = query_db('SELECT venue_id from venue WHERE ' . $field
                                   . ' LIKE ' . quote_smart('%'. $value . '%'));
-        while ($search_array
-               = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+        while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
             $venue_id = $search_array['venue_id'];
             if ($venue_id != null) {
-                $search_query = "SELECT DISTINCT pub_id from publication WHERE venue_id=" . quote_smart($venue_id);
+                $search_query
+                    = "SELECT DISTINCT pub_id from publication WHERE venue_id="
+                    . quote_smart($venue_id);
                 $this->add_to_array($search_query, $union_array);
             }
         }
