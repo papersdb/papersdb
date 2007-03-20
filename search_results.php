@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.17 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: search_results.php,v 1.18 2007/03/20 15:47:08 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -37,9 +37,79 @@ class search_results extends pdHtmlPage {
             return;
         }
 
-        $sp =& $_SESSION['search_params'];
+        $this->showSearchParams();
 
-        echo '<h3>SEARCH RESULTS FOR</h3>';
+        if (count($_SESSION['search_results']) == 0) {
+            echo '<br/><h3>Your search did not generate any results.</h3>';
+            return;
+        }
+
+        $this->form = $this->otherFormatForm($_SESSION['search_results']);
+
+        if ($this->form->validate())
+            $this->processForm();
+        else
+            $this->renderForm();
+    }
+
+    /**
+     *
+     */
+    function otherFormatForm($result_pubs) {
+        if ($result_pubs == null) return;
+
+        $form = new HTML_QuickForm('otherFormatForm');
+        $form->addElement('hidden', 'pub_ids', implode(",", $result_pubs));
+
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'submit', 'cv_format', 'Show results in CV format'),
+                HTML_QuickForm::createElement(
+                    'submit', 'bibtex_format', 'Show results in BibTex format')
+                ),
+            null, null, '&nbsp;');
+
+        return $form;
+    }
+
+    function renderForm() {
+        $renderer =& $this->form->defaultRenderer();
+        $this->form->accept($renderer);
+
+        $pubs = new pdPubList(
+            $this->db, array('pub_ids' => $_SESSION['search_results']));
+
+        echo $renderer->toHtml();
+        echo $this->displayPubList($pubs);
+
+        $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
+                                                'border' => '0',
+                                                'cellpadding' => '0',
+                                                'cellspacing' => '0'));
+
+        $search_url =& $_SESSION['search_url'];
+
+        $searchLinkTable->addRow(
+            array('<a href="' . $search_url . '">'
+                  . '<img src="images/link.png" title="view" alt="view" '
+                  . 'height="16" width="16" border="0" align="top" />'
+                  . ' Link to this search</a></div><br/>'));
+
+        echo '<hr/>' . $searchLinkTable->toHtml();
+    }
+
+    function processForm() {
+        $values = $this->form->exportValues();
+
+        if (isset($values['cv_format']))
+            header('Location: cv.php?pub_ids=' . $values['pub_ids']);
+        else if (isset($values['bibtex_format']))
+            header('Location: bibtex.php?pub_ids=' . $values['pub_ids']);
+    }
+
+    function showSearchParams() {
+        $sp =& $_SESSION['search_params'];
 
         $table = new HTML_Table(array('class' => 'nomargins',
                                       'width' => '60%'));
@@ -119,74 +189,8 @@ class search_results extends pdHtmlPage {
             }
         }
 
+        echo '<h3>SEARCH RESULTS FOR</h3>';
         echo $table->toHtml();
-
-        if (count($_SESSION['search_results']) == 0) {
-            echo '<br/><h3>Your search did not generate any results.</h3>';
-            return;
-        }
-
-        $this->form = $this->otherFormatForm($_SESSION['search_results']);
-
-        if ($this->form->validate())
-            $this->processForm();
-        else
-            $this->renderForm();
-    }
-
-    /**
-     *
-     */
-    function otherFormatForm($result_pubs) {
-        if ($result_pubs == null) return;
-
-        $form = new HTML_QuickForm('otherFormatForm');
-        $form->addElement('hidden', 'pub_ids', implode(",", $result_pubs));
-
-        $form->addGroup(
-            array(
-                HTML_QuickForm::createElement(
-                    'submit', 'cv_format', 'Show results in CV format'),
-                HTML_QuickForm::createElement(
-                    'submit', 'bibtex_format', 'Show results in BibTex format')
-                ),
-            null, null, '&nbsp;');
-
-        return $form;
-    }
-
-    function renderForm() {
-        $renderer =& $this->form->defaultRenderer();
-        $this->form->accept($renderer);
-
-        $pubs = new pdPubList(
-            $this->db, array('pub_ids' => $_SESSION['search_results']));
-
-        echo $renderer->toHtml() . $this->displayPubList($pubs);
-
-        $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
-                                                'border' => '0',
-                                                'cellpadding' => '0',
-                                                'cellspacing' => '0'));
-
-        $search_url =& $_SESSION['search_url'];
-
-        $searchLinkTable->addRow(
-            array('<a href="' . $search_url . '">'
-                  . '<img src="images/link.png" title="view" alt="view" '
-                  . 'height="16" width="16" border="0" align="top" />'
-                  . ' Link to this search</a></div><br/>'));
-
-        echo '<hr/>' . $searchLinkTable->toHtml();
-    }
-
-    function processForm() {
-        $values = $this->form->exportValues();
-
-        if (isset($values['cv_format']))
-            header('Location: cv.php?pub_ids=' . $values['pub_ids']);
-        else if (isset($values['bibtex_format']))
-            header('Location: bibtex.php?pub_ids=' . $values['pub_ids']);
     }
 }
 

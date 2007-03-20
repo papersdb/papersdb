@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.90 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdPublication.php,v 1.91 2007/03/20 15:47:08 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1030,6 +1030,13 @@ class pdPublication extends pdDbAccessor {
         if (strtolower($a->title) == strtolower($b->title)) return 0;
 
         return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
+    }
+
+    function pubsDateSortDesc($a , $b) {
+        if (strtolower($a->published) == strtolower($b->published)) return 0;
+
+        return (strtolower($a->published) > strtolower($b->published))
+            ? -1 : 1;
     }
 }
 

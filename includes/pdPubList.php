@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.20 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdPubList.php,v 1.21 2007/03/20 15:47:08 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -59,7 +59,7 @@ class pdPubList {
             $this->yearPubsDBLoad($db, $options['year']);
         }
         else if (isset($options['title']) && is_array($options['title'])) {
-            $this->titlePubsDBLoad($db, $options['pub_ids']);
+            $this->titlePubsDBLoad($db, $options['title']);
         }
         else if (isset($options['pub_ids']) && is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
@@ -233,7 +233,7 @@ class pdPubList {
         }
 
         if (is_array($this->list))
-            uasort($this->list, array('pdPublication', 'pubsTitleSort'));
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
     function toPubIdList() {
