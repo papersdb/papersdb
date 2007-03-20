@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.24 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: list_venues.php,v 1.25 2007/03/20 21:38:15 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -125,25 +125,16 @@ class list_venues extends pdHtmlPage {
                 $cells[] = $this->getVenueIcons($venue);
             }
 
-            $table->addRow($cells);
+            $table->addRow($cells, array('class' => 'venuelist'));
         }
 
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
-            $table->updateCellAttributes($i, 0, array('class' => 'standard'));
-
-            if ($i & 1) {
+            if ($i & 1)
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
-            }
-            else {
+            else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            }
-
-            if ($this->access_level > 0) {
-                $table->updateCellAttributes($i, 1, array('class' => 'small'));
-                $table->updateCellAttributes($i, 2, array('class' => 'small'));
-            }
         }
     }
 }

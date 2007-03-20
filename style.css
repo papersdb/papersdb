@@ -142,6 +142,7 @@ h3 {
 
 td.emph {
   font-weight: bold;
+  vertical-align: middle;
 }
 
 td.emph a {
@@ -158,14 +159,9 @@ td.footer {
   text-align: right;
 }
 
-td.publist {
+td.publist, td.venuelist, td.catlist {
   padding: 1ex 1ex 1ex 1ex;
-  vertical-align: top;
-}
-
-td.publist {
-  color: #006633;
-  font-weight: bold;
+  vertical-align: middle;
 }
 
 div.field {

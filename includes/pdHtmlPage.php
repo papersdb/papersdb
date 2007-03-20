@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.74 2007/03/20 19:25:56 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.75 2007/03/20 21:38:15 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -795,9 +795,9 @@ END;
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
             else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
-        $table->updateColAttributes(0, array('class' => 'publist'), true);
+        $table->updateColAttributes(0, array('class' => 'emph'), true);
+        $table->updateColAttributes(1, array('class' => 'publist'), true);
 
         return $table->toHtml();
     }
