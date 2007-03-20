@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.14 2007/03/19 23:12:53 aicmltec Exp $
+# Name: $Id: report.pl,v 1.15 2007/03/20 03:40:21 loyola Exp $
 #
 # See $USAGE.
 #
@@ -128,6 +128,55 @@ my $nonTier1CategoryCriteria
 my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman.cs.ualberta.ca', 'papersdb', '')
     || die "Could not connect to database: $DBI::errstr";
 
+sub getPub {
+    my $pub_id = shift;
+    my $statement;
+
+    $statement = 'SELECT publication.pub_id, publication.title, '
+        . 'publication.published, category.category '
+        . 'FROM publication, category, pub_cat WHERE '
+        . ' category.cat_id=pub_cat.cat_id '
+        . 'AND publication.pub_id=pub_cat.pub_id '
+        . 'AND publication.pub_id="' . $pub_id . '"';
+
+    #print $statement . "\n";
+
+    my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
+
+    $statement = 'SELECT author.author_id, author.name FROM pub_author, author '
+        . 'WHERE author.author_id=pub_author.author_id '
+        . 'AND pub_author.pub_id="' . $pub_id . '"';
+
+    #print $statement . "\n";
+
+    my %rv2 = %{ $dbh->selectall_hashref($statement, 'author_id') };
+
+    foreach my $author_id (sort keys %rv2) {
+        push (@{ $rv{$pub_id}{'authors'} }, $rv2{$author_id}{'name'});
+    }
+
+    return %rv;
+}
+
+sub getPubsForPeriod {
+    my $startdate = shift;
+    my $enddate = shift;
+    my $statement;
+
+    $statement = 'SELECT DISTINCT publication.pub_id, publication.title '
+        . 'FROM publication, category, pub_cat WHERE '
+        . ' category.cat_id=pub_cat.cat_id '
+        . 'AND publication.pub_id=pub_cat.pub_id '
+        . 'AND ' . $nonTier1CategoryCriteria
+        . 'AND publication.published BETWEEN \''
+        . $startdate . '\' AND \'' . $enddate . '\'';
+
+    #print $statement . "\n";
+
+    my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
+    return %rv;
+}
+
 sub getNumPubsForPeriod {
     my $startdate = shift;
     my $enddate = shift;
@@ -242,7 +291,7 @@ sub getPubAuthors {
         . 'publication.pub_id=pub_author.pub_id AND '
         . 'author.author_id=pub_author.author_id AND ';
 
-    if ((defined @$authors) && ($#$authors >= 0)) {
+    if ((defined @$authors) && (scalar @$authors >= 0)) {
         my @list;
         foreach my $author (@$authors) {
             push(@list, 'author.name LIKE "%' . $author . '%"');
@@ -326,14 +375,27 @@ sub pdfStudentReport {
     my %pubs;
     my %authors;
     my %author_pubs;
-    my @all_authors = (@pdf_authors, @student_authors);
+    my @pdf_students = (@pdf_authors, @student_authors);
     my @pi_pdf_students = (@pi_authors, @pdf_authors, @student_authors);
 
+
     foreach my $year (sort keys %years) {
-        %pubs = getPubs(\@all_authors, $years{$year}[0], $years{$year}[1]);
+        my %pubs = getPubsForPeriod($years{$year}[0], $years{$year}[1]);
 
         foreach my $pub_id (sort keys %pubs) {
-            my %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students);
+            my %pub_authors = getPubAuthors($pub_id, \@pdf_students);
+
+            if (scalar(keys %pub_authors) == 0) {
+                #my %pub = getPub($pub_id);
+                #print join(': ', @{ $pub{$pub_id}{'authors'} })   . ". "
+                #    . $pub{$pub_id}{'title'} . ". "
+                #    . $pub{$pub_id}{'category'} . ". "
+                #    . $pub{$pub_id}{'published'}
+                #    . ".\n";
+                next;
+            }
+
+            %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students);
 
             my $num_authors = scalar(keys %pub_authors);
             my $authors = join(':', keys %pub_authors);
@@ -346,6 +408,7 @@ sub pdfStudentReport {
                 push(@{ $authors{'multiple'} }, $pub_id);
             }
         }
+        print "\n";
     }
 
     my %totals;
@@ -393,8 +456,8 @@ pdfStudentReport();
 
 print "\n\nPDFs or Students not in Database\n";
 
-my @all_authors = (@pdf_authors, @student_authors);
-foreach my $author (@all_authors) {
+my @pdf_students = (@pdf_authors, @student_authors);
+foreach my $author (@pdf_students) {
     my $statement = 'SELECT author_id, name FROM author WHERE name like "%'
         . $author . '%"';
     my %rv = %{ $dbh->selectall_hashref($statement, 'author_id') };
