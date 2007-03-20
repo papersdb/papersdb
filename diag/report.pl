@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.15 2007/03/20 03:40:21 loyola Exp $
+# Name: $Id: report.pl,v 1.16 2007/03/20 03:58:54 loyola Exp $
 #
 # See $USAGE.
 #
@@ -385,6 +385,7 @@ sub pdfStudentReport {
         foreach my $pub_id (sort keys %pubs) {
             my %pub_authors = getPubAuthors($pub_id, \@pdf_students);
 
+            # does this publication have an author that is an AICML PDF or student?
             if (scalar(keys %pub_authors) == 0) {
                 #my %pub = getPub($pub_id);
                 #print join(': ', @{ $pub{$pub_id}{'authors'} })   . ". "
@@ -395,6 +396,7 @@ sub pdfStudentReport {
                 next;
             }
 
+            # now get all authors for this pub that are PI's, PDF's and students
             %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students);
 
             my $num_authors = scalar(keys %pub_authors);
