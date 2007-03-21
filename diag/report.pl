@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.18 2007/03/20 18:14:47 aicmltec Exp $
+# Name: $Id: report.pl,v 1.19 2007/03/21 20:53:53 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -12,7 +12,7 @@ use strict;
 use File::Basename;
 use Getopt::Long;
 use DBI;
-use Data::Dumper;;
+use Data::Dumper;
 
 my $SCRIPTNAME = basename ($0);
 
@@ -28,19 +28,21 @@ my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
 
 # Bioinformatics
 
+my $debugSql = 0;
+
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
              2 => ['2004-09-01', '2006-03-31'],
              3 => ['2006-04-01', '2007-03-31']);
 
-my @pi_authors = ('Szepesvari, C',
-                  'Schuurmans, D',
-                  'Schaeffer, J',
-                  'Bowling, M',
-                  'Goebel, R',
-                  'Sutton, R',
-                  'Holte, R',
-                  'Greiner, R');
+my %pi_authors = ('Szepesvari, C' => ['2006-09-01', '2007-03-31'],
+                  'Schuurmans, D' => ['2003-03-01', '2007-03-31'],
+                  'Schaeffer, J'  => ['2002-09-01', '2007-03-31'],
+                  'Bowling, M'    => ['2003-07-01', '2007-03-31'],
+                  'Goebel, R'     => ['2002-09-01', '2007-03-31'],
+                  'Sutton, R'     => ['2003-07-01', '2007-03-31'],
+                  'Holte, R'      => ['2002-09-01', '2007-03-31'],
+                  'Greiner, R'    => ['2002-09-01', '2007-03-31']);
 
 my @pdf_authors = ('Botea, A',
                    'Brown, M',
@@ -174,8 +176,10 @@ my @staff_authors = ('Arthur, R',
                      'Zheng, T',
                      'Zhu, T');
 
-my $nonTier1CategoryCriteria
-    = ' (category.category LIKE "%In Conference%" '
+my %pi_totals;
+
+my $categoryCriteria
+    = '(category.category LIKE "%In Conference%" '
       . 'OR category.category LIKE "%In Journal%" '
       . 'OR category.category LIKE "%In Workshop%" '
       . 'OR category.category LIKE "%In Book%") ';
@@ -186,31 +190,59 @@ my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman.cs.ualberta.ca', 'papersdb'
 sub getPub {
     my $pub_id = shift;
     my $statement;
+    my %pub = ();
 
-    $statement = 'SELECT publication.pub_id, publication.title, '
-        . 'publication.published, category.category '
-        . 'FROM publication, category, pub_cat WHERE '
-        . ' category.cat_id=pub_cat.cat_id '
-        . 'AND publication.pub_id=pub_cat.pub_id '
-        . 'AND publication.pub_id="' . $pub_id . '"';
-
-    #print $statement . "\n";
-
+    $statement = 'SELECT pub_id, title,  published FROM publication WHERE '
+        . 'publication.pub_id="' . $pub_id . '"';
     my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
+
+    if (!%rv) { return %pub; }
+
+    %pub = %rv;
+
+    $statement = 'SELECT category.cat_id, category.category '
+        . 'FROM category, pub_cat '
+        . 'WHERE category.cat_id=pub_cat.cat_id '
+        . 'AND pub_cat.pub_id="' . $pub_id . '"';
+    %rv = %{ $dbh->selectall_hashref($statement, 'cat_id') };
+
+    if (%rv) {
+        foreach my $cat_id (keys %rv) {
+            push( @{ $pub{$pub_id}{'category'} }, $rv{$cat_id}{'category'});
+        }
+    }
 
     $statement = 'SELECT author.author_id, author.name FROM pub_author, author '
         . 'WHERE author.author_id=pub_author.author_id '
-        . 'AND pub_author.pub_id="' . $pub_id . '"';
+        . 'AND pub_author.pub_id="' . $pub_id . '" '
+        . 'ORDER BY author.name ASC';
 
-    #print $statement . "\n";
+    %rv = %{ $dbh->selectall_hashref($statement, 'author_id') };
 
-    my %rv2 = %{ $dbh->selectall_hashref($statement, 'author_id') };
-
-    foreach my $author_id (sort keys %rv2) {
-        push (@{ $rv{$pub_id}{'authors'} }, $rv2{$author_id}{'name'});
+    if (%rv) {
+        foreach my $author_id (sort keys %rv) {
+            push (@{ $pub{$pub_id}{'authors'} }, $rv{$author_id}{'name'});
+        }
     }
 
-    return %rv;
+    if ($pub_id == 691) {
+        print Dumper(\%pub);
+        exit;
+    }
+
+    return %pub;
+}
+
+sub pubDateValid {
+    my $author = shift;
+    my $date = shift;
+
+    if (!exists $pi_authors{$author}) {
+        die "author " . $author . "not found in \%pi_authors\n";
+    }
+
+    return (($date ge $pi_authors{$author}[0])
+            && ($date le $pi_authors{$author}[1]));
 }
 
 sub getPubsForPeriod {
@@ -222,7 +254,7 @@ sub getPubsForPeriod {
         . 'FROM publication, category, pub_cat WHERE '
         . ' category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
-        . 'AND ' . $nonTier1CategoryCriteria
+        . 'AND ' . $categoryCriteria
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
 
@@ -236,104 +268,31 @@ sub getNumPubsForPeriod {
     my $startdate = shift;
     my $enddate = shift;
     my $statement;
+    my @list = ();
 
     $statement = 'SELECT DISTINCT publication.pub_id, publication.title '
-        . 'FROM publication, category, pub_cat WHERE '
+        . 'FROM publication, category, pub_cat, author, pub_author WHERE '
         . ' category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
-        . 'AND ' . $nonTier1CategoryCriteria
+        . 'AND ' . $categoryCriteria;
+
+    foreach my $author (keys %pi_authors) {
+        push(@list, 'author.name LIKE "%' . $author . '%"');
+    }
+
+    $statement .= 'AND (' . join(' OR ', @list) . ') '
+        . 'AND author.author_id=pub_author.author_id '
+        . 'AND publication.pub_id=pub_author.pub_id '
+        . 'AND publication.keywords LIKE "%machine learning%"'
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
 
-    #print $statement . "\n";
+    if ($debugSql) {
+        print "getNumPubsForPeriod: " . $statement . "\n";
+    }
 
     my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
     return scalar(keys %rv);
-}
-
-sub getPubs {
-    my $authors = shift;
-    my $startdate = shift;
-    my $enddate = shift;
-    my $tier1only = shift;
-    my $statement;
-
-    if ((defined $tier1only) && ($tier1only eq "Y")) {
-        $statement = 'SELECT DISTINCT publication.pub_id, '
-            . 'publication.title FROM '
-            . 'publication, author, pub_author, venue WHERE '
-            . 'venue.title IN ('
-            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
-            . 'AND publication.venue_id=venue.venue_id ';
-    }
-    elsif ((defined $tier1only) && ($tier1only eq "N")) {
-        $statement = 'SELECT DISTINCT publication.pub_id, '
-            . 'publication.title FROM '
-            . 'publication, author, pub_author, venue, category, pub_cat '
-            . 'WHERE venue.title NOT IN ('
-            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
-            . 'AND ' . $nonTier1CategoryCriteria
-            . 'AND category.cat_id=pub_cat.cat_id '
-            . 'AND publication.pub_id=pub_cat.pub_id '
-            . 'AND publication.venue_id=venue.venue_id ';
-    }
-    elsif (!defined $tier1only) {
-        $statement = 'SELECT DISTINCT publication.pub_id, '
-            . 'publication.title FROM '
-            . 'publication, author, pub_author, category, pub_cat WHERE '
-            . $nonTier1CategoryCriteria
-            . 'AND category.cat_id=pub_cat.cat_id '
-            . 'AND publication.pub_id=pub_cat.pub_id ';
-    }
-
-    if ((defined @$authors) && (@$authors > 0)) {
-        my @list;
-        foreach my $author (@$authors) {
-            push(@list, 'author.name LIKE "' . $author . '%"');
-        }
-        $statement .= 'AND (' . join(' OR ', @list) . ') ';
-    }
-
-    $statement .= 'AND publication.pub_id=pub_author.pub_id '
-        . 'AND publication.keywords LIKE "%machine learning%" '
-        . 'AND author.author_id=pub_author.author_id '
-        . 'AND publication.published BETWEEN \''
-        . $startdate . '\' AND \'' . $enddate . '\'';
-
-    #print $statement . "\n";
-
-    my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
-
-    # if requested non Tier 1 publications, then we must include the
-    # publications with NULL venue_id
-    if ((defined $tier1only) && ($tier1only eq "N")) {
-        $statement = 'SELECT publication.pub_id, publication.title FROM '
-            . 'publication, author, pub_author, category, pub_cat WHERE ';
-
-        if ((defined @$authors) && ($#$authors >= 0)) {
-            my @list;
-            foreach my $author (@$authors) {
-                push(@list, 'author.name LIKE "%' . $author . '%"');
-            }
-            $statement .= '(' . join(' OR ', @list) . ') ';
-        }
-
-        $statement .= 'AND ' . $nonTier1CategoryCriteria
-            .  'AND publication.venue_id is NULL '
-            . 'AND publication.pub_id=pub_author.pub_id '
-            . 'AND author.author_id=pub_author.author_id '
-            . 'AND category.cat_id=pub_cat.cat_id '
-            . 'AND publication.pub_id=pub_cat.pub_id '
-            . 'AND publication.published BETWEEN \''
-            . $startdate . '\' AND \'' . $enddate . '\'';
-
-        #print $statement . "\n";
-
-        my %rv2 = %{ $dbh->selectall_hashref($statement, 'pub_id') };
-        %rv = (%rv, %rv2);
-    }
-
-    return %rv;
 }
 
 sub getPubAuthors {
@@ -361,6 +320,68 @@ sub getPubAuthors {
     return %$rv;
 }
 
+sub getPubsWithCriteria {
+    my $startdate = shift;
+    my $enddate = shift;
+    my $tier1only = shift;
+    my $statement;
+
+    if ((defined $tier1only) && ($tier1only eq "Y")) {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM publication, venue, category, pub_cat '
+            . 'WHERE venue.title IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'AND publication.venue_id=venue.venue_id AND ';
+    }
+    elsif ((defined $tier1only) && ($tier1only eq "N")) {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM publication, venue, category, pub_cat '
+            . 'WHERE venue.title NOT IN ('
+            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'AND publication.venue_id=venue.venue_id AND ';
+    }
+    elsif (!defined $tier1only) {
+        $statement = 'SELECT DISTINCT publication.pub_id, '
+            . 'publication.title FROM publication, category, pub_cat WHERE '
+    }
+
+    $statement .= $categoryCriteria
+        . 'AND category.cat_id=pub_cat.cat_id '
+        . 'AND publication.pub_id=pub_cat.pub_id '
+        . 'AND publication.keywords LIKE "%machine learning%" '
+        . 'AND publication.published BETWEEN \''
+        . $startdate . '\' AND \'' . $enddate . '\'';
+
+    if ($debugSql) {
+        print $statement . "\n";
+    }
+
+    my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
+
+    # if requested non Tier 1 publications, then we must include the
+    # publications with NULL venue_id
+    if ((defined $tier1only) && ($tier1only eq "N")) {
+        $statement = 'SELECT publication.pub_id, publication.title FROM '
+            . 'publication, category, pub_cat WHERE ';
+
+        $statement .= $categoryCriteria
+            .  'AND publication.venue_id is NULL '
+            . 'AND category.cat_id=pub_cat.cat_id '
+            . 'AND publication.pub_id=pub_cat.pub_id '
+            . 'AND publication.published BETWEEN \''
+            . $startdate . '\' AND \'' . $enddate . '\'';
+
+        if ($debugSql) {
+            print $statement . "\n";
+        }
+
+        my %rv2 = %{ $dbh->selectall_hashref($statement, 'pub_id') };
+        %rv = (%rv, %rv2);
+    }
+
+    return %rv;
+}
+
 sub piReport {
     my %pubs;
     my %authors;
@@ -368,13 +389,27 @@ sub piReport {
 
     foreach my $year (sort keys %years) {
         foreach my $t1 (qw(Y N)) {
-            %pubs = getPubs(\@pi_authors, $years{$year}[0], $years{$year}[1], $t1);
+            %pubs = getPubsWithCriteria($years{$year}[0], $years{$year}[1],
+                                        $t1);
 
             foreach my $pub_id (sort keys %pubs) {
-                my %pub_authors = getPubAuthors($pub_id, \@pi_authors);
+                my %pub = getPub($pub_id);
+                my @pub_authors = ();
 
-                my $num_authors = scalar(keys %pub_authors);
-                my $authors = join(':', keys %pub_authors);
+                foreach my $pub_author (@{ $pub{$pub_id}{'authors'} }) {
+                    foreach my $pi_author (keys %pi_authors) {
+                        if (($pub_author =~ $pi_author)
+                            && pubDateValid($pi_author,
+                                            $pub{$pub_id}{'published'})) {
+                            push(@pub_authors, $pub_author);
+                        }
+                    }
+                }
+
+                if (scalar @pub_authors == 0) { next; }
+
+                my $num_authors = scalar(@pub_authors);
+                my $authors = join(':', @pub_authors);
 
                 $author_pubs{$year}{$t1}{$authors}{'num_authors'} = $num_authors;
                 push(@{ $author_pubs{$year}{$t1}{$authors}{'pubs'} }, $pub_id);
@@ -387,14 +422,12 @@ sub piReport {
         }
     }
 
-    my %totals;
-
     print "Tier-1 Venues: " . join(", ", @tier1venues) . "\n\n"
         . "TIME PERIOD;T1;AUTHORS;NUM AUTHORS;NUM PUBS;PUB IDS\n";
 
     foreach my $year (sort keys %author_pubs) {
         foreach my $t1 (sort keys %{ $author_pubs{$year} }) {
-            $totals{$year}{$t1} = 0;
+            $pi_totals{$year}{$t1} = 0;
             foreach my $authors (sort keys %{ $author_pubs{$year}{$t1} }) {
                 printf "%s - %s;%s;%s;%d;%d;", $years{$year}[0], $years{$year}[1],
                     $t1, $authors,
@@ -404,7 +437,7 @@ sub piReport {
                     . join(', ', sort @{ $author_pubs{$year}{$t1}{$authors}{'pubs'} })
                         . "\"\n";
 
-                $totals{$year}{$t1}
+                $pi_totals{$year}{$t1}
                     += scalar @{ $author_pubs{$year}{$t1}{$authors}{'pubs'} }
                 }
         }
@@ -414,7 +447,7 @@ sub piReport {
     foreach my $year (sort keys %author_pubs) {
         foreach my $t1 (sort keys %{ $author_pubs{$year} }) {
             printf "%s - %s;%s;%d\n", $years{$year}[0], $years{$year}[1],
-                $t1, $totals{$year}{$t1};
+                $t1, $pi_totals{$year}{$t1};
         }
     }
 
@@ -431,7 +464,7 @@ sub pdfStudentReport {
     my %authors;
     my %author_pubs;
     my @pdf_students_staff = (@pdf_authors, @student_authors, @staff_authors);
-    my @pi_pdf_students_staff = (@pi_authors, @pdf_authors, @student_authors, @staff_authors);
+    my @pi_pdf_students_staff = (keys %pi_authors, @pdf_authors, @student_authors, @staff_authors);
 
     foreach my $year (sort keys %years) {
         my %pubs = getPubsForPeriod($years{$year}[0], $years{$year}[1]);
@@ -451,10 +484,33 @@ sub pdfStudentReport {
             }
 
             # now get all authors for this pub that are PI's, PDF's and students
-            %pub_authors = getPubAuthors($pub_id, \@pi_pdf_students_staff);
+            my %pub = getPub($pub_id);
+            my @valid_authors = (@pdf_authors, @student_authors,
+                                 @staff_authors);
+            my @pub_authors = ();
 
-            my $num_authors = scalar(keys %pub_authors);
-            my $authors = join(':', keys %pub_authors);
+            foreach my $pub_author (@{ $pub{$pub_id}{'authors'} }) {
+                foreach my $pi_author (keys %pi_authors) {
+                    if (($pub_author =~ $pi_author)
+                        && pubDateValid($pi_author,
+                                        $pub{$pub_id}{'published'})) {
+                        push(@pub_authors, $pub_author);
+                    }
+                }
+
+                if (scalar @pub_authors > 0) {
+                    foreach my $valid_author (@valid_authors) {
+                        if ($pub_author =~ $valid_author) {
+                            push(@pub_authors, $pub_author);
+                        }
+                    }
+                }
+            }
+
+            if (scalar @pub_authors == 0) { next; }
+
+            my $num_authors = scalar(@pub_authors);
+            my $authors = join(':', @pub_authors);
 
             $author_pubs{$year}{$authors}{'num_authors'} = $num_authors;
             push(@{ $author_pubs{$year}{$authors}{'pubs'} }, $pub_id);
@@ -489,7 +545,7 @@ sub pdfStudentReport {
 
     print "\n\nTIME PERIOD;NUM PUBS FOR PDF AND STUDENT;TOT PUBS;\"%\"\n";
     foreach my $year (sort keys %author_pubs) {
-        my $totPubs = getNumPubsForPeriod($years{$year}[0], $years{$year}[1]);
+        my $totPubs = $pi_totals{$year}{'N'} + $pi_totals{$year}{'Y'};
 
         printf "%s - %s;%d;%d;%f\n", $years{$year}[0], $years{$year}[1],
             $totals{$year}, $totPubs, ($totals{$year} * 100 / $totPubs);
@@ -498,6 +554,17 @@ sub pdfStudentReport {
     print "\n\nAUTHOR(S);NUM PUBS\n";
     foreach my $authors (sort keys %authors) {
         printf "%s;%d\n", $authors, scalar(@{ $authors{$authors} });
+    }
+
+    print "\n\nPI with PDF/Student;NUM PUBS\n";
+    foreach my $pi_author (sort keys %pi_authors) {
+        my $pi_count = 0;
+        foreach my $authors (sort keys %authors) {
+            if ($authors =~ $pi_author) {
+                $pi_count += scalar(@{ $authors{$authors} });
+            }
+        }
+        printf "%s;%d\n", $pi_author, $pi_count;
     }
 }
 
