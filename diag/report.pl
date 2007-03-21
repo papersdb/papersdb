@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.19 2007/03/21 20:53:53 aicmltec Exp $
+# Name: $Id: report.pl,v 1.20 2007/03/21 23:07:37 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -187,6 +187,13 @@ my $categoryCriteria
 my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman.cs.ualberta.ca', 'papersdb', '')
     || die "Could not connect to database: $DBI::errstr";
 
+sub pubCitation {
+    my (%pub) = %{$_[0]};
+
+    return join(': ', @{ $pub{'authors'} })   . ". " . $pub{'title'} . ". "
+        . $pub{'category'}[0] . ". " . $pub{'published'} . ".\n";
+}
+
 sub getPub {
     my $pub_id = shift;
     my $statement;
@@ -198,7 +205,7 @@ sub getPub {
 
     if (!%rv) { return %pub; }
 
-    %pub = %rv;
+    %pub = %{ $rv{$pub_id} };
 
     $statement = 'SELECT category.cat_id, category.category '
         . 'FROM category, pub_cat '
@@ -208,7 +215,7 @@ sub getPub {
 
     if (%rv) {
         foreach my $cat_id (keys %rv) {
-            push( @{ $pub{$pub_id}{'category'} }, $rv{$cat_id}{'category'});
+            push( @{ $pub{'category'} }, $rv{$cat_id}{'category'});
         }
     }
 
@@ -221,13 +228,8 @@ sub getPub {
 
     if (%rv) {
         foreach my $author_id (sort keys %rv) {
-            push (@{ $pub{$pub_id}{'authors'} }, $rv{$author_id}{'name'});
+            push (@{ $pub{'authors'} }, $rv{$author_id}{'name'});
         }
-    }
-
-    if ($pub_id == 691) {
-        print Dumper(\%pub);
-        exit;
     }
 
     return %pub;
@@ -396,11 +398,10 @@ sub piReport {
                 my %pub = getPub($pub_id);
                 my @pub_authors = ();
 
-                foreach my $pub_author (@{ $pub{$pub_id}{'authors'} }) {
+                foreach my $pub_author (@{ $pub{'authors'} }) {
                     foreach my $pi_author (keys %pi_authors) {
-                        if (($pub_author =~ $pi_author)
-                            && pubDateValid($pi_author,
-                                            $pub{$pub_id}{'published'})) {
+                        if (($pub_author =~ /$pi_author/)
+                            && pubDateValid($pi_author, $pub{'published'})) {
                             push(@pub_authors, $pub_author);
                         }
                     }
@@ -465,62 +466,56 @@ sub pdfStudentReport {
     my %author_pubs;
     my @pdf_students_staff = (@pdf_authors, @student_authors, @staff_authors);
     my @pi_pdf_students_staff = (keys %pi_authors, @pdf_authors, @student_authors, @staff_authors);
+    my $hasStudent;
 
     foreach my $year (sort keys %years) {
-        my %pubs = getPubsForPeriod($years{$year}[0], $years{$year}[1]);
+        foreach my $t1 (qw(Y N)) {
+            %pubs = getPubsWithCriteria($years{$year}[0], $years{$year}[1],
+                                        $t1);
 
-        foreach my $pub_id (sort keys %pubs) {
-            my %pub_authors = getPubAuthors($pub_id, \@pdf_students_staff);
+            foreach my $pub_id (sort keys %pubs) {
+                my %pub = getPub($pub_id);
+                my @pub_authors = ();
+                $hasStudent = 0;
 
-            # does this publication have an author that is an AICML PDF or student?
-            if (scalar(keys %pub_authors) == 0) {
-                #my %pub = getPub($pub_id);
-                #print join(': ', @{ $pub{$pub_id}{'authors'} })   . ". "
-                #    . $pub{$pub_id}{'title'} . ". "
-                #    . $pub{$pub_id}{'category'} . ". "
-                #    . $pub{$pub_id}{'published'}
-                #    . ".\n";
-                next;
-            }
-
-            # now get all authors for this pub that are PI's, PDF's and students
-            my %pub = getPub($pub_id);
-            my @valid_authors = (@pdf_authors, @student_authors,
-                                 @staff_authors);
-            my @pub_authors = ();
-
-            foreach my $pub_author (@{ $pub{$pub_id}{'authors'} }) {
-                foreach my $pi_author (keys %pi_authors) {
-                    if (($pub_author =~ $pi_author)
-                        && pubDateValid($pi_author,
-                                        $pub{$pub_id}{'published'})) {
-                        push(@pub_authors, $pub_author);
-                    }
-                }
-
-                if (scalar @pub_authors > 0) {
-                    foreach my $valid_author (@valid_authors) {
-                        if ($pub_author =~ $valid_author) {
+                foreach my $pub_author (@{ $pub{'authors'} }) {
+                    foreach my $pi_author (keys %pi_authors) {
+                        if (($pub_author =~ /$pi_author/)
+                            && pubDateValid($pi_author, $pub{'published'})) {
                             push(@pub_authors, $pub_author);
                         }
                     }
                 }
-            }
 
-            if (scalar @pub_authors == 0) { next; }
+                if (scalar @pub_authors > 0) {
+                    foreach my $pub_author (@{ $pub{'authors'} }) {
+                        foreach my $valid_author (@pdf_students_staff) {
+                            if ($pub_author =~ /$valid_author/) {
+                                push(@pub_authors, $pub_author);
+                                $hasStudent = 1;
+                            }
+                        }
+                    }
+                }
 
-            my $num_authors = scalar(@pub_authors);
-            my $authors = join(':', @pub_authors);
+                if ((scalar @pub_authors == 0) || !$hasStudent) {
+                    #print "not with student " . $pub_id . "\n"
+                    #    . pubCitation(\%pub);
+                    next;
+                }
 
-            $author_pubs{$year}{$authors}{'num_authors'} = $num_authors;
-            push(@{ $author_pubs{$year}{$authors}{'pubs'} }, $pub_id);
+                my $num_authors = scalar(@pub_authors);
+                my $authors = join(':', @pub_authors);
 
-            push(@{ $authors{$authors} }, $pub_id);
-            if ($num_authors > 1) {
-                push(@{ $authors{'multiple'} }, $pub_id);
+                $author_pubs{$year}{$authors}{'num_authors'} = $num_authors;
+                push(@{ $author_pubs{$year}{$authors}{'pubs'} }, $pub_id);
+
+                push(@{ $authors{$authors} }, $pub_id);
+                if ($num_authors > 1) {
+                    push(@{ $authors{'multiple'} }, $pub_id);
+                }
             }
         }
-        print "\n";
     }
 
     my %totals;
