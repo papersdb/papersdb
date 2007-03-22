@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.35 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: add_venue.php,v 1.36 2007/03/22 18:53:55 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -84,7 +84,7 @@ class add_venue extends pdHtmlPage {
         $form->addElement('radio', 'type', null, 'Workshop', 'Workshop',
                           array('onClick'
                                 => 'dataKeep(' . $newOccurrences . ');'));
-        $form->addElement('text', 'title', 'Internal Title:',
+        $form->addElement('text', 'title', 'Acronym:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('title', 'a venue title is required', 'required',
                        null, 'client');
@@ -96,6 +96,8 @@ class add_venue extends pdHtmlPage {
                        'required', null, 'client');
         $form->addElement('text', 'url', 'Venue URL:',
                           array('size' => 50, 'maxlength' => 250));
+        $form->addElement('static', null, null,
+                          'If venue has an acronym please append it to the Venue Name in parenthesis,<br/>eg. International Joint Conference on Artificial Intelligence (IJCAI).');
 
         if ($venue->type != '') {
             if (($venue->type == 'Journal') || ($venue->type == 'Workshop')) {
