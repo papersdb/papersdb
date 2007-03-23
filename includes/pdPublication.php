@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.92 2007/03/22 18:53:55 aicmltec Exp $
+// $Id: pdPublication.php,v 1.93 2007/03/23 20:45:23 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -403,33 +403,18 @@ class pdPublication extends pdDbAccessor {
     }
 
     /**
-     * removes all extra_info items of length 0
-     */
-    function extraInfoGet() {
-        if (!isset($this->extra_info)) return '';
-
-        $extra_info = explode(';', $this->extra_info);
-
-        foreach ($extra_info as $key => $value) {
-            if ($value == "")
-                unset($extra_info[$key]);
-        }
-        return implode(",", $extra_info);
-    }
-
-    /**
      * removes all keywords of length 0
      */
     function keywordsGet() {
         if (!isset($this->keywords)) return '';
 
-        $keywords = explode(";", $this->keywords);
+        $keywords = preg_split("/;\s*/", $this->keywords);
 
         foreach ($keywords as $key => $value) {
             if ($value == "")
                 unset($keywords[$key]);
         }
-        return implode(",", $keywords);
+        return implode(", ", $keywords);
     }
 
     function keywordsSet($keywords) {
@@ -440,6 +425,21 @@ class pdPublication extends pdDbAccessor {
         $words = implode('; ', $keywords);
         $words = preg_replace("/;\s*;/", ';', $words);
         $this->keywords = $words;
+    }
+
+    /**
+     * removes all extra_info items of length 0
+     */
+    function extraInfoGet() {
+        if (!isset($this->extra_info)) return '';
+
+        $extra_info = preg_split('/;\s*/', $this->extra_info);
+
+        foreach ($extra_info as $key => $value) {
+            if ($value == "")
+                unset($extra_info[$key]);
+        }
+        return implode(", ", $extra_info);
     }
 
     function extraInfoSet($info) {

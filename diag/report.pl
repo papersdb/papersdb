@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.21 2007/03/22 18:53:55 aicmltec Exp $
+# Name: $Id: report.pl,v 1.22 2007/03/23 20:45:23 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -181,7 +181,6 @@ my %pi_totals;
 my $categoryCriteria
     = '(category.category LIKE "%In Conference%" '
       . 'OR category.category LIKE "%In Journal%" '
-      . 'OR category.category LIKE "%In Workshop%" '
       . 'OR category.category LIKE "%In Book%") ';
 
 my $dbh = DBI->connect('DBI:mysql:pubDB;host=kingman.cs.ualberta.ca', 'papersdb', '')
@@ -199,7 +198,7 @@ sub getPub {
     my $statement;
     my %pub = ();
 
-    $statement = 'SELECT pub_id, title,  published FROM publication WHERE '
+    $statement = 'SELECT pub_id, title,  published, keywords FROM publication WHERE '
         . 'publication.pub_id="' . $pub_id . '"';
     my %rv = %{ $dbh->selectall_hashref($statement, 'pub_id') };
 
@@ -566,7 +565,6 @@ sub pdfStudentReport {
 #if (!GetOptions ('noposters' => \$noposters)) {
 #    die "ERROR: bad options in command line\n";
 #}
-
 
 piReport();
 
