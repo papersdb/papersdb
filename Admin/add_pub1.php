@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.28 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: add_pub1.php,v 1.29 2007/03/26 20:06:55 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -129,6 +129,32 @@ class add_pub1 extends add_pub_base {
             'kwgroup', $this->helpTooltip('Keywords', 'keywordsHelp') . ':',
             '<br/>', false);
 
+        // rankings radio selections
+        $rankings = $this->rankingsGlobalGet($this->db);
+        foreach ($rankings as $rank_id => $description) {
+            $radio_rankings[] = HTML_QuickForm::createElement(
+                'radio', 'paper_rank', null, $description, $rank_id);
+        }
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'radio', 'paper_rank', null, 'other (fill in box below)', -1);
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'text', 'refereed_other', null,
+            array('size' => 30, 'maxlength' => 250));
+
+        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
+                        false);
+
+        // collaborations radio selections
+        $collaborations = $this->collaborationsGet($this->db);
+
+        foreach ($collaborations as $col_id => $description) {
+            $radio_cols[] = HTML_QuickForm::createElement(
+                'radio', 'paper_collaboration', null, $description, $col_id);
+        }
+
+        $form->addGroup($radio_cols, 'group_collaboration',
+                        'Collaboration:', '<br/>', false);
+
         $form->addElement('textarea', 'user',
                           $this->helpTooltip('User Info:', 'userInfoHelp'),
                           array('cols' => 60, 'rows' => 2));
@@ -171,6 +197,15 @@ class add_pub1 extends add_pub_base {
                           'abstract' => $this->pub->abstract,
                           'keywords' => $this->pub->keywords,
                           'user'     => $this->pub->user);
+
+        if (isset($this->pub->rank_id)) {
+            $defaults['paper_rank'] = $this->pub->rank_id;
+            if ($this->pub->rank_id == -1)
+                $defaults['refereed_other'] = $this->pub->ranking;
+        }
+
+        if (isset($this->pub->col_id))
+            $defaults['paper_collaboration'] = $this->pub->col_id;
 
         if (is_object($this->pub->venue)) {
             switch ($this->pub->venue->type) {
@@ -236,7 +271,8 @@ class add_pub1 extends add_pub_base {
             .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
-        if (isset($values['venue_id'][1]) && is_numeric($values['venue_id'][1]))
+        if (isset($values['venue_id'][1])
+            && is_numeric($values['venue_id'][1]))
             if ($values['venue_id'][1] > 0)
                 $this->pub->addVenue($this->db, $values['venue_id'][1]);
             else if (($values['venue_id'][1] == -1)
@@ -244,6 +280,17 @@ class add_pub1 extends add_pub_base {
                 unset($this->pub->venue);
                 unset($this->pub->venue_id);
             }
+
+        if (isset($values['paper_rank']))
+            $this->pub->rank_id = $values['paper_rank'];
+
+        if (strlen($values['refereed_other']) > 0) {
+            $this->pub->rank_id = -1;
+            $this->pub->ranking = $values['refereed_other'];
+        }
+
+        if (isset($values['paper_collaboration']))
+            $this->pub->col_id = $values['paper_collaboration'];
 
         $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)

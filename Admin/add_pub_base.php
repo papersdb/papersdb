@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.4 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub_base.php,v 1.5 2007/03/26 20:06:55 aicmltec Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -58,5 +58,32 @@ class add_pub_base extends pdHtmlPage {
         $this->navMenuItemDisplay('add_author', 0);
         $this->navMenuItemDisplay('add_category', 0);
         $this->navMenuItemDisplay('add_venue', 0);
+    }
+
+    function rankingsGlobalGet(&$db) {
+        $q = $db->select('rankings', '*', 'pub_id is NULL',
+                         "pdPublication::dbLoad");
+        assert('$q !== false');
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $rankings[$r->rank_id] = $r->description;
+            $r = $db->fetchObject($q);
+        }
+
+        return $rankings;
+    }
+
+    function collaborationsGet(&$db) {
+        $q = $db->select('collaboration', '*', '', "pdPublication::dbLoad");
+        assert('$q !== false');
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $collaborations[$r->col_id] = $r->description;
+            $r = $db->fetchObject($q);
+        }
+
+        return $collaborations;
     }
 }

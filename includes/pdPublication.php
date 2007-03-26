@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.93 2007/03/23 20:45:23 aicmltec Exp $
+// $Id: pdPublication.php,v 1.94 2007/03/26 20:06:55 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -55,6 +55,10 @@ class pdPublication extends pdDbAccessor {
     var $dbLoadFlags;
     var $additional_info; // these are the additional attached files
     var $user;
+    var $rank_id;
+    var $ranking;
+    var $col_id;
+    var $collaboration;
 
     function pdPublication($mixed = NULL) {
         $this->paper = 'No Paper';
@@ -76,6 +80,33 @@ class pdPublication extends pdDbAccessor {
                             "pdPublication::dbLoad");
         if ($q === false) return false;
         $this->load($q);
+
+        if (isset($this->rank_id)) {
+            if ($this->rank_id > 0) {
+                $q = $db->selectRow('rankings', 'description',
+                                    array('rank_id' => $this->rank_id),
+                                    "pdPublication::dbLoad");
+                if ($q !== false)
+                    $this->ranking = $q->description;
+            }
+            else if ($this->rank_id > -1) {
+                $q = $db->selectRow('rankings', 'description',
+                                    array('pub_id'  => $this->pub_id),
+                                    "pdPublication::dbLoad");
+                if ($q !== false) {
+                    $this->rank_id = $q->rank_id;
+                    $this->ranking = $q->description;
+                }
+            }
+        }
+
+        if (isset($this->col_id)) {
+            $q = $db->selectRow('collaboration', 'description',
+                                array('col_id' => $this->col_id),
+                                "pdPublication::dbLoad");
+            if ($q !== false)
+                $this->collaboration = $q->description;
+        }
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
             $q = $db->selectRow('pub_cat', 'cat_id', array('pub_id' => $id),
@@ -198,7 +229,8 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication');
+        $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication',
+                        'rankings');
         foreach($tables as $table) {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
@@ -216,8 +248,15 @@ class pdPublication extends pdDbAccessor {
                      'keywords'   => $this->keywords,
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
+                     'col_id'     => $this->col_id,
                      'updated'    => date("Y-m-d"),
                      'submit'     => $this->submit);
+
+        if (isset($this->rank_id))
+            $arr['rank_id'] = $this->rank_id;
+
+        if (isset($this->col_id))
+            $arr['col_id'] = $this->col_id;
 
         if (!isset($this->venue))
             $arr['venue_id'] = null;
@@ -233,8 +272,24 @@ class pdPublication extends pdDbAccessor {
             $this->pub_id = $db->insertId();
         }
 
+        // rank_id
+        if ($this->rank_id == -1) {
+            $db->delete('rankings', array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+            $db->insert('rankings',
+                        array('pub_id' => $this->pub_id,
+                              'description' => $this->ranking),
+                        'pdPublication::dbSave');
+            $this->rank_id = $db->insertId();
+
+            $db->update('publication',
+                        array('rank_id' => $this->rank_id),
+                        array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+        }
+
         $db->delete('pointer', array('pub_id' => $this->pub_id),
-                    'pdPublication::dbDelete');
+                    'pdPublication::dbSave');
         $arr = array();
         if (count($this->web_links) > 0)
             foreach ($this->web_links as $text => $link) {
