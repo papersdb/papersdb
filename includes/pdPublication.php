@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.94 2007/03/26 20:06:55 aicmltec Exp $
+// $Id: pdPublication.php,v 1.95 2007/03/26 21:01:07 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -500,10 +500,14 @@ class pdPublication extends pdDbAccessor {
     function extraInfoSet($info) {
         assert('is_array($info)');
 
-        if (count($info) == 0) return;
+        if (count($info) == 0) {
+            unset($this->extra_info);
+            return;
+        }
 
-        $words = implode('; ', $info);
+        $words = implode(';', $info);
         $words = preg_replace("/;\s*;/", ';', $words);
+        $words = preg_replace("/;\s*/", ';', $words);
         $this->extra_info = $words;
     }
 

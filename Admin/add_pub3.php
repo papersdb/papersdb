@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.21 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: add_pub3.php,v 1.22 2007/03/26 21:01:07 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -24,6 +24,7 @@ require_once 'includes/pdExtraInfoList.php';
  * @package PapersDB
  */
 class add_pub3 extends add_pub_base {
+    var $debug = 0;
     var $cat_id;
     var $booktitle;
     var $publisher;
@@ -210,6 +211,8 @@ class add_pub3 extends add_pub_base {
                                           $values['extra_info_from_list']);
 
         $this->pub->extraInfoSet($extra_info_arr);
+
+        if ($this->debug) return;
 
         if (isset($values['prev_step']))
             header('Location: add_pub2.php');
