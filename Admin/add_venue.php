@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.36 2007/03/22 18:53:55 aicmltec Exp $
+// $Id: add_venue.php,v 1.37 2007/03/26 22:05:47 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -58,12 +58,18 @@ class add_venue extends pdHtmlPage {
         $form = new HTML_QuickForm('venueForm', 'post',
                                    './add_venue.php?submit=true');
 
-        if ($this->venue_id != '')
-            $label = 'Edit Venue';
-        else
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+            $this->page_title = 'Add Publication';
             $label = 'Add Venue';
-
-        $this->pageTitle = $label;
+        }
+        else if ($this->venue_id != '') {
+            $this->page_title = 'Edit Venue';
+            $label = 'Edit Venue';
+        }
+        else {
+            $this->page_title = 'Add Venue';
+            $label = 'Add Venue';
+        }
 
         if (($venue->type == 'Conference') || ($venue->type == 'Workshop'))
             $label .= '&nbsp;<span class="small"><a href="javascript:dataKeep('
@@ -84,20 +90,35 @@ class add_venue extends pdHtmlPage {
         $form->addElement('radio', 'type', null, 'Workshop', 'Workshop',
                           array('onClick'
                                 => 'dataKeep(' . $newOccurrences . ');'));
+
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+            $form->addElement('radio', 'single_pub', 'Information:',
+                              'Use for this Publication only');
+        }
+
         $form->addElement('text', 'title', 'Acronym:',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('title', 'a venue title is required', 'required',
-                       null, 'client');
-        $form->addElement('text', 'name', 'Venue Name:',
-                          array('size' => 50, 'maxlength' => 250));
-        $form->addRule('name', 'a venue name is required', 'required',
-                       null, 'client');
+
+        $form->addGroup(
+            array(
+                HTML_QuickForm::createElement(
+                    'text', 'name', null,
+                    array('size' => 50, 'maxlength' => 250)),
+                HTML_QuickForm::createElement(
+                    'static', null, null,
+                    '<span style="font-size:0.85em;">'
+                    . 'If venue has an acronym please append it to the Venue '
+                    . 'Name in parenthesis,<br/>eg. International Joint '
+                    . 'Conference on Artificial Intelligence (IJCAI).</span>')
+                ),
+            'venue_name_group', 'Venue Name:', '<br/>', false);
+
+        $form->addRule('venue_name_group', 'a venue name is required',
+                       'required', null, 'client');
         $form->addRule('name', 'venue name cannot be left blank',
                        'required', null, 'client');
         $form->addElement('text', 'url', 'Venue URL:',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addElement('static', null, null,
-                          'If venue has an acronym please append it to the Venue Name in parenthesis,<br/>eg. International Joint Conference on Artificial Intelligence (IJCAI).');
 
         if ($venue->type != '') {
             if (($venue->type == 'Journal') || ($venue->type == 'Workshop')) {

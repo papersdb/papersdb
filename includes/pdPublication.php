@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.95 2007/03/26 21:01:07 aicmltec Exp $
+// $Id: pdPublication.php,v 1.96 2007/03/26 22:05:47 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -57,8 +57,7 @@ class pdPublication extends pdDbAccessor {
     var $user;
     var $rank_id;
     var $ranking;
-    var $col_id;
-    var $collaboration;
+    var $collaborations;
 
     function pdPublication($mixed = NULL) {
         $this->paper = 'No Paper';
@@ -100,12 +99,15 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if (isset($this->col_id)) {
-            $q = $db->selectRow('collaboration', 'description',
-                                array('col_id' => $this->col_id),
-                                "pdPublication::dbLoad");
-            if ($q !== false)
-                $this->collaboration = $q->description;
+        $q = $db->select('pub_col', 'col_id', array('pub_id' => $this->pub_id),
+                         "pdPublication::dbLoad",
+                         array('ORDER BY' => 'col_id ASC'));
+        if ($q !== false) {
+            $r = $db->fetchObject($q);
+            while ($r) {
+                $this->collaborations[] = $r->col_id;
+                $r = $db->fetchObject($q);
+            }
         }
 
         if ($flags & PD_PUB_DB_LOAD_CATEGORY) {
@@ -248,15 +250,11 @@ class pdPublication extends pdDbAccessor {
                      'keywords'   => $this->keywords,
                      'published'  => $this->published,
                      'extra_info' => $this->extra_info,
-                     'col_id'     => $this->col_id,
                      'updated'    => date("Y-m-d"),
                      'submit'     => $this->submit);
 
         if (isset($this->rank_id))
             $arr['rank_id'] = $this->rank_id;
-
-        if (isset($this->col_id))
-            $arr['col_id'] = $this->col_id;
 
         if (!isset($this->venue))
             $arr['venue_id'] = null;
@@ -286,6 +284,19 @@ class pdPublication extends pdDbAccessor {
                         array('rank_id' => $this->rank_id),
                         array('pub_id' => $this->pub_id),
                         'pdPublication::dbSave');
+        }
+
+        // collaborations
+        if (is_array($this->collaborations)
+            && (count($this->collaborations) > 0)) {
+            $db->delete('pub_col', array('pub_id' => $this->pub_id),
+                        'pdPublication::dbSave');
+            $values = array();
+            foreach ($this->collaborations as $col_id) {
+                $values[] = array('pub_id' => $this->pub_id,
+                                  'col_id' => $col_id);
+            }
+            $db->insert('pub_col', $values, 'pdPublication::dbSave');
         }
 
         $db->delete('pointer', array('pub_id' => $this->pub_id),
@@ -1100,6 +1111,33 @@ class pdPublication extends pdDbAccessor {
 
         return (strtolower($a->published) > strtolower($b->published))
             ? -1 : 1;
+    }
+
+    function rankingsGlobalGet(&$db) {
+        $q = $db->select('rankings', '*', 'pub_id is NULL',
+                         "pdPublication::dbLoad");
+        assert('$q !== false');
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $rankings[$r->rank_id] = $r->description;
+            $r = $db->fetchObject($q);
+        }
+
+        return $rankings;
+    }
+
+    function collaborationsGet(&$db) {
+        $q = $db->select('collaboration', '*', '', "pdPublication::dbLoad");
+        assert('$q !== false');
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $collaborations[$r->col_id] = $r->description;
+            $r = $db->fetchObject($q);
+        }
+
+        return $collaborations;
     }
 }
 

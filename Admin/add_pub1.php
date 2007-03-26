@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.29 2007/03/26 20:06:55 aicmltec Exp $
+// $Id: add_pub1.php,v 1.30 2007/03/26 22:05:47 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -130,7 +130,7 @@ class add_pub1 extends add_pub_base {
             '<br/>', false);
 
         // rankings radio selections
-        $rankings = $this->rankingsGlobalGet($this->db);
+        $rankings = pdPublication::rankingsGlobalGet($this->db);
         foreach ($rankings as $rank_id => $description) {
             $radio_rankings[] = HTML_QuickForm::createElement(
                 'radio', 'paper_rank', null, $description, $rank_id);
@@ -145,11 +145,12 @@ class add_pub1 extends add_pub_base {
                         false);
 
         // collaborations radio selections
-        $collaborations = $this->collaborationsGet($this->db);
+        $collaborations = pdPublication::collaborationsGet($this->db);
 
         foreach ($collaborations as $col_id => $description) {
             $radio_cols[] = HTML_QuickForm::createElement(
-                'radio', 'paper_collaboration', null, $description, $col_id);
+                'checkbox', 'paper_col[' . $col_id . ']', null, $description,
+                1);
         }
 
         $form->addGroup($radio_cols, 'group_collaboration',
@@ -204,8 +205,12 @@ class add_pub1 extends add_pub_base {
                 $defaults['refereed_other'] = $this->pub->ranking;
         }
 
-        if (isset($this->pub->col_id))
-            $defaults['paper_collaboration'] = $this->pub->col_id;
+        if (is_array($this->pub->collaborations)
+            && (count($this->pub->collaborations) > 0)) {
+            foreach ($this->pub->collaborations as $col_id) {
+                $defaults['paper_col'][$col_id] = 1;
+            }
+        }
 
         if (is_object($this->pub->venue)) {
             switch ($this->pub->venue->type) {
@@ -289,14 +294,20 @@ class add_pub1 extends add_pub_base {
             $this->pub->ranking = $values['refereed_other'];
         }
 
-        if (isset($values['paper_collaboration']))
-            $this->pub->col_id = $values['paper_collaboration'];
+        if (is_array($values['paper_col'])
+            && (count($values['paper_col']) > 0)) {
+            $this->pub->collaborations = array_keys($values['paper_col']);
+        }
 
         $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)
             $_SESSION['similar_pubs'] = $result;
 
-        if ($this->debug) return;
+        if ($this->debug) {
+            debugVar('values', $values);
+            debugVar('pub', $this->pub);
+            return;
+        }
 
         if (isset($values['add_venue']))
             header('Location: add_venue.php');

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.74 2007/03/26 22:05:47 aicmltec Exp $
+// $Id: view_publication.php,v 1.75 2007/03/26 22:08:35 aicmltec Exp $
 
 /**
  * View Publication
@@ -138,11 +138,14 @@ class view_publication extends pdHtmlPage {
 
         $col_desciptions = $pub->collaborationsGet($this->db);
 
-        foreach ($pub->collaborations as $col_id) {
-            $values[] = $col_desciptions[$col_id];
-        }
+        if (is_array($pub->collaborations)
+            && (count($pub->collaborations) > 0)) {
+            foreach ($pub->collaborations as $col_id) {
+                $values[] = $col_desciptions[$col_id];
+            }
 
-        $table->addRow(array('Collaboration:', implode(', ', $values)));
+            $table->addRow(array('Collaboration:', implode(', ', $values)));
+        }
 
         if (isset($_SESSION['user'])
             && ($_SESSION['user']->options & PD_USER_OPTION_SHOW_EXTRA_INFO))

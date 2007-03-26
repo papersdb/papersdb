@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.76 2007/03/26 20:06:55 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.77 2007/03/26 22:08:35 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -65,6 +65,7 @@ class pdHtmlPage {
                            'pub_author',
                            'pub_cat',
                            'pub_cat_info',
+                           'pub_col',
                            'publication',
                            'rankings',
                            'user',
