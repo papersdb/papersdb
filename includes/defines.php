@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.24 2007/03/12 05:25:45 loyola Exp $
+// $Id: defines.php,v 1.25 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * Project Constants
@@ -18,7 +18,7 @@ $wgSitename = "PapersDB";
 $wgServer = "www.cs.ualberta.ca";
 
 /** The server hosting the database. */
-if ($_ENV['HOSTNAME'] == 'levante')
+if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
     define('DB_SERVER', 'levante:3306');
 else
     define('DB_SERVER', 'kingman.cs.ualberta.ca:3306');
@@ -42,7 +42,7 @@ else
 /** The path on the fileserver where documents are stored. */
 if (strpos($_SERVER['PHP_SELF'], '~papersdb'))
     define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs');
-else if ($_ENV['HOSTNAME'] == 'levante')
+else if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
     define('FS_PATH', '/home/nelson/public_html/papersdb');
 else
     define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');

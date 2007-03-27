@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.19 2007/03/20 16:48:49 aicmltec Exp $
+// $Id: search_results.php,v 1.20 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -125,7 +125,10 @@ class search_results extends pdHtmlPage {
                                       'enddate',
                                       'author_myself',
                                       'authortyped',
-                                      'authorselect'))
+                                      'authorselect',
+                                      'paper_rank',
+                                      'paper_rank_other',
+                                      'paper_col'))
                      as $param)
                 if ($sp->$param != '') {
                     $name = '';
@@ -141,7 +144,7 @@ class search_results extends pdHtmlPage {
                     }
 
                     if ($name != '')
-                        $table->addRow(array('<b>' . $name . '</b>:', $value));
+                        $table->addRow(array($name . ':', $value));
                 }
 
             $al = null;
@@ -170,6 +173,33 @@ class search_results extends pdHtmlPage {
                 $table->addRow(array('<b>Author(s)</b>:',
                                      implode(' AND ', $values)));
 
+
+            // raking
+            $label = 'Ranking:';
+            $rankings = pdPublication::rankingsGlobalGet($this->db);
+
+            foreach ($sp->paper_rank as $rank_id => $value) {
+                if ($value != 'yes') continue;
+
+                $table->addRow(array($label, $rankings[$rank_id]));
+                $label = '';
+            }
+
+            if ($sp->paper_rank_other != '') {
+                $table->addRow(array($label, $sp->paper_rank_other));
+            }
+
+            // collaboration
+            $label = 'Collaboration:';
+            $collaborations = pdPublication::collaborationsGet($this->db);
+
+            foreach ($sp->paper_col as $col_id => $value) {
+                if ($value != 'yes') continue;
+
+                $table->addRow(array($label, $collaborations[$col_id]));
+                $label = '';
+            }
+
             if (($sp->startdate != '') && ($sp->enddate != '')) {
                 $stime = strtotime(implode('-', $sp->startdate) . '-1');
                 $etime = strtotime(implode('-', $sp->enddate) . '-1');
@@ -188,6 +218,8 @@ class search_results extends pdHtmlPage {
                 }
             }
         }
+
+        $table->updateColAttributes(0, array('class' => 'emph'), true);
 
         echo '<h3>SEARCH RESULTS FOR</h3>';
         echo $table->toHtml();

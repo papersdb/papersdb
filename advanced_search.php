@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.58 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: advanced_search.php,v 1.59 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -21,6 +21,7 @@
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdPublication.php';
 require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthorList.php';
@@ -135,6 +136,34 @@ class advanced_search extends pdHtmlPage {
 
         $form->addGroup($authElements, 'authors', 'Authors:', '<br/>',
                         false);
+
+        // rankings selections
+        $rankings = pdPublication::rankingsGlobalGet($this->db);
+        foreach ($rankings as $rank_id => $description) {
+            $radio_rankings[] = HTML_QuickForm::createElement(
+                'advcheckbox', 'paper_rank[' . $rank_id . ']', null,
+                $description, null, array('', 'yes'));
+        }
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'static', 'paper_ranking_label', null, 'other', -1);
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'text', 'paper_rank_other', null,
+            array('size' => 30, 'maxlength' => 250));
+
+        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
+                        false);
+
+        // collaborations radio selections
+        $collaborations = pdPublication::collaborationsGet($this->db);
+
+        foreach ($collaborations as $col_id => $description) {
+            $radio_cols[] = HTML_QuickForm::createElement(
+                'advcheckbox', 'paper_col[' . $col_id . ']', null,
+                $description, null, array('', 'yes'));
+        }
+
+        $form->addGroup($radio_cols, 'group_collaboration',
+                        'Collaboration:', '<br/>', false);
 
         $form->addElement('text', 'paper', 'Paper filename:',
                           array('size' => 60, 'maxlength' => 250));
@@ -267,6 +296,7 @@ class advanced_search extends pdHtmlPage {
             form.abstract.value    = "{$sp->abstract}";
             form.venue.value       = "{$sp->venue}";
             form.keywords.value    = "{$sp->keywords}";
+            form.paper_rank_other.value = "{$sp->paper_rank_other}";
 
             for (var i = 0; i < form.elements.length; i++) {
                 if (form.elements[i].name == "startdate[Y]")
@@ -277,6 +307,24 @@ class advanced_search extends pdHtmlPage {
                     form.elements[i].value = "{$sp->enddate['Y']}";
                 if (form.elements[i].name == "enddate[M]")
                     form.elements[i].value = "{$sp->enddate['M']}";
+
+                if (form.elements[i].name == "paper_rank[1]")
+                    form.elements[i].value = "{$sp->paper_rank[1]}";
+                if (form.elements[i].name == "paper_rank[2]")
+                    form.elements[i].value = "{$sp->paper_rank[2]}";
+                if (form.elements[i].name == "paper_rank[3]")
+                    form.elements[i].value = "{$sp->paper_rank[3]}";
+                if (form.elements[i].name == "paper_rank[4]")
+                    form.elements[i].value = "{$sp->paper_rank[4]}";
+
+                if (form.elements[i].name == "paper_col[1]")
+                    form.elements[i].value = "{$sp->paper_col[1]}";
+                if (form.elements[i].name == "paper_col[2]")
+                    form.elements[i].value = "{$sp->paper_col[2]}";
+                if (form.elements[i].name == "paper_col[3]")
+                    form.elements[i].value = "{$sp->paper_col[3]}";
+                if (form.elements[i].name == "paper_col[4]")
+                    form.elements[i].value = "{$sp->paper_col[4]}";
             }
 
             if ("{$sp->author_myself}" == "1") {

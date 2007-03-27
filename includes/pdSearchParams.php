@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.8 2007/03/12 23:05:43 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.9 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -28,6 +28,9 @@ class pdSearchParams {
     var $keywords;
     var $startdate;
     var $enddate;
+    var $paper_rank;
+    var $paper_rank_other;
+    var $paper_col;
 
     /**
      * Constructor.

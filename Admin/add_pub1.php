@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.30 2007/03/26 22:05:47 aicmltec Exp $
+// $Id: add_pub1.php,v 1.31 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -136,9 +136,10 @@ class add_pub1 extends add_pub_base {
                 'radio', 'paper_rank', null, $description, $rank_id);
         }
         $radio_rankings[] = HTML_QuickForm::createElement(
-            'radio', 'paper_rank', null, 'other (fill in box below)', -1);
+            'radio', 'paper_rank_other_label', null,
+            'other (fill in box below)', -1);
         $radio_rankings[] = HTML_QuickForm::createElement(
-            'text', 'refereed_other', null,
+            'text', 'paper_rank_other', null,
             array('size' => 30, 'maxlength' => 250));
 
         $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
@@ -202,7 +203,7 @@ class add_pub1 extends add_pub_base {
         if (isset($this->pub->rank_id)) {
             $defaults['paper_rank'] = $this->pub->rank_id;
             if ($this->pub->rank_id == -1)
-                $defaults['refereed_other'] = $this->pub->ranking;
+                $defaults['paper_rank_other'] = $this->pub->ranking;
         }
 
         if (is_array($this->pub->collaborations)
@@ -289,9 +290,9 @@ class add_pub1 extends add_pub_base {
         if (isset($values['paper_rank']))
             $this->pub->rank_id = $values['paper_rank'];
 
-        if (strlen($values['refereed_other']) > 0) {
+        if (strlen($values['paper_rank_other']) > 0) {
             $this->pub->rank_id = -1;
-            $this->pub->ranking = $values['refereed_other'];
+            $this->pub->ranking = $values['paper_rank_other'];
         }
 
         if (is_array($values['paper_col'])

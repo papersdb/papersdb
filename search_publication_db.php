@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.59 2007/03/20 15:25:37 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.60 2007/03/27 22:03:15 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -28,7 +28,7 @@ require_once 'includes/pdSearchParams.php';
  */
 class search_publication_db extends pdHtmlPage {
     var $debug = 0;
-    var $search_params;
+    var $sp;
     var $result_pubs;
     var $parse_search_add_word_or_next = false;
 
@@ -65,9 +65,9 @@ class search_publication_db extends pdHtmlPage {
             $location = substr($_SERVER['REQUEST_URI'], 0,  $position);
 
         $search_url = $protocol . '://' . $_SERVER['SERVER_NAME'] . $port
-            . $location . '?' . $this->search_params->paramsToHtmlQueryStr();
+            . $location . '?' . $this->sp->paramsToHtmlQueryStr();
 
-        if($this->search_params->search != "") {
+        if($this->sp->search != "") {
             $this->quickSearch($this->result_pubs);
         }
         else {
@@ -97,12 +97,13 @@ class search_publication_db extends pdHtmlPage {
         else if ($_SERVER['REQUEST_METHOD'] == 'GET')
             $arr =& $_GET;
 
-        if ($this->debug) {
-            debugVar('Options', $arr);
-        }
+        $this->sp = new pdSearchParams($arr);
+        $_SESSION['search_params'] =& $this->sp;
 
-        $this->search_params = new pdSearchParams($arr);
-        $_SESSION['search_params'] =& $this->search_params;
+        if ($this->debug) {
+            debugVar('options', $arr);
+            debugVar('$this->sp', $this->sp);
+        }
     }
 
     /**
@@ -206,7 +207,7 @@ class search_publication_db extends pdHtmlPage {
      */
     function quickSearch() {
         $quick_search_array
-            = $this->parse_search(stripslashes($this->search_params->search));
+            = $this->parse_search(stripslashes($this->sp->search));
 
         foreach ($quick_search_array as $and_terms) {
             $union_array = array();
@@ -265,6 +266,37 @@ class search_publication_db extends pdHtmlPage {
                         }
                     }
                 }
+
+                // search ranking
+                $search_result = query_db('SELECT rank_id from rankings '
+                                          . 'WHERE description LIKE '
+                                          . quote_smart("%".$or_terms."%"));
+                while ($search_array
+                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                    $rank_id = $search_array['rank_id'];
+
+                    if (is_numeric($rank_id)) {
+                        $this->add_to_array(
+                            'SELECT DISTINCT pub_id from publication '
+                            . 'WHERE rank_id=' . quote_smart($rank_id),
+                            $union_array);
+                    }
+                }
+
+                // search collaborations
+                $search_result = query_db('SELECT col_id from collaboration '
+                                          . 'WHERE description LIKE '
+                                          . quote_smart("%".$or_terms."%"));
+                while ($search_array
+                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                    $col_id = $search_array['col_id'];
+                    if($col_id != null) {
+                        $this->add_to_array(
+                            'SELECT DISTINCT pub_id from pub_col '
+                            . 'WHERE col_id=' . quote_smart($col_id),
+                            $union_array);
+                    }
+                }
             }
             $this->result_pubs = array_intersect($this->result_pubs,
                                                  $union_array);
@@ -278,9 +310,9 @@ class search_publication_db extends pdHtmlPage {
      */
     function advancedSearch() {
         // VENUE SEARCH ------------------------------------------
-        if ($this->search_params->venue != '') {
+        if ($this->sp->venue != '') {
             $the_search_array
-                = $this->parse_search($this->search_params->venue);
+                = $this->parse_search($this->sp->venue);
             foreach ($the_search_array as $and_terms) {
                 $union_array = null;
                 foreach ($and_terms as $or_term) {
@@ -296,9 +328,9 @@ class search_publication_db extends pdHtmlPage {
         //
         // if category search found, pass on only the ids found with that match
         // with category
-        if($this->search_params->cat_id != '') {
+        if($this->sp->cat_id != '') {
             $temporary_array = NULL;
-            $cat_id = $this->search_params->cat_id;
+            $cat_id = $this->sp->cat_id;
 
             $search_query = "SELECT DISTINCT pub_id FROM pub_cat WHERE cat_id="
                 . quote_smart($cat_id);
@@ -337,10 +369,10 @@ class search_publication_db extends pdHtmlPage {
                              "extra_info");
         //same thing happening as category, just with each of these fields
         foreach ($fields as $field) {
-            if (isset($this->search_params->$field)
-                && ($this->search_params->$field != '')) {
+            if (isset($this->sp->$field)
+                && ($this->sp->$field != '')) {
                 $the_search_array
-                    = $this->parse_search($this->search_params->$field);
+                    = $this->parse_search($this->sp->$field);
                 foreach ($the_search_array as $and_terms) {
                     $union_array = null;
                     foreach ($and_terms as $or_term) {
@@ -360,10 +392,10 @@ class search_publication_db extends pdHtmlPage {
         $authors = array();
         $author_pubs = array();
 
-        if (count($this->search_params->authorselect) > 0)
-            $authors += $this->search_params->authorselect;
+        if (count($this->sp->authorselect) > 0)
+            $authors += $this->sp->authorselect;
 
-        if (($this->search_params->author_myself != '')
+        if (($this->sp->author_myself != '')
             && ($_SESSION['user']->author_id != ''))
             array_push($authors, $_SESSION['user']->author_id);
 
@@ -380,8 +412,8 @@ class search_publication_db extends pdHtmlPage {
         }
 
         // AUTHOR TYPED SEARCH --------------------------------------
-        if ($this->search_params->authortyped != "") {
-            $the_search_array = $this->parse_search($this->search_params->authortyped);
+        if ($this->sp->authortyped != "") {
+            $the_search_array = $this->parse_search($this->sp->authortyped);
 
             foreach ($the_search_array as $and_terms) {
                 $authors = array();
@@ -421,20 +453,51 @@ class search_publication_db extends pdHtmlPage {
             }
         }
 
-        if ($this->debug) {
-            debugVar('author pubs', $author_pubs);
-            debugVar('result', $this->result_pubs);
+        // ranking
+        $union_array = array();
+        foreach ($this->sp->paper_rank as $rank_id => $value) {
+            if ($value != 'yes') continue;
+
+            $this->add_to_array('SELECT DISTINCT pub_id from publication '
+                                . 'WHERE rank_id=' . quote_smart($rank_id),
+                                $union_array);
         }
+
+        if ($this->sp->paper_rank_other != '') {
+            $this->add_to_array('SELECT DISTINCT pub_id from rankings '
+                                . 'WHERE description LIKE '
+                                . quote_smart(
+                                    "%" . $this->sp->paper_rank_other . "%"),
+                                $union_array);
+        }
+
+        if (count($union_array) > 0)
+            $this->result_pubs = array_intersect($this->result_pubs,
+                                                 $union_array);
+
+        // collaboration
+        $union_array = array();
+        foreach ($this->sp->paper_col as $col_id => $value) {
+            if ($value != 'yes') continue;
+
+            $this->add_to_array('SELECT DISTINCT pub_id from pub_col '
+                                . 'WHERE col_id=' . quote_smart($col_id),
+                                $union_array);
+        }
+
+        if (count($union_array) > 0)
+            $this->result_pubs = array_intersect($this->result_pubs,
+                                                 $union_array);
 
 
         // DATES SEARCH --------------------------------------
-        if (isset($this->search_params->startdate)) {
-            $startdate =& $this->search_params->startdate;
+        if (isset($this->sp->startdate)) {
+            $startdate =& $this->sp->startdate;
             $stime = strtotime(implode('-', $startdate) . '-1');
         }
 
-        if (isset($this->search_params->enddate)) {
-            $enddate =& $this->search_params->enddate;
+        if (isset($this->sp->enddate)) {
+            $enddate =& $this->sp->enddate;
             $etime = strtotime(implode('-', $enddate) . '-1');
         }
 
@@ -464,6 +527,10 @@ class search_publication_db extends pdHtmlPage {
                 $this->result_pubs = array_intersect($this->result_pubs,
                                                      $temporary_array);
             }
+        }
+
+        if ($this->debug) {
+            debugVar('result', $this->result_pubs);
         }
 
         return $this->result_pubs;
