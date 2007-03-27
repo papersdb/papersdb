@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.12 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.13 2007/03/27 17:19:33 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -30,10 +30,10 @@ class pdVenueList {
         }
         else if (isset($options['type']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
-                             array('type' => $options['type']),
+                             array('type'    => $options['type']),
                              "pdVenueList::dbLoad");
         else
-            $q = $db->select('venue', array('venue_id', 'title', 'name'), '',
+            $q = $db->select('venue', array('venue_id', 'title', 'name'), null,
                              "pdVenueList::dbLoad");
 
         if ($q === false) return;

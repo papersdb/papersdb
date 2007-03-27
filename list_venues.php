@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.25 2007/03/20 21:38:15 aicmltec Exp $
+// $Id: list_venues.php,v 1.26 2007/03/27 17:19:33 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -58,6 +58,9 @@ class list_venues extends pdHtmlPage {
         $table->setAutoGrow(true);
 
         foreach ($venue_list->list as $venue) {
+            // only show global venues
+            if ($venue->v_usage == 'single') continue;
+
             unset($cells);
             $text = '';
             if ($venue->title != '')

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.96 2007/03/26 22:05:47 aicmltec Exp $
+// $Id: pdPublication.php,v 1.97 2007/03/27 17:19:33 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -229,6 +229,10 @@ class pdPublication extends pdDbAccessor {
                                     array('location' => $info->location),
                                     'pdPublication::dbDelete');
             }
+        }
+
+        if (is_object($this->venue) && ($this->venue->v_usage == 'single')) {
+            $this->venue->dbDelete($db);
         }
 
         $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication',
@@ -524,6 +528,15 @@ class pdPublication extends pdDbAccessor {
 
     function addVenue($db, $mixed) {
         if (is_object($mixed)) {
+
+            // if this publication already has a unique venue associated with
+            // it, the venue must first be deleted
+            if (is_object($this->venue)
+                && ($this->venue_id != $mixed->venue_id)
+                && ($this->venue->v_usage == 'single')) {
+                $this->venue->dbDelete($db);
+            }
+
             $this->venue = $mixed;
             $this->venue_id = $this->venue->venue_id;
             return;
