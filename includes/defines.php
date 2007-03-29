@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.25 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: defines.php,v 1.26 2007/03/29 23:16:01 aicmltec Exp $
 
 /**
  * Project Constants
@@ -12,7 +12,8 @@
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 
-ini_set("include_path", ini_get("include_path") . ":/usr/share/pear");
+ini_set("include_path", ini_get("include_path") . ":pear:../pear");
+
 
 $wgSitename = "PapersDB";
 $wgServer = "www.cs.ualberta.ca";

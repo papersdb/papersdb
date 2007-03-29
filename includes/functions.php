@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.34 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: functions.php,v 1.35 2007/03/29 23:16:01 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -24,27 +24,27 @@ $absolute_files_path = FS_PATH . $relative_files_path;
  *  shorter then a certain length.
  */
 function isValid($string){
-	for($a = 0; $a < strlen($string); $a++){
-		$char = substr($string,$a,1);
-		$isValid = false;
-		// Numbers 0-9
-		for($b = 48; $b <= 57; $b++)
-			if($char == chr($b))
-				$isValid = true;
-		//Uppercase A to Z
-		if(!$isValid)
-			for($b = 65; $b <= 90; $b++)
-				if($char == chr($b))
-					$isValid = true;
-		//Lowercase a to z
-		if(!$isValid)
-			for($b = 97; $b <= 122; $b++)
-				if($char == chr($b))
-					$isValid = true;
-		if(!$isValid)
-			return errorMessage();
-	}
-	return "";
+    for($a = 0; $a < strlen($string); $a++){
+        $char = substr($string,$a,1);
+        $isValid = false;
+        // Numbers 0-9
+        for($b = 48; $b <= 57; $b++)
+            if($char == chr($b))
+                $isValid = true;
+        //Uppercase A to Z
+        if(!$isValid)
+            for($b = 65; $b <= 90; $b++)
+                if($char == chr($b))
+                    $isValid = true;
+        //Lowercase a to z
+        if(!$isValid)
+            for($b = 97; $b <= 122; $b++)
+                if($char == chr($b))
+                    $isValid = true;
+        if(!$isValid)
+            return errorMessage();
+    }
+    return "";
 }
 
 /**

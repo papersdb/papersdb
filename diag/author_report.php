@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.13 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: author_report.php,v 1.14 2007/03/29 23:16:01 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -51,7 +51,7 @@ class author_report extends pdHtmlPage {
         echo '<h2>AICML Author Report</h2>';
 
         for ($i = 0, $n = count($this->pi_authors); $i < $n - 1; $i++) {
-            for ($j = $i + 1; $j < $n, $j++) {
+            for ($j = $i + 1; $j < $n; $j++) {
 
                 $q = $this->db->query(
                     'SELECT publication.pub_id FROM '
