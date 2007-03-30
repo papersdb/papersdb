@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.31 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: add_pub1.php,v 1.32 2007/03/30 15:14:45 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -136,7 +136,7 @@ class add_pub1 extends add_pub_base {
                 'radio', 'paper_rank', null, $description, $rank_id);
         }
         $radio_rankings[] = HTML_QuickForm::createElement(
-            'radio', 'paper_rank_other_label', null,
+            'radio', 'paper_rank', null,
             'other (fill in box below)', -1);
         $radio_rankings[] = HTML_QuickForm::createElement(
             'text', 'paper_rank_other', null,
@@ -290,12 +290,13 @@ class add_pub1 extends add_pub_base {
         if (isset($values['paper_rank']))
             $this->pub->rank_id = $values['paper_rank'];
 
-        if (strlen($values['paper_rank_other']) > 0) {
+        if (($values['paper_rank'] == -1)
+            && (strlen($values['paper_rank_other']) > 0)) {
             $this->pub->rank_id = -1;
             $this->pub->ranking = $values['paper_rank_other'];
         }
 
-        if (is_array($values['paper_col'])
+        if (isset($values['paper_col'])
             && (count($values['paper_col']) > 0)) {
             $this->pub->collaborations = array_keys($values['paper_col']);
         }
