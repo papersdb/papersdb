@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.26 2007/03/20 19:25:56 aicmltec Exp $
+// $Id: edit_user.php,v 1.27 2007/04/02 20:11:27 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -126,7 +126,8 @@ END;
             }
 
             $user->dbSave($this->db);
-            echo 'Change to user information submitted.';
+            echo 'Change to user information submitted.<p/>';
+            echo 'Click <a href="edit_user.php?status=edit">here</a> to edit your preferences again.';
         }
         else {
             echo '<h2>Login Information</h2>';

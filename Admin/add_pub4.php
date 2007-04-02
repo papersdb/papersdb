@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.28 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: add_pub4.php,v 1.29 2007/04/02 20:11:26 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -210,15 +210,11 @@ class add_pub4 extends add_pub_base {
 
                 if (!$result) continue;
 
-                $pubLinkstr = '<a href="' . $url
-                    . '../view_publication.php?pub_id=' . $pub_id
-                    . '" target="blank">' . $intPub->title . '</a>';
-
                 $form->addGroup(
                     array(
                         HTML_QuickForm::createElement(
                             'static', 'curr_pub_link' . $c, null,
-                            $pubLinkstr),
+                            $intPub->title),
                         HTML_QuickForm::createElement(
                             'submit', 'remove_pub_link' . $c, 'Remove')
                         ),
