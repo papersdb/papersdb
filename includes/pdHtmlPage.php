@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.78 2007/04/04 16:00:06 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.79 2007/04/04 20:15:12 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -230,6 +230,22 @@ class pdHtmlPage {
         }
     }
 
+    function stripSlashesArray($arr) {
+        assert('is_array($arr)');
+
+        $new_arr = array();
+        foreach ($arr as $key => $value) {
+            if (is_array($arr[$key])) {
+                $new_arr[stripslashes($key)]
+                    = $this->stripSlashesArray($arr[$key]);
+            }
+            else
+                $new_arr[stripslashes($key)] = stripslashes($value);
+        }
+
+        return $new_arr;
+    }
+
     function loadHttpVars($get = true, $post = true) {
         $arr = null;
         if ($get && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
@@ -245,11 +261,8 @@ class pdHtmlPage {
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
             if (isset($arr[$member])) {
-                if (is_array($arr[$member])) {
-                    foreach ($arr[$member] as $key => $value) {
-                        $this->$member[$key] = $value;
-                    }
-                }
+                if (is_array($arr[$member]))
+                    $this->$member = $this->stripSlashesArray($arr[$member]);
                 else
                     $this->$member = stripslashes($arr[$member]);
             }
@@ -346,6 +359,7 @@ class pdHtmlPage {
      */
     function toHtml() {
         if (isset($this->redirectUrl) && ($this->redirectTimeout == 0)) {
+            session_write_close();
             header('Location: ' . $this->redirectUrl);
             return;
         }

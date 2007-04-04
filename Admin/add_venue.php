@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.38 2007/03/27 17:19:33 aicmltec Exp $
+// $Id: add_venue.php,v 1.39 2007/04/04 20:15:12 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -28,6 +28,9 @@ class add_venue extends pdHtmlPage {
     var $venue_id = null;
     var $venue;
     var $type;
+    var $title;
+    var $name;
+    var $url;
     var $v_usage;
     var $numNewOccurrences;
     var $newOccurrenceLocation;
@@ -41,6 +44,7 @@ class add_venue extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars();
+
         $this->venue = new pdVenue();
 
         if ($this->venue_id != null)
@@ -237,6 +241,8 @@ class add_venue extends pdHtmlPage {
             $defaults[$member] = $this->$member;
         }
 
+        debugVar('defaults', $defaults);
+
         $form->setConstants($defaults);
 
         if ($this->venue_id != '') {
@@ -282,8 +288,18 @@ class add_venue extends pdHtmlPage {
         else {
             $curdate = array('Y' => date('Y'), 'M' => date('m'));
             $arr = array('venue_date' => $curdate);
-            for ($i = 0; $i < $this->newOccurrences; ++$i)
-                $arr['newOccurrenceDate'][$i] = $curdate;
+            for ($i = 0; $i < $this->newOccurrences; ++$i) {
+                if (isset($this->numNewOccurrences[$i])) {
+                    $arr['newOccurrenceLocation'][$i]
+                        = $this->newOccurrenceLocation[$i];
+                    $arr['newOccurrenceDate'][$i]
+                        = $this->newOccurrenceDate[$i];
+                    $arr['newOccurrenceUrl'][$i]
+                        = $this->newOccurrenceUrl[$i];
+                }
+                else
+                    $arr['newOccurrenceDate'][$i] = $curdate;
+            }
             $form->setConstants($arr);
         }
 
@@ -379,116 +395,14 @@ class add_venue extends pdHtmlPage {
     }
 
     function javascript() {
-        $this->js = <<< JS_END
-            <script language="JavaScript" type="text/JavaScript">
+        $js_file = 'js/add_venue.js';
+        assert('file_exists($js_file)');
+        $this->js = file_get_contents($js_file);
 
-            function closewindow() {
-            window.close();
-        }
-
-        function dataKeep(num) {
-            var qsArray = new Array();
-            var qsString = "";
-
-            for (i = 0; i < document.forms["venueForm"].elements.length; i++) {
-                var element = document.forms["venueForm"].elements[i];
-                if ((element.type != "submit") && (element.type != "reset")
-                    && (element.type != "button")
-                    && (element.value != "") && (element.value != null)) {
-
-                    if (element.name == "venue_id") {
-                        qsArray.push(element.name + "=" + element.value);
-                        qsArray.push("status=change");
-                    }
-                    else if ((element.name == "type")  ||  (element.name == "v_usage")) {
-                        if (element.checked) {
-                            qsArray.push(element.name + "=" + element.value);
-                        }
-                    }
-                    else if (element.name == "numNewOccurrences") {
-                        qsArray.push(element.name + "=" + num);
-                    }
-                    else {
-                        qsArray.push(element.name + "=" + element.value);
-                    }
-                }
-            }
-
-            if (qsArray.length > 0) {
-                qsString = qsArray.join("&");
-                qsString.replace("\"", "?");
-                qsString.replace(" ", "%20");
-            }
-
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + qsString;
-        }
-
-        function dataRemove(num) {
-            var qsArray = new Array();
-            var qsString = "";
-            var indexYear = 0;
-            var indexLocation = 0;
-            var indexDate = 0;
-            var indexUrl = 0;
-
-            for (i = 0; i < document.forms["venueForm"].elements.length; i++) {
-                var element = document.forms["venueForm"].elements[i];
-                if ((element.type != "submit") && (element.type != "reset")
-                    && (element.type != "button")
-                    && (element.value != "") && (element.value != null)) {
-
-                    if (element.name == "venue_id") {
-                        qsArray.push(element.name + "=" + element.value);
-                        qsArray.push("status=change");
-                    }
-                    else if ((element.name == "type") ||  (element.name == "v_usage")) {
-                        if (element.checked) {
-                            qsArray.push(element.name + "=" + element.value);
-                        }
-                    }
-                    else if (element.name == "numNewOccurrences") {
-                        numOccur = parseInt(element.value) - 1;
-                        qsArray.push(element.name + "=" + numOccur);
-                    }
-                    else if (element.name.indexOf("newOccurrenceLocation") >= 0) {
-                        if (element.name != "newOccurrenceLocation[" + num + "]") {
-                            qsArray.push("newOccurrenceLocation["
-                                         + indexLocation + "]="
-                                         + element.value);
-                            indexLocation++;
-                        }
-                    }
-                    else if (element.name.indexOf("newOccurrenceDate") >= 0) {
-                        if (element.name != "newOccurrenceDate[" + num + "]") {
-                            qsArray.push("newOccurrenceDate["
-                                         + indexDate + "]=" + element.value);
-                            indexDate++;
-                        }
-                    }
-                    else if (element.name.indexOf("newOccurrenceUrl") >= 0) {
-                        if (element.name != "newOccurrenceUrl[" + num + "]") {
-                            qsArray.push("newOccurrenceUrl["
-                                         + indexUrl + "]=" + element.value);
-                            indexUrl++;
-                        }
-                    }
-                }
-            }
-
-            if (qsArray.length > 0) {
-                qsString = qsArray.join("&");
-                qsString.replace("\"", "?");
-                qsString.replace(" ", "%20");
-            }
-
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + qsString;
-        }
-        </script>
-JS_END;
+        $this->js = str_replace(array('{host}', '{self}'),
+                                array($_SERVER['HTTP_HOST'],
+                                      $_SERVER['PHP_SELF']),
+                                $this->js);
     }
 }
 
