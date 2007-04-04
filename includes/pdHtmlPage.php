@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.77 2007/03/26 22:08:35 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.78 2007/04/04 16:00:06 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -429,7 +429,7 @@ class pdHtmlPage {
         if (is_array($options))
             foreach ($options as $key => $value) {
                 if ($value == '')
-                    $result .= '<li><a class="selected" href="#">' . $key . '</a></li>';
+                    $result .= '<li class="selected">' . $key . '</li>';
                 else
                     $result
                         .= '<li><a href="' . $value . '">' . $key . '</a></li>';

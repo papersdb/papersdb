@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.26 2007/03/29 23:16:01 aicmltec Exp $
+// $Id: defines.php,v 1.27 2007/04/04 16:00:06 aicmltec Exp $
 
 /**
  * Project Constants
@@ -12,7 +12,7 @@
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 
-ini_set("include_path", ini_get("include_path") . ":pear:../pear");
+ini_set("include_path", ini_get("include_path") . ":./pear:../pear");
 
 
 $wgSitename = "PapersDB";

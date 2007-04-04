@@ -213,7 +213,7 @@ div#nav li {
   width:180px;
 }
 
-div#nav li a {
+div#nav li a, div#nav li.selected {
   background: #f4f4f4;
   border-left: 4px solid #cccccc;
   color: #006633;
@@ -224,7 +224,7 @@ div#nav li a {
   text-decoration: none;
 }
 
-div#nav li a:hover, div#nav li a.selected {
+div#nav li a:hover, div#nav li a.selected, div#nav li.selected {
   background: #CCCC99;
   border-left: 4px solid #006633;
 }
