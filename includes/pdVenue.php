@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.25 2007/03/27 17:19:33 aicmltec Exp $
+// $Id: pdVenue.php,v 1.26 2007/04/04 22:48:28 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -73,6 +73,7 @@ class pdVenue extends pdDbAccessor {
         assert('is_object($db)');
 
         $values = $this->membersAsArray();
+        unset($values['occurrences']);
 
         if ($this->v_usage == 'single')
             $values['v_usage'] = '1';
@@ -80,8 +81,7 @@ class pdVenue extends pdDbAccessor {
         if ($this->venue_id != '') {
             $this->dbUpdateOccurrence($db);
 
-            $db->update('venue',
-                        $values, array('venue_id' => $this->venue_id),
+            $db->update('venue', $values, array('venue_id' => $this->venue_id),
                         'pdVenue::dbSave');
             $this->venue_id = $db->insertId();
             $this->dbUpdateOccurrence($db);

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.39 2007/04/04 20:15:12 aicmltec Exp $
+// $Id: add_venue.php,v 1.40 2007/04/04 22:48:28 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -240,8 +240,6 @@ class add_venue extends pdHtmlPage {
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
             $defaults[$member] = $this->$member;
         }
-
-        debugVar('defaults', $defaults);
 
         $form->setConstants($defaults);
 

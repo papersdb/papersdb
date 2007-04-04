@@ -1,6 +1,6 @@
-// $Id: add_category.js,v 1.1 2007/04/04 20:15:12 aicmltec Exp $
-
 <script language="JavaScript" type="text/JavaScript">
+
+// $Id: add_category.js,v 1.2 2007/04/04 22:48:28 loyola Exp $
 
 var addCategoryPageHelp =
      "This window is used to add a new category of papers to the "

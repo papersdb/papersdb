@@ -1,6 +1,7 @@
-// $Id: add_author.js,v 1.1 2007/04/04 20:15:12 aicmltec Exp $
-
 <script language="JavaScript" type="text/JavaScript">
+
+// $Id: add_author.js,v 1.2 2007/04/04 22:48:28 loyola Exp $
+
 var addAuthorPageHelp=
      "To add an author you need to input the author's first name, "
      + "last name, email address and organization. You must also "
