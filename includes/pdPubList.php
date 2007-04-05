@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.21 2007/03/20 15:47:08 aicmltec Exp $
+// $Id: pdPubList.php,v 1.22 2007/04/05 17:59:23 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -149,6 +149,9 @@ class pdPubList {
             $r = $db->fetchObject($q);
             $numToLoad--;
         }
+
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
     /**
@@ -160,7 +163,7 @@ class pdPubList {
 
         $q = $db->select('publication', '*',
                          array('venue_id' => $venue_id),
-                         "pdPubList::categoryPubsDbLoad");
+                         "pdPubList::venuePubsDbLoad");
 
         if ($db->numRows($q) == 0) return;
 
@@ -169,6 +172,9 @@ class pdPubList {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
+
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
     /**
@@ -179,7 +185,10 @@ class pdPubList {
         assert('$cat_id != ""');
 
         $q = $db->select(array('publication', 'pub_cat'),
-                         'publication.pub_id',
+                         array('publication.pub_id', 'publication.title',
+                               'publication.paper', 'publication.abstract',
+                               'publication.keywords', 'publication.published',
+                               'publication.updated'),
                          array('pub_cat.pub_id=publication.pub_id',
                                'pub_cat.cat_id' => $cat_id),
                          "pdPubList::categoryPubsDbLoad");
@@ -191,6 +200,9 @@ class pdPubList {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
+
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
     /**
@@ -250,7 +262,7 @@ class pdPubList {
         $q = $db->select('publication',
                          'distinct year(published) as year', '',
                          "pdPubList::publicationsDbLoad",
-                         array( 'ORDER BY' => 'published ASC'));
+                         array( 'ORDER BY' => 'published DESC'));
 
         if ($db->numRows($q) == 0) return;
 
@@ -266,7 +278,6 @@ class pdPubList {
                              "pdPubList::publicationsDbLoad");
             $this->list[$key]['count'] = $q->count;
         }
-
     }
 
     function yearPubsDBLoad($db, $year) {
@@ -275,7 +286,7 @@ class pdPubList {
         $q = $db->select('publication', '*',
                          array('year(published)' => $year),
                          "pdPubList::publicationsDbLoad",
-                         array( 'ORDER BY' => 'published ASC'));
+                         array( 'ORDER BY' => 'published DESC'));
 
         if ($db->numRows($q) == 0) return;
 
@@ -341,6 +352,9 @@ class pdPubList {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
+
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 }
 

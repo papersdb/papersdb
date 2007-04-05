@@ -229,6 +229,10 @@ div#nav li a:hover, div#nav li a.selected, div#nav li.selected {
   border-left: 4px solid #006633;
 }
 
+div#nav li.selected {
+  width: 166px;
+}
+
 div#sel {
   margin-bottom: 1em;
   margin: 10px auto 0px auto;

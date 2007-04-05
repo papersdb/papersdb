@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.22 2007/03/26 21:01:07 aicmltec Exp $
+// $Id: add_pub3.php,v 1.23 2007/04/05 17:59:23 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -166,7 +166,8 @@ class add_pub3 extends add_pub_base {
         // assign category info items
         if (count($this->pub->info) > 0)
             foreach ($this->formInfoElementsGet() as $element => $name) {
-                $defaults[$element] = $this->pub->info[$name];
+                if (isset($this->pub->info[$name]))
+                    $defaults[$element] = $this->pub->info[$name];
             }
 
         $form->setDefaults($defaults);

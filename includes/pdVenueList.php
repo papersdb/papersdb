@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.13 2007/03/27 17:19:33 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.14 2007/04/05 17:59:23 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -87,8 +87,8 @@ class pdVenueList {
             }
             $r = $db->fetchObject($q);
         }
-        assert('is_array($this->list)');
-        asort($this->list);
+        if (is_array($this->list))
+            uasort($this->list, array(get_class($this), 'sortVenues'));
     }
 
     function loadStartingWith($db, $letter) {
@@ -116,6 +116,37 @@ class pdVenueList {
                 $r = $db->fetchObject($q);
             }
         }
+
+        if (is_array($this->list))
+            uasort($this->list, array(get_class($this), 'sortVenuesObjs'));
+    }
+
+    function sortVenues($a, $b) {
+        return (strtolower($a) > strtolower($b));
+    }
+
+    function sortVenuesObjs($a, $b) {
+        assert('is_object($a)');
+        assert('is_object($b)');
+
+        if (isset($a->title) && isset($b->title)) {
+            $sa = $a->title;
+            $sb = $b->title;
+        }
+        else if (!isset($a->title) && isset($b->title)) {
+            $sa = $a->name;
+            $sb = $b->title;
+        }
+        else if (isset($a->title) && !isset($b->title)) {
+            $sa = $a->title;
+            $sb = $b->name;
+        }
+        else {
+            $sa = $a->name;
+            $sb = $b->name;
+        }
+
+        return (strtolower($sa) > strtolower($sb));
     }
 }
 
