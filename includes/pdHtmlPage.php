@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.79 2007/04/04 20:15:12 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.80 2007/04/10 17:17:45 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -320,9 +320,9 @@ class pdHtmlPage {
 
         if ($this->hasHelpTooltips) {
             if (strstr($this->relative_url, '/'))
-                $jsFile = '../wz_tooltip.js';
+                $jsFile = '../js/wz_tooltip.js';
             else
-                $jsFile = 'wz_tooltip.js';
+                $jsFile = 'js/wz_tooltip.js';
 
             $result
                 .= '<script language="JavaScript" type="text/javascript" src="'
