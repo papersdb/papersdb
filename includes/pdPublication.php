@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.98 2007/04/05 17:59:23 aicmltec Exp $
+// $Id: pdPublication.php,v 1.99 2007/04/10 15:56:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -718,7 +718,7 @@ class pdPublication extends pdDbAccessor {
         $filename = $pub_path . $basename;
 
         // create the publication's path if it does not exist
-        if (!is_file($pub_path)) {
+        if (!is_dir($pub_path)) {
             mkdir($pub_path, 0777);
             // mkdir permissions with 0777 does not seem to work
             chmod($pub_path, 0777);

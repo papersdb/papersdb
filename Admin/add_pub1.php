@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.32 2007/03/30 15:14:45 loyola Exp $
+// $Id: add_pub1.php,v 1.33 2007/04/10 15:56:51 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -320,51 +320,9 @@ class add_pub1 extends add_pub_base {
     }
 
     function javascript() {
-        $this->js = <<<JS_END
-            <script language="JavaScript" type="text/JavaScript">
-
-            var venueHelp=
-            "Where the paper was published -- specific journal, conference, "
-            + "workshop, etc. If many of the database papers are in the same "
-            + "venue, you can create a single <b>label</b> for that "
-            + "venue, to specify name of the venue, location, date, editors "
-            + "and other common information. You will then be able to use "
-            + "and re-use that information.";
-
-        var categoryHelp=
-            "Category describes the type of document that you are submitting "
-            + "to the site. For examplethis could be a journal entry, a book "
-            + "chapter, etc.<br/><br/>"
-            + "Please use the drop down menu to select an appropriate "
-            + "category to classify your paper. If you cannot find an "
-            + "appropriate category you can select 'Add New Category' from "
-            + "the drop down menu and you will be asked for the new category "
-            + "information on a subsequent page.<br/><br/>";
-
-        var titleHelp=
-            "Title should contain the title given to your document.";
-            ;
-
-        var abstractHelp=
-            "Abstract is an area for you to provide an abstract of the "
-            + "document you are submitting.<br/><br/>"
-            + "To do this enter a plain text abstract for your paper in the "
-            + "field provided. HTML tags can be used.";
-
-
-        var keywordsHelp=
-            "Keywords is a field where you can enter keywords that will be "
-            + "used to possibly locate your paper by others searching the "
-            + "database. You may want to enter multiple terms that are "
-            + "associated with your document. Examples may include words "
-            + "like: medical imaging; robotics; data mining.<br/><br/>"
-            + "Please enter keywords used to describe your paper, each "
-            + "keyword should be seperated by a semicolon.";
-
-        var userInfoHelp
-            = "A place for the user to enter his/her own information";
-        </script>
-JS_END;
+        $js_file = FS_PATH . '/Admin/js/add_pub1.js';
+        assert('file_exists($js_file)');
+        $this->js = file_get_contents($js_file);
     }
 }
 

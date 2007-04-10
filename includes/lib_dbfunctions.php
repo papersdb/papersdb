@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.12 2007/03/12 05:25:45 loyola Exp $
+// $Id: lib_dbfunctions.php,v 1.13 2007/04/10 15:56:51 aicmltec Exp $
 
 /**
  * DB connection is only hard coded here and in lib_functions.
@@ -63,6 +63,8 @@ function query_db($query) {
 function wfDebug( $text, $logonly = false ) {
     echo $text;
 }
+
+function wfDie($txt) { echo $txt . "<br/>\n"; }
 
 $wgProfiling = 0;
 
