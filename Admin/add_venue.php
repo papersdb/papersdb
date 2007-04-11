@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.41 2007/04/05 18:33:08 aicmltec Exp $
+// $Id: add_venue.php,v 1.42 2007/04/11 17:52:40 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -306,8 +306,12 @@ class add_venue extends pdHtmlPage {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
 
-            echo '<h3>Adding Following Publication</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>'
+            if (isset($this->pub_id))
+                echo '<h3>Adding Following Publication Entry</h3>';
+            else
+                echo '<h3>Editing Following Publication Entry</h3>';
+
+            echo $pub->getCitationHtml('..', false) . '<p/>'
                 . add_pub_base::similarPubsHtml();
         }
 

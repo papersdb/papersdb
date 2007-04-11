@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.18 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: add_pub2.php,v 1.19 2007/04/11 17:52:40 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -32,6 +32,9 @@ class add_pub2 extends add_pub_base {
         if ($this->loginError) return;
 
         $this->pub =& $_SESSION['pub'];
+
+        if (!isset($this->pub_id))
+            $this->page_title = 'Edit Publication';
 
         $form = new HTML_QuickForm('add_pub2');
 
@@ -113,8 +116,12 @@ class add_pub2 extends add_pub_base {
 
         $form->setDefaults($defaults);
 
-        echo '<h3>Adding Following Publication</h3>'
-            . $this->pub->getCitationHtml('', false) . '<p/>'
+        if (isset($this->pub_id))
+            echo '<h3>Adding Following Publication Entry</h3>';
+        else
+            echo '<h3>Editing Following Publication Entry</h3>';
+
+        echo $this->pub->getCitationHtml('', false) . '<p/>'
             . add_pub_base::similarPubsHtml();
 
         $renderer =& $form->defaultRenderer();

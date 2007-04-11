@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.52 2007/04/05 18:33:08 aicmltec Exp $
+// $Id: add_author.php,v 1.53 2007/04/11 17:52:40 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -210,8 +210,12 @@ class add_author extends pdHtmlPage {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
 
-            echo '<h3>Adding Following Publication</h3>'
-                . $pub->getCitationHtml('..', false) . '<p/>'
+            if (isset($this->pub_id))
+                echo '<h3>Adding Following Publication Entry</h3>';
+            else
+                echo '<h3>Editing Following Publication Entry</h3>';
+
+            echo $pub->getCitationHtml('..', false) . '<p/>'
                 . add_pub_base::similarPubsHtml();
         }
 
