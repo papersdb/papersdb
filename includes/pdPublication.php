@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.100 2007/04/13 16:04:30 loyola Exp $
+// $Id: pdPublication.php,v 1.101 2007/04/13 16:29:44 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1113,10 +1113,26 @@ class pdPublication extends pdDbAccessor {
 
     function info2str($validKeys, $values) {
         $info = array();
+
+        if (in_array('Volume', $validKeys)
+            && in_array('Number', $validKeys)
+            && isset($values['Volume'])
+            && ($values['Volume'] != '')
+            && isset($values['Number'])
+            && ($values['Number'] != '')) {
+            $values['Volume'] = $values['Volume']
+                . '(' . $values['Number'] . ')';
+
+            // now remove 'Number' from $validKeys
+            $validKeys = array_diff($validKeys, array('Number'));
+        }
+
         foreach ($validKeys as $key) {
             if (isset($values[$key]) && ($values[$key] != '')) {
                 if ($key == 'Edition')
                     $info[] = '(Edition ' . $values[$key] . ')';
+                else if ($key == 'Number')
+                    $info[] = '(' . $values[$key] . ')';
                 else if ($key == 'Pages')
                     $info[] = 'pp ' . $values[$key];
                 else
