@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.99 2007/04/10 15:56:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.100 2007/04/13 16:04:30 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1056,38 +1056,74 @@ class pdPublication extends pdDbAccessor {
     function getInfoForCitation() {
         if (count($this->info) == 0) return null;
 
-        $pages = '';
+        $info = array();
 
-        if (isset($this->info['Pages']))
-            $pages = 'pp ' . $this->info['Pages'];
-
-        if (isset($this->info['Editor']) && isset($this->info['Volume'])
-            && isset($this->info['Number']) && isset($pages)) {
-            $info = $this->info['Editor'] . ', ' . $this->info['Volume']
-                . '(' . $this->info['Number'] . '), ' . $pages;
-        }
-        else if (isset($this->info['Volume'])
-                 && isset($this->info['Number']) && isset($pages)) {
-            $info = $this->info['Volume'] . '(' . $this->info['Number']
-                . '), ' . $pages;
-        }
-        else if (isset($this->info['Number']) && isset($pages)) {
-            $info = $this->info['Number'] . ', ' . $pages;
-        }
-        else if (isset($pages)) {
-            $info = $pages;
+        if (!isset($this->category)) {
+            return $this->info2str(array_keys($this->info), $this->info);
         }
 
-        $info_arr = array();
-        foreach ($this->info as $key => $i)
-            if (($i != '') && (!in_array($key, array('Editor', 'Volume',
-                                                     'Number', 'Pages'))))
-                $info_arr[] = $i;
+        switch ($this->category->category) {
+            case 'In Conference':
+                $validKeys = array('Editor', 'Pages');
+                break;
 
-        if (count($info_arr) > 0)
-            $info = implode(', ', $info_arr) . $info;
+            case 'In Journal':
+                $validKeys = array('Editor', 'Volume', 'Number', 'Pages');
+                break;
 
-        return $info;
+            case 'In Workshop':
+            case 'In Book':
+                $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
+                                   'Number', 'Pages');
+                break;
+
+            case 'Book':
+                $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume');
+                break;
+
+            case 'Video':
+                $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
+                                   'Number');
+                break;
+
+            case 'Technical Report':
+                $validKeys = array('Institution', 'Number');
+                break;
+
+            case 'MSc Thesis':
+                $validKeys = array('School', 'Type');
+                break;
+
+            case 'PhD Thesis':
+                $validKeys = array('Type');
+                break;
+
+            case 'Application':
+                $validKeys = array('Pages');
+                break;
+
+            default:
+                // use whatever has been defined for this category
+                $validKeys = array_keys($this->info);
+                break;
+        }
+
+        return $this->info2str($validKeys, $this->info);
+    }
+
+    function info2str($validKeys, $values) {
+        $info = array();
+        foreach ($validKeys as $key) {
+            if (isset($values[$key]) && ($values[$key] != '')) {
+                if ($key == 'Edition')
+                    $info[] = '(Edition ' . $values[$key] . ')';
+                else if ($key == 'Pages')
+                    $info[] = 'pp ' . $values[$key];
+                else
+                    $info[] = $values[$key];
+            }
+        }
+        return implode(', ', $info);
     }
 
     function paperFilenameGet() {

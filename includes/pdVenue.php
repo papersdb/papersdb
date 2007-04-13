@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.26 2007/04/04 22:48:28 loyola Exp $
+// $Id: pdVenue.php,v 1.27 2007/04/13 16:04:30 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -151,28 +151,6 @@ class pdVenue extends pdDbAccessor {
 
     function deleteOccurrences() {
         unset($this->occurrences);
-    }
-
-    function toStr() {
-        $str = $this->venue_id . ', '
-            . $this->title . ', '
-            . $this->name . ', '
-            . $this->url . ', '
-            . $this->type . ', '
-            . $this->data . ', '
-            . $this->editor . ', '
-            . $this->date . ', ';
-
-        if (count($this->occurrences) > 0) {
-            foreach ($this->occurrences as $o) {
-                $str .= '(' . $o->date;
-                if ($o->location != '')
-                    $str .= ', ' . $o->location;
-                $str .= ') ';
-            }
-        }
-
-        return $str;
     }
 
     function urlGet($year = null) {

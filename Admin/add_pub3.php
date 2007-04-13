@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.25 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_pub3.php,v 1.26 2007/04/13 16:04:30 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -68,7 +68,8 @@ class add_pub3 extends add_pub_base {
 
         if (($this->cat_id > 0)
             && is_object($this->pub->category)
-            && is_array($this->pub->category->info)) {
+            && is_array($this->pub->category->info)
+            && (count($this->pub->category->info) > 0)) {
             foreach ($this->formInfoElementsGet() as $element => $name) {
                 $form->addElement('text', $element, $name . ':',
                                   array('size' => 50, 'maxlength' => 250));
@@ -169,7 +170,8 @@ class add_pub3 extends add_pub_base {
         $defaults['extra_info'] = $this->pub->extra_info;
 
         // assign category info items
-        if (count($this->pub->info) > 0)
+        if ((count($this->pub->info) > 0)
+            && (count($this->pub->category->info) > 0))
             foreach ($this->formInfoElementsGet() as $element => $name) {
                 if (isset($this->pub->info[$name]))
                     $defaults[$element] = $this->pub->info[$name];
@@ -228,7 +230,9 @@ class add_pub3 extends add_pub_base {
             header('Location: add_pub4.php');
     }
 
-    function &formInfoElementsGet() {
+    function formInfoElementsGet() {
+        if (!is_array($this->pub->category->info)) return null;
+
         $infoElements = array_values($this->pub->category->info);
 
         if (count($infoElements) == 0) return null;
