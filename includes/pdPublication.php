@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.103 2007/04/19 17:32:47 aicmltec Exp $
+// $Id: pdPublication.php,v 1.104 2007/04/19 17:42:22 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1154,11 +1154,14 @@ class pdPublication extends pdDbAccessor {
         return implode(', ', $info);
     }
 
+    // Previous versions of the code used 'No Paper' and '<path>/paper_' to
+    // state that there was no attachment.
     function paperFilenameGet() {
+        $basename = basename($this->paper);
         if (($this->pub_id == '') || (strtolower($this->paper) == 'no paper')
-            || ($this->paper == '')) return null;
+            || ($this->paper == '') || ($basename == 'paper_')) return null;
 
-        return FS_PATH_UPLOAD . $this->pub_id . '/' . basename($this->paper);
+        return FS_PATH_UPLOAD . $this->pub_id . '/' . $basename;
     }
 
     function duplicateTitleCheck($db) {
