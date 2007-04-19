@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.102 2007/04/13 16:35:30 loyola Exp $
+// $Id: pdPublication.php,v 1.103 2007/04/19 17:32:47 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -60,7 +60,7 @@ class pdPublication extends pdDbAccessor {
     var $collaborations;
 
     function pdPublication($mixed = NULL) {
-        $this->paper = 'No Paper';
+        $this->paper = 'no paper';
 
         parent::pdDbAccessor($mixed);
     }
@@ -701,9 +701,9 @@ class pdPublication extends pdDbAccessor {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
-        # 'No paper' was used in a previous version of the software
+        # 'No Paper' was used in a previous version of the software
         if (!isset($papername)
-            || (strpos($papername, 'No paper') !== false))
+            || (strpos(strtolower($papername), 'no paper') !== false))
             return;
 
         $user =& $_SESSION['user'];
@@ -714,7 +714,6 @@ class pdPublication extends pdDbAccessor {
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
 
-        $basename = basename($papername, '.' . $user->login);
         $filename = $pub_path . $basename;
 
         // create the publication's path if it does not exist
@@ -776,8 +775,8 @@ class pdPublication extends pdDbAccessor {
         if (is_file($filepath))
             unlink($filepath);
 
-        $this->paper = 'No paper';
-        $this->paperDbUpdate($db, 'No paper');
+        $this->paper = 'no paper';
+        $this->paperDbUpdate($db, 'no paper');
     }
 
     function deleteAtt($db, $att) {
@@ -815,7 +814,7 @@ class pdPublication extends pdDbAccessor {
     }
 
     function paperAttGetUrl() {
-        if($this->paper == 'No paper') return '';
+        if(strtolower($this->paper) == 'no paper') return '';
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $result = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
@@ -1035,7 +1034,20 @@ class pdPublication extends pdDbAccessor {
             $bibtex .= $this->pub_id . ",\n";
 
         $bibtex .= '  title = {' . $this->title . "},\n";
-        $bibtex .= $this->getInfoForCitation();
+
+        // show info
+        if (count($this->info) > 0) {
+            foreach ($this->info as $key => $value) {
+                if ($value != '') {
+                    $bibtex .= '  ' . $key . ' = ';
+
+                    if (strpos($value, ' '))
+                        $bibtex .= '{' . $value . "},\n";
+                    else
+                        $bibtex .= $value . ",\n";
+                }
+            }
+        }
 
         if (isset($venue_name) && is_object($this->category)) {
             if ($this->category->category == 'In Conference') {
@@ -1129,6 +1141,8 @@ class pdPublication extends pdDbAccessor {
             if (isset($values[$key]) && ($values[$key] != '')) {
                 if ($key == 'Edition')
                     $info[] = '(Edition ' . $values[$key] . ')';
+                else if ($key == 'Editor')
+                    $info[] = '(ed: ' . $values[$key] . ')';
                 else if ($key == 'Number')
                     $info[] = '(' . $values[$key] . ')';
                 else if ($key == 'Pages')
@@ -1141,7 +1155,7 @@ class pdPublication extends pdDbAccessor {
     }
 
     function paperFilenameGet() {
-        if (($this->pub_id == '') || ($this->paper == 'No Paper')
+        if (($this->pub_id == '') || (strtolower($this->paper) == 'no paper')
             || ($this->paper == '')) return null;
 
         return FS_PATH_UPLOAD . $this->pub_id . '/' . basename($this->paper);

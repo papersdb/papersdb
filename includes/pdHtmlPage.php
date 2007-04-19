@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.80 2007/04/10 17:17:45 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.81 2007/04/19 17:32:47 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -605,7 +605,7 @@ END;
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
 
-        if (($flags & 0x1) && ($pub->paper != 'No paper')) {
+        if (($flags & 0x1) && (strtolower($pub->paper) != 'no paper')) {
             $html .= '<a href="' . $pub->paperAttGetUrl() . '">';
 
             if (preg_match("/\.(pdf|PDF)$/", $pub->paper)) {

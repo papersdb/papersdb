@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.75 2007/03/26 22:08:35 aicmltec Exp $
+// $Id: view_publication.php,v 1.76 2007/04/19 17:32:47 aicmltec Exp $
 
 /**
  * View Publication
@@ -61,7 +61,7 @@ class view_publication extends pdHtmlPage {
 
         $content .= "</h1>\n" . $pub->authorsToHtml();
 
-        if (isset($pub->paper) && ($pub->paper != 'No paper')
+        if (isset($pub->paper) && (strtolower($pub->paper) != 'no paper')
             && (basename($pub->paper) != 'paper_')) {
             if ($pub->paperExists()) {
                 $content .= 'Full Text: <a href="' . $pub->paperAttGetUrl()

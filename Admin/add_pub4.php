@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.31 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_pub4.php,v 1.32 2007/04/19 17:32:47 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -25,7 +25,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class add_pub4 extends add_pub_base {
-    var $debug = 1;
+    var $debug = 0;
 
     function add_pub4() {
         parent::add_pub_base();
@@ -311,8 +311,6 @@ class add_pub4 extends add_pub_base {
             }
         }
 
-        debugVar('paper', $pub->paper);
-
         if (isset($values['remove_paper'])) {
             // check if this is a temporary file
             if (strpos($_SESSION['paper'], '.' . $user->login) !== false)
@@ -375,7 +373,7 @@ class add_pub4 extends add_pub_base {
             echo 'element<pre>' . print_r($form, true) . '</pre>'
                 . 'sess<pre>' . print_r($_SESSION, true) . '</pre>'
                 . 'values<pre>' . print_r($values, true) . '</pre>';
-            //return;
+            return;
         }
 
         if (isset($values['add_att'])) {
