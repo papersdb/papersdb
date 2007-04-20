@@ -1,6 +1,6 @@
 <script language="JavaScript" type="text/JavaScript">
 
-// $Id: add_author.js,v 1.2 2007/04/04 22:48:28 loyola Exp $
+// $Id: add_author.js,v 1.3 2007/04/20 17:55:44 aicmltec Exp $
 
 var addAuthorPageHelp=
      "To add an author you need to input the author's first name, "
@@ -74,6 +74,8 @@ function author_check(name, num) {
     if (form.elements["author_id"].length > 0) return;
 
     if (name.length != 2) return false;
+
+    if ((name[0].length == 0) && (name[1].length == 0)) return true;
 
     var authors_in_db = form.elements["authors_in_db"];
     var newAuthorName = name[1] + ", " + name[0].substr(0, 1);

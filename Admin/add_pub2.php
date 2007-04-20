@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.20 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_pub2.php,v 1.21 2007/04/20 17:55:44 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -80,7 +80,7 @@ class add_pub2 extends add_pub_base {
             'submit', 'prev_step', '<< Previous Step');
         $buttons[] = HTML_QuickForm::createElement(
             'button', 'cancel', 'Cancel',
-            array('onclick' => "location.href='" . $url . "';"));
+            array('onclick' => "cancelConfirm();"));
         $buttons[] = HTML_QuickForm::createElement(
             'submit', 'add_new_author', 'Add Author not in DB');
         $buttons[] = HTML_QuickForm::createElement(
@@ -135,6 +135,7 @@ class add_pub2 extends add_pub_base {
 
         $form->accept($renderer);
         $this->renderer =& $renderer;
+        $this->javascript();
     }
 
     function processForm() {
@@ -166,6 +167,20 @@ class add_pub2 extends add_pub_base {
             header('Location: add_pub_submit.php');
         else
             header('Location: add_pub3.php');
+    }
+
+    function javascript() {
+        $js_file = FS_PATH . '/Admin/js/add_pub_cancel.js';
+
+        assert('file_exists($js_file)');
+        $this->js = file_get_contents($js_file);
+
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        $this->js = str_replace(array('{host}', '{new_location}'),
+                                array($_SERVER['HTTP_HOST'], $url),
+                                $this->js);
     }
 }
 

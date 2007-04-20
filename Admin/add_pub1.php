@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.35 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_pub1.php,v 1.36 2007/04/20 17:55:44 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -169,7 +169,7 @@ class add_pub1 extends add_pub_base {
 
         $buttons[] = HTML_QuickForm::createElement(
             'button', 'cancel', 'Cancel',
-            array('onclick' => "location.href='" . $url . "';"));
+            array('onclick' => "cancelConfirm();"));
         $buttons[] = HTML_QuickForm::createElement(
             'reset', 'reset', 'Reset');
         $buttons[] = HTML_QuickForm::createElement(
@@ -324,9 +324,23 @@ class add_pub1 extends add_pub_base {
     }
 
     function javascript() {
-        $js_file = FS_PATH . '/Admin/js/add_pub1.js';
-        assert('file_exists($js_file)');
-        $this->js = file_get_contents($js_file);
+        $js_files = array(FS_PATH . '/Admin/js/add_pub1.js',
+                          FS_PATH . '/Admin/js/add_pub_cancel.js');
+
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        foreach ($js_files as $js_file) {
+            assert('file_exists($js_file)');
+            $this->js = file_get_contents($js_file);
+
+            $this->js = str_replace(array('{host}', '{self}',
+                                          '{new_location}'),
+                                    array($_SERVER['HTTP_HOST'],
+                                          $_SERVER['PHP_SELF'],
+                                          $url),
+                                    $this->js);
+        }
     }
 }
 

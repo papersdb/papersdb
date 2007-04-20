@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.54 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_author.php,v 1.55 2007/04/20 17:55:44 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -83,16 +83,12 @@ class add_author extends pdHtmlPage {
 
         $form->addElement('text', 'firstname', 'First Name:',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('firstname', 'a first name is required', 'required',
-                       null, 'client');
         $form->registerRule('invalid_punct', 'regex',
                             '/^[^()\/\*\^\?#!@$%+=,\"\'><~\[\]{}]+$/');
         $form->addRule('firstname', 'the first name cannot contain punctuation',
                        'invalid_punct', null, 'client');
         $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
-        $form->addRule('lastname', 'a last name is required', 'required', null,
-                       'client');
 
         $auth_list = new pdAuthorList($this->db);
         $form->addElement('select', 'authors_in_db', null, $auth_list->list,
@@ -130,6 +126,11 @@ class add_author extends pdHtmlPage {
                           $interests->list,
                           array('multiple' => 'multiple', 'size' => 15));
 
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+            $form->addElement('static', null, null,
+                              '<span class="small">When done adding new authors press the "Next Step" button</span>');
+        }
+
         for ($i = 0; $i < $this->numNewInterests; $i++) {
             $form->addElement('text', 'newInterests['.$i.']',
                               'Interest Name ' . ($i + 1) . ':',
@@ -148,7 +149,7 @@ class add_author extends pdHtmlPage {
                       . $next_page . "';"));
             $buttons[] = HTML_QuickForm::createElement(
                 'button', 'cancel', 'Cancel',
-                array('onclick' => "location.href='" . $url . "';"));
+                array('onclick' => "cancelConfirm();"));
             $buttons[] = HTML_QuickForm::createElement(
                 'reset', 'reset', 'Reset');
             $buttons[] = HTML_QuickForm::createElement(
@@ -166,6 +167,12 @@ class add_author extends pdHtmlPage {
             add_pub_base::addPubDisableMenuItems();
         }
         else {
+            $form->addRule('firstname', 'a first name is required', 'required',
+                           null, 'client');
+            $form->addRule('lastname', 'a last name is required', 'required',
+                           null, 'client');
+
+
             if ($this->author_id == null)
                 $button_label = 'Add Author';
             else
@@ -241,6 +248,31 @@ class add_author extends pdHtmlPage {
     function processForm() {
         $form =& $this->form;
         $values = $form->exportValues();
+
+        debugVar('values', $values);
+
+        // check if user pressed "Next Step >>" button and did not enter
+        // a name
+        if (isset($values['next_step']) && isset($_SESSION['state'])
+            && ($_SESSION['state'] == 'pub_add')) {
+            if ((!isset($values['firstname']) || ($values['firstname'] == ''))
+                 && (!isset($values['lastname'])
+                     || ($values['lastname'] == ''))) {
+                header('Location: add_pub3.php');
+                return;
+            }
+        }
+
+        // if user has not entered a name then bring
+        if (isset($values['add_another']) && isset($_SESSION['state'])
+            && ($_SESSION['state'] == 'pub_add')) {
+            if ((!isset($values['firstname']) || ($values['firstname'] == ''))
+                 && (!isset($values['lastname'])
+                     || ($values['lastname'] == ''))) {
+                header('Location: add_author.php');
+                return;
+            }
+        }
 
         // check if an author with a similar name already exists
         if ($this->author_id == null) {
@@ -319,6 +351,19 @@ class add_author extends pdHtmlPage {
                                       $_SERVER['PHP_SELF']),
                                 $this->js);
 
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+            $js_file = FS_PATH . '/Admin/js/add_pub_cancel.js';
+
+            assert('file_exists($js_file)');
+            $this->js .= file_get_contents($js_file);
+
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+            $this->js = str_replace(array('{host}', '{new_location}'),
+                                    array($_SERVER['HTTP_HOST'], $url),
+                                    $this->js);
+        }
     }
 }
 
