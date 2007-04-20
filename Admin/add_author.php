@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.55 2007/04/20 17:55:44 aicmltec Exp $
+// $Id: add_author.php,v 1.56 2007/04/20 18:12:32 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -154,7 +154,7 @@ class add_author extends pdHtmlPage {
                 'reset', 'reset', 'Reset');
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'add_another',
-                'Submit and Add Antother Author');
+                'Submit and Add Another Author');
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'next_step', 'Next Step >>');
 
