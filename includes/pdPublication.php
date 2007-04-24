@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.106 2007/04/24 21:51:54 aicmltec Exp $
+// $Id: pdPublication.php,v 1.107 2007/04/24 22:23:39 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -895,8 +895,6 @@ class pdPublication extends pdDbAccessor {
             if ($this->venue->data != '') {
                 if ($this->venue->type == 'Workshop')
                     $v .= ' (within ' . $this->venue->data. ')';
-                else
-                    $v .= ', ' . $this->venue->data;
             }
 
             $location = $this->venue->locationGet($pub_date[0]);
@@ -960,13 +958,9 @@ class pdPublication extends pdDbAccessor {
             else
                 $v .= $this->venue->title;
 
-            if ($this->venue->type == 'Conference') {
-                if (isset($this->venue->occurrence[$pub_date[0]])
-                    && ($this->venue->occurrence[$pub_date[0]] != ''))
-                    $v .= ', ' . $this->venue->occurrence[$pub_date[0]];
-            }
-            else if ($this->venue->data != '')
-                $v .= ', ' . $this->venue->data;
+            $location = $this->venue->locationGet($pub_date[0]);
+            if ($location != '')
+                $v .= ', ' . $location;
         }
 
         if (($v == '') && is_object($this->category)
@@ -1017,6 +1011,11 @@ class pdPublication extends pdDbAccessor {
                                             $this->venue->title);
 
             $venue_name = $this->venue->nameGet();
+
+            if ($this->venue->data != '') {
+                if ($this->venue->type == 'Workshop')
+                    $venue_name .= ' (within ' . $this->venue->data. ')';
+            }
         }
 
         if (isset($this->authors)) {
@@ -1059,12 +1058,18 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if (isset($venue_name) && is_object($this->category)) {
-            if ($this->category->category == 'In Conference') {
-                $bibtex .= '  booktitle = {' . $venue_name . "},\n";
+        if (isset($venue_name)) {
+            if (is_object($this->category)) {
+                if (($this->category->category == 'In Conference')
+                    || ($this->category->category == 'In Workshop')) {
+                    $bibtex .= '  booktitle = {' . $venue_name . "},\n";
+                }
+                else if ($this->category->category == 'In Journal') {
+                    $bibtex .= '  journal = {' . $venue_name . "},\n";
+                }
             }
-            else if ($this->category->category == 'In Journal') {
-                $bibtex .= '  journal = {' . $venue_name . "},\n";
+            else {
+                $bibtex .= '  booktitle = {' . $venue_name . "},\n";
             }
         }
 
