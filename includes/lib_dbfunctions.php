@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.13 2007/04/10 15:56:51 aicmltec Exp $
+// $Id: lib_dbfunctions.php,v 1.14 2007/04/24 21:51:54 aicmltec Exp $
 
 /**
  * DB connection is only hard coded here and in lib_functions.
@@ -23,7 +23,8 @@ require_once 'Database.php';
 /**
  * Creates a database object to operate on the database.
  */
-function dbCreate() {
+function dbCreate($server = DB_SERVER, $user = DB_USER, $passwd = DB_PASSWD,
+                  $name = DB_NAME) {
     return Database::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, DB_NAME);
 }
 

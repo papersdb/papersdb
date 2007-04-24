@@ -26,7 +26,7 @@ $rankings = array('1' => array('AAAI', 'AIJ', 'ALT', 'Bioinformatics',
                                'Metabolomics Society Meeting',
                                'NYU-CRM'));
 
-$db = dbCreate();
+$db = dbCreate(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
 
 $pubs = new pdPubList($db);
 

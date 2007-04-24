@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.105 2007/04/24 19:48:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.106 2007/04/24 21:51:54 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -904,7 +904,9 @@ class pdPublication extends pdDbAccessor {
                 $v .= ', ' . $location;
         }
 
-        if (($v == '') && is_object($this->category)) {
+        if (($v == '') && is_object($this->category)
+            && ($this->category->category != 'Book')
+            && ($this->category->category != 'In Book')) {
             $v = $this->category->category;
         }
 
@@ -965,6 +967,12 @@ class pdPublication extends pdDbAccessor {
             }
             else if ($this->venue->data != '')
                 $v .= ', ' . $this->venue->data;
+        }
+
+        if (($v == '') && is_object($this->category)
+            && ($this->category->category != 'Book')
+            && ($this->category->category != 'In Book')) {
+            $v = $this->category->category;
         }
 
         $date_str = '';
@@ -1086,9 +1094,13 @@ class pdPublication extends pdDbAccessor {
                 break;
 
             case 'In Workshop':
-            case 'In Book':
                 $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
                                    'Number', 'Pages');
+                break;
+
+            case 'In Book':
+                $validKeys = array('Book Title', 'Edition', 'Publisher',
+                                   'Editor', 'Volume', 'Number', 'Pages');
                 break;
 
             case 'Book':

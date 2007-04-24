@@ -1,4 +1,3 @@
-
 <script language="JavaScript" type="text/JavaScript">
 
 var categoryHelp=
@@ -62,9 +61,7 @@ function dataKeep() {
         qsString.replace("\"", "?");
     }
 
-    location.href
-        = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-        + qsString;
+    location.href = "http://{host}{self}?" + qsString;
 }
 
 </script>

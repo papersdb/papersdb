@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.36 2007/04/20 17:55:44 aicmltec Exp $
+// $Id: add_pub1.php,v 1.37 2007/04/24 21:51:54 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -332,7 +332,7 @@ class add_pub1 extends add_pub_base {
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
-            $this->js = file_get_contents($js_file);
+            $this->js .= file_get_contents($js_file);
 
             $this->js = str_replace(array('{host}', '{self}',
                                           '{new_location}'),

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.27 2007/04/20 17:55:44 aicmltec Exp $
+// $Id: add_pub3.php,v 1.28 2007/04/24 21:51:54 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -253,7 +253,7 @@ class add_pub3 extends add_pub_base {
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
-            $this->js = file_get_contents($js_file);
+            $this->js .= file_get_contents($js_file);
 
             $this->js = str_replace(array('{host}', '{self}',
                                           '{new_location}'),
