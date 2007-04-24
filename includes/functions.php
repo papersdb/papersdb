@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.35 2007/03/29 23:16:01 aicmltec Exp $
+// $Id: functions.php,v 1.36 2007/04/24 19:48:51 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -13,7 +13,6 @@
 
 /** Requires DB functions and Table classes. */
 require_once 'lib_dbfunctions.php';
-require_once 'HTML/Table.php';
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;

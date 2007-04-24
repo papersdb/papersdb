@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.81 2007/04/19 17:32:47 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.82 2007/04/24 19:48:51 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -794,6 +794,25 @@ END;
 
             $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
+
+            if ($this->access_level > 0) {
+                $citation .= '<br/><span style="font-size:80%">';
+                if (isset($pub->ranking))
+                    $citation .= 'Ranking: ' . $pub->ranking;
+
+                if (is_array($pub->collaborations)
+                    && (count($pub->collaborations) > 0)) {
+                    $col_desciptions = $pub->collaborationsGet($this->db);
+
+                    $values = array();
+                    foreach ($pub->collaborations as $col_id) {
+                        $values[] = $col_desciptions[$col_id];
+                    }
+
+                    $citation .= '<br/>Collaboration:' . implode(', ', $values);
+                }
+                $citation .= '</span>';
+            }
 
             if ($enumerate)
                 $cells = array($count, $citation);

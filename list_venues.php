@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.26 2007/03/27 17:19:33 aicmltec Exp $
+// $Id: list_venues.php,v 1.27 2007/04/24 19:48:51 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -64,9 +64,9 @@ class list_venues extends pdHtmlPage {
             unset($cells);
             $text = '';
             if ($venue->title != '')
-                $text .= '<b>' . $venue->title . '</b>';
+                $text .= '<b>' . $venue->title . '</b><br/>';
             if ($venue->type != '')
-                $text .= '<br/><b>' . ucfirst($venue->type) . '</b>:&nbsp;';
+                $text .= '<b>' . ucfirst($venue->type) . '</b>:&nbsp;';
 
             $url = $venue->urlGet();
 

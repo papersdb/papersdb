@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.104 2007/04/19 17:42:22 aicmltec Exp $
+// $Id: pdPublication.php,v 1.105 2007/04/24 19:48:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -933,9 +933,11 @@ class pdPublication extends pdDbAccessor {
 
         if (count($this->authors) > 0) {
             foreach ($this->authors as $auth) {
-                $auth_text[] .= $auth->firstname[0] . '. ' . $auth->lastname;
+                $auth_text[] = $auth->firstname[0] . '. ' . $auth->lastname;
             }
-            $citation .= implode(', ', $auth_text) . '. ';
+
+            if (count($auth_text) > 0)
+                $citation .= implode(', ', $auth_text) . '. ';
         }
 
         // Title

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.76 2007/04/19 17:32:47 aicmltec Exp $
+// $Id: view_publication.php,v 1.77 2007/04/24 19:48:51 aicmltec Exp $
 
 /**
  * View Publication
@@ -136,10 +136,10 @@ class view_publication extends pdHtmlPage {
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
         $table->addRow(array('Ranking:', $pub->ranking));
 
-        $col_desciptions = $pub->collaborationsGet($this->db);
-
         if (is_array($pub->collaborations)
             && (count($pub->collaborations) > 0)) {
+            $col_desciptions = $pub->collaborationsGet($this->db);
+
             foreach ($pub->collaborations as $col_id) {
                 $values[] = $col_desciptions[$col_id];
             }
