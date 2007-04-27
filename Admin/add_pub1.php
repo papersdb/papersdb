@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.37 2007/04/24 21:51:54 aicmltec Exp $
+// $Id: add_pub1.php,v 1.38 2007/04/27 18:27:03 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -63,7 +63,7 @@ class add_pub1 extends add_pub_base {
         if ($this->pub->pub_id != '')
             $this->page_title = 'Edit Publication';
 
-        $form = new HTML_QuickForm('add_pub2');
+        $form = new HTML_QuickForm('add_pub1');
         $form->addElement('header', null, 'Add Publication');
 
         // title
@@ -73,42 +73,23 @@ class add_pub1 extends add_pub_base {
         $form->addRule('title', 'please enter a title', 'required',
                        null, 'client');
 
+        // category
+        $category_list = new pdCatList($this->db);
+        $form->addElement(
+            'select', 'cat_id',
+            $this->helpTooltip('Category', 'categoryHelp') . ':',
+            array('' => '--- Please Select a Category ---')
+            + $category_list->list,
+            array('onchange' => 'catVenueSwapOptions(this.form);'));
+
+
         // Venue
-        $venue_sel1 = array('All Venues', 'Journal', 'Conference',
-                            'Workshop');
-        $venues = array(new pdVenueList($this->db,
-                                        array('concat' => true)),
-                        new pdVenueList($this->db,
-                                        array('type' => 'Journal',
-                                              'concat' => true)),
-                        new pdVenueList($this->db,
-                                        array('type' => 'Conference',
-                                              'concat' => true)),
-                        new pdVenueList($this->db,
-                                        array('type' => 'Workshop',
-                                              'concat' => true)));
-
-        $common = array(''   => '--Select Venue--',
-                        '-1' => '--No venue--');
-
-        $venue_sel2[0] = $common + $venues[0]->list;
-        $venue_sel2[1] = $common + $venues[1]->list;
-        $venue_sel2[2] = $common + $venues[2]->list;
-        $venue_sel2[3] = $common + $venues[3]->list;
-
-        // check if user info has 'Used by me' to venues
-        $user =& $_SESSION['user'];
-        $user->venueIdsGet($this->db);
-        if (count($user->venue_ids) > 0) {
-            array_push($venue_sel1, 'Used by me');
-            $venue_sel2[4] = $common + $user->venue_ids;
-        }
-
-        $sel =& $form->addElement(
-            'hierselect', 'venue_id',
+        $form->addElement(
+            'select', 'venue_id',
             $this->helpTooltip('Venue', 'venueHelp') . ':',
-            array('style' => 'width: 70%;'), '<br/>');
-        $sel->setOptions(array($venue_sel1, $venue_sel2));
+            null,
+            array('onchange' => 'catVenueSwapOptions(this.form, 0);',
+                  'style' => 'width: 70%;'));
 
         $form->addElement('submit', 'add_venue', 'Add New Venue');
 

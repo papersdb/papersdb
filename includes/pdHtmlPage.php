@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.82 2007/04/24 19:48:51 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.83 2007/04/27 18:27:03 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -181,7 +181,9 @@ class pdHtmlPage {
         }
 
         if ($tables != $this->db_tables) {
-            echo "Database error encountered: not all tables available";
+            echo "Database error encountered: not all tables available<br/>";
+            debugVar('valid', $this->db_tables);
+            debugVar('db', $tables);
             die();
         }
         $_SESSION['dbcheck'] = true;
@@ -300,8 +302,8 @@ class pdHtmlPage {
 
         $result .= '<link rel="stylesheet" href="' . $url_prefix . 'style.css" />' . "\n"
             . "</head>\n"
-            . $this->js
-            . "\n<body>\n";
+            . "\n<body>\n"
+            . $this->js;
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
