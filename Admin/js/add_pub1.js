@@ -1,6 +1,6 @@
 <script language="JavaScript" type="text/JavaScript">
 
- // $Id: add_pub1.js,v 1.2 2007/04/27 18:27:03 loyola Exp $
+ // $Id: add_pub1.js,v 1.3 2007/04/27 22:15:52 aicmltec Exp $
 
 var venueHelp=
      "Where the paper was published -- specific journal, conference, "
@@ -42,104 +42,47 @@ var keywordsHelp=
 var userInfoHelp=
     "A place for the user to enter his/her own information";
 
-function catVenuefindOptions(ary, keys) {
-    var key = keys.shift();
-    if (!key in ary) {
-        return {};
-    }
-    else if (0 == keys.length) {
-        return ary[key];
-    }
-    else {
-        return catVenuefindOptions(ary[key], keys);
-    }
-}
-
-function catVenuefindSelect(form, groupName, selectIndex) {
-    if (groupName+'['+ selectIndex +']' in form) {
-        return form[groupName+'['+ selectIndex +']'];
-    } else {
-        return form[groupName+'['+ selectIndex +'][]'];
-    }
-}
-
-function catVenueunescapeEntities(str) {
+function catVenueUnescapeEntities(str) {
     var div = document.createElement('div');
     div.innerHTML = str;
     return div.childNodes[0] ? div.childNodes[0].nodeValue : '';
 }
 
-function catVenuereplaceOptions(ctl, optionList) {
-    var j = 0;
-    ctl.options.length = 0;
-    for (i in optionList) {
-        var optionText = (-1 == optionList[i].indexOf('&'))
-            ? optionList[i]: catVenueunescapeEntities(optionList[i]);
-        ctl.options[j++] = new Option(optionText, i, false, false);
-    }
-}
-
-function catVenuesetValue(ctl, value) {
-    var testValue = {};
-    if (value instanceof Array) {
-        for (var i = 0; i < value.length; i++) {
-            testValue[value[i]] = true;
-        }
-    }
-    else {
-        testValue[value] = true;
-    }
-
-    for (var i = 0; i < ctl.options.length; i++) {
-        if (ctl.options[i].value in testValue) {
-            ctl.options[i].selected = true;
-        }
-    }
-}
-
 function catVenueSwapOptions(form) {
     var cat_id = form.elements['cat_id'].value;
+
+    if (!(cat_id in catVenueOptions)) {
+        cat_id = 0;
+    }
 
     var ctl = form.elements['venue_id'];
     ctl.options.length = 0;
 
     var j = 0;
-    for (i in catVenueOptions[cat_id]) {
+    for (var i in catVenueOptions[cat_id]) {
         var optionText;
-        if (catVenueOptions[cat_id][i].indexOf('&') != -1) {
-            catVenueOptions[cat_id][i];
+        if (catVenueOptions[cat_id][i][0].indexOf('&') != -1) {
+            optionText = catVenueOptions[cat_id][i][0];
         }
         else {
-            catVenueunescapeEntities(catVenueOptions[cat_id][i]);
+            optionText = catVenueUnescapeEntities(catVenueOptions[cat_id][i][0]);
         }
         ctl.options[j++] = new Option(optionText, i, false, false);
     }
 }
 
-function catVenueOnReset(form, groupNames) {
-    for (var i = 0; i < groupNames.length; i++) {
-        try {
-            for (var j = 0; j <= catVenueoptions[groupNames[i]].length; j++) {
-                catVenuesetValue(catVenuefindSelect(form, groupNames[i], j), catVenuedefaults[groupNames[i]][j]);
-                if (j < catVenueoptions[groupNames[i]].length) {
-                    catVenuereplaceOptions(catVenuefindSelect(form, groupNames[i], j + 1),
-                                       catVenuefindOptions(catVenueoptions[groupNames[i]][j], catVenuedefaults[groupNames[i]].slice(0, j + 1)));
-                }
-            }
-        } catch (e) {
-            if (!(e instanceof TypeError)) {
-                throw e;
-            }
+function catVenueOnReload() {
+    var form = document.forms['add_pub1'];
+    catVenueSwapOptions(form);
+
+    var ctl = form.elements['venue_id'];
+
+    for (var i in ctl.options) {
+        if (ctl.options[i].value == catVenueDefault) {
+            ctl.options[i].selected = true;
         }
     }
-}
 
-// is this function needed?
-function catVenueSetupOnReset(form, groupNames) {
-    setTimeout(function() { catVenueOnReset(form, groupNames); }, 25);
-}
-
-function catVenueOnReload() {
     if (catVenuePrevOnload) {
         catVenuePrevOnload();
     }
@@ -154,21 +97,7 @@ window.onload = catVenueOnReload;
 var catVenueoptions = {};
 var catVenuedefaults = {};
 
-catVenueOptions = [ {
-    '1': {
-        '' :  ['--Select Venue--', 1 ],
-        '-1': ['--No venue--', 1],
-        '5':  ['AAAI - National Conference on Artificial Intelligence (AAAI)', 0],
-        '119': ['AAMAS - Joint Conference on Autonomous Agents and Multi-Agent Systems (AAMAS)', 1],
-    },
-    '3': {
-        '' :  ['--Select Venue--', 1 ],
-        '-1': ['--No venue--', 1],
-        '167': ['Adaptive Behavior', 1],
-        '39': ['AIJ - Artificial Intelligence (AIJ)', 0],
-        '168': ['Artificial Intelligence', 0]
-    }
-} ];
 
-catVenuedefaults['venue_id'] = [0, ''];
+catVenueOptions = {cat_venue_options};
+catVenueDefault = {cat_venue_default};
 </script>

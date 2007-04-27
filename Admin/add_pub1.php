@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.38 2007/04/27 18:27:03 loyola Exp $
+// $Id: add_pub1.php,v 1.39 2007/04/27 22:15:52 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -29,6 +29,8 @@ require_once 'includes/pdAttachmentTypesList.php';
  */
 class add_pub1 extends add_pub_base {
     var $debug = 0;
+    var $cat_venue_options;
+    var $category_list;
 
     function add_pub1() {
         parent::add_pub_base();
@@ -74,22 +76,19 @@ class add_pub1 extends add_pub_base {
                        null, 'client');
 
         // category
-        $category_list = new pdCatList($this->db);
+        $this->category_list = new pdCatList($this->db);
         $form->addElement(
             'select', 'cat_id',
             $this->helpTooltip('Category', 'categoryHelp') . ':',
             array('' => '--- Please Select a Category ---')
-            + $category_list->list,
+            + $this->category_list->list,
             array('onchange' => 'catVenueSwapOptions(this.form);'));
 
 
         // Venue
-        $form->addElement(
-            'select', 'venue_id',
-            $this->helpTooltip('Venue', 'venueHelp') . ':',
-            null,
-            array('onchange' => 'catVenueSwapOptions(this.form, 0);',
-                  'style' => 'width: 70%;'));
+        $form->addElement('select', 'venue_id',
+                          $this->helpTooltip('Venue', 'venueHelp') . ':', null,
+                          array('style' => 'width: 70%;'));
 
         $form->addElement('submit', 'add_venue', 'Add New Venue');
 
@@ -181,6 +180,10 @@ class add_pub1 extends add_pub_base {
                           'keywords' => $this->pub->keywords,
                           'user'     => $this->pub->user);
 
+        if (is_object($this->pub->category)) {
+            $defaults['cat_id'] = $this->pub->category->cat_id;
+        }
+
         if (isset($this->pub->rank_id)) {
             $defaults['paper_rank'] = $this->pub->rank_id;
             if ($this->pub->rank_id == -1)
@@ -195,13 +198,7 @@ class add_pub1 extends add_pub_base {
         }
 
         if (is_object($this->pub->venue)) {
-            switch ($this->pub->venue->type) {
-                case 'Journal':    $type = 1; break;
-                case 'Conference': $type = 2; break;
-                case 'Workshop':   $type = 3; break;
-                default: $type = 0;
-            }
-            $defaults['venue_id'] = array($type, $this->pub->venue_id);
+            $defaults['venue_id'] = $this->pub->venue->venue_id;
         }
 
         if (!isset($this->pub->published) || ($this->pub->published == '')) {
@@ -262,20 +259,24 @@ class add_pub1 extends add_pub_base {
             .  $values['pub_date']['M'] . '-1';
         $_SESSION['state'] = 'pub_add';
 
-        if (isset($values['venue_id'][1])
-            && is_numeric($values['venue_id'][1]))
-            if ($values['venue_id'][1] > 0)
-                $this->pub->addVenue($this->db, $values['venue_id'][1]);
-            else if (($values['venue_id'][1] == -1)
-                     && is_object($this->pub->venue)) {
-                unset($this->pub->venue);
-                unset($this->pub->venue_id);
-            }
+        if ((!empty($values['cat_id'])) && ($values['cat_id'] > 0))
+            $this->pub->addCategory($this->db, $values['cat_id']);
+        else if (is_object($this->pub->category)) {
+            unset($this->pub->category);
+            unset($this->pub->info);
+        }
+
+        if ((!empty($values['venue_id'])) && ($values['venue_id'] > 0))
+            $this->pub->addVenue($this->db, $values['venue_id']);
+        else if (is_object($this->pub->venue)) {
+            unset($this->pub->venue);
+            unset($this->pub->venue_id);
+        }
 
         if (isset($values['paper_rank']))
             $this->pub->rank_id = $values['paper_rank'];
 
-        if (($values['paper_rank'] == -1)
+        if (isset($values['paper_rank']) && ($values['paper_rank'] == -1)
             && (strlen($values['paper_rank_other']) > 0)) {
             $this->pub->rank_id = -1;
             $this->pub->ranking = $values['paper_rank_other'];
@@ -305,23 +306,145 @@ class add_pub1 extends add_pub_base {
     }
 
     function javascript() {
+        foreach ($this->category_list->list as $cat_id => $category) {
+            unset($vlist);
+            $v_cat_id = $cat_id;
+
+            switch ($category) {
+                case 'In Conference':
+                    $vlist = new pdVenueList($this->db,
+                                             array('type' => 'Conference',
+                                                   'concat' => true));
+                    break;
+
+                case 'In Journal':
+                    $vlist = new pdVenueList($this->db,
+                                          array('type' => 'Journal',
+                                                'concat' => true));
+                    break;
+
+                case 'In Workshop':
+                    $vlist = new pdVenueList($this->db,
+                                             array('type' => 'Workshop',
+                                                   'concat' => true));
+                    break;
+
+                default:
+                    $v_cat_id = 0;
+                    if (!isset($venues[0])) {
+                        $vlist = new pdVenueList($this->db,
+                                                 array('concat' => true));
+                    }
+                    break;
+            }
+
+            if (isset($vlist)) {
+                //debugVar('vlist', $vlist->list);
+
+                $venues[$v_cat_id][''] = array('--Select Venue--', '1');
+                $venues[$v_cat_id]['-1'] = array('--No Venue--', '1');
+
+                foreach ($vlist->list as $venue_id => $name) {
+                    $venues[$v_cat_id][$venue_id] = array($name, 0);
+                }
+            }
+        }
+
         $js_files = array(FS_PATH . '/Admin/js/add_pub1.js',
                           FS_PATH . '/Admin/js/add_pub_cancel.js');
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
+        $js_array = $this->convertArrayToJavascript($venues, true);
+        if (is_object($this->pub->venue))
+            $venue_default = $this->pub->venue->venue_id;
+        else
+            $venue_default = 0;
+
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
             $this->js .= file_get_contents($js_file);
 
             $this->js = str_replace(array('{host}', '{self}',
-                                          '{new_location}'),
+                                          '{new_location}',
+                                          '{cat_venue_options}',
+                                          '{cat_venue_default}'),
                                     array($_SERVER['HTTP_HOST'],
                                           $_SERVER['PHP_SELF'],
-                                          $url),
+                                          $url, $js_array,
+                                          $venue_default),
                                     $this->js);
         }
+    }
+
+   /**
+    * Converts PHP array to its Javascript analog
+    *
+    * @access private
+    * @param  array     PHP array to convert
+    * @param  bool      Generate Javascript object literal (default, works like PHP's associative array) or array literal
+    * @return string    Javascript representation of the value
+    */
+    function convertArrayToJavascript($array, $assoc = true) {
+        if (!is_array($array)) {
+            return $this->convertScalarToJavascript($array);
+        } else {
+            $items = array();
+            foreach ($array as $key => $val) {
+                $item = $assoc? "'" . $this->escapeString($key) . "': ": '';
+                if (is_array($val)) {
+                    $item .= $this->convertArrayToJavascript($val, $assoc);
+                } else {
+                    $item .= $this->convertScalarToJavascript($val);
+                }
+                $items[] = $item;
+            }
+        }
+        $js = implode(', ', $items);
+        return $assoc? '{ ' . $js . ' }': '[' . $js . ']';
+    }
+
+   /**
+    * Converts PHP's scalar value to its Javascript analog
+    *
+    * @access private
+    * @param  mixed     PHP value to convert
+    * @return string    Javascript representation of the value
+    */
+    function convertScalarToJavascript($val)
+    {
+        if (is_bool($val)) {
+            return $val ? 'true' : 'false';
+        } elseif (is_int($val) || is_double($val)) {
+            return $val;
+        } elseif (is_string($val)) {
+            return "'" . $this->escapeString($val) . "'";
+        } elseif (is_null($val)) {
+            return 'null';
+        } else {
+            // don't bother
+            return '{}';
+        }
+    }
+
+   /**
+    * Quotes the string so that it can be used in Javascript string constants
+    *
+    * @access private
+    * @param  string
+    * @return string
+    */
+    function escapeString($str)
+    {
+        return strtr($str,array(
+            "\r"    => '\r',
+            "\n"    => '\n',
+            "\t"    => '\t',
+            "'"     => "\\'",
+            '"'     => '\"',
+            '\\'    => '\\\\'
+        ));
     }
 }
 
