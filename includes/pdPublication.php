@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.110 2007/04/30 17:45:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.111 2007/04/30 18:23:40 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -555,18 +555,24 @@ class pdPublication extends pdDbAccessor {
             assert('$result');
             $this->venue_id = $this->venue->venue_id;
 
-            $this->category = new pdCategory();
-            if ($this->venue->type == 'Conference') {
-                $result = $this->category->dbLoad($db, null, 'In Conference');
-                assert('$result');
-            }
-            else if ($this->venue->type == 'Workshop') {
-                $result = $this->category->dbLoad($db, null, 'In Workshop');
-                assert('$result');
-            }
-            else if ($this->venue->type == 'Journal') {
-                $result = $this->category->dbLoad($db, null, 'In Journal');
-                assert('$result');
+            // set this pub's category if not already set
+            if (!isset($this->category)) {
+                $this->category = new pdCategory();
+                if ($this->venue->type == 'Conference') {
+                    $result = $this->category->dbLoad($db, null,
+                                                      'In Conference');
+                    assert('$result');
+                }
+                else if ($this->venue->type == 'Workshop') {
+                    $result = $this->category->dbLoad($db, null,
+                                                      'In Workshop');
+                    assert('$result');
+                }
+                else if ($this->venue->type == 'Journal') {
+                    $result = $this->category->dbLoad($db, null,
+                                                      'In Journal');
+                    assert('$result');
+                }
             }
             return;
         }
@@ -872,15 +878,6 @@ class pdPublication extends pdDbAccessor {
         $citation .= '<span class="pub_title">&quot;' . $this->title
             . '&quot;</span>. ';
 
-        // category -> if not conference, journal, or workshop, book or in book
-        if (is_object($this->category)
-            && !empty($this->category->category)
-            && (!in_array($this->category->category,
-                          array('In Conference', 'In Journal', 'In Workshop',
-                                'In Book', 'Book')))) {
-            $citation .= $this->category->category . ', ';
-        }
-
         // Additional Information - Outputs the category specific information
         // if it exists
         $info = $this->getInfoForCitation();
@@ -890,7 +887,20 @@ class pdPublication extends pdDbAccessor {
 
         //  Venue
         $v = '';
+
+        // category -> if not conference, journal, or workshop, book or in book
+        if (is_object($this->category)
+            && !empty($this->category->category)
+            && (!in_array($this->category->category,
+                          array('In Conference', 'In Journal', 'In Workshop',
+                                'In Book', 'Book')))) {
+            $v .= $this->category->category;
+        }
+
         if (is_object($this->venue)) {
+            if (!empty($v))
+                $v .= ', ';
+
             if (isset($pub_date))
                 $url = $this->venue->urlGet($pub_date[0]);
             else
@@ -923,12 +933,6 @@ class pdPublication extends pdDbAccessor {
 
             if ($location != '')
                 $v .= ', ' . $location;
-        }
-
-        if (($v == '') && is_object($this->category)
-            && ($this->category->category != 'Book')
-            && ($this->category->category != 'In Book')) {
-            $v = $this->category->category;
         }
 
         $date_str = '';
@@ -969,6 +973,15 @@ class pdPublication extends pdDbAccessor {
         // Title
         $citation .= $this->title . '. ';
 
+        // category -> if not conference, journal, or workshop, book or in book
+        if (is_object($this->category)
+            && !empty($this->category->category)
+            && (!in_array($this->category->category,
+                          array('In Conference', 'In Journal', 'In Workshop',
+                                'In Book', 'Book')))) {
+            $citation .= $this->category->category . ', ';
+        }
+
         // Additional Information - Outputs the category specific information
         // if it exists
         $info = $this->getInfoForCitation();
@@ -987,12 +1000,6 @@ class pdPublication extends pdDbAccessor {
             $location = $this->venue->locationGet($pub_date[0]);
             if ($location != '')
                 $v .= ', ' . $location;
-        }
-
-        if (($v == '') && is_object($this->category)
-            && ($this->category->category != 'Book')
-            && ($this->category->category != 'In Book')) {
-            $v = $this->category->category;
         }
 
         $date_str = '';
