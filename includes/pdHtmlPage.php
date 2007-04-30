@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.83 2007/04/27 18:27:03 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.84 2007/04/30 17:12:38 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -66,12 +66,13 @@ class pdHtmlPage {
                            'pub_cat',
                            'pub_cat_info',
                            'pub_col',
+                           'pub_rankings',
                            'publication',
-                           'rankings',
                            'user',
                            'user_author',
                            'venue',
-                           'venue_occur');
+                           'venue_occur',
+                           'venue_rankings');
 
     /**
      * Constructor.
