@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.21 2007/04/20 17:55:44 aicmltec Exp $
+// $Id: add_pub2.php,v 1.22 2007/04/30 01:52:58 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -73,6 +73,19 @@ class add_pub2 extends add_pub_base {
                           array('class' => 'pool',
                                 'style' => 'width:150px;height:200px;'));
 
+        // collaborations radio selections
+        $form->addElement('header', null, 'Collaborations');
+        $collaborations = pdPublication::collaborationsGet($this->db);
+
+        foreach ($collaborations as $col_id => $description) {
+            $radio_cols[] = HTML_QuickForm::createElement(
+                'checkbox', 'paper_col[' . $col_id . ']', null, $description,
+                1);
+        }
+
+        $form->addGroup($radio_cols, 'group_collaboration',
+                        null, '<br/>', false);
+
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
@@ -112,6 +125,13 @@ class add_pub2 extends add_pub_base {
         if (count($this->pub->authors) > 0) {
             foreach ($this->pub->authors as $author)
                 $defaults['authors'][] = $author->author_id;
+        }
+
+        if (is_array($this->pub->collaborations)
+            && (count($this->pub->collaborations) > 0)) {
+            foreach ($this->pub->collaborations as $col_id) {
+                $defaults['paper_col'][$col_id] = 1;
+            }
         }
 
         $form->setDefaults($defaults);
@@ -155,9 +175,16 @@ class add_pub2 extends add_pub_base {
             $this->pub->addAuthor($this->db, $values['authors']);
         }
 
-        //debugVar('values', $values);
+        if (isset($values['paper_col'])
+            && (count($values['paper_col']) > 0)) {
+            $this->pub->collaborations = array_keys($values['paper_col']);
+        }
 
-        if ($this->debug) return;
+        if ($this->debug) {
+            debugVar('values', $values);
+            debugVar('pub', $this->pub);
+            return;
+        }
 
         if (isset($values['add_new_author']))
             header('Location: add_author.php');

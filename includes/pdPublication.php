@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.107 2007/04/24 22:23:39 aicmltec Exp $
+// $Id: pdPublication.php,v 1.108 2007/04/30 01:52:58 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -870,12 +870,16 @@ class pdPublication extends pdDbAccessor {
         // if it exists
         $info = $this->getInfoForCitation();
 
-        $pub_date = split('-', $this->published);
+        if (strpos($this->published, '-') !== false)
+            $pub_date = split('-', $this->published);
 
         //  Venue
         $v = '';
         if (is_object($this->venue)) {
-            $url = $this->venue->urlGet($pub_date[0]);
+            if (isset($pub_date))
+                $url = $this->venue->urlGet($pub_date[0]);
+            else
+                $url = $this->venue->urlGet();
 
             if ($url != '') {
                 $v .= ' <a href="' .  $url . '" target="_blank">';
@@ -897,7 +901,11 @@ class pdPublication extends pdDbAccessor {
                     $v .= ' (within ' . $this->venue->data. ')';
             }
 
-            $location = $this->venue->locationGet($pub_date[0]);
+            if (isset($pub_date))
+                $location = $this->venue->locationGet($pub_date[0]);
+            else
+                $location = $this->venue->locationGet();
+
             if ($location != '')
                 $v .= ', ' . $location;
         }
@@ -909,10 +917,13 @@ class pdPublication extends pdDbAccessor {
         }
 
         $date_str = '';
-        if ($pub_date[1] != 0)
-            $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
-        if ($pub_date[0] != 0)
-            $date_str .= $pub_date[0];
+
+        if (isset($pub_date)) {
+            if ($pub_date[1] != 0)
+                $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
+            if ($pub_date[0] != 0)
+                $date_str .= $pub_date[0];
+        }
 
         if (($v != '') && ($info != '') && ($date_str != ''))
             $citation .= $v . ', ' . $info . ', ' . $date_str . '.';

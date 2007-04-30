@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.43 2007/04/11 18:07:44 aicmltec Exp $
+// $Id: add_venue.php,v 1.44 2007/04/30 01:52:58 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -194,7 +194,7 @@ class add_venue extends pdHtmlPage {
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
             $prev_page = substr($_SERVER['PHP_SELF'], 0, $pos)
-                . 'papersdb/Admin/add_pub1.php';
+                . 'papersdb/Admin/add_pub3.php';
             $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
             $buttons[] = HTML_QuickForm::createElement(
@@ -384,7 +384,7 @@ class add_venue extends pdHtmlPage {
             if (isset($values['finish']))
                 header('Location: add_pub_submit.php');
             else
-                header('Location: add_pub2.php');
+                header('Location: add_pub4.php');
         }
         else {
             if (!isset($this->venue_id) || ($this->venue_id == '')) {

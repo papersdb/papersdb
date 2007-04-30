@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.28 2007/04/24 21:51:54 aicmltec Exp $
+// $Id: add_pub3.php,v 1.29 2007/04/30 01:52:58 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -15,6 +15,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdCatList.php';
+require_once 'includes/pdVenueList.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdExtraInfoList.php';
 
@@ -26,6 +27,7 @@ require_once 'includes/pdExtraInfoList.php';
 class add_pub3 extends add_pub_base {
     var $debug = 0;
     var $cat_id;
+    var $used_by_me;
     var $booktitle;
     var $publisher;
     var $edition;
@@ -66,6 +68,61 @@ class add_pub3 extends add_pub_base {
             + $category_list->list,
             array('onchange' => 'dataKeep();'));
 
+        // Venue
+        switch ($this->cat_id) {
+            case 'In Conference':
+                $vlist = new pdVenueList($this->db,
+                                         array('type' => 'Conference',
+                                               'concat' => true));
+                break;
+
+            case 'In Journal':
+                $vlist = new pdVenueList($this->db,
+                                         array('type' => 'Journal',
+                                               'concat' => true));
+                break;
+
+            case 'In Workshop':
+                $vlist = new pdVenueList($this->db,
+                                         array('type' => 'Workshop',
+                                               'concat' => true));
+                break;
+
+            default:
+                $vlist = new pdVenueList($this->db,
+                                         array('concat' => true));
+                break;
+        }
+
+        $venues[''] = '--Select Venue--';
+        $venues['-1'] = '--No Venue--';
+
+        // check if user info has 'Venues previously used by me' checked
+        if ($this->used_by_me == 'yes') {
+            $user =& $_SESSION['user'];
+            $user->venueIdsGet($this->db);
+
+            foreach ($vlist->list as $venue_id => $name) {
+                if (in_array($venue_id, $user->venue_ids))
+                    $venues[$venue_id] = $name;
+            }
+        }
+        else {
+            foreach ($vlist->list as $venue_id => $name) {
+                $venues[$venue_id] = $name;
+            }
+        }
+
+        $form->addElement('select', 'venue_id',
+                          $this->helpTooltip('Venue', 'venueHelp') . ':',
+                          $venues, array('style' => 'width: 70%;'));
+
+        $form->addElement('submit', 'add_venue', 'Add New Venue');
+
+        $form->addElement('advcheckbox', 'used_by_me',
+                          null, 'Only show venues previously used by me',
+                          array('onchange' => 'dataKeep();'), array('', 'yes'));
+
         if (($this->cat_id > 0)
             && is_object($this->pub->category)
             && is_array($this->pub->category->info)
@@ -75,6 +132,9 @@ class add_pub3 extends add_pub_base {
                                   array('size' => 50, 'maxlength' => 250));
             }
         }
+
+        $form->addElement('date', 'pub_date', 'Date:',
+                          array('format' => 'YM', 'minYear' => '1985'));
 
         $form->addElement('header', 'other_info', 'Other information', null);
 
@@ -167,6 +227,10 @@ class add_pub3 extends add_pub_base {
         if (is_object($this->pub->category))
             $defaults['cat_id'] = $this->pub->category->cat_id;
 
+        if (is_object($this->pub->venue))
+            $defaults['venue_id'] = $this->pub->venue->venue_id;
+
+        $defaults['used_by_me'] = $this->used_by_me;
         $defaults['extra_info'] = $this->pub->extra_info;
 
         // assign category info items
@@ -176,6 +240,16 @@ class add_pub3 extends add_pub_base {
                 if (isset($this->pub->info[$name]))
                     $defaults[$element] = $this->pub->info[$name];
             }
+
+        if (!isset($this->pub->published) || ($this->pub->published == '')) {
+            $defaults['pub_date'] = array('Y' => date('Y'), 'M' => date('m'));
+        }
+        else {
+            $date = explode('-', $this->pub->published);
+
+            $defaults['pub_date']['Y'] = $date[0];
+            $defaults['pub_date']['M'] = $date[1];
+        }
 
         $form->setDefaults($defaults);
 
@@ -208,6 +282,16 @@ class add_pub3 extends add_pub_base {
             }
         }
 
+        if ((!empty($values['venue_id'])) && ($values['venue_id'] > 0))
+            $this->pub->addVenue($this->db, $values['venue_id']);
+        else if (is_object($this->pub->venue)) {
+            unset($this->pub->venue);
+            unset($this->pub->venue_id);
+        }
+
+        $this->pub->published = $values['pub_date']['Y'] . '-'
+            .  $values['pub_date']['M'] . '-1';
+
         $extra_info_arr = array();
         if ($values['extra_info'] != '')
             $extra_info_arr = array_merge($extra_info_arr,
@@ -220,9 +304,15 @@ class add_pub3 extends add_pub_base {
 
         $this->pub->extraInfoSet($extra_info_arr);
 
-        if ($this->debug) return;
+        if ($this->debug) {
+            debugVar('values', $values);
+            debugVar('pub', $this->pub);
+            return;
+        }
 
-        if (isset($values['prev_step']))
+        if (isset($values['add_venue']))
+            header('Location: add_venue.php');
+        else if (isset($values['prev_step']))
             header('Location: add_pub2.php');
         else if (isset($values['finish']))
             header('Location: add_pub_submit.php');

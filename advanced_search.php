@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.59 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: advanced_search.php,v 1.60 2007/04/30 01:52:58 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -130,7 +130,7 @@ class advanced_search extends pdHtmlPage {
 
         if ($user != null) {
             $authElements[] =& HTML_QuickForm::createElement(
-                'checkbox', 'author_myself',
+                'advcheckbox', 'author_myself',
                 null, 'myself', null, array('', $user->author_id));
         }
 
