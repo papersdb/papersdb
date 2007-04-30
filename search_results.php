@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.20 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: search_results.php,v 1.21 2007/04/30 17:09:40 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -174,7 +174,7 @@ class search_results extends pdHtmlPage {
                                      implode(' AND ', $values)));
 
 
-            // raking
+            // ranking
             $label = 'Ranking:';
             $rankings = pdPublication::rankingsGlobalGet($this->db);
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.27 2007/04/24 19:48:51 aicmltec Exp $
+// $Id: list_venues.php,v 1.28 2007/04/30 17:09:40 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -61,6 +61,8 @@ class list_venues extends pdHtmlPage {
             // only show global venues
             if ($venue->v_usage == 'single') continue;
 
+            $venue->dbLoad($this->db, $venue->venue_id);
+
             unset($cells);
             $text = '';
             if ($venue->title != '')
@@ -92,6 +94,9 @@ class list_venues extends pdHtmlPage {
 
             if ($venue->editor != '')
                 $text .= "<br/><b>Editor:&nbsp;</b>" . $venue->editor;
+
+            if (isset($venue->ranking))
+                $text .= '<br/><b>Ranking</b>: ' . $venue->ranking;
 
             // display occurrences
             if (count($venue->occurrences) > 0) {

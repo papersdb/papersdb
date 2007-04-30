@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.44 2007/04/30 01:52:58 loyola Exp $
+// $Id: add_venue.php,v 1.45 2007/04/30 17:09:40 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -137,6 +137,22 @@ class add_venue extends pdHtmlPage {
         $form->addElement('text', 'url', 'Venue URL:',
                           array('size' => 50, 'maxlength' => 250));
 
+        // rankings radio selections
+        $rankings = pdVenue::rankingsGlobalGet($this->db);
+        foreach ($rankings as $rank_id => $description) {
+            $radio_rankings[] = HTML_QuickForm::createElement(
+                'radio', 'venue_rank', null, $description, $rank_id);
+        }
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'radio', 'venue_rank', null,
+            'other (fill in box below)', -1);
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'text', 'venue_rank_other', null,
+            array('size' => 30, 'maxlength' => 250));
+
+        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
+                        false);
+
         if ($this->venue->type != '') {
             if (($this->venue->type == 'Journal')
                 || ($this->venue->type == 'Workshop')) {
@@ -244,6 +260,12 @@ class add_venue extends pdHtmlPage {
             $defaults[$member] = $this->$member;
         }
 
+        if (isset($this->venue->rank_id)) {
+            $defaults['venue_rank'] = $this->venue->rank_id;
+            if ($this->venue->rank_id == -1)
+                $defaults['venue_rank_other'] = $this->venue->ranking;
+        }
+
         $form->setConstants($defaults);
 
         if ($this->venue_id != '') {
@@ -345,6 +367,15 @@ class add_venue extends pdHtmlPage {
             $this->venue->url = "http://" . $this->venue->url;
         }
         $this->venue->title = str_replace('"', "'", $this->venue->title);
+
+        if (isset($values['venue_rank']))
+            $this->venue->rank_id = $values['venue_rank'];
+
+        if (isset($values['venue_rank']) && ($values['venue_rank'] == -1)
+            && (strlen($values['venue_rank_other']) > 0)) {
+            $this->venue->rank_id = -1;
+            $this->venue->ranking = $values['venue_rank_other'];
+        }
 
         if (isset($values['venue_date']))
             if (($this->venue->type == 'Conference')

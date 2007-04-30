@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.108 2007/04/30 01:52:58 loyola Exp $
+// $Id: pdPublication.php,v 1.109 2007/04/30 17:09:40 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -79,25 +79,6 @@ class pdPublication extends pdDbAccessor {
                             "pdPublication::dbLoad");
         if ($q === false) return false;
         $this->load($q);
-
-        if (isset($this->rank_id)) {
-            if ($this->rank_id > 0) {
-                $q = $db->selectRow('rankings', 'description',
-                                    array('rank_id' => $this->rank_id),
-                                    "pdPublication::dbLoad");
-                if ($q !== false)
-                    $this->ranking = $q->description;
-            }
-            else if ($this->rank_id > -1) {
-                $q = $db->selectRow('rankings', 'description',
-                                    array('pub_id'  => $this->pub_id),
-                                    "pdPublication::dbLoad");
-                if ($q !== false) {
-                    $this->rank_id = $q->rank_id;
-                    $this->ranking = $q->description;
-                }
-            }
-        }
 
         $q = $db->select('pub_col', 'col_id', array('pub_id' => $this->pub_id),
                          "pdPublication::dbLoad",
@@ -203,6 +184,30 @@ class pdPublication extends pdDbAccessor {
             $this->dbLoadVenue($db);
         }
 
+        if (isset($this->rank_id)) {
+            if ($this->rank_id > 0) {
+                $q = $db->selectRow('pub_rankings', 'description',
+                                    array('rank_id' => $this->rank_id),
+                                    "pdPublication::dbLoad");
+                if ($q !== false)
+                    $this->ranking = $q->description;
+            }
+            else if ($this->rank_id == -1) {
+                $q = $db->selectRow('pub_rankings', 'description',
+                                    array('pub_id'  => $this->pub_id),
+                                    "pdPublication::dbLoad");
+                if ($q !== false) {
+                    $this->rank_id = $q->rank_id;
+                    $this->ranking = $q->description;
+                }
+            }
+            else if (is_object($this->venue)) {
+                // get ranking from venue information
+                $this->rank_id = $this->venue->rank_id;
+                $this->ranking = $this->venue->ranking;
+            }
+        }
+
         return true;
     }
 
@@ -273,10 +278,11 @@ class pdPublication extends pdDbAccessor {
         }
 
         // rank_id
+        $db->delete('pub_rankings', array('pub_id' => $this->pub_id),
+                    'pdPublication::dbSave');
+
         if ($this->rank_id == -1) {
-            $db->delete('rankings', array('pub_id' => $this->pub_id),
-                        'pdPublication::dbSave');
-            $db->insert('rankings',
+            $db->insert('pub_rankings',
                         array('pub_id' => $this->pub_id,
                               'description' => $this->ranking),
                         'pdPublication::dbSave');
@@ -1233,7 +1239,7 @@ class pdPublication extends pdDbAccessor {
     }
 
     function rankingsGlobalGet(&$db) {
-        $q = $db->select('rankings', '*', 'pub_id is NULL',
+        $q = $db->select('pub_rankings', '*', 'pub_id is NULL',
                          "pdPublication::dbLoad");
         assert('$q !== false');
 

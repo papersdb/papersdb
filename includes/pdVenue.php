@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.27 2007/04/13 16:04:30 loyola Exp $
+// $Id: pdVenue.php,v 1.28 2007/04/30 17:09:40 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -26,6 +26,8 @@ class pdVenue extends pdDbAccessor {
     var $date;
     var $occurrences;
     var $v_usage;
+    var $rank_id;
+    var $ranking;
 
     /**
      * Constructor.
@@ -63,6 +65,26 @@ class pdVenue extends pdDbAccessor {
             $this->occurrences[] = $r;
             $r = $db->fetchObject($q);
         }
+
+        if (isset($this->rank_id)) {
+            if ($this->rank_id > 0) {
+                $q = $db->selectRow('venue_rankings', 'description',
+                                    array('rank_id' => $this->rank_id),
+                                    "pdVenue::dbLoad");
+                if ($q !== false)
+                    $this->ranking = $q->description;
+            }
+            else if ($this->rank_id == -1) {
+                $q = $db->selectRow('venue_rankings', 'description',
+                                    array('venue_id'  => $this->venue_id),
+                                    "pdVenue::dbLoad");
+                if ($q !== false) {
+                    $this->rank_id = $q->rank_id;
+                    $this->ranking = $q->description;
+                }
+            }
+        }
+
         return true;
     }
 
@@ -74,6 +96,23 @@ class pdVenue extends pdDbAccessor {
 
         $values = $this->membersAsArray();
         unset($values['occurrences']);
+
+        // rank_id
+        $db->delete('venue_rankings', array('venue_id' => $this->venue_id),
+                    'pdVenue::dbSave');
+
+        if ($this->rank_id == -1) {
+            $db->insert('venue_rankings', array('venue_id' => $this->venue_id,
+                                                'description' => $this->ranking),
+                        'pdVenue::dbSave');
+            $this->rank_id = $db->insertId();
+
+            $db->update('publication',
+                        array('rank_id' => $this->rank_id),
+                        array('venue_id' => $this->venue_id),
+                        'pdVenue::dbSave');
+        }
+        unset($values['ranking']);
 
         if ($this->v_usage == 'single')
             $values['v_usage'] = '1';
@@ -117,10 +156,13 @@ class pdVenue extends pdDbAccessor {
      */
     function dbDelete ($db) {
         assert('is_object($db)');
-        $db->delete('venue', array('venue_id' => $this->venue_id),
-                    'pdVenue::dbDelete');
-        $db->delete('venue_occur', array('venue_id' => $this->venue_id),
-                    'pdVenue::dbDelete');
+
+        $tables = array('venue', 'venue_occur', 'venue_rankings');
+
+        foreach ($tables as $table) {
+            $db->delete($table, array('venue_id' => $this->venue_id),
+                        'pdVenue::dbDelete');
+        }
         return $db->affectedRows();
     }
 
@@ -216,6 +258,20 @@ class pdVenue extends pdDbAccessor {
                                 '$1$2', $this->name);
         }
         return $this->name;
+    }
+
+    function rankingsGlobalGet(&$db) {
+        $q = $db->select('venue_rankings', '*', 'venue_id is NULL',
+                         "pdVenue::dbLoad");
+        assert('$q !== false');
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $rankings[$r->rank_id] = $r->description;
+            $r = $db->fetchObject($q);
+        }
+
+        return $rankings;
     }
 }
 
