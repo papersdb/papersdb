@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.60 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.61 2007/04/30 17:45:51 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -267,8 +267,8 @@ class search_publication_db extends pdHtmlPage {
                     }
                 }
 
-                // search ranking
-                $search_result = query_db('SELECT rank_id from rankings '
+                // search pub_ranking
+                $search_result = query_db('SELECT rank_id from pub_rankings '
                                           . 'WHERE description LIKE '
                                           . quote_smart("%".$or_terms."%"));
                 while ($search_array
@@ -279,6 +279,23 @@ class search_publication_db extends pdHtmlPage {
                         $this->add_to_array(
                             'SELECT DISTINCT pub_id from publication '
                             . 'WHERE rank_id=' . quote_smart($rank_id),
+                            $union_array);
+                    }
+                }
+
+                // search venue_ranking
+                $search_result = query_db(
+                    'SELECT venue_id from venue_rankings '
+                    . 'WHERE description LIKE '
+                    . quote_smart("%".$or_terms."%"));
+                while ($search_array
+                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                    $venue_id = $search_array['venue_id'];
+
+                    if (is_numeric($rank_id)) {
+                        $this->add_to_array(
+                            'SELECT DISTINCT pub_id from publication '
+                            . 'WHERE venue_id=' . quote_smart($venue_id),
                             $union_array);
                     }
                 }
@@ -455,6 +472,27 @@ class search_publication_db extends pdHtmlPage {
 
         // ranking
         $union_array = array();
+        foreach ($this->sp->paper_rank as $rank_id => $value) {
+            if ($value != 'yes') continue;
+
+            $search_result = query_db(
+                'SELECT venue_id from venue_rankings '
+                . 'WHERE description LIKE '
+                . quote_smart("%".$or_terms."%"));
+
+            while ($search_array
+                   = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                $venue_id = $search_array['venue_id'];
+
+                if (is_numeric($rank_id)) {
+                    $this->add_to_array(
+                        'SELECT DISTINCT pub_id from publication '
+                        . 'WHERE venue_id=' . quote_smart($venue_id),
+                        $union_array);
+                }
+            }
+        }
+
         foreach ($this->sp->paper_rank as $rank_id => $value) {
             if ($value != 'yes') continue;
 

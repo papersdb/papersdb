@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.109 2007/04/30 17:09:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.110 2007/04/30 17:45:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -871,6 +871,15 @@ class pdPublication extends pdDbAccessor {
         // Title
         $citation .= '<span class="pub_title">&quot;' . $this->title
             . '&quot;</span>. ';
+
+        // category -> if not conference, journal, or workshop, book or in book
+        if (is_object($this->category)
+            && !empty($this->category->category)
+            && (!in_array($this->category->category,
+                          array('In Conference', 'In Journal', 'In Workshop',
+                                'In Book', 'Book')))) {
+            $citation .= $this->category->category . ', ';
+        }
 
         // Additional Information - Outputs the category specific information
         // if it exists
