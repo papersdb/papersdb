@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.45 2007/04/30 17:09:40 aicmltec Exp $
+// $Id: add_venue.php,v 1.46 2007/04/30 20:28:23 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -37,6 +37,7 @@ class add_venue extends pdHtmlPage {
     var $newOccurrenceDate;
     var $newOccurrenceUrl;
     var $newOccurrences;
+    var $referer;
 
     function add_venue() {
         parent::pdHtmlPage('add_venue');
@@ -44,6 +45,13 @@ class add_venue extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars();
+
+        if (!isset($this->referer)) {
+            $this->referer = getenv('HTTP_REFERER');
+            if (strpos($this->referer, 'list_venues.php') === false) {
+                $this->referer = null;
+            }
+        }
 
         $this->venue = new pdVenue();
 
@@ -95,6 +103,8 @@ class add_venue extends pdHtmlPage {
         if ($this->venue_id != '') {
             $form->addElement('hidden', 'venue_id', $this->venue_id);
         }
+
+        $form->addElement('hidden', 'referer', $this->referer);
 
         $form->addElement('radio', 'type', 'Type:', 'Journal', 'Journal',
                           array('onClick'
@@ -427,6 +437,9 @@ class add_venue extends pdHtmlPage {
                 echo 'You have successfully edited the venue "'
                     . $this->venue->title . '".';
             }
+
+            if (isset($this->referer))
+                echo '<p/><a href="' . $this->referer . '">Return to venue list</a>';
         }
     }
 
