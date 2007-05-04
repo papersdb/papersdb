@@ -411,3 +411,40 @@ div#footer2 {
 pre {
   font-size: 1.25em;
 }
+
+/* required for WICK */
+
+.floater {
+  position:absolute;
+  z-index:2;
+  bottom:0;
+  right:0;
+  display:none;
+  padding:0;
+}
+
+.floater td {
+  background-color:white;
+  border:1px inset #979797;
+  color:black;
+}
+
+.matchedSmartInputItem {
+  font-size:0.8em;
+  padding: 5px 10px 1px 5px;
+  margin:0;
+  cursor:pointer;
+}
+
+.selectedSmartInputItem {
+  color:white;
+  background-color:#3875D7;
+}
+
+#smartInputResults {
+  padding:0;margin:0;
+}
+
+.siwCredit {
+  margin:0;padding:0;margin-top:10px;font-size:0.7em;color:black;
+}

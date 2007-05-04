@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.22 2007/04/30 01:52:58 loyola Exp $
+// $Id: add_pub2.php,v 1.23 2007/05/04 00:58:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -65,13 +65,11 @@ class add_pub2 extends add_pub_base {
         }
 
         $form->addElement('header', null, 'Select from Authors in Database');
-        $form->addElement('authorselect', 'authors', '',
-                          array('form_name' => $form->_attributes['name'],
-                                'author_list' => $all_authors,
-                                'favorite_authors' => $user->collaborators,
-                                'most_used_authors' => $most_used_authors),
-                          array('class' => 'pool',
-                                'style' => 'width:150px;height:200px;'));
+        $form->addElement('textarea', 'authors', 'Authors:',
+                          array('cols' => 60,
+                                'rows' => 5,
+                                'class' => 'wickEnabled:MYCUSTOMFLOATER',
+                                'wrap' => 'virtual'));
 
         // collaborations radio selections
         $form->addElement('header', null, 'Collaborations');
@@ -153,6 +151,11 @@ class add_pub2 extends add_pub_base {
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
 
+        $renderer->setElementTemplate(
+            '<tr><td><b>{label}</b></td>'
+            . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="position:absolute;top:50px;left:0;background-color:#cecece;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
+            'authors');
+
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();
@@ -197,17 +200,32 @@ class add_pub2 extends add_pub_base {
     }
 
     function javascript() {
-        $js_file = FS_PATH . '/Admin/js/add_pub_cancel.js';
+        $this->js .= '<script language="JavaScript" type="text/JavaScript">';
 
-        assert('file_exists($js_file)');
-        $this->js = file_get_contents($js_file);
+        $this->js .=  "\ncollection = [\n";
+        $this->js .=  "'data1',\n";
+        $this->js .=  "'data2',\n";
+        $this->js .=  "'data3',\n";
+        $this->js .=  "];\n";
+        $this->js .= '</script>';
+
+        $js_files = array(FS_PATH . '/js/wick.js',
+                          FS_PATH . '/Admin/js/add_pub_cancel.js');
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $this->js = str_replace(array('{host}', '{new_location}'),
-                                array($_SERVER['HTTP_HOST'], $url),
-                                $this->js);
+        foreach ($js_files as $js_file) {
+            assert('file_exists($js_file)');
+            $this->js .= file_get_contents($js_file);
+
+            $this->js = str_replace(array('{host}', '{self}',
+                                          '{new_location}'),
+                                    array($_SERVER['HTTP_HOST'],
+                                          $_SERVER['PHP_SELF'],
+                                          $url),
+                                    $this->js);
+        }
     }
 }
 
