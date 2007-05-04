@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.40 2007/04/30 01:52:58 loyola Exp $
+// $Id: add_pub1.php,v 1.41 2007/05/04 02:07:14 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -245,75 +245,6 @@ class add_pub1 extends add_pub_base {
                                           $url),
                                     $this->js);
         }
-    }
-
-   /**
-    * Converts PHP array to its Javascript analog
-    *
-    * @access private
-    * @param  array     PHP array to convert
-    * @param  bool      Generate Javascript object literal (default, works like PHP's associative array) or array literal
-    * @return string    Javascript representation of the value
-    */
-    function convertArrayToJavascript($array, $assoc = true) {
-        if (!is_array($array)) {
-            return $this->convertScalarToJavascript($array);
-        } else {
-            $items = array();
-            foreach ($array as $key => $val) {
-                $item = $assoc? "'" . $this->escapeString($key) . "': ": '';
-                if (is_array($val)) {
-                    $item .= $this->convertArrayToJavascript($val, $assoc);
-                } else {
-                    $item .= $this->convertScalarToJavascript($val);
-                }
-                $items[] = $item;
-            }
-        }
-        $js = implode(', ', $items);
-        return $assoc? '{ ' . $js . ' }': '[' . $js . ']';
-    }
-
-   /**
-    * Converts PHP's scalar value to its Javascript analog
-    *
-    * @access private
-    * @param  mixed     PHP value to convert
-    * @return string    Javascript representation of the value
-    */
-    function convertScalarToJavascript($val)
-    {
-        if (is_bool($val)) {
-            return $val ? 'true' : 'false';
-        } elseif (is_int($val) || is_double($val)) {
-            return $val;
-        } elseif (is_string($val)) {
-            return "'" . $this->escapeString($val) . "'";
-        } elseif (is_null($val)) {
-            return 'null';
-        } else {
-            // don't bother
-            return '{}';
-        }
-    }
-
-   /**
-    * Quotes the string so that it can be used in Javascript string constants
-    *
-    * @access private
-    * @param  string
-    * @return string
-    */
-    function escapeString($str)
-    {
-        return strtr($str,array(
-            "\r"    => '\r',
-            "\n"    => '\n',
-            "\t"    => '\t',
-            "'"     => "\\'",
-            '"'     => '\"',
-            '\\'    => '\\\\'
-        ));
     }
 }
 

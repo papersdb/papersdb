@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.36 2007/04/24 19:48:51 aicmltec Exp $
+// $Id: functions.php,v 1.37 2007/05/04 02:07:14 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -313,6 +313,75 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     // for testing
     echo $err;
     papersdb_backtrace();
+}
+
+/**
+ * Converts PHP array to its Javascript analog
+ *
+ * @access private
+ * @param  array     PHP array to convert
+ * @param  bool      Generate Javascript object literal (default, works like PHP's associative array) or array literal
+ * @return string    Javascript representation of the value
+ */
+function convertArrayToJavascript($array, $assoc = true) {
+    if (!is_array($array)) {
+        return $convertScalarToJavascript($array);
+    } else {
+        $items = array();
+        foreach ($array as $key => $val) {
+            $item = $assoc? "'" . $escapeString($key) . "': ": '';
+            if (is_array($val)) {
+                $item .= convertArrayToJavascript($val, $assoc);
+            } else {
+                $item .= convertScalarToJavascript($val);
+            }
+            $items[] = $item;
+        }
+    }
+    $js = implode(', ', $items);
+    return $assoc? '{ ' . $js . ' }': '[' . $js . ']';
+}
+
+/**
+ * Converts PHP's scalar value to its Javascript analog
+ *
+ * @access private
+ * @param  mixed     PHP value to convert
+ * @return string    Javascript representation of the value
+ */
+function convertScalarToJavascript($val)
+{
+    if (is_bool($val)) {
+        return $val ? 'true' : 'false';
+    } elseif (is_int($val) || is_double($val)) {
+        return $val;
+    } elseif (is_string($val)) {
+        return "'" . escapeString($val) . "'";
+    } elseif (is_null($val)) {
+        return 'null';
+    } else {
+        // don't bother
+        return '{}';
+    }
+}
+
+/**
+ * Quotes the string so that it can be used in Javascript string constants
+ *
+ * @access private
+ * @param  string
+ * @return string
+ */
+function escapeString($str)
+{
+    return strtr($str,array(
+                     "\r"    => '\r',
+                     "\n"    => '\n',
+                     "\t"    => '\t',
+                     "'"     => "\\'",
+                     '"'     => '\"',
+                     '\\'    => '\\\\'
+                     ));
 }
 
 $old_error_handler = set_error_handler("userErrorHandler");

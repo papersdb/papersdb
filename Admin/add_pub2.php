@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.23 2007/05/04 00:58:43 aicmltec Exp $
+// $Id: add_pub2.php,v 1.24 2007/05/04 02:07:14 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -23,7 +23,7 @@ require_once 'includes/authorselect.php';
  * @package PapersDB
  */
 class add_pub2 extends add_pub_base {
-    var $debug = 0;
+    var $debug = 1;
     var $author_id = null;
 
     function add_pub2() {
@@ -36,33 +36,10 @@ class add_pub2 extends add_pub_base {
         if (isset($this->pub->pub_id))
             $this->page_title = 'Edit Publication';
 
-        $form = new HTML_QuickForm('add_pub2');
-
-        $user = $_SESSION['user'];
         $auth_list = new pdAuthorList($this->db);
-        $all_authors = $auth_list->list;
+        $this->authors = $auth_list->asFirstLast();
 
-        if (count($user->collaborators) > 0)
-            foreach (array_keys($user->collaborators) as $author_id) {
-                unset($all_authors[$author_id]);
-            }
-
-        // get the first 10 popular authors used by this user
-        $user->popularAuthorsDbLoad($this->db);
-
-        $most_used_authors = array();
-        if (count($user->author_rank) > 0) {
-            $most_used_author_ids
-                = array_slice(array_keys($user->author_rank), 0, 10);
-
-            foreach($most_used_author_ids as $author_id) {
-              if (isset($all_authors[$author_id])) {
-                $most_used_authors[$author_id] = $all_authors[$author_id];
-                unset($all_authors[$author_id]);
-              }
-            }
-            asort($most_used_authors);
-        }
+        $form = new HTML_QuickForm('add_pub2');
 
         $form->addElement('header', null, 'Select from Authors in Database');
         $form->addElement('textarea', 'authors', 'Authors:',
@@ -70,6 +47,11 @@ class add_pub2 extends add_pub_base {
                                 'rows' => 5,
                                 'class' => 'wickEnabled:MYCUSTOMFLOATER',
                                 'wrap' => 'virtual'));
+        $form->addElement('static', null, null,
+                          '<span class="small">'
+                          . 'There are ' . count($this->authors)
+                          . ' authors in the database. Type a partial name to '
+                          . 'see a list of matching authors.</span>');
 
         // collaborations radio selections
         $form->addElement('header', null, 'Collaborations');
@@ -122,7 +104,8 @@ class add_pub2 extends add_pub_base {
 
         if (count($this->pub->authors) > 0) {
             foreach ($this->pub->authors as $author)
-                $defaults['authors'][] = $author->author_id;
+                $auth_names[] = $author->firstname . ' ' . $author->lastname;
+            $defaults['authors'] = implode(', ', $auth_names);
         }
 
         if (is_array($this->pub->collaborations)
@@ -168,14 +151,18 @@ class add_pub2 extends add_pub_base {
 
         $values = $form->exportValues();
 
-        if (isset($values['authors']) && (count($values['authors']) > 0)) {
-            foreach ($values['authors'] as $index => $author) {
-                $pos = strpos($author, ':');
-                if ($pos !== false) {
-                    $values['authors'][$index] = substr($author, $pos + 1);
-                }
+        if (!empty($values['authors'])) {
+            // need to retrieve author_ids for the selected authors
+            $selAuthors = explode(', ', $values['authors']);
+            $author_ids = array();
+            foreach ($selAuthors as $author) {
+                if (empty($author)) continue;
+
+                $author_ids[] = array_search($author, $this->authors);
             }
-            $this->pub->addAuthor($this->db, $values['authors']);
+
+            if (count($author_ids) > 0)
+                $this->pub->addAuthor($this->db, $author_ids);
         }
 
         if (isset($values['paper_col'])
@@ -200,14 +187,10 @@ class add_pub2 extends add_pub_base {
     }
 
     function javascript() {
-        $this->js .= '<script language="JavaScript" type="text/JavaScript">';
-
-        $this->js .=  "\ncollection = [\n";
-        $this->js .=  "'data1',\n";
-        $this->js .=  "'data2',\n";
-        $this->js .=  "'data3',\n";
-        $this->js .=  "];\n";
-        $this->js .= '</script>';
+        $this->js .= "<script language=\"JavaScript\" type=\"text/JavaScript\">"
+            . "\ncollection="
+            . convertArrayToJavascript($this->authors, false)
+            . "\n</script>\n";
 
         $js_files = array(FS_PATH . '/js/wick.js',
                           FS_PATH . '/Admin/js/add_pub_cancel.js');
@@ -217,14 +200,16 @@ class add_pub2 extends add_pub_base {
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
-            $this->js .= file_get_contents($js_file);
+            $contents = file_get_contents($js_file);
 
-            $this->js = str_replace(array('{host}', '{self}',
+            $contents = str_replace(array('{host}', '{self}',
                                           '{new_location}'),
                                     array($_SERVER['HTTP_HOST'],
                                           $_SERVER['PHP_SELF'],
                                           $url),
-                                    $this->js);
+                                    $contents);
+
+            $this->js .= $contents;
         }
     }
 }

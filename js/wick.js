@@ -44,11 +44,11 @@ function isWithinNode(e,i,c,t,obj) {
     answer = false;
     te = e;
     while(te && !answer) {
-	if	((te.id && (te.id == i)) || (te.className && (te.className == i+"Class"))
-                 || (!t && c && te.className && (te.className == c))
-                 || (!t && c && te.className && (te.className.indexOf(c) != -1))
-                 || (t && te.tagName && (te.tagName.toLowerCase() == t))
-                 || (obj && (te == obj))
+	if ((te.id && (te.id == i)) || (te.className && (te.className == i+"Class"))
+            || (!t && c && te.className && (te.className == c))
+            || (!t && c && te.className && (te.className.indexOf(c) != -1))
+            || (t && te.tagName && (te.tagName.toLowerCase() == t))
+            || (obj && (te == obj))
             ) {
             answer = te;
 	} else {
@@ -248,7 +248,8 @@ function smartInputMatch(cleanValue, value) {
 }//smartInputMatch
 
 function simplify(s) {
-    return s.toLowerCase().replace(/^[ \s\f\t\n\r]+/,'').replace(/[ \s\f\t\n\r]+$/,'');
+    //return s.toLowerCase().replace(/^[ \s\f\t\n\r]+/,'').replace(/[ \s\f\t\n\r]+$/,'');
+    return s.replace(/^[ \s\f\t\n\r]+/,'').replace(/[ \s\f\t\n\r]+$/,'');
 //.replace(/[é,è,ê,ë,\u00E9,\u00E8,\u00EA,\u00EB]/gi,"e").replace(/[à,â,\u00E0,\u00E2]/gi,"a").
 }//simplify
 
