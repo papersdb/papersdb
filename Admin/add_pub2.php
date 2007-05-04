@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.25 2007/05/04 04:18:10 loyola Exp $
+// $Id: add_pub2.php,v 1.26 2007/05/04 04:26:40 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -152,12 +152,15 @@ class add_pub2 extends add_pub_base {
 
         if (!empty($values['authors'])) {
             // need to retrieve author_ids for the selected authors
-            $selAuthors = explode(', ', $values['authors']);
+            $selAuthors = explode(', ', preg_replace('/\s\s+/', ' ',
+                                                     $values['authors']));
             $author_ids = array();
             foreach ($selAuthors as $author) {
                 if (empty($author)) continue;
 
-                $author_ids[] = array_search($author, $this->authors);
+                $result = array_search($author, $this->authors);
+                if ($result !== false)
+                    $author_ids[] = $result;
             }
 
             if (count($author_ids) > 0)
