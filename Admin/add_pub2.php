@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.24 2007/05/04 02:07:14 loyola Exp $
+// $Id: add_pub2.php,v 1.25 2007/05/04 04:18:10 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -23,7 +23,7 @@ require_once 'includes/authorselect.php';
  * @package PapersDB
  */
 class add_pub2 extends add_pub_base {
-    var $debug = 1;
+    var $debug = 0;
     var $author_id = null;
 
     function add_pub2() {
@@ -52,6 +52,7 @@ class add_pub2 extends add_pub_base {
                           . 'There are ' . count($this->authors)
                           . ' authors in the database. Type a partial name to '
                           . 'see a list of matching authors.</span>');
+        $form->addElement('submit', 'add_new_author', 'Add Author not in DB');
 
         // collaborations radio selections
         $form->addElement('header', null, 'Collaborations');
@@ -74,8 +75,6 @@ class add_pub2 extends add_pub_base {
         $buttons[] = HTML_QuickForm::createElement(
             'button', 'cancel', 'Cancel',
             array('onclick' => "cancelConfirm();"));
-        $buttons[] = HTML_QuickForm::createElement(
-            'submit', 'add_new_author', 'Add Author not in DB');
         $buttons[] = HTML_QuickForm::createElement(
             'submit', 'next_step', 'Next Step >>');
 
