@@ -1,5 +1,3 @@
-<script language="JavaScript" type="text/JavaScript">
-
 var paperAtt =
      "Attach a postscript, PDF, or other version of the publication.";
 
@@ -57,4 +55,3 @@ function dataKeep(num) {
     location.href = "http://{host}{self}?" + qsString;
 }
 
-</script>

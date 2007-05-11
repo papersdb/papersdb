@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.46 2007/04/30 20:28:23 aicmltec Exp $
+// $Id: add_venue.php,v 1.47 2007/05/11 20:12:10 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -47,9 +47,9 @@ class add_venue extends pdHtmlPage {
         $this->loadHttpVars();
 
         if (!isset($this->referer)) {
-            $this->referer = getenv('HTTP_REFERER');
-            if (strpos($this->referer, 'list_venues.php') === false) {
-                $this->referer = null;
+            $referer = getenv('HTTP_REFERER');
+            if (strpos($referer, 'list_venues.php') !== false) {
+                $this->referer = $referer;
             }
         }
 
@@ -438,7 +438,7 @@ class add_venue extends pdHtmlPage {
                     . $this->venue->title . '".';
             }
 
-            if (isset($this->referer))
+            if (!empty($this->referer))
                 echo '<p/><a href="' . $this->referer . '">Return to venue list</a>';
         }
     }
@@ -446,12 +446,14 @@ class add_venue extends pdHtmlPage {
     function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_venue.js';
         assert('file_exists($js_file)');
-        $this->js = file_get_contents($js_file);
+        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
+        $content = file_get_contents($js_file);
 
-        $this->js = str_replace(array('{host}', '{self}'),
-                                array($_SERVER['HTTP_HOST'],
-                                      $_SERVER['PHP_SELF']),
-                                $this->js);
+        $this->js .= str_replace(array('{host}', '{self}'),
+                                 array($_SERVER['HTTP_HOST'],
+                                       $_SERVER['PHP_SELF']),
+                                 $content);
+        $this->js .= "</script>\n";
     }
 }
 

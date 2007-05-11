@@ -1,5 +1,3 @@
-<script language="JavaScript" type="text/JavaScript">
-
 function cancelConfirm() {
     var fRet;
     result = confirm('Cancel all changes and stop adding / editing this publication antry?');
@@ -7,5 +5,3 @@ function cancelConfirm() {
         window.location = 'http://{host}{new_location}';
     }
 }
-
-</script>

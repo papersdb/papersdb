@@ -1,5 +1,3 @@
-<script language="JavaScript" type="text/JavaScript">
-
  /*
    WICK: Web Input Completion Kit
    http://wick.sourceforge.net/
@@ -44,16 +42,16 @@ function isWithinNode(e,i,c,t,obj) {
     answer = false;
     te = e;
     while(te && !answer) {
-	if ((te.id && (te.id == i)) || (te.className && (te.className == i+"Class"))
+        if ((te.id && (te.id == i)) || (te.className && (te.className == i+"Class"))
             || (!t && c && te.className && (te.className == c))
             || (!t && c && te.className && (te.className.indexOf(c) != -1))
             || (t && te.tagName && (te.tagName.toLowerCase() == t))
             || (obj && (te == obj))
             ) {
             answer = te;
-	} else {
+        } else {
             te = te.parentNode;
-	}
+        }
     }
     return te;
 }//isWithinNode
@@ -103,17 +101,17 @@ function handleKeyPress(event) {
     kc = e["keyCode"];
 
     if (siw && ((kc == 13) || (kc == 9))) {
-	siw.selectingSomething = true;
-	if (siw.isSafari) siw.inputBox.blur();   //hack to "wake up" safari
-	siw.inputBox.focus();
-	siw.inputBox.value = siw.inputBox.value.replace(/[ \r\n\t\f\s]+$/gi,' ');
-	hideSmartInputFloater();
+        siw.selectingSomething = true;
+        if (siw.isSafari) siw.inputBox.blur();   //hack to "wake up" safari
+        siw.inputBox.focus();
+        siw.inputBox.value = siw.inputBox.value.replace(/[ \r\n\t\f\s]+$/gi,' ');
+        hideSmartInputFloater();
     } else if (upEl && (kc != 38) && (kc != 40) && (kc != 37) && (kc != 39) && (kc != 13) && (kc != 27)) {
-	if (!siw || (siw && !siw.selectingSomething)) {
+        if (!siw || (siw && !siw.selectingSomething)) {
             processSmartInput(upEl);
-	}
+        }
     } else if (siw && siw.inputBox) {
-	siw.inputBox.focus(); //kinda part of the hack.
+        siw.inputBox.focus(); //kinda part of the hack.
     }
 
 }//handleKeyPress()
@@ -124,26 +122,26 @@ function handleKeyDown(event) {
     eL = getEventElement(e);
 
     if (siw && (kc = e["keyCode"])) {
-	if (kc == 40) {
+        if (kc == 40) {
             siw.selectingSomething = true;
             freezeEvent(e);
             if (siw.isGecko) siw.inputBox.blur(); /* Gecko hack */
             selectNextSmartInputMatchItem();
-	} else if (kc == 38) {
+        } else if (kc == 38) {
             siw.selectingSomething = true;
             freezeEvent(e);
             if (siw.isGecko) siw.inputBox.blur();
             selectPreviousSmartInputMatchItem();
-	} else if ((kc == 13) || (kc == 9)) {
+        } else if ((kc == 13) || (kc == 9)) {
             siw.selectingSomething = true;
             activateCurrentSmartInputMatch();
             freezeEvent(e);
-	} else if (kc == 27)  {
+        } else if (kc == 27)  {
             hideSmartInputFloater();
             freezeEvent(e);
-	} else {
+        } else {
             siw.selectingSomething = false;
-	}
+        }
     }
 
 }//handleKeyDown()
@@ -152,7 +150,7 @@ function handleFocus(event) {
     e = getEvent(event);
     eL = getEventElement(e);
     if (focEl = isWithinNode(eL,null,"wickEnabled",null,null)) {
-	if (!siw || (siw && !siw.selectingSomething)) processSmartInput(focEl);
+        if (!siw || (siw && !siw.selectingSomething)) processSmartInput(focEl);
     }
 }//handleFocus()
 
@@ -187,7 +185,7 @@ function handleMouseOver(event) {
 
 function showSmartInputFloater() {
     if (!siw.floater.style.display || (siw.floater.style.display=="none")) {
-	if (!siw.customFloater) {
+        if (!siw.customFloater) {
             x = findElementPosX(siw.inputBox);
             y = findElementPosY(siw.inputBox) + siw.inputBox.offsetHeight;
             //hack: browser-specific adjustments.
@@ -195,13 +193,13 @@ function showSmartInputFloater() {
             if (!siw.isGecko && !siw.isWinIE) y += 10;
             siw.floater.style.left = x;
             siw.floater.style.top = y;
-	} else {
+        } else {
             //you may
             //do additional things for your custom floater
             //beyond setting display and visibility
-	}
-	siw.floater.style.display="block";
-	siw.floater.style.visibility="visible";
+        }
+        siw.floater.style.display="block";
+        siw.floater.style.visibility="visible";
     }
 }//showSmartInputFloater()
 
@@ -220,7 +218,7 @@ function processSmartInput(inputBox) {
     classData = inputBox.className.split(" ");
     siwDirectives = null;
     for (i=0;(!siwDirectives && classData[i]);i++) {
-	if (classData[i].indexOf("wickEnabled") != -1)
+        if (classData[i].indexOf("wickEnabled") != -1)
             siwDirectives = classData[i];
     }
 
@@ -234,10 +232,10 @@ function processSmartInput(inputBox) {
 
     setSmartInputData();
     if (siw.matchCollection && (siw.matchCollection.length > 0)) selectSmartInputMatchItem(0);
-    content = getSmartInputBoxContent();
+    var content = getSmartInputBoxContent();
     if (content) {
-	modifySmartInputBoxContent(content);
-	showSmartInputFloater();
+        modifySmartInputBoxContent(content);
+        showSmartInputFloater();
     } else hideSmartInputFloater();
 }//processSmartInput()
 
@@ -264,10 +262,10 @@ function getUserInputBase() {
     s = siw.inputBox.value;
     a = s;
     if ((lastComma = s.lastIndexOf(",")) != -1) {
-	a = a.replace(/^(.*\,[ \r\n\t\f\s]*).*$/i,'$1');
+        a = a.replace(/^(.*\,[ \r\n\t\f\s]*).*$/i,'$1');
     }
     else
-	a = "";
+        a = "";
     return a;
 }//getUserInputBase()
 
@@ -385,7 +383,7 @@ function getIndexFromElement(o) {
 function getCurrentlySelectedSmartInputItem() {
     answer = null;
     for (i = 0; ((i < siw.matchCollection.length) && !answer) ; i++) {
-	if (siw.matchCollection[i].isSelected)
+        if (siw.matchCollection[i].isSelected)
             answer = i;
     }//
     return answer;
@@ -402,13 +400,13 @@ function deSelectSmartInputMatchItem(index) {
 function selectNextSmartInputMatchItem() {
     currentIndex = getCurrentlySelectedSmartInputItem();
     if (currentIndex != null) {
-	deSelectSmartInputMatchItem(currentIndex);
-	if ((currentIndex + 1) < siw.matchCollection.length)
+        deSelectSmartInputMatchItem(currentIndex);
+        if ((currentIndex + 1) < siw.matchCollection.length)
             selectSmartInputMatchItem(currentIndex + 1);
-	else
+        else
             selectSmartInputMatchItem(0);
     } else {
-	selectSmartInputMatchItem(0);
+        selectSmartInputMatchItem(0);
     }
     modifySmartInputBoxContent(getSmartInputBoxContent());
 }//selectNextSmartInputMatchItem
@@ -416,13 +414,13 @@ function selectNextSmartInputMatchItem() {
 function selectPreviousSmartInputMatchItem() {
     currentIndex = getCurrentlySelectedSmartInputItem();
     if (currentIndex != null) {
-	deSelectSmartInputMatchItem(currentIndex);
-	if ((currentIndex - 1) >= 0)
+        deSelectSmartInputMatchItem(currentIndex);
+        if ((currentIndex - 1) >= 0)
             selectSmartInputMatchItem(currentIndex - 1);
-	else
+        else
             selectSmartInputMatchItem(siw.matchCollection.length - 1);
     } else {
-	selectSmartInputMatchItem(siw.matchCollection.length - 1);
+        selectSmartInputMatchItem(siw.matchCollection.length - 1);
     }
     modifySmartInputBoxContent(getSmartInputBoxContent());
 }//selectPreviousSmartInputMatchItem
@@ -466,13 +464,13 @@ function registerSmartInputListeners() {
     }//
 
     for (i=0; i < allinputs.length;i++) {
-	if ((c = allinputs[i].className) && (c == "wickEnabled")) {
+        if ((c = allinputs[i].className) && (c == "wickEnabled")) {
             allinputs[i].setAttribute("autocomplete","OFF");
             allinputs[i].onfocus = handleFocus;
             allinputs[i].onblur = handleBlur;
             allinputs[i].onkeydown = handleKeyDown;
             allinputs[i].onkeyup = handleKeyPress;
-	}
+        }
     }//loop thru inputs
 }//registerSmartInputListeners
 
@@ -511,4 +509,3 @@ function debug(s) {
     ds += ( s + "\n");
 }
 
-</script>

@@ -1,6 +1,4 @@
-<script language="JavaScript" type="text/JavaScript">
-
-// $Id: add_venue.js,v 1.2 2007/04/04 22:48:28 loyola Exp $
+// $Id: add_venue.js,v 1.3 2007/05/11 20:12:10 aicmltec Exp $
 
 function dataKeep(num) {
     var qsArray = new Array();
@@ -99,4 +97,3 @@ function dataRemove(num) {
 
     location.href = "http://{host}{self}?" + qsString;
 }
-</script>

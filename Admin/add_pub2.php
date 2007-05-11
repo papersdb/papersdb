@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.26 2007/05/04 04:26:40 loyola Exp $
+// $Id: add_pub2.php,v 1.27 2007/05/11 20:12:10 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -16,6 +16,13 @@ require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/authorselect.php';
+
+/**
+ * This is just a stub, see javascript check_authors() for the real code
+ */
+function check_authors() {
+    return true;
+}
 
 /**
  * Renders the whole page.
@@ -39,19 +46,23 @@ class add_pub2 extends add_pub_base {
         $auth_list = new pdAuthorList($this->db);
         $this->authors = $auth_list->asFirstLast();
 
-        $form = new HTML_QuickForm('add_pub2');
+        $form = new HTML_QuickForm('add_pub2', 'post', '', '',
+                                   array('onsubmit' => 'return check_authors();'));
 
         $form->addElement('header', null, 'Select from Authors in Database');
+
         $form->addElement('textarea', 'authors', 'Authors:',
                           array('cols' => 60,
                                 'rows' => 5,
                                 'class' => 'wickEnabled:MYCUSTOMFLOATER',
                                 'wrap' => 'virtual'));
+
         $form->addElement('static', null, null,
                           '<span class="small">'
                           . 'There are ' . count($this->authors)
                           . ' authors in the database. Type a partial name to '
-                          . 'see a list of matching authors.</span>');
+                          . 'see a list of matching authors. Separate names '
+                          . 'using commas.</span>');
         $form->addElement('submit', 'add_new_author', 'Add Author not in DB');
 
         // collaborations radio selections
@@ -135,7 +146,7 @@ class add_pub2 extends add_pub_base {
 
         $renderer->setElementTemplate(
             '<tr><td><b>{label}</b></td>'
-            . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="position:absolute;top:50px;left:0;background-color:#cecece;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
+            . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="font-size:1.1em;position:absolute;top:50px;left:0;background-color:#f4f4f4;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
             'authors');
 
         $form->accept($renderer);
@@ -189,30 +200,35 @@ class add_pub2 extends add_pub_base {
     }
 
     function javascript() {
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        $js_files = array(FS_PATH . '/Admin/js/add_pub2.js',
+                          FS_PATH . '/Admin/js/add_pub_cancel.js');
+
+        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
+
+        foreach ($js_files as $js_file) {
+            assert('file_exists($js_file)');
+            $content = file_get_contents($js_file);
+
+            $this->js .= str_replace(array('{host}', '{self}',
+                                           '{new_location}'),
+                                     array($_SERVER['HTTP_HOST'],
+                                           $_SERVER['PHP_SELF'],
+                                           $url),
+                                     $content);
+        }
+
+        $this->js .= "</script>\n";
+
+        // WICK
         $this->js .= "<script language=\"JavaScript\" type=\"text/JavaScript\">"
             . "\ncollection="
             . convertArrayToJavascript($this->authors, false)
             . "\n</script>\n";
 
-        $js_files = array(FS_PATH . '/js/wick.js',
-                          FS_PATH . '/Admin/js/add_pub_cancel.js');
-
-        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
-        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
-
-        foreach ($js_files as $js_file) {
-            assert('file_exists($js_file)');
-            $contents = file_get_contents($js_file);
-
-            $contents = str_replace(array('{host}', '{self}',
-                                          '{new_location}'),
-                                    array($_SERVER['HTTP_HOST'],
-                                          $_SERVER['PHP_SELF'],
-                                          $url),
-                                    $contents);
-
-            $this->js .= $contents;
-        }
+        $this->js .= '<script type="text/javascript" language="JavaScript" src="../js/wick.js"></script>';
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.41 2007/05/04 02:07:14 loyola Exp $
+// $Id: add_pub1.php,v 1.42 2007/05/11 20:12:10 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -234,17 +234,20 @@ class add_pub1 extends add_pub_base {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
+        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
-            $this->js .= file_get_contents($js_file);
+            $content = file_get_contents($js_file);
 
-            $this->js = str_replace(array('{host}', '{self}',
-                                          '{new_location}'),
-                                    array($_SERVER['HTTP_HOST'],
-                                          $_SERVER['PHP_SELF'],
-                                          $url),
-                                    $this->js);
+            $this->js .= str_replace(array('{host}', '{self}',
+                                           '{new_location}'),
+                                     array($_SERVER['HTTP_HOST'],
+                                           $_SERVER['PHP_SELF'],
+                                           $url),
+                                     $content);
         }
+
+        $this->js .= "</script>\n";
     }
 }
 

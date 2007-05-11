@@ -1,6 +1,4 @@
-<script language="JavaScript" type="text/JavaScript">
-
-// $Id: add_author.js,v 1.3 2007/04/20 17:55:44 aicmltec Exp $
+// $Id: add_author.js,v 1.4 2007/05/11 20:12:10 aicmltec Exp $
 
 var addAuthorPageHelp=
      "To add an author you need to input the author's first name, "
@@ -90,4 +88,3 @@ function author_check(name, num) {
     }
     return true;
 }
-</script>

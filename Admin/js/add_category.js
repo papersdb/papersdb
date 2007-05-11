@@ -1,6 +1,4 @@
-<script language="JavaScript" type="text/JavaScript">
-
-// $Id: add_category.js,v 1.2 2007/04/04 22:48:28 loyola Exp $
+// $Id: add_category.js,v 1.3 2007/05/11 20:12:10 aicmltec Exp $
 
 var addCategoryPageHelp =
      "This window is used to add a new category of papers to the "
@@ -46,4 +44,3 @@ function dataKeep(num) {
     location.href = "http://{host}{self}?" + qsString;
 }
 
-</script>

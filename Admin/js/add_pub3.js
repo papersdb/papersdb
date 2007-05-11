@@ -1,5 +1,3 @@
-<script language="JavaScript" type="text/JavaScript">
-
 var categoryHelp=
      "Category describes the type of document that you are submitting "
      + "to the site. For examplethis could be a journal entry, a book "
@@ -9,6 +7,14 @@ var categoryHelp=
      + "appropriate category you can select 'Add New Category' from "
      + "the drop down menu and you will be asked for the new category "
      + "information on a subsequent page.<br/><br/>";
+
+var venueHelp=
+     "Where the paper was published -- specific journal, conference, "
+     + "workshop, etc. If many of the database papers are in the same "
+     + "venue, you can create a single <b>label</b> for that "
+     + "venue, to specify name of the venue, location, date, editors "
+     + "and other common information. You will then be able to use "
+     + "and re-use that information.";
 
 var paperAtt =
     "Attach a postscript, PDF, or other version of the publication.";
@@ -64,4 +70,3 @@ function dataKeep() {
     location.href = "http://{host}{self}?" + qsString;
 }
 
-</script>

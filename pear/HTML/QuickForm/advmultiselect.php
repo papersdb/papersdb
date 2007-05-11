@@ -19,7 +19,7 @@
 * @author     Laurent Laville <pear@laurent-laville.org>
 * @copyright  2005-2007 Laurent Laville
 * @license    http://www.php.net/license/3_01.txt  PHP License 3.01
-* @version    CVS: $Id: advmultiselect.php,v 1.1 2007/03/29 23:16:01 aicmltec Exp $
+* @version    CVS: $Id: advmultiselect.php,v 1.2 2007/05/11 20:12:10 aicmltec Exp $
 * @link       http://pear.php.net/package/HTML_QuickForm_advmultiselect
 */
 
