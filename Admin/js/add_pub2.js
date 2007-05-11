@@ -1,4 +1,4 @@
-// $Id: add_pub2.js,v 1.1 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_pub2.js,v 1.2 2007/05/11 20:25:55 aicmltec Exp $
 
 // If user typed in authors not in the author table, then this function
 // displays an alert to the user and lists all the names that are not in
@@ -12,6 +12,8 @@ function check_authors() {
 
     // strip comma and space at end of text area
     var paper_authors = authors.value.replace(/, *$/, '');
+
+    if (paper_authors.length == 0) return true;
 
     var list = paper_authors.split(/, */);
 
