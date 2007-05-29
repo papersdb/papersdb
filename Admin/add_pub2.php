@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.28 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_pub2.php,v 1.29 2007/05/29 20:24:55 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -203,8 +203,14 @@ class add_pub2 extends add_pub_base {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
+        // WICK
+        $this->js .= "\ncollection="
+            . convertArrayToJavascript($this->authors, false)
+            . "\n";
+
         $js_files = array(FS_PATH . '/Admin/js/add_pub2.js',
-                          FS_PATH . '/Admin/js/add_pub_cancel.js');
+                          FS_PATH . '/Admin/js/add_pub_cancel.js',
+                          FS_PATH . '/js/wick.js');
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
@@ -217,13 +223,6 @@ class add_pub2 extends add_pub_base {
                                            $url),
                                      $content);
         }
-
-        // WICK
-        $this->js .= "\ncollection="
-            . convertArrayToJavascript($this->authors, false)
-            . "\n";
-
-        echo '<script type="text/javascript" language="JavaScript" src="../js/wick.js"></script>';
     }
 }
 
