@@ -1,4 +1,4 @@
-// $Id: advanced_search.js,v 1.1 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: advanced_search.js,v 1.2 2007/05/29 20:31:43 aicmltec Exp $
 
 function dataKeep(num) {
     var form = document.forms["advSearchForm"];
@@ -58,32 +58,46 @@ function lastSearchUse() {
     form.paper_rank_other.value = "{paper_rank_other}";
 
     for (var i = 0; i < form.elements.length; i++) {
-        if (form.elements[i].name == "startdate[Y]")
+        if (form.elements[i].name == "startdate[Y]") {
             form.elements[i].value = "{startdateY}";
-        if (form.elements[i].name == "startdate[M]")
+        }
+        if (form.elements[i].name == "startdate[M]") {
             form.elements[i].value = "{startdateM}";
-        if (form.elements[i].name == "enddate[Y]")
+        }
+        if (form.elements[i].name == "enddate[Y]") {
             form.elements[i].value = "{enddateY}";
-        if (form.elements[i].name == "enddate[M]")
+        }
+        if (form.elements[i].name == "enddate[M]") {
             form.elements[i].value = "{enddateM}";
+        }
 
-        if (form.elements[i].name == "paper_rank[1]")
-            form.elements[i].value = "{paper_rank1}";
-        if (form.elements[i].name == "paper_rank[2]")
-            form.elements[i].value = "{paper_rank2}";
-        if (form.elements[i].name == "paper_rank[3]")
-            form.elements[i].value = "{paper_rank3}";
-        if (form.elements[i].name == "paper_rank[4]")
-            form.elements[i].value = "{paper_rank4}";
+        if (form.elements[i].type == "checkbox") {
+            if (form.elements[i].name == "paper_rank[1]") {
+                form.elements[i].checked = "{paper_rank1}";
+            }
+            if (form.elements[i].name == "paper_rank[2]") {
+                form.elements[i].checked = "{paper_rank2}";
+            }
+            if (form.elements[i].name == "paper_rank[3]") {
+                form.elements[i].checked = "{paper_rank3}";
+            }
+            if (form.elements[i].name == "paper_rank[4]") {
+                form.elements[i].checked = "{paper_rank4}";
+            }
 
-        if (form.elements[i].name == "paper_col[1]")
-            form.elements[i].value = "{paper_col1}";
-        if (form.elements[i].name == "paper_col[2]")
-            form.elements[i].value = "{paper_col2}";
-        if (form.elements[i].name == "paper_col[3]")
-            form.elements[i].value = "{paper_col3}";
-        if (form.elements[i].name == "paper_col[4]")
-            form.elements[i].value = "{paper_col4}";
+            if (form.elements[i].name == "paper_col[1]") {
+                form.elements[i].checked = "{paper_col1}";
+            }
+            if (form.elements[i].name == "paper_col[2]") {
+                form.elements[i].checked = "{paper_col2}";
+            }
+            if (form.elements[i].name == "paper_col[3]") {
+                form.elements[i].checked = "{paper_col3}";
+            }
+            if (form.elements[i].name == "paper_col[4]") {
+                form.elements[i].checked = "{paper_col4}";
+            }
+        }
     }
 
     var author_myself = "{author_myself}";
@@ -91,11 +105,11 @@ function lastSearchUse() {
         form.author_myself[1].checked = true;
     }
 
-    for (var i =0; i < authorselect.length; i++) {
-        authorselect.options[i].selected = false;
-        if (selected_authors.indexOf(":" + authorselect.options[i].value + ":") >= 0) {
-            authorselect.options[i].selected = true;
-        }
-    }
+    //for (var i =0; i < authorselect.length; i++) {
+    //    authorselect.options[i].selected = false;
+    //    if (selected_authors.indexOf(":" + authorselect.options[i].value + ":") >= 0) {
+    //        authorselect.options[i].selected = true;
+    //    }
+    //}
     //dataKeep(0);
 }

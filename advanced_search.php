@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.61 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: advanced_search.php,v 1.62 2007/05/29 20:31:43 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -278,14 +278,14 @@ class advanced_search extends pdHtmlPage {
                                        $sp->startdate['M'],
                                        $sp->enddate['Y'],
                                        $sp->enddate['M'],
-                                       $sp->paper_rank[1],
-                                       $sp->paper_rank[2],
-                                       $sp->paper_rank[3],
-                                       $sp->paper_rank[4],
-                                       $sp->paper_col[1],
-                                       $sp->paper_col[2],
-                                       $sp->paper_col[3],
-                                       $sp->paper_col[4],
+                                       ($sp->paper_rank[1] == 'yes'),
+                                       ($sp->paper_rank[2] == 'yes'),
+                                       ($sp->paper_rank[3] == 'yes'),
+                                       ($sp->paper_rank[4] == 'yes'),
+                                       ($sp->paper_col[1] == 'yes'),
+                                       ($sp->paper_col[2] == 'yes'),
+                                       ($sp->paper_col[3] == 'yes'),
+                                       ($sp->paper_col[4] == 'yes'),
                                        $sp->author_myself),
                                  $content);
     }
