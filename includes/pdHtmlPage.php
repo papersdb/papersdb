@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.84 2007/04/30 17:12:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.85 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -303,8 +303,7 @@ class pdHtmlPage {
 
         $result .= '<link rel="stylesheet" href="' . $url_prefix . 'style.css" />' . "\n"
             . "</head>\n"
-            . "\n<body>\n"
-            . $this->js;
+            . "\n<body>\n";
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
@@ -328,7 +327,7 @@ class pdHtmlPage {
                 $jsFile = 'js/wz_tooltip.js';
 
             $result
-                .= '<script language="JavaScript" type="text/javascript" src="'
+                .= '<script type="text/javascript" src="'
                 . $jsFile . '"></script>';
         }
 
@@ -338,6 +337,12 @@ class pdHtmlPage {
         if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
             $result .= $this->googleAnalytics();
         }
+
+        $result .= "<script type=\"text/JavaScript\">\n"
+            . "//<![CDATA[\n"
+            . $this->js
+            . "//]]>"
+            . "</script>\n";
 
         $result .= '</body></html>';
 

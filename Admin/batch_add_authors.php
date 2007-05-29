@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.9 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.10 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -132,13 +132,10 @@ class batch_add_authors extends pdHtmlPage {
 
     function javascript() {
         $this->js = <<<JS_END
-            <script language="JavaScript" type="text/JavaScript">
-
             var newAuthorHelp=
             "A semi-colon separated list of author names. Names can be in "
             + "the following formats: <ul><li>fist last</li><li>fist initials "
             + "last</li><li>last, first</li><li>last, first initials</li></ul>";
-        </script>
 JS_END;
     }
 }

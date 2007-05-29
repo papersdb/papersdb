@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.47 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_venue.php,v 1.48 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -446,14 +446,12 @@ class add_venue extends pdHtmlPage {
     function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_venue.js';
         assert('file_exists($js_file)');
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         $content = file_get_contents($js_file);
 
         $this->js .= str_replace(array('{host}', '{self}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF']),
                                  $content);
-        $this->js .= "</script>\n";
     }
 }
 

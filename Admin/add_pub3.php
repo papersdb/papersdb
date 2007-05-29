@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.30 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_pub3.php,v 1.31 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -27,6 +27,7 @@ require_once 'includes/pdExtraInfoList.php';
 class add_pub3 extends add_pub_base {
     var $debug = 0;
     var $cat_id;
+    var $venue_id;
     var $used_by_me;
     var $booktitle;
     var $publisher;
@@ -47,6 +48,9 @@ class add_pub3 extends add_pub_base {
 
         if (isset($this->pub->pub_id))
             $this->page_title = 'Edit Publication';
+
+        if (isset($this->venue_id))
+            $this->pub->addVenue($this->db, $this->venue_id);
 
         if (isset($this->cat_id))
             $this->pub->addCategory($this->db, $this->cat_id);
@@ -70,19 +74,19 @@ class add_pub3 extends add_pub_base {
 
         // Venue
         switch ($this->cat_id) {
-            case 'In Conference':
+            case 1:
                 $vlist = new pdVenueList($this->db,
                                          array('type' => 'Conference',
                                                'concat' => true));
                 break;
 
-            case 'In Journal':
+            case 3:
                 $vlist = new pdVenueList($this->db,
                                          array('type' => 'Journal',
                                                'concat' => true));
                 break;
 
-            case 'In Workshop':
+            case 4:
                 $vlist = new pdVenueList($this->db,
                                          array('type' => 'Workshop',
                                                'concat' => true));
@@ -115,13 +119,32 @@ class add_pub3 extends add_pub_base {
 
         $form->addElement('select', 'venue_id',
                           $this->helpTooltip('Venue', 'venueHelp') . ':',
-                          $venues, array('style' => 'width: 70%;'));
+                          $venues, array('style' => 'width: 70%;',
+                                         'onchange' => 'dataKeep();'));
 
         $form->addElement('submit', 'add_venue', 'Add New Venue');
 
         $form->addElement('advcheckbox', 'used_by_me',
                           null, 'Only show venues previously used by me',
                           array('onchange' => 'dataKeep();'), array('', 'yes'));
+
+
+
+        // rankings radio selections
+        $rankings = pdPublication::rankingsGlobalGet($this->db);
+        foreach ($rankings as $rank_id => $description) {
+            $radio_rankings[] = HTML_QuickForm::createElement(
+                'radio', 'paper_rank', null, $description, $rank_id);
+        }
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'radio', 'paper_rank', null,
+            'other (fill in box below)', -1);
+        $radio_rankings[] = HTML_QuickForm::createElement(
+            'text', 'paper_rank_other', null,
+            array('size' => 30, 'maxlength' => 250));
+
+        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
+                        false);
 
         if (($this->cat_id > 0)
             && is_object($this->pub->category)
@@ -231,6 +254,19 @@ class add_pub3 extends add_pub_base {
             $defaults['venue_id'] = $this->pub->venue->venue_id;
 
         $defaults['used_by_me'] = $this->used_by_me;
+
+        if (isset($this->pub->rank_id)) {
+            $defaults['paper_rank'] = $this->pub->rank_id;
+            if ($this->pub->rank_id == -1)
+                $defaults['paper_rank_other'] = $this->pub->ranking;
+        }
+        else if (is_object($this->pub->venue)) {
+            // Use ranking from venue
+            $defaults['paper_rank'] = $this->pub->venue->rank_id;
+            if ($this->pub->venue->rank_id == -1)
+                $defaults['paper_rank_other'] = $this->pub->venue->ranking;
+        }
+
         $defaults['extra_info'] = $this->pub->extra_info;
 
         // assign category info items
@@ -289,6 +325,15 @@ class add_pub3 extends add_pub_base {
             unset($this->pub->venue_id);
         }
 
+        if (isset($values['paper_rank']))
+            $this->pub->rank_id = $values['paper_rank'];
+
+        if (isset($values['paper_rank']) && ($values['paper_rank'] == -1)
+            && (strlen($values['paper_rank_other']) > 0)) {
+            $this->pub->rank_id = -1;
+            $this->pub->ranking = $values['paper_rank_other'];
+        }
+
         $this->pub->published = $values['pub_date']['Y'] . '-'
             .  $values['pub_date']['M'] . '-1';
 
@@ -341,8 +386,6 @@ class add_pub3 extends add_pub_base {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
-
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
             $content = file_get_contents($js_file);
@@ -354,8 +397,6 @@ class add_pub3 extends add_pub_base {
                                            $url),
                                      $content);
         }
-
-        $this->js .= "</script>\n";
     }
 
     function templateGet() {

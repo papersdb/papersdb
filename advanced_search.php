@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.60 2007/04/30 01:52:58 loyola Exp $
+// $Id: advanced_search.php,v 1.61 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -35,7 +35,6 @@ require_once 'includes/jscalendar.php';
  */
 class advanced_search extends pdHtmlPage {
     var $debug = 0;
-    var $form_name = 'pubForm';
     var $cat_list;
     var $category;
     var $search;
@@ -99,7 +98,7 @@ class advanced_search extends pdHtmlPage {
     function createForm() {
         $user = null;
 
-        $form = new HTML_QuickForm($this->form_name, 'get',
+        $form = new HTML_QuickForm('advSearchForm', 'get',
                                    'search_publication_db.php',
                                    '_self', 'multipart/form-data');
 
@@ -236,111 +235,59 @@ class advanced_search extends pdHtmlPage {
         else
             $sp = new pdSearchParams();
 
-        $this->js = <<<END
+        $js_file = FS_PATH . '/js/advanced_search.js';
+        assert('file_exists($js_file)');
+        $content = file_get_contents($js_file);
 
-            <script language="JavaScript" type="text/JavaScript">
-            window.name="search_publication.php";
-
-        function dataKeep(num) {
-            var form = document.forms["{$this->form_name}"];
-            var qsArray = new Array();
-            var qsString = "";
-
-            for (i = 0; i < form.elements.length; i++) {
-                var element = form.elements[i];
-                if ((element.value != "") && (element.value != null)
-                    && (element.type != "button")
-                    && (element.type != "reset")
-                    && (element.type != "submit")) {
-
-                    if (element.type == "checkbox") {
-                        if (element.checked) {
-                            qsArray.push(element.name + "=" + element.value);
-                        }
-                    } else if (element.type == "select-multiple"){
-                        var select_name = element.name;
-                        if (select_name.indexOf("[]") > 0) {
-                            select_name = select_name.substr(0, select_name.length - 2);
-                        }
-
-                        var count = 0;
-                        for (i=0; i < element.length; i++) {
-                            if (element.options[i].selected) {
-                                qsArray.push(select_name + "[" + count + "]=" + element.options[i].value);
-                                count++;
-                            }
-                        }
-                    } else {
-                        qsArray.push(element.name + "=" + element.value);
-                    }
-                }
-            }
-            if (qsArray.length > 0) {
-                qsString = qsArray.join("&");
-                qsString.replace(" ", "%20");
-            }
-            location.href
-                = "http://{$_SERVER['HTTP_HOST']}{$_SERVER['PHP_SELF']}?"
-                + qsString;
-        }
-
-        function lastSearchUse() {
-            var form = document.forms["{$this->form_name}"];
-            var authorselect = form.elements["authorselect[]"];
-            var selected_authors = "{$this->selected_authors}";
-
-            form.cat_id.value      = "{$sp->cat_id}";
-            form.title.value       = "{$sp->title}";
-            form.authortyped.value = "{$sp->authortyped}";
-            form.paper.value       = "{$sp->paper}";
-            form.abstract.value    = "{$sp->abstract}";
-            form.venue.value       = "{$sp->venue}";
-            form.keywords.value    = "{$sp->keywords}";
-            form.paper_rank_other.value = "{$sp->paper_rank_other}";
-
-            for (var i = 0; i < form.elements.length; i++) {
-                if (form.elements[i].name == "startdate[Y]")
-                    form.elements[i].value = "{$sp->startdate['Y']}";
-                if (form.elements[i].name == "startdate[M]")
-                    form.elements[i].value = "{$sp->startdate['M']}";
-                if (form.elements[i].name == "enddate[Y]")
-                    form.elements[i].value = "{$sp->enddate['Y']}";
-                if (form.elements[i].name == "enddate[M]")
-                    form.elements[i].value = "{$sp->enddate['M']}";
-
-                if (form.elements[i].name == "paper_rank[1]")
-                    form.elements[i].value = "{$sp->paper_rank[1]}";
-                if (form.elements[i].name == "paper_rank[2]")
-                    form.elements[i].value = "{$sp->paper_rank[2]}";
-                if (form.elements[i].name == "paper_rank[3]")
-                    form.elements[i].value = "{$sp->paper_rank[3]}";
-                if (form.elements[i].name == "paper_rank[4]")
-                    form.elements[i].value = "{$sp->paper_rank[4]}";
-
-                if (form.elements[i].name == "paper_col[1]")
-                    form.elements[i].value = "{$sp->paper_col[1]}";
-                if (form.elements[i].name == "paper_col[2]")
-                    form.elements[i].value = "{$sp->paper_col[2]}";
-                if (form.elements[i].name == "paper_col[3]")
-                    form.elements[i].value = "{$sp->paper_col[3]}";
-                if (form.elements[i].name == "paper_col[4]")
-                    form.elements[i].value = "{$sp->paper_col[4]}";
-            }
-
-            if ("{$sp->author_myself}" == "1") {
-                form.author_myself.checked = true;
-            }
-
-            for (var i =0; i < authorselect.length; i++) {
-                authorselect.options[i].selected = false;
-                if (selected_authors.indexOf(":" + authorselect.options[i].value + ":") >= 0) {
-                    authorselect.options[i].selected = true;
-                }
-            }
-            dataKeep(0);
-        }
-        </script>
-END;
+        $this->js .= str_replace(array('{host}',
+                                       '{self}',
+                                       '{selected_authors}',
+                                       '{cat_id}',
+                                       '{title}',
+                                       '{authortyped}',
+                                       '{paper}',
+                                       '{abstract}',
+                                       '{venue}',
+                                       '{keywords}',
+                                       '{paper_rank_other}',
+                                       '{startdateY}',
+                                       '{startdateM}',
+                                       '{enddateY}',
+                                       '{enddateM}',
+                                       '{paper_rank1}',
+                                       '{paper_rank2}',
+                                       '{paper_rank3}',
+                                       '{paper_rank4}',
+                                       '{paper_col1}',
+                                       '{paper_col2}',
+                                       '{paper_col3}',
+                                       '{paper_col4}',
+                                       '{author_myself}'),
+                                 array($_SERVER['HTTP_HOST'],
+                                       $_SERVER['PHP_SELF'],
+                                       $this->selected_authors,
+                                       $sp->cat_id,
+                                       $sp->title,
+                                       $sp->authortyped,
+                                       $sp->paper,
+                                       $sp->abstract,
+                                       $sp->venue,
+                                       $sp->keywords,
+                                       $sp->paper_rank_other,
+                                       $sp->startdate['Y'],
+                                       $sp->startdate['M'],
+                                       $sp->enddate['Y'],
+                                       $sp->enddate['M'],
+                                       $sp->paper_rank[1],
+                                       $sp->paper_rank[2],
+                                       $sp->paper_rank[3],
+                                       $sp->paper_rank[4],
+                                       $sp->paper_col[1],
+                                       $sp->paper_col[2],
+                                       $sp->paper_col[3],
+                                       $sp->paper_col[4],
+                                       $sp->author_myself),
+                                 $content);
     }
 }
 

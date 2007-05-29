@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.36 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_category.php,v 1.37 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -170,14 +170,12 @@ class add_category extends pdHtmlPage {
     function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_category.js';
         assert('file_exists($js_file)');
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         $content = file_get_contents($js_file);
 
         $this->js .= str_replace(array('{host}', '{self}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF']),
                                  $content);
-        $this->js .= "</script>\n";
     }
 }
 

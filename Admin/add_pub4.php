@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.35 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_pub4.php,v 1.36 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -398,7 +398,6 @@ class add_pub4 extends add_pub_base {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
             $content = file_get_contents($js_file);
@@ -410,7 +409,6 @@ class add_pub4 extends add_pub_base {
                                            $url),
                                      $content);
         }
-        $this->js .= "</script>\n";
     }
 }
 

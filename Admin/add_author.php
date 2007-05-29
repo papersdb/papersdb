@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.58 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_author.php,v 1.59 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -343,7 +343,6 @@ class add_author extends pdHtmlPage {
         $js_file = FS_PATH . '/Admin/js/add_author.js';
         assert('file_exists($js_file)');
 
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         $content = file_get_contents($js_file);
 
         $this->js .= str_replace(array('{host}', '{self}'),
@@ -364,7 +363,6 @@ class add_author extends pdHtmlPage {
                                      array($_SERVER['HTTP_HOST'], $url),
                                      $content);
         }
-        $this->js .= "</script>\n";
     }
 }
 

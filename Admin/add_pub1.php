@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.42 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_pub1.php,v 1.43 2007/05/29 19:56:11 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -90,22 +90,6 @@ class add_pub1 extends add_pub_base {
             'kwgroup', $this->helpTooltip('Keywords', 'keywordsHelp') . ':',
             '<br/>', false);
 
-        // rankings radio selections
-        $rankings = pdPublication::rankingsGlobalGet($this->db);
-        foreach ($rankings as $rank_id => $description) {
-            $radio_rankings[] = HTML_QuickForm::createElement(
-                'radio', 'paper_rank', null, $description, $rank_id);
-        }
-        $radio_rankings[] = HTML_QuickForm::createElement(
-            'radio', 'paper_rank', null,
-            'other (fill in box below)', -1);
-        $radio_rankings[] = HTML_QuickForm::createElement(
-            'text', 'paper_rank_other', null,
-            array('size' => 30, 'maxlength' => 250));
-
-        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
-                        false);
-
         $form->addElement('textarea', 'user',
                           $this->helpTooltip('User Info:', 'userInfoHelp'),
                           array('cols' => 60, 'rows' => 2));
@@ -142,12 +126,6 @@ class add_pub1 extends add_pub_base {
                           'abstract' => $this->pub->abstract,
                           'keywords' => $this->pub->keywords,
                           'user'     => $this->pub->user);
-
-        if (isset($this->pub->rank_id)) {
-            $defaults['paper_rank'] = $this->pub->rank_id;
-            if ($this->pub->rank_id == -1)
-                $defaults['paper_rank_other'] = $this->pub->ranking;
-        }
 
         $this->form->setDefaults($defaults);
 
@@ -202,15 +180,6 @@ class add_pub1 extends add_pub_base {
             unset($this->pub->info);
         }
 
-        if (isset($values['paper_rank']))
-            $this->pub->rank_id = $values['paper_rank'];
-
-        if (isset($values['paper_rank']) && ($values['paper_rank'] == -1)
-            && (strlen($values['paper_rank_other']) > 0)) {
-            $this->pub->rank_id = -1;
-            $this->pub->ranking = $values['paper_rank_other'];
-        }
-
         $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)
             $_SESSION['similar_pubs'] = $result;
@@ -234,7 +203,6 @@ class add_pub1 extends add_pub_base {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        $this->js = "<script language=\"JavaScript\" type=\"text/JavaScript\">\n";
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
             $content = file_get_contents($js_file);
@@ -246,8 +214,6 @@ class add_pub1 extends add_pub_base {
                                            $url),
                                      $content);
         }
-
-        $this->js .= "</script>\n";
     }
 }
 

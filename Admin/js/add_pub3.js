@@ -50,11 +50,12 @@ function dataKeep() {
             && (element.type != "button")
             && (element.value != "") && (element.value != null)) {
 
-            if (element.type == "checkbox") {
+            if ((element.type == "checkbox") || (element.type == "radio")) {
                 if (element.checked) {
                     qsArray.push(element.name + "=" + element.value);
                 }
-            } else if (element.type != "hidden") {
+            }
+            else if (element.type != "hidden") {
                 qsArray.push(form.elements[i].name + "="
                              + form.elements[i].value);
             }
