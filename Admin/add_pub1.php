@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.43 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_pub1.php,v 1.44 2007/05/31 20:48:43 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -172,13 +172,6 @@ class add_pub1 extends add_pub_base {
 
         $this->pub->load($values);
         $_SESSION['state'] = 'pub_add';
-
-        if ((!empty($values['cat_id'])) && ($values['cat_id'] > 0))
-            $this->pub->addCategory($this->db, $values['cat_id']);
-        else if (is_object($this->pub->category)) {
-            unset($this->pub->category);
-            unset($this->pub->info);
-        }
 
         $result = $this->pub->duplicateTitleCheck($this->db);
         if (count($result) > 0)

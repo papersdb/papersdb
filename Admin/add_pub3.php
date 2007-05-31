@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.31 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_pub3.php,v 1.32 2007/05/31 20:48:43 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -308,9 +308,6 @@ class add_pub3 extends add_pub_base {
 
         $values = $form->exportValues();
 
-        if ($values['cat_id'] > 0)
-            $this->pub->addCategory($this->db, $values['cat_id']);
-
         if ($this->pub->category->info != null) {
             foreach ($this->formInfoElementsGet() as $element => $name) {
                 if (isset($values[$element]))
@@ -323,6 +320,16 @@ class add_pub3 extends add_pub_base {
         else if (is_object($this->pub->venue)) {
             unset($this->pub->venue);
             unset($this->pub->venue_id);
+        }
+
+        if ($values['cat_id'] > 0) {
+            if (!isset($this->pub->venue)
+                || (is_object($this->pub->venue)
+                    && ($this->pub->category != $values['cat_id'])))
+                // either no venue set for this pub entry, OR user has
+                // overriden the category since user selected one that does not
+                // match the venue
+                $this->pub->addCategory($this->db, $values['cat_id']);
         }
 
         if (isset($values['paper_rank']))
