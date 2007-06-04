@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.77 2007/04/24 19:48:51 aicmltec Exp $
+// $Id: view_publication.php,v 1.78 2007/06/04 16:44:52 aicmltec Exp $
 
 /**
  * View Publication
@@ -132,8 +132,8 @@ class view_publication extends pdHtmlPage {
         if (isset($pub->category) && isset($pub->category->category))
             $category = $pub->category->category;
 
-        $table->addRow(array('Category:', $category));
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
+        $table->addRow(array('Category:', $category));
         $table->addRow(array('Ranking:', $pub->ranking));
 
         if (is_array($pub->collaborations)
