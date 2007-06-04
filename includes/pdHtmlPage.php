@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.85 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.86 2007/06/04 21:28:04 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -564,10 +564,10 @@ END;
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                    'submit', 'submit', $label),
-                HTML_QuickForm::createElement(
                     'button', 'cancel', 'Cancel',
-                    array('onclick' => 'history.back()'))
+                    array('onclick' => 'history.back()')),
+                HTML_QuickForm::createElement(
+                    'submit', 'submit', $label)
                 ),
             null, null, '&nbsp;', false);
         return $form;
