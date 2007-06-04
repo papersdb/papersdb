@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.59 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_author.php,v 1.60 2007/06/04 21:24:54 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -16,13 +16,6 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 require_once 'Admin/add_pub_base.php';
-
-/**
- * This is just a stub, see javascript author_check() for the real code
- */
-function author_check() {
-    return true;
-}
 
 /**
  * Creates a form for adding or editing author information.
@@ -93,17 +86,6 @@ class add_author extends pdHtmlPage {
         $auth_list = new pdAuthorList($this->db);
         $form->addElement('select', 'authors_in_db', null, $auth_list->list,
                           array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
-
-        $form->registerRule('author_check', 'callback', 'author_check');
-        // author_check() is actually implemented in javascript
-
-        if ($this->author_id == null) {
-          // only add this rule if adding a new author
-          $form->addRule(array('firstname', 'lastname'),
-                         'First and last name: '
-                         . 'A similar author already exists in the database',
-                         'author_check', true, 'client');
-        }
 
         $form->addElement('text', 'title',
                           $this->helpTooltip('Title', 'authTitleHelp') . ':',
@@ -272,27 +254,15 @@ class add_author extends pdHtmlPage {
             }
         }
 
-        // check if an author with a similar name already exists
-        if ($this->author_id == null) {
-            $like_authors = new pdAuthorList($this->db, $values['firstname'],
-                                             $values['lastname']);
-            if (count($like_authors->list) > 0) {
-                echo 'The following authors have similar names:<ul>';
-                foreach ($like_authors->list as $auth) {
-                    echo '<li>' . $auth . '</li>';
-                }
-                echo '</ul>New author not submitted.';
-                return;
-            }
-        }
-
         $author = new pdAuthor();
         if ($this->author_id != null)
             $author->author_id = $this->author_id;
 
         $author->name = $values['lastname'] . ', ' . $values['firstname'];
-        $author->title = $values['title'];
-        $author->email     = $values['email'];
+        $author->firstname    = $values['firstname'];
+        $author->lastname     = $values['lastname'];
+        $author->title        = $values['title'];
+        $author->email        = $values['email'];
         $author->organization = $values['organization'];
         $author->webpage      = $values['webpage'];
         $author->interests    = array();
@@ -301,11 +271,21 @@ class add_author extends pdHtmlPage {
             $author->interests
                 = array_merge($author->interests, $values['interests']);
 
-
         if (isset($values['newInterests'])
             && (count($values['newInterests']) > 0))
             $author->interests
                 = array_merge($author->interests, $values['newInterests']);
+
+        // check if an author with a similar name already exists
+        if ($this->author_id == null) {
+            $like_authors = new pdAuthorList($this->db, $values['firstname'],
+                                             $values['lastname']);
+            if (count($like_authors->list) > 0) {
+                $_SESSION['new_author'] = $author;
+                header('Location: author_confirm.php');
+                return;
+            }
+        }
 
         $author->dbSave($this->db);
 
@@ -324,7 +304,6 @@ class add_author extends pdHtmlPage {
                 header('Location: add_pub2.php');
         }
         else {
-
             if ($this->author_id == null)
               echo 'Author "' . $values['firstname'] . ' '
                 . $values['lastname'] . '" '

@@ -1,4 +1,4 @@
-// $Id: add_author.js,v 1.4 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_author.js,v 1.5 2007/06/04 21:24:54 aicmltec Exp $
 
 var addAuthorPageHelp=
      "To add an author you need to input the author's first name, "
@@ -84,7 +84,7 @@ function author_check(name, num) {
     for (i=0; i < authors_in_db.length; i++) {
         authName = authors_in_db.options[i].text.toLowerCase();
         if (authName.indexOf(newAuthorName) >= 0)
-            return false;
+            return confirm('Similar author name exists in database. Add anyways?');;
     }
     return true;
 }
