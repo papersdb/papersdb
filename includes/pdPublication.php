@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.111 2007/04/30 18:23:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.112 2007/06/06 21:17:14 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -239,7 +239,7 @@ class pdPublication extends pdDbAccessor {
         }
 
         $tables = array('pub_cat_info', 'pub_cat', 'pub_add', 'publication',
-                        'rankings');
+                        'pub_rankings');
         foreach($tables as $table) {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
