@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.15 2007/06/06 18:44:19 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.16 2007/06/06 18:47:08 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -96,8 +96,6 @@ class pdVenueList {
 
         $letter .= '%';
         $fields = array('title', 'name');
-
-        debugVar('letter', $db->addQuotes($letter));
 
         foreach ($fields as $field) {
             if ($field == 'title')
