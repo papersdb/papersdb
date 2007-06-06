@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.14 2007/04/05 17:59:23 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.15 2007/06/06 18:44:19 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -97,6 +97,8 @@ class pdVenueList {
         $letter .= '%';
         $fields = array('title', 'name');
 
+        debugVar('letter', $db->addQuotes($letter));
+
         foreach ($fields as $field) {
             if ($field == 'title')
                 $q = $db->select('venue', '*',
@@ -105,7 +107,7 @@ class pdVenueList {
             else
                 $q = $db->select('venue', '*',
                                  array('name LIKE ' . $db->addQuotes($letter),
-                                       'title is NULL'),
+                                       'LENGTH(title)' => '0'),
                                  "pdVenueList::loadStartingWith");
 
             if ($q === false) return;
