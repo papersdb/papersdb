@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.22 2007/04/05 17:59:23 aicmltec Exp $
+// $Id: pdPubList.php,v 1.23 2007/06/06 22:28:39 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -19,6 +19,7 @@ require_once 'pdPublication.php';
  */
 class pdPubList {
     var $list;
+    var $type;
     var $count;
 
     /**
@@ -63,6 +64,10 @@ class pdPubList {
         }
         else if (isset($options['pub_ids']) && is_array($options['pub_ids'])){
             $this->arrayPubsDBLoad($db, $options['pub_ids']);
+        }
+        else if (isset($options['cat_pub_ids'])
+                 && is_array($options['cat_pub_ids'])){
+            $this->arrayPubsDBLoadByCategory($db, $options['cat_pub_ids']);
         }
         else if (isset($options['sort_by_updated'])) {
             $this->allPubsDbLoad($db, $options['sort_by_updated']);
@@ -235,17 +240,57 @@ class pdPubList {
         foreach ($pub_ids as $pub_id) {
             if (!is_numeric($pub_id)) continue;
 
-            $q = $db->selectRow('publication', '*', array('pub_id' => $pub_id),
-                                "pdPubList::arrayPubsDBLoad",
-                                array('ORDER BY' => 'title ASC'));
+            $pub = new pdPublication();
+            $result = $pub->dbLoad($db, $pub_id, PD_PUB_DB_LOAD_BASIC);
+            if ($result !== false)
+                $this->list[] = $pub;
 
-            if ($q === false) continue;
-
-            $this->list[] = new pdPublication($q);
         }
 
         if (is_array($this->list))
             uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+    }
+
+    function arrayPubsDBLoadByCategory($db, $pub_ids) {
+        assert('is_object($db)');
+        assert('is_array($pub_ids)');
+
+        if (count($pub_ids) == 0) return;
+
+        foreach ($pub_ids as $pub_id) {
+            if (!is_numeric($pub_id)) continue;
+
+            $pub = new pdPublication();
+            $result = $pub->dbLoad($db, $pub_id,
+                                   PD_PUB_DB_LOAD_BASIC
+                                   | PD_PUB_DB_LOAD_CATEGORY);
+            if ($result !== false) {
+                if (is_object($pub->category))
+                    switch ($pub->category->category) {
+                        case 'In Conference':
+                        case 'In Journal':
+                        case 'In Workshop':
+                            $this->list[$pub->category->category][] = $pub;
+                            break;
+
+                        default:
+                            $this->list['Other'][] = $pub;
+                            break;
+                    }
+                else
+                    $this->list['Other'][] = $pub;
+            }
+        }
+
+        ksort($this->list);
+
+        foreach ($this->list as $category => $pubs) {
+            if (is_array($this->list[$category]))
+                uasort($this->list[$category],
+                       array('pdPublication', 'pubsDateSortDesc'));
+        }
+
+        $this->type = 'category';
     }
 
     function toPubIdList() {

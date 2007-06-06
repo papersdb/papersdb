@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.86 2007/06/04 21:28:04 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.87 2007/06/06 22:28:39 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -785,6 +785,10 @@ END;
     function displayPubList($pub_list, $enumerate = true, $max = -1) {
         assert('is_object($pub_list)');
 
+        if (isset($pub_list->type) && ($pub_list->type == 'category')) {
+            return $this->displayPubListByCategory($pub_list, $enumerate, $max);
+        }
+
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',
                                       'cellpadding' => '0',
@@ -844,6 +848,84 @@ END;
         $table->updateColAttributes(1, array('class' => 'publist'), true);
 
         return $table->toHtml();
+    }
+
+    function displayPubListByCategory($pub_list, $enumerate = true,
+                                      $max = -1) {
+        assert('is_object($pub_list)');
+        $result = '';
+        $count = 0;
+
+        foreach ($pub_list->list as $category => $pubs) {
+            if ($category == 'Other')
+                $result .= "<h3>Other Categories</h3>\n";
+            else
+            $result .= '<h3>' . $category . "</h3>\n";
+
+            $table = new HTML_Table(array('width' => '100%',
+                                          'border' => '0',
+                                          'cellpadding' => '0',
+                                          'cellspacing' => '0'));
+            $table->setAutoGrow(true);
+
+            if (count($pub_list->list) == 0) {
+                return 'No Publications';
+            }
+
+            foreach ($pubs as $pub) {
+                ++$count;
+                $pub->dbload($this->db, $pub->pub_id);
+
+                $citation = $pub->getCitationHtml() . '&nbsp;'
+                    . $this->getPubIcons($pub);
+
+                if ($this->access_level > 0) {
+                    $citation .= '<br/><span style="font-size:80%">';
+                    if (isset($pub->ranking))
+                        $citation .= 'Ranking: ' . $pub->ranking;
+
+                    if (is_array($pub->collaborations)
+                        && (count($pub->collaborations) > 0)) {
+                        $col_desciptions = $pub->collaborationsGet($this->db);
+
+                        $values = array();
+                        foreach ($pub->collaborations as $col_id) {
+                            $values[] = $col_desciptions[$col_id];
+                        }
+
+                        $citation .= '<br/>Collaboration:'
+                            . implode(', ', $values);
+                    }
+                    $citation .= '</span>';
+                }
+
+                if ($enumerate)
+                    $cells = array($count, $citation);
+                else
+                    $cells = array(null, $citation);
+
+                $table->addRow($cells);
+
+                if (($max > 0) && ($count >= $max)) break;
+            }
+
+            // now assign table attributes including highlighting for even and
+            // odd rows
+            for ($i = 0; $i < $table->getRowCount(); $i++) {
+                if ($i & 1)
+                    $table->updateRowAttributes($i, array('class' => 'even'),
+                                                true);
+                else
+                    $table->updateRowAttributes($i, array('class' => 'odd'),
+                                                true);
+            }
+            $table->updateColAttributes(0, array('class' => 'emph'), true);
+            $table->updateColAttributes(1, array('class' => 'publist'), true);
+
+            $result .= $table->toHtml();
+        }
+
+        return $result;
     }
 
     function alphaSelMenu($viewTab, $page) {

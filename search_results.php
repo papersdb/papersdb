@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.21 2007/04/30 17:09:40 aicmltec Exp $
+// $Id: search_results.php,v 1.22 2007/06/06 22:28:39 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -78,7 +78,7 @@ class search_results extends pdHtmlPage {
         $this->form->accept($renderer);
 
         $pubs = new pdPubList(
-            $this->db, array('pub_ids' => $_SESSION['search_results']));
+            $this->db, array('cat_pub_ids' => $_SESSION['search_results']));
 
         echo $renderer->toHtml();
         echo $this->displayPubList($pubs);
