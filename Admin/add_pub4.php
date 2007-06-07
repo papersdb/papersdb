@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.36 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_pub4.php,v 1.37 2007/06/07 16:43:03 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -93,12 +93,16 @@ class add_pub4 extends add_pub_base {
             $filename = basename($_SESSION['paper'], '.' . $user->login);
             $filename = str_replace('paper_', '', $filename);
 
+            $pos = strpos($_SESSION['paper'], 'uploaded_files');
+            $html = '<a href="../' . substr($_SESSION['paper'], $pos) . '">'
+                . $filename . '</a>';
+
             $form->addGroup(
                 array(
-                HTML_QuickForm::createElement(
-                    'static', 'assigned_paper', null, $filename),
-                HTML_QuickForm::createElement(
-                    'submit', 'remove_paper', 'Remove Paper')
+                    HTML_QuickForm::createElement(
+                        'static', 'assigned_paper', null, $html),
+                    HTML_QuickForm::createElement(
+                        'submit', 'remove_paper', 'Remove Paper')
                     ),
                 null, $this->helpTooltip('Current Paper', 'paperAtt') . ':',
                 '&nbsp', false);
@@ -119,13 +123,18 @@ class add_pub4 extends add_pub_base {
             $filename = str_replace('additional_', '', $filename);
             $att_type = $_SESSION['att_types'][$i];
 
+            $pos = strpos($_SESSION['attachments'][$i], 'uploaded_files');
+            $html = '<a href="../'
+                . substr($_SESSION['attachments'][$i], $pos) . '">'
+                . $filename . '</a>';
+
             if ($filename != '') {
                 $form->addGroup(
                     array(
                         HTML_QuickForm::createElement(
                             'static', 'att_type' . $i, null, '['.$att_type.']'),
                         HTML_QuickForm::createElement(
-                            'static', 'attachment' . $i, null, $filename),
+                            'static', 'attachment' . $i, null, $html),
                         HTML_QuickForm::createElement(
                             'submit', 'remove_att' . $i, 'Remove Attachment')
                         ),
@@ -266,7 +275,9 @@ class add_pub4 extends add_pub_base {
         else
             echo '<h3>Adding Publication Entry</h3>';
 
-        echo $this->pub->getCitationHtml('', false) . '<p/>'
+        echo $this->pub->getCitationHtml('', false) . '&nbsp;'
+            . $this->getPubIcons($this->pub, 0x1)
+            . '<p/>'
             . add_pub_base::similarPubsHtml();
 
         $renderer =& $form->defaultRenderer();

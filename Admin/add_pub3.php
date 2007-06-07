@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.32 2007/05/31 20:48:43 aicmltec Exp $
+// $Id: add_pub3.php,v 1.33 2007/06/07 16:43:03 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -244,7 +244,9 @@ class add_pub3 extends add_pub_base {
         else
             echo '<h3>Adding Publication Entry</h3>';
 
-        echo $this->pub->getCitationHtml('..', false) . '<p/>'
+        echo $this->pub->getCitationHtml('..', false) . '&nbsp;'
+            . $this->getPubIcons($this->pub, 0x1)
+            . '<p/>'
             . add_pub_base::similarPubsHtml();
 
         if (is_object($this->pub->category))
