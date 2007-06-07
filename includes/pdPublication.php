@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.112 2007/06/06 21:17:14 aicmltec Exp $
+// $Id: pdPublication.php,v 1.113 2007/06/07 16:18:40 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -547,7 +547,7 @@ class pdPublication extends pdDbAccessor {
         }
 
         if (is_numeric($mixed)) {
-            if (($this->venue != null)
+            if (is_object($this->venue)
                 && ($this->venue->venue_id == $mixed)) return;
 
             $this->venue = new pdVenue();
