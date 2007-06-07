@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.48 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_venue.php,v 1.49 2007/06/07 17:09:44 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -429,13 +429,22 @@ class add_venue extends pdHtmlPage {
         }
         else {
             if (!isset($this->venue_id) || ($this->venue_id == '')) {
-                echo 'You have successfully added the venue "'
-                    .  $this->venue->title . '".'
-                    . '<br><a href="./add_venue.php">Add another venue</a>';
+                echo 'You have successfully added the venue "';
+
+                if (!empty($this->venue->title))
+                    echo  $this->venue->title . '".';
+                else
+                    echo  $this->venue->name . '".';
+
+                echo '<br><a href="./add_venue.php">Add another venue</a>';
             }
             else {
-                echo 'You have successfully edited the venue "'
-                    . $this->venue->title . '".';
+                echo 'You have successfully edited the venue "';
+
+                if (!empty($this->venue->title))
+                    echo $this->venue->title . '".';
+                else
+                    echo  $this->venue->name . '".';
             }
 
             if (!empty($this->referer))
