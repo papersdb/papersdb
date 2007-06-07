@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.88 2007/06/07 17:36:52 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.89 2007/06/07 18:02:53 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -97,6 +97,7 @@ class pdHtmlPage {
             && (get_class($this) != 'add_pub4')
             && (get_class($this) != 'add_pub_submit')
             && (get_class($this) != 'add_author')
+            && (get_class($this) != 'author_confirm')
             && (get_class($this) != 'add_venue')) {
             pubSessionInit();
         }

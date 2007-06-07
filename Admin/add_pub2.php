@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.30 2007/06/07 16:43:03 aicmltec Exp $
+// $Id: add_pub2.php,v 1.31 2007/06/07 18:02:53 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -163,7 +163,10 @@ class add_pub2 extends add_pub_base {
 
         $values = $form->exportValues();
 
-        if (!empty($values['authors'])) {
+        if (empty($values['authors'])) {
+            $this->pub->clearAuthors();
+        }
+        else {
             // need to retrieve author_ids for the selected authors
             $selAuthors = explode(', ', preg_replace('/\s\s+/', ' ',
                                                      $values['authors']));

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.1 2007/06/04 21:24:54 aicmltec Exp $
+// $Id: author_confirm.php,v 1.2 2007/06/07 18:02:53 aicmltec Exp $
 
 /**
  * The user reaches this page only when he is adding a new author, and the
@@ -49,6 +49,14 @@ class author_confirm extends pdHtmlPage {
             $values = $this->form->exportValues();
 
             $new_author->dbSave($this->db);
+
+            if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+                assert('isset($_SESSION["pub"])');
+                $pub =& $_SESSION['pub'];
+                $pub->addAuthor($this->db, $new_author->author_id);
+                header('Location: add_pub2.php');
+                return;
+            }
 
             echo 'Author <span class="emph">' . $new_author->name . '</span> '
                 . 'succesfully added to the database.'
