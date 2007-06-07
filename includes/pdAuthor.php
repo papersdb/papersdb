@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.24 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.25 2007/06/07 17:36:52 aicmltec Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -196,28 +196,36 @@ class pdAuthor extends pdDbAccessor{
 
             // first add the interests
             $arr = array();
-            foreach ($this->interests as $i) {
+            foreach ($this->interests as $k => $i) {
+                if (empty($i)) {
+                    unset($this->interests[$k]);
+                    continue;
+                }
+
                 if (!$db_interests->interestExists($i)) {
                     array_push($arr, array('interest_id' => 'NULL',
                                            'interest' => $i));
                 }
             }
 
-            if (count($arr) > 0)
+            if (count($arr) > 0) {
                 $db->insert('interest', $arr, 'pdAuthor::dbSave');
 
-            // link the interest to this author
-            $arr = array();
-            foreach ($this->interests as $i) {
-                $q = $db->selectRow('interest', 'interest_id',
-                                    array('interest' => $i),
-                                    'pdAuthor::dbSaveInterests');
-                assert('($q !== false)');
-                array_push($arr,
-                           array('author_id' => $this->author_id,
-                                 'interest_id' => $q->interest_id));
+                // link the interest to this author
+                $arr = array();
+                foreach ($this->interests as $i) {
+                    $q = $db->selectRow('interest', 'interest_id',
+                                        array('interest' => $i),
+                                        'pdAuthor::dbSaveInterests');
+                    assert('($q !== false)');
+                    array_push($arr,
+                               array('author_id' => $this->author_id,
+                                     'interest_id' => $q->interest_id));
+                }
+
+                if (count($arr) > 0)
+                    $db->insert('author_interest', $arr, 'pdAuthor::dbSave');
             }
-            $db->insert('author_interest', $arr, 'pdAuthor::dbSave');
         }
     }
 

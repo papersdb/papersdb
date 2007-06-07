@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.61 2007/06/04 21:28:04 aicmltec Exp $
+// $Id: add_author.php,v 1.62 2007/06/07 17:36:52 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -224,6 +224,7 @@ class add_author extends pdHtmlPage {
 
         $form->accept($renderer);
         $this->renderer =& $renderer;
+        $this->javascript();
     }
 
     function processForm() {
@@ -314,6 +315,32 @@ class add_author extends pdHtmlPage {
               echo 'Changes to author "'
                 . $values['firstname'] . ' ' . $values['lastname'] . '" '
                 . 'submitted to the database.';
+        }
+    }
+
+    function javascript() {
+        $js_file = FS_PATH . '/Admin/js/add_author.js';
+        assert('file_exists($js_file)');
+
+        $content = file_get_contents($js_file);
+
+        $this->js .= str_replace(array('{host}', '{self}'),
+                                 array($_SERVER['HTTP_HOST'],
+                                       $_SERVER['PHP_SELF']),
+                                 $content);
+
+        if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
+            $js_file = FS_PATH . '/Admin/js/add_pub_cancel.js';
+
+            assert('file_exists($js_file)');
+            $content = file_get_contents($js_file);
+
+            $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+            $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+            $this->js .= str_replace(array('{host}', '{new_location}'),
+                                     array($_SERVER['HTTP_HOST'], $url),
+                                     $content);
         }
     }
 }

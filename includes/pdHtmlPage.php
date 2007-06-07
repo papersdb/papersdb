@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.87 2007/06/06 22:28:39 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.88 2007/06/07 17:36:52 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -320,17 +320,6 @@ class pdHtmlPage {
             $result .= '</div>' . $this->pageFooter();
         }
 
-        if ($this->hasHelpTooltips) {
-            if (strstr($this->relative_url, '/'))
-                $jsFile = '../js/wz_tooltip.js';
-            else
-                $jsFile = 'js/wz_tooltip.js';
-
-            $result
-                .= '<script type="text/javascript" src="'
-                . $jsFile . '"></script>';
-        }
-
         // set up for google analytics
         //
         // note this code is added only on the real site
@@ -343,6 +332,17 @@ class pdHtmlPage {
             . $this->js
             . "//]]>"
             . "</script>\n";
+
+        if ($this->hasHelpTooltips) {
+            if (strstr($this->relative_url, '/'))
+                $jsFile = '../js/wz_tooltip.js';
+            else
+                $jsFile = 'js/wz_tooltip.js';
+
+            $result
+                .= '<script type="text/javascript" src="'
+                . $jsFile . '"></script>';
+        }
 
         $result .= '</body></html>';
 
