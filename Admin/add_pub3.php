@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.33 2007/06/07 16:43:03 aicmltec Exp $
+// $Id: add_pub3.php,v 1.34 2007/06/07 18:19:41 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -49,7 +49,11 @@ class add_pub3 extends add_pub_base {
         if (isset($this->pub->pub_id))
             $this->page_title = 'Edit Publication';
 
-        if (isset($this->venue_id))
+        if (empty($this->venue_id) && is_object($this->pub->venue)
+            && !empty($this->pub->venue->venue_id))
+            $this->venue_id = $this->pub->venue->venue_id;
+
+        if (isset($this->venue_id) && ($this->venue_id >= 0))
             $this->pub->addVenue($this->db, $this->venue_id);
 
         if (isset($this->cat_id))
@@ -253,7 +257,7 @@ class add_pub3 extends add_pub_base {
             $defaults['cat_id'] = $this->pub->category->cat_id;
 
         if (is_object($this->pub->venue))
-            $defaults['venue_id'] = $this->pub->venue->venue_id;
+            $defaults['venue_id'] = $this->venue_id;
 
         $defaults['used_by_me'] = $this->used_by_me;
 

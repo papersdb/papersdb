@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.113 2007/06/07 16:18:40 aicmltec Exp $
+// $Id: pdPublication.php,v 1.114 2007/06/07 18:19:41 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -550,6 +550,7 @@ class pdPublication extends pdDbAccessor {
             if (is_object($this->venue)
                 && ($this->venue->venue_id == $mixed)) return;
 
+            assert('$mixed >= 0');
             $this->venue = new pdVenue();
             $result = $this->venue->dbLoad($db, $mixed);
             assert('$result');
