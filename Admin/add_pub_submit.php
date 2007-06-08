@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.18 2007/03/19 15:31:27 loyola Exp $
+// $Id: add_pub_submit.php,v 1.19 2007/06/08 17:02:23 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -42,7 +42,7 @@ class add_pub_submit extends pdHtmlPage {
         $user =& $_SESSION['user'];
 
         if ($pub->pub_id != null) {
-          echo 'The change to the following PapersDB entry has been submitted:<p/>';
+          echo 'The following PapersDB entry has been modified:<p/>';
         }
         else {
           echo 'The following PapersDB entry has been added to the database:<p/>';
