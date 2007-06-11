@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.15 2007/06/04 21:28:04 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.16 2007/06/11 16:24:14 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -69,8 +69,6 @@ class pdNavMenu {
         'batch_add_authors'  => array('Batch Add Authors',
                                       'Admin/batch_add_authors.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),
-        'add_category'       => array('Add Category', 'Admin/add_category.php',
-                                      PD_NAV_MENU_LOGIN_REQUIRED),
         'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'delete_publication' => array('Delete Publication',
@@ -103,9 +101,9 @@ class pdNavMenu {
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'all_authors'        => array('View Authors', 'list_author.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
-        'all_categories'     => array('View Categories', 'list_categories.php',
-                                      PD_NAV_MENU_LOGIN_REQUIRED),
         'all_venues'         => array('View Venues', 'list_venues.php',
+                                      PD_NAV_MENU_LOGIN_REQUIRED),
+        'all_categories'     => array('View Categories', 'list_categories.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
         'logout'             => array('Logout', 'logout.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
@@ -120,6 +118,8 @@ class pdNavMenu {
         'view_authors'       => array('Author Information',
                                       'view_author.php',
                                       PD_NAV_MENU_NEVER),
+        'add_category'       => array('Add Category', 'Admin/add_category.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN),
         'check_attachments'  => array('Check Attachments',
                                       'diag/check_attachments.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),

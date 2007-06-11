@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.114 2007/06/07 18:19:41 aicmltec Exp $
+// $Id: pdPublication.php,v 1.115 2007/06/11 16:24:14 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -559,19 +559,9 @@ class pdPublication extends pdDbAccessor {
             // set this pub's category if not already set
             if (!isset($this->category)) {
                 $this->category = new pdCategory();
-                if ($this->venue->type == 'Conference') {
-                    $result = $this->category->dbLoad($db, null,
-                                                      'In Conference');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Workshop') {
-                    $result = $this->category->dbLoad($db, null,
-                                                      'In Workshop');
-                    assert('$result');
-                }
-                else if ($this->venue->type == 'Journal') {
-                    $result = $this->category->dbLoad($db, null,
-                                                      'In Journal');
+                if ($this->venue->cat_id > 0) {
+                    $result = $this->category->dbLoad($db,
+                                                      $this->venue->cat_id);
                     assert('$result');
                 }
             }
@@ -922,10 +912,9 @@ class pdPublication extends pdDbAccessor {
                 $v .= '</a>';
             }
 
-            if ($this->venue->data != '') {
-                if ($this->venue->type == 'Workshop')
-                    $v .= ' (within ' . $this->venue->data. ')';
-            }
+            if (!empty($this->venue->data)
+                && ($this->venue->categoryGet() == 'Workshop'))
+                $v .= ' (within ' . $this->venue->data. ')';
 
             if (isset($pub_date))
                 $location = $this->venue->locationGet($pub_date[0]);
@@ -1046,10 +1035,9 @@ class pdPublication extends pdDbAccessor {
 
             $venue_name = $this->venue->nameGet();
 
-            if ($this->venue->data != '') {
-                if ($this->venue->type == 'Workshop')
-                    $venue_name .= ' (within ' . $this->venue->data. ')';
-            }
+            if (!empty($this->venue->data)
+                && ($this->venue->categoryGet() == 'Workshop'))
+                $v .= ' (within ' . $this->venue->data. ')';
         }
 
         if (isset($this->authors)) {

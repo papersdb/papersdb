@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.49 2007/06/07 17:09:44 aicmltec Exp $
+// $Id: add_venue.php,v 1.50 2007/06/11 16:24:14 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -13,6 +13,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdCatList.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
 require_once 'includes/pdPublication.php';
@@ -27,7 +28,7 @@ class add_venue extends pdHtmlPage {
     var $debug = 0;
     var $venue_id = null;
     var $venue;
-    var $type;
+    var $cat_id;
     var $title;
     var $name;
     var $url;
@@ -58,15 +59,18 @@ class add_venue extends pdHtmlPage {
         if ($this->venue_id != null)
             $this->venue->dbLoad($this->db, $this->venue_id);
 
-        if (isset($this->type) && ($this->type != ''))
-            $this->venue->type = $this->type;
+        if (!empty($this->cat_id))
+            $this->venue->categoryAdd($this->db, $this->cat_id);
+        else if (is_object($this->venue->category))
+            $this->cat_id = $this->venue->category->cat_id;
 
         $this->newOccurrences = 0;
-        if (($this->venue->type == 'Conference')
-            || ($this->venue->type == 'Workshop')) {
+        if (is_object($this->venue->category)
+            && (($this->venue->category->category == 'In Conference')
+                || ($this->venue->category->category == 'In Workshop'))) {
             if (isset($this->numNewOccurrences)
                 && is_numeric($this->numNewOccurrences))
-                $this->newOccurrences =  intval($this->numNewOccurrences);
+                $this->newOccurrences = intval($this->numNewOccurrences);
             else
                 $this->newOccurrences = count($this->venue->occurrences);
         }
@@ -93,8 +97,9 @@ class add_venue extends pdHtmlPage {
             $label = 'Add Venue';
         }
 
-        if (($this->venue->type == 'Conference')
-            || ($this->venue->type == 'Workshop'))
+        if (is_object($this->venue->category)
+            && (($this->venue->category->category == 'In Conference')
+                || ($this->venue->category->category == 'In Workshop')))
             $label .= '&nbsp;<span class="small"><a href="javascript:dataKeep('
                 . ($this->newOccurrences+1) .')">[Add Occurrence]</a></span>';
 
@@ -106,15 +111,22 @@ class add_venue extends pdHtmlPage {
 
         $form->addElement('hidden', 'referer', $this->referer);
 
-        $form->addElement('radio', 'type', 'Type:', 'Journal', 'Journal',
-                          array('onClick'
-                                => 'dataKeep(' . $this->newOccurrences . ');'));
-        $form->addElement('radio', 'type', null, 'Conference', 'Conference',
-                          array('onClick'
-                                => 'dataKeep(' . $this->newOccurrences . ');'));
-        $form->addElement('radio', 'type', null, 'Workshop', 'Workshop',
-                          array('onClick'
-                                => 'dataKeep(' . $this->newOccurrences . ');'));
+        // category
+        $category_list = new pdCatList($this->db);
+
+        // Remove "In " from category names
+        foreach ($category_list->list as $key => $category) {
+            if (strpos($category, 'In ') === 0)
+                $category_list->list[$key] = substr($category, 3);
+        }
+
+        $form->addElement(
+            'select', 'cat_id',
+            $this->helpTooltip('Category', 'categoryHelp') . ':',
+            array(''  => '--- Please Select a Category ---',
+                  '-1' => '-- No Category --')
+            + $category_list->list,
+            array('onchange' => 'dataKeep();'));
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $form->addElement('advcheckbox', 'v_usage', 'Usage:',
@@ -163,10 +175,10 @@ class add_venue extends pdHtmlPage {
         $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
                         false);
 
-        if ($this->venue->type != '') {
-            if (($this->venue->type == 'Journal')
-                || ($this->venue->type == 'Workshop')) {
-                if ($this->venue->type == 'Journal')
+        if (is_object($this->venue->category)) {
+            if (($this->venue->category->category == 'In Journal')
+                || ($this->venue->category->category == 'In Workshop')) {
+                if ($this->venue->category->category == 'In Journal')
                     $label = 'Publisher:';
                 else
                     $label = 'Associated Conference:';
@@ -175,7 +187,7 @@ class add_venue extends pdHtmlPage {
                                   array('size' => 50, 'maxlength' => 250));
             }
 
-            if ($this->venue->type == 'Workshop') {
+            if ($this->venue->category->category == 'In Workshop') {
                 $form->addElement('text', 'editor', 'Editor:',
                                   array('size' => 50, 'maxlength' => 250));
 
@@ -183,8 +195,8 @@ class add_venue extends pdHtmlPage {
                                   array('format' => 'YM', 'minYear' => '1985'));
             }
 
-            if (($this->venue->type == 'Conference')
-                || ($this->venue->type == 'Workshop')) {
+            if (($this->venue->category->category == 'In Conference')
+                || ($this->venue->category->category == 'In Workshop')) {
                 $form->addElement('hidden', 'numNewOccurrences',
                                   $this->newOccurrences);
 
@@ -282,11 +294,15 @@ class add_venue extends pdHtmlPage {
             $arr = array('title'      => $this->venue->title,
                          'name'       => $this->venue->nameGet(),
                          'url'        => $this->venue->urlGet(),
-                         'type'       => $this->venue->type,
                          'data'       => $this->venue->data,
                          'editor'     => $this->venue->editor,
                          'venue_date' => $this->venue->date,
                          'v_usage'    => $this->venue->v_usage);
+
+            if (empty($this->cat_id))
+                $arr['cat_id'] = -1;
+            else if ($this->cat_id > 0)
+                $arr['cat_id'] = $this->cat_id;
 
             if (isset($this->numNewOccurrences)) {
                 for ($i = 0; $i < $this->numNewOccurrences; $i++) {
@@ -387,9 +403,8 @@ class add_venue extends pdHtmlPage {
             $this->venue->ranking = $values['venue_rank_other'];
         }
 
-        if (isset($values['venue_date']))
-            if (($this->venue->type == 'Conference')
-                || ($this->venue->type == 'Workshop')) {
+        if (isset($values['venue_date']) && is_object($this->venue->category)
+            && ($this->venue->category->category == 'In Workshop')) {
                 $this->venue->date = $values['venue_date']['Y']
                     . '-' . $values['venue_date']['M'] . '-1';
             }

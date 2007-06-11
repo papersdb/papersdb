@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.28 2007/04/30 17:09:40 aicmltec Exp $
+// $Id: list_venues.php,v 1.29 2007/06/11 16:24:14 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -67,8 +67,9 @@ class list_venues extends pdHtmlPage {
             $text = '';
             if ($venue->title != '')
                 $text .= '<b>' . $venue->title . '</b><br/>';
-            if ($venue->type != '')
-                $text .= '<b>' . ucfirst($venue->type) . '</b>:&nbsp;';
+            $v_cat = $venue->categoryGet();
+            if (!empty($v_cat))
+                $text .= '<b>' . ucfirst($v_cat) . '</b>:&nbsp;';
 
             $url = $venue->urlGet();
 
@@ -83,11 +84,11 @@ class list_venues extends pdHtmlPage {
 
             if ($venue->data != '') {
                 $text .= '<br/>';
-                if($venue->type == 'Conference')
+                if ($v_cat == 'Conference')
                     $text .= '<b>Location:&nbsp;</b>';
-                else if($venue->type == 'Journal')
+                else if ($v_cat == 'Journal')
                     $text .= '<b>Publisher:&nbsp;</b>';
-                else if($venue->type == 'Workshop')
+                else if ($v_cat == 'Workshop')
                     $text .= '<b>Associated Conference:&nbsp;</b>';
                 $text .= $venue->data;
             }

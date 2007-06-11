@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.28 2007/04/30 17:09:40 aicmltec Exp $
+// $Id: pdVenue.php,v 1.29 2007/06/11 16:24:14 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -9,6 +9,7 @@
  * @subpackage DB_Access
  */
 require_once 'includes/pdDbAccessor.php';
+require_once 'includes/pdCategory.php';
 
 /**
  * Class that accesses venue information from the database.
@@ -21,6 +22,7 @@ class pdVenue extends pdDbAccessor {
     var $name;
     var $url;
     var $type;
+    var $cat_id;
     var $data;
     var $editor;
     var $date;
@@ -28,6 +30,7 @@ class pdVenue extends pdDbAccessor {
     var $v_usage;
     var $rank_id;
     var $ranking;
+    var $category;
 
     /**
      * Constructor.
@@ -85,6 +88,12 @@ class pdVenue extends pdDbAccessor {
             }
         }
 
+        if (!empty($this->cat_id) && ($this->cat_id > 0)) {
+            $this->category = new pdCategory();
+            $result = $this->category->dbLoad($db, $this->cat_id);
+            assert('$result');
+        }
+
         return true;
     }
 
@@ -116,6 +125,9 @@ class pdVenue extends pdDbAccessor {
 
         if ($this->v_usage == 'single')
             $values['v_usage'] = '1';
+
+        if ($this->cat_id == -1)
+            $values['cat_id'] = null;
 
         if ($this->venue_id != '') {
             $this->dbUpdateOccurrence($db);
@@ -272,6 +284,23 @@ class pdVenue extends pdDbAccessor {
         }
 
         return $rankings;
+    }
+
+    function categoryAdd($db, $cat_id) {
+        if ($cat_id > 0) {
+            $this->category = new pdCategory();
+            $result = $this->category->dbLoad($db, $cat_id);
+            assert('$result');
+        }
+    }
+
+    function categoryGet() {
+        if (!is_object($this->category))
+            return null;
+
+        if (strpos($this->category->category, 'In ') === 0)
+            return substr($this->category->category, 3);
+        return $this->category->category;
     }
 }
 
