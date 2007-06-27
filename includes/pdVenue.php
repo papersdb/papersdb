@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.29 2007/06/11 16:24:14 aicmltec Exp $
+// $Id: pdVenue.php,v 1.30 2007/06/27 18:07:38 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -105,6 +105,7 @@ class pdVenue extends pdDbAccessor {
 
         $values = $this->membersAsArray();
         unset($values['occurrences']);
+        unset($values['category']);
 
         // rank_id
         $db->delete('venue_rankings', array('venue_id' => $this->venue_id),
