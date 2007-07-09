@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.116 2007/07/09 18:43:51 aicmltec Exp $
+// $Id: pdPublication.php,v 1.117 2007/07/09 19:17:27 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -80,11 +80,14 @@ class pdPublication extends pdDbAccessor {
         if ($q === false) return false;
         $this->load($q);
 
+        $this->collaborations = array();
         $q = $db->select('pub_col', 'col_id', array('pub_id' => $this->pub_id),
                          "pdPublication::dbLoad",
                          array('ORDER BY' => 'col_id ASC'));
+
         if ($q !== false) {
             $r = $db->fetchObject($q);
+
             while ($r) {
                 $this->collaborations[] = $r->col_id;
                 $r = $db->fetchObject($q);

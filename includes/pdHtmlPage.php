@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.91 2007/07/09 18:59:57 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.92 2007/07/09 19:17:27 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -857,6 +857,8 @@ END;
         $result = '';
         $count = 0;
 
+        $col_desciptions = pdPublication::collaborationsGet($this->db);
+
         $cat_display_order = array('In Journal', 'In Conference',
                                    'In Workshop', 'Other');
 
@@ -882,7 +884,7 @@ END;
 
             foreach ($pubs as $pub) {
                 ++$count;
-                $pub->dbload($this->db, $pub->pub_id);
+                $pub->dbLoad($this->db, $pub->pub_id);
 
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
@@ -894,7 +896,6 @@ END;
 
                     if (is_array($pub->collaborations)
                         && (count($pub->collaborations) > 0)) {
-                        $col_desciptions = $pub->collaborationsGet($this->db);
 
                         $values = array();
                         foreach ($pub->collaborations as $col_id) {
