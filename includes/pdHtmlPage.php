@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.89 2007/06/07 18:02:53 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.90 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -857,7 +857,12 @@ END;
         $result = '';
         $count = 0;
 
-        foreach ($pub_list->list as $category => $pubs) {
+        $cat_display_order = array('In Journal', 'In Conference',
+                                   'In Workshop', 'Other');
+
+        foreach ($cat_display_order as $category) {
+            $pubs =& $pub_list->list[$category];
+
             if ($category == 'Other')
                 $result .= "<h3>Other Categories</h3>\n";
             else

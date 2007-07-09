@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.50 2007/06/11 16:24:14 aicmltec Exp $
+// $Id: add_venue.php,v 1.51 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -14,7 +14,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdCatList.php';
-require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
 require_once 'includes/pdPublication.php';
 require_once 'Admin/add_pub_base.php';
@@ -306,12 +305,14 @@ class add_venue extends pdHtmlPage {
 
             if (isset($this->numNewOccurrences)) {
                 for ($i = 0; $i < $this->numNewOccurrences; $i++) {
-                    $arr['newOccurrenceLocation'][$i]
-                        = $this->newOccurrenceLocation[$i];
-                    $arr['newOccurrenceDate'][$i]
-                        = $this->newOccurrenceDate[$i];
-                    $arr['newOccurrenceUrl'][$i]
-                        = $this->newOccurrenceUrl[$i];
+                    if (isset($this->newOccurrenceLocation[$i])) {
+                        $arr['newOccurrenceLocation'][$i]
+                            = $this->newOccurrenceLocation[$i];
+                        $arr['newOccurrenceDate'][$i]
+                            = $this->newOccurrenceDate[$i];
+                        $arr['newOccurrenceUrl'][$i]
+                            = $this->newOccurrenceUrl[$i];
+                    }
                 }
             }
             else if (count($this->venue->occurrences) > 0) {
@@ -423,19 +424,17 @@ class add_venue extends pdHtmlPage {
 
         $this->venue->dbSave($this->db);
 
-        if ($this->debug) {
-            debugVar('values', $values);
-            debugVar('venue', $this->venue);
-            return;
-        }
-
         if (isset($_SESSION['state'])
             && ($_SESSION['state'] == 'pub_add')) {
             assert('isset($_SESSION["pub"])');
             $pub =& $_SESSION['pub'];
             $pub->addVenue($this->db, $this->venue);
 
-            if ($this->debug) return;
+            if ($this->debug) {
+                debugVar('values', $values);
+                debugVar('venue', $this->venue);
+                return;
+            }
 
             if (isset($values['finish']))
                 header('Location: add_pub_submit.php');
@@ -464,6 +463,12 @@ class add_venue extends pdHtmlPage {
 
             if (!empty($this->referer))
                 echo '<p/><a href="' . $this->referer . '">Return to venue list</a>';
+        }
+
+        if ($this->debug) {
+            debugVar('values', $values);
+            debugVar('venue', $this->venue);
+            return;
         }
     }
 

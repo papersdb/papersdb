@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.34 2007/06/07 18:19:41 aicmltec Exp $
+// $Id: add_pub3.php,v 1.35 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -79,20 +79,10 @@ class add_pub3 extends add_pub_base {
         // Venue
         switch ($this->cat_id) {
             case 1:
-                $vlist = new pdVenueList($this->db,
-                                         array('type' => 'Conference',
-                                               'concat' => true));
-                break;
-
             case 3:
-                $vlist = new pdVenueList($this->db,
-                                         array('type' => 'Journal',
-                                               'concat' => true));
-                break;
-
             case 4:
                 $vlist = new pdVenueList($this->db,
-                                         array('type' => 'Workshop',
+                                         array('cat_id' => $this->cat_id,
                                                'concat' => true));
                 break;
 
@@ -172,42 +162,13 @@ class add_pub3 extends add_pub_base {
 
         $extra_info = new pdExtraInfoList($this->db);
 
-        if (count($extra_info) > 0) {
-            unset($options);
-            foreach ($extra_info->list as $info) {
-                if ($this->pub != null) {
-                    // only make it an option if not already assigned for this
-                    // pub
-                    if (strpos($this->pub->extra_info, $info) === false) {
-                        $options[$info] = $info;
-                    }
-                }
-                else {
-                    $options[$info] = $info;
-                }
-            }
-            $extraInfoSelect =& $form->addElement(
-                'advmultiselect', 'extra_info_from_list', null, $options,
-                array('class' => 'pool', 'style' => 'width:150px;height:180px;'),
-                SORT_ASC);
-
-            $extraInfoSelect->setLabel(
-                array('Commonly Used:', 'Selected', 'Available'));
-
-            $extraInfoSelect->setButtonAttributes('add',
-                                             array('value' => 'Add',
-                                                   'class' => 'inputCommand'));
-            $extraInfoSelect->setButtonAttributes('remove',
-                                             array('value' => 'Remove',
-                                                   'class' => 'inputCommand'));
-            $extraInfoSelect->setButtonAttributes('moveup',
-                                             array('class' => 'inputCommand'));
-            $extraInfoSelect->setButtonAttributes('movedown',
-                                             array('class' => 'inputCommand'));
-
-            // template for a dual multi-select element shape
-            $extraInfoSelect->setElementTemplate($this->templateGet());
-        }
+        $form->addElement('static', null, null,
+                          '<span class="small">'
+                          . 'Separate using semicolons.'
+                          . ' See help text for examples of what goes here '
+                          . '(use mouse to over over \'Extra Information\' '
+                          . 'text).'
+                          . '</span>');
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
@@ -277,6 +238,7 @@ class add_pub3 extends add_pub_base {
 
         // assign category info items
         if ((count($this->pub->info) > 0)
+            && is_object($this->pub->category)
             && (count($this->pub->category->info) > 0))
             foreach ($this->formInfoElementsGet() as $element => $name) {
                 if (isset($this->pub->info[$name]))
@@ -354,11 +316,6 @@ class add_pub3 extends add_pub_base {
         if ($values['extra_info'] != '')
             $extra_info_arr = array_merge($extra_info_arr,
                                           array($values['extra_info']));
-
-        if (isset($values['extra_info_from_list'])
-            && (count($values['extra_info_from_list']) > 0))
-            $extra_info_arr = array_merge($extra_info_arr,
-                                          $values['extra_info_from_list']);
 
         $this->pub->extraInfoSet($extra_info_arr);
 

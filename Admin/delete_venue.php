@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.21 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: delete_venue.php,v 1.22 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -14,7 +14,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
 require_once 'includes/pdPublication.php';
 

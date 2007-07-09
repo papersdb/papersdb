@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.16 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: pdCategory.php,v 1.17 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -42,6 +42,9 @@ class pdCategory extends pdDbAccessor {
         $this->dbLoadFlags = $flags;
 
         if (isset($id)) {
+            // category id 0 is a null category, don't load anything
+            if ($id == 0) return;
+
             $r = $db->selectRow('category', '*', array('cat_id' => $id),
                                 "pdPublication::dbLoad");
             if ($r === false) return false;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.16 2007/06/06 18:47:08 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.17 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -28,9 +28,9 @@ class pdVenueList {
             $this->loadStartingWith($db, $options['starting_with']);
             return;
         }
-        else if (isset($options['type']))
+        else if (isset($options['cat_id']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
-                             array('type'    => $options['type']),
+                             array('cat_id'    => $options['cat_id']),
                              "pdVenueList::dbLoad");
         else
             $q = $db->select('venue', array('venue_id', 'title', 'name'), null,

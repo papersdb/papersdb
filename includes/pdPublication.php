@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.115 2007/06/11 16:24:14 aicmltec Exp $
+// $Id: pdPublication.php,v 1.116 2007/07/09 18:43:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -532,7 +532,6 @@ class pdPublication extends pdDbAccessor {
 
     function addVenue($db, $mixed) {
         if (is_object($mixed)) {
-
             // if this publication already has a unique venue associated with
             // it, the venue must first be deleted
             if (is_object($this->venue)
@@ -543,6 +542,10 @@ class pdPublication extends pdDbAccessor {
 
             $this->venue = $mixed;
             $this->venue_id = $this->venue->venue_id;
+            if (empty($this->venue->cat_id))
+                $this->category = null;
+            else
+                $this->addCategory($db, $this->venue->cat_id);
             return;
         }
 
@@ -560,8 +563,8 @@ class pdPublication extends pdDbAccessor {
             if (!isset($this->category)) {
                 $this->category = new pdCategory();
                 if ($this->venue->cat_id > 0) {
-                    $result = $this->category->dbLoad($db,
-                                                      $this->venue->cat_id);
+                    $result
+                        = $this->category->dbLoad($db, $this->venue->cat_id);
                     assert('$result');
                 }
             }
@@ -1037,7 +1040,7 @@ class pdPublication extends pdDbAccessor {
 
             if (!empty($this->venue->data)
                 && ($this->venue->categoryGet() == 'Workshop'))
-                $v .= ' (within ' . $this->venue->data. ')';
+                $venue_name .= ' (within ' . $this->venue->data. ')';
         }
 
         if (isset($this->authors)) {
