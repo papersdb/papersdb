@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.92 2007/07/09 19:17:27 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.93 2007/08/13 21:49:38 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -877,10 +877,6 @@ END;
                                           'cellpadding' => '0',
                                           'cellspacing' => '0'));
             $table->setAutoGrow(true);
-
-            if (count($pub_list->list) == 0) {
-                return 'No Publications';
-            }
 
             foreach ($pubs as $pub) {
                 ++$count;

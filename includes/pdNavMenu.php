@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.16 2007/06/11 16:24:14 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.17 2007/08/13 21:49:38 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -119,6 +119,9 @@ class pdNavMenu {
                                       'view_author.php',
                                       PD_NAV_MENU_NEVER),
         'add_category'       => array('Add Category', 'Admin/add_category.php',
+                                      PD_NAV_MENU_LEVEL_ADMIN),
+        'sanity_checks'      => array('Sanity Checks',
+                                      'diag/pubSanityChecks.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),
         'check_attachments'  => array('Check Attachments',
                                       'diag/check_attachments.php',
