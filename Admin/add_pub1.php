@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.45 2007/06/07 16:43:03 aicmltec Exp $
+// $Id: add_pub1.php,v 1.46 2007/08/16 16:31:41 aicmltec Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -100,7 +100,11 @@ class add_pub1 extends add_pub_base {
         $buttons[] = HTML_QuickForm::createElement(
             'reset', 'reset', 'Reset');
         $buttons[] = HTML_QuickForm::createElement(
-            'submit', 'next', 'Next step >>');
+            'submit', 'step2', '>> Step 2');
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'step3', '>> Step 3');
+        $buttons[] = HTML_QuickForm::createElement(
+            'submit', 'step4', '>> Step 4');
 
         if ($this->pub->pub_id != '')
             $buttons[] = HTML_QuickForm::createElement(
@@ -187,8 +191,12 @@ class add_pub1 extends add_pub_base {
 
         if (isset($values['finish']))
             header('Location: add_pub_submit.php');
-        else
+        else if (isset($values['step2']))
             header('Location: add_pub2.php');
+        else if (isset($values['step3']))
+            header('Location: add_pub3.php');
+        else if (isset($values['step4']))
+            header('Location: add_pub4.php');
     }
 
     function javascript() {

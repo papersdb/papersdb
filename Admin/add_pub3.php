@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.35 2007/07/09 18:43:51 aicmltec Exp $
+// $Id: add_pub3.php,v 1.36 2007/08/16 16:31:41 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -69,28 +69,35 @@ class add_pub3 extends add_pub_base {
 
         // category
         $category_list = new pdCatList($this->db);
-        $form->addElement(
-            'select', 'cat_id',
-            $this->helpTooltip('Category', 'categoryHelp') . ':',
+        $category[] = HTML_QuickForm::createElement(
+            'select', 'cat_id', null,
             array('' => '--- Please Select a Category ---')
             + $category_list->list,
             array('onchange' => 'dataKeep();'));
+        $text = '';
+        if (is_object($this->pub->venue)
+            && is_object($this->pub->category)
+            && ($this->pub->venue->cat_id != $this->pub->category->cat_id))
+            $text = '<span class="emph">(venue default is: '
+                . $category_list->list[$this->pub->venue->cat_id]
+                . ')</span>';
+        $category[] = HTML_QuickForm::createElement(
+            'static', null, null, $text);
+        $form->addGroup($category,
+                        null,
+                        $this->helpTooltip('Category', 'categoryHelp') . ':',
+                        '&nbsp;&nbsp;', false);
 
         // Venue
-        switch ($this->cat_id) {
-            case 1:
-            case 3:
-            case 4:
-                $vlist = new pdVenueList($this->db,
-                                         array('cat_id' => $this->cat_id,
-                                               'concat' => true));
-                break;
-
-            default:
-                $vlist = new pdVenueList($this->db,
-                                         array('concat' => true));
-                break;
-        }
+        if (is_object($this->pub->venue)
+            && is_object($this->pub->category)
+            && ($this->pub->venue->cat_id == $this->cat_id)
+            && in_array($this->cat_id, array(1, 3, 4)))
+            $vlist = new pdVenueList($this->db,
+                                     array('cat_id' => $this->cat_id,
+                                           'concat' => true));
+        else
+            $vlist = new pdVenueList($this->db, array('concat' => true));
 
         $venues[''] = '--Select Venue--';
         $venues['-1'] = '--No Venue--';
@@ -122,13 +129,17 @@ class add_pub3 extends add_pub_base {
                           null, 'Only show venues previously used by me',
                           array('onchange' => 'dataKeep();'), array('', 'yes'));
 
-
-
         // rankings radio selections
         $rankings = pdPublication::rankingsGlobalGet($this->db);
         foreach ($rankings as $rank_id => $description) {
+            $text = $description;
+
+            if (is_object($this->pub->venue)
+                && ($this->pub->venue->rank_id == $rank_id))
+                $text .= ' <span class="emph">(venue default)</span>';
+
             $radio_rankings[] = HTML_QuickForm::createElement(
-                'radio', 'paper_rank', null, $description, $rank_id);
+                'radio', 'paper_rank', null, $text, $rank_id);
         }
         $radio_rankings[] = HTML_QuickForm::createElement(
             'radio', 'paper_rank', null,
