@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.3 2007/08/16 17:11:21 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.4 2007/08/16 19:10:48 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -25,6 +25,7 @@ class pubSanityChecks extends pdHtmlPage {
     var $valid_tabs = array('Rankings', 'Categories', 'Tier 1',
                             'Journals', 'Conferences', 'Workshops',
                             'Posters');
+    var $tier1 = array('UAI', 'AAAI', 'NIPS', 'ICML', 'IJCAI');
 
 
     function pubSanityChecks() {
@@ -58,12 +59,19 @@ class pubSanityChecks extends pdHtmlPage {
                 break;
 
             case $this->valid_tabs[3]:
+                $this->venueJournalRank();
+                break;
+
             case $this->valid_tabs[4]:
-            case $this->valid_tabs[6]:
+                $this->venueCategoryRank();
                 break;
 
             case $this->valid_tabs[5]:
-                $this->venueWorkshops();
+                $this->venueWorkshopRank();
+                break;
+
+            case $this->valid_tabs[6]:
+                $this->venuePosterRank();
                 break;
 
             default:
@@ -109,7 +117,6 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     function tier1Report() {
-        $tier1 = array('UAI', 'AAAI', 'NIPS', 'ICML', 'IJCAI');
         $bad_pubs = array();
 
         // check for T1 pubs
@@ -117,13 +124,11 @@ class pubSanityChecks extends pdHtmlPage {
         foreach ($all_pubs->list as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
-            foreach ($tier1 as $venue) {
-                if (is_object($pub->venue)
-                    && isset($pub->venue->title)
-                    && (strpos($pub->venue->title, $venue) !== false)
-                    && ($pub->rank_id != 1)) {
-                    $bad_pubs[] = $pub->pub_id;
-                }
+            if (is_object($pub->venue) && isset($pub->venue->title))
+                foreach ($this->tier1 as $venue) {
+                    if ((strpos($pub->venue->title, $venue) !== false)
+                        && ($pub->rank_id != 1))
+                $bad_pubs[] = $pub->pub_id;
             }
         }
 
@@ -132,7 +137,50 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true);
     }
 
-    function venueWorkshops() {
+    function venueJournalRank() {
+        $all_pubs = new pdPubList($this->db);
+        $bad_rank = array();
+
+        foreach ($all_pubs->list as &$pub) {
+            $pub->dbLoad($this->db, $pub->pub_id);
+
+            // if the ranking does not match the venue
+            if (is_object($pub->category)
+                && ($pub->category->cat_id == 3)
+                && ($pub->rank_id != 2))
+                $bad_rank[] = $pub->pub_id;
+        }
+
+        echo '<h2>Journal publication entries with suspect rankings</h1>';
+        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        echo $this->displayPubList($pub_list, true);
+    }
+
+    function venueCategoryRank() {
+        $all_pubs = new pdPubList($this->db);
+        $bad_rank = array();
+
+        foreach ($all_pubs->list as &$pub) {
+            $pub->dbLoad($this->db, $pub->pub_id);
+
+            // if the ranking does not match the venue
+            if (is_object($pub->category)
+                && ($pub->category->cat_id == 1)
+                && ($pub->rank_id > 2))
+
+                if (is_object($pub->venue) && isset($pub->venue->title))
+                    foreach ($this->tier1 as $venue)
+                        if ((strpos($pub->venue->title, $venue) !== false)
+                            && ($pub->rank_id != 1))
+                            $bad_rank[] = $pub->pub_id;
+        }
+
+        echo '<h2>Conference publication entries with suspect rankings</h1>';
+        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        echo $this->displayPubList($pub_list, true);
+    }
+
+    function venueWorkshopRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
 
@@ -146,7 +194,26 @@ class pubSanityChecks extends pdHtmlPage {
                 $bad_rank[] = $pub->pub_id;
         }
 
-        echo '<h2>Workshops with suspect rankings</h1>';
+        echo '<h2>Workshop publication entries with suspect rankings</h1>';
+        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        echo $this->displayPubList($pub_list, true);
+    }
+
+    function venuePosterRank() {
+        $all_pubs = new pdPubList($this->db);
+        $bad_rank = array();
+
+        foreach ($all_pubs->list as &$pub) {
+            $pub->dbLoad($this->db, $pub->pub_id);
+
+            // if the ranking does not match the venue
+            if (is_object($pub->category)
+                && ($pub->category->cat_id == 12)
+                && ($pub->rank_id != 4))
+                $bad_rank[] = $pub->pub_id;
+        }
+
+        echo '<h2>Poster publication entries with suspect rankings</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true);
     }
