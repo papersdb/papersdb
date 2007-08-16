@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.2 2007/08/16 16:31:41 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.3 2007/08/16 17:11:21 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -23,7 +23,8 @@ require_once 'includes/pdPubList.php';
 class pubSanityChecks extends pdHtmlPage {
     var $tab;
     var $valid_tabs = array('Rankings', 'Categories', 'Tier 1',
-                            'Workshops');
+                            'Journals', 'Conferences', 'Workshops',
+                            'Posters');
 
 
     function pubSanityChecks() {
@@ -57,6 +58,11 @@ class pubSanityChecks extends pdHtmlPage {
                 break;
 
             case $this->valid_tabs[3]:
+            case $this->valid_tabs[4]:
+            case $this->valid_tabs[6]:
+                break;
+
+            case $this->valid_tabs[5]:
                 $this->venueWorkshops();
                 break;
 
@@ -146,7 +152,7 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     function selMenu() {
-        $text = '<div id="sel"><ul>';
+        $text = '<div id="sel2"><ul>';
         foreach($this->valid_tabs as $tab) {
             if ($tab == $this->tab)
                 $text .= '<li><a href="#" class="selected">'

@@ -239,6 +239,12 @@ div#sel {
   z-index: 1;
 }
 
+div#sel {
+  margin-bottom: 1em;
+  margin: 8px auto 0px auto;
+  z-index: 1;
+}
+
 div#sel ul {
   font-size: 0.9em;
   list-style: none;
@@ -293,6 +299,45 @@ div#selalpha li {
   display: inline;
   margin: 0 0.15em;
   position: relative;
+}
+div#sel2 {
+  margin-bottom: 1em;
+  margin: 8px auto 0px auto;
+  z-index: 1;
+}
+
+div#sel2 ul {
+  font-size: 0.9em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+
+div#sel2 li {
+  display: inline;
+  margin: 0 0.15em;
+  position: relative;
+}
+
+div#sel2 li a {
+  background: #f4f4f4;
+  border-bottom: 0;
+  border-left: 4px solid #cccccc;
+  color: #006633;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 13ex;
+}
+
+div#sel2 li a:hover,  div#sel2 li a.selected {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
 }
 
 div#selalpha li a {
