@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.36 2007/08/16 16:31:41 aicmltec Exp $
+// $Id: add_pub3.php,v 1.37 2007/08/16 17:27:13 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -137,6 +137,14 @@ class add_pub3 extends add_pub_base {
             if (is_object($this->pub->venue)
                 && ($this->pub->venue->rank_id == $rank_id))
                 $text .= ' <span class="emph">(venue default)</span>';
+            else if (is_object($this->pub->category)
+                     && ((($this->pub->category->cat_id == 1)
+                          && ($rank_id == 2))
+                         || (($this->pub->category->cat_id == 3)
+                             && ($rank_id == 2))
+                         || (($this->pub->category->cat_id == 4)
+                             && ($rank_id == 3))))
+                $text .= ' <span class="emph">(category default)</span>';
 
             $radio_rankings[] = HTML_QuickForm::createElement(
                 'radio', 'paper_rank', null, $text, $rank_id);
