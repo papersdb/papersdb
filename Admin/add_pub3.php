@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.37 2007/08/16 17:27:13 loyola Exp $
+// $Id: add_pub3.php,v 1.38 2007/08/16 17:52:45 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -53,8 +53,12 @@ class add_pub3 extends add_pub_base {
             && !empty($this->pub->venue->venue_id))
             $this->venue_id = $this->pub->venue->venue_id;
 
-        if (isset($this->venue_id) && ($this->venue_id >= 0))
-            $this->pub->addVenue($this->db, $this->venue_id);
+        if (isset($this->venue_id))
+            if ($this->venue_id >= 0)
+                $this->pub->addVenue($this->db, $this->venue_id);
+            else
+                $this->pub->venue = null;
+
 
         if (isset($this->cat_id))
             $this->pub->addCategory($this->db, $this->cat_id);
@@ -77,6 +81,7 @@ class add_pub3 extends add_pub_base {
         $text = '';
         if (is_object($this->pub->venue)
             && is_object($this->pub->category)
+            && ($this->pub->venue->cat_id != 0)
             && ($this->pub->venue->cat_id != $this->pub->category->cat_id))
             $text = '<span class="emph">(venue default is: '
                 . $category_list->list[$this->pub->venue->cat_id]
@@ -137,7 +142,8 @@ class add_pub3 extends add_pub_base {
             if (is_object($this->pub->venue)
                 && ($this->pub->venue->rank_id == $rank_id))
                 $text .= ' <span class="emph">(venue default)</span>';
-            else if (is_object($this->pub->category)
+            else if (!is_object($this->pub->venue)
+                     && is_object($this->pub->category)
                      && ((($this->pub->category->cat_id == 1)
                           && ($rank_id == 2))
                          || (($this->pub->category->cat_id == 3)
