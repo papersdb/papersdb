@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.93 2007/08/13 21:49:38 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.94 2007/08/17 22:10:23 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -783,7 +783,8 @@ END;
         return $html;
     }
 
-    function displayPubList($pub_list, $enumerate = true, $max = -1) {
+    function displayPubList($pub_list, $enumerate = true, $max = -1,
+                            $additional = null) {
         assert('is_object($pub_list)');
 
         if (isset($pub_list->type) && ($pub_list->type == 'category')) {
@@ -800,8 +801,10 @@ END;
             return 'No Publications';
         }
 
+        $col_desciptions = pdPublication::collaborationsGet($this->db);
+
         $count = 0;
-        foreach ($pub_list->list as $pub) {
+        foreach ($pub_list->list as $pub_id => $pub) {
             ++$count;
             $pub->dbload($this->db, $pub->pub_id);
 
@@ -815,7 +818,6 @@ END;
 
                 if (is_array($pub->collaborations)
                     && (count($pub->collaborations) > 0)) {
-                    $col_desciptions = $pub->collaborationsGet($this->db);
 
                     $values = array();
                     foreach ($pub->collaborations as $col_id) {
@@ -826,6 +828,10 @@ END;
                 }
                 $citation .= '</span>';
             }
+
+            if (isset($additional[$pub_id]))
+                $citation .= '<br/><span style="font-size:90%;color:#006633;font-weight:bold;">'
+                    . $additional[$pub_id] . '</span>';
 
             if ($enumerate)
                 $cells = array($count, $citation);

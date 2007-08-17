@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.4 2007/08/16 19:10:48 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.5 2007/08/17 22:10:23 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -82,6 +82,8 @@ class pubSanityChecks extends pdHtmlPage {
     function venueRankings() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
+        $additional = array();
+        $rankings = pdPublication::rankingsGlobalGet($this->db);
 
         foreach ($all_pubs->list as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
@@ -89,13 +91,16 @@ class pubSanityChecks extends pdHtmlPage {
             // if the ranking does not match the venue
             if (is_object($pub->venue)
                 && ($pub->venue->rank_id != 0)
-                && ($pub->venue->rank_id != $pub->rank_id))
+                && ($pub->venue->rank_id != $pub->rank_id)) {
                 $bad_rank[] = $pub->pub_id;
+                $additional[$pub->pub_id]
+                    = 'Venue ranking: ' . $rankings[$pub->venue->rank_id];
+            }
         }
 
         echo '<h2>Non Matching Venue Rankings</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
-        echo $this->displayPubList($pub_list, true);
+        echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     function venueCategories() {

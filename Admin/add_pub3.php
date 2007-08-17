@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.39 2007/08/16 19:10:48 loyola Exp $
+// $Id: add_pub3.php,v 1.40 2007/08/17 22:10:23 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -248,15 +248,21 @@ class add_pub3 extends add_pub_base {
         $defaults['used_by_me'] = $this->used_by_me;
 
         if (isset($this->pub->rank_id)) {
-            $defaults['paper_rank'] = $this->pub->rank_id;
-            if ($this->pub->rank_id == -1)
+            if ($this->pub->rank_id > 4) {
+                $defaults['paper_rank'] = -1;
                 $defaults['paper_rank_other'] = $this->pub->ranking;
+            }
+            else
+                $defaults['paper_rank'] = $this->pub->rank_id;
         }
         else if (is_object($this->pub->venue)) {
             // Use ranking from venue
-            $defaults['paper_rank'] = $this->pub->venue->rank_id;
-            if ($this->pub->venue->rank_id == -1)
+            if ($this->pub->venue->rank_id > 4) {
+                $defaults['paper_rank'] = -1;
                 $defaults['paper_rank_other'] = $this->pub->venue->ranking;
+            }
+            else
+                $defaults['paper_rank'] = $this->pub->venue->rank_id;
         }
 
         $defaults['extra_info'] = $this->pub->extra_info;

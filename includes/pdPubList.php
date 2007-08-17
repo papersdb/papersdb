@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.23 2007/06/06 22:28:39 aicmltec Exp $
+// $Id: pdPubList.php,v 1.24 2007/08/17 22:10:23 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -243,7 +243,7 @@ class pdPubList {
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id, PD_PUB_DB_LOAD_BASIC);
             if ($result !== false)
-                $this->list[] = $pub;
+                $this->list[$pub_id] = $pub;
 
         }
 
