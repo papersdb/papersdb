@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.7 2007/08/21 17:17:39 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.8 2007/08/21 18:02:58 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -14,6 +14,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
+require_once 'includes/pdCatList.php';
 
 /**
  * Renders the whole page.
@@ -73,7 +74,7 @@ class pubSanityChecks extends pdHtmlPage {
                 break;
 
             case $this->valid_tabs[4]:
-                $this->venueCategoryRank();
+                $this->venueConferenceRank();
                 break;
 
             case $this->valid_tabs[5]:
@@ -116,19 +117,32 @@ class pubSanityChecks extends pdHtmlPage {
     function venueCategories() {
         $all_pubs = new pdPubList($this->db);
         $bad_cat = array();
+        $additional = array();
+        $categories = new pdCatList($this->db);
 
         foreach ($all_pubs->list as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             if (is_object($pub->venue)
-                && is_object($pub->category)
-                && ($pub->venue->cat_id != $pub->category->cat_id))
-                $bad_cat[] = $pub->pub_id;
+                && is_object($pub->category)) {
+
+                if ($pub->venue->cat_id == 0) {
+                    $bad_cat[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Venue has no category';
+                }
+                else if ($pub->venue->cat_id != $pub->category->cat_id) {
+                    $bad_cat[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Venue category is: '
+                        . $categories->list[$pub->venue->cat_id] .
+                        '<br/> Pub entry category is: '
+                        . $categories->list[$pub->category->cat_id];
+                }
+            }
         }
 
         echo '<h2>Non Matching Venue Category</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_cat));
-        echo $this->displayPubList($pub_list, true);
+        echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     function tier1Report() {
@@ -139,12 +153,8 @@ class pubSanityChecks extends pdHtmlPage {
         foreach ($all_pubs->list as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
-            if (is_object($pub->venue) && isset($pub->venue->title))
-                foreach ($this->tier1 as $venue) {
-                    if ((strpos($pub->venue->title, $venue) !== false)
-                        && ($pub->rank_id != 1))
+            if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1))
                 $bad_pubs[] = $pub->pub_id;
-            }
         }
 
         echo '<h2>Mislabelled Tier 1</h1>';
@@ -152,72 +162,81 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true);
     }
 
+    function pubVenueIsTier1(&$pub) {
+        assert('is_object($pub)');
+
+        if (is_object($pub->category)
+            && ($pub->category->cat_id != 3)
+            && ($pub->category->cat_id != 1))
+            return false;
+
+        if (is_object($pub->venue)
+            && isset($pub->venue->title)) {
+            $is_tier1 = false;
+            foreach ($this->tier1 as $venue) {
+                if (strpos($pub->venue->title, $venue) !== false)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     function venueJournalRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
+        $additional = array();
 
         foreach ($all_pubs->list as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
-                && ($pub->category->cat_id == 3)
-                && ($pub->rank_id != 2))
+                && ($pub->category->cat_id == 3)) {
+                if ($pub->rank_id > 2) {
+                    $bad_rank[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Should be Tier 2';
+                }
 
                 // check if its a tier 1 journal
-                if (is_object($pub->venue)
-                    && isset($pub->venue->title)
-                    && ($pub->rank_id == 1)) {
-                    $is_tier1 = false;
-                    foreach ($this->tier1 as $venue) {
-                        if (strpos($pub->venue->title, $venue) !== false)
-                            $is_tier1 = true;
-                    }
-
-                    if (!$is_tier1)
-                        $bad_rank[] = $pub->pub_id;
-                }
-                else
+                if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1)) {
                     $bad_rank[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Should be Tier 1';
+                }
+            }
         }
 
         echo '<h2>Journal publication entries with suspect rankings</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
-        echo $this->displayPubList($pub_list, true);
+        echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
-    function venueCategoryRank() {
+    function venueConferenceRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
+        $additional = array();
 
         foreach ($all_pubs->list as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
-                && ($pub->category->cat_id == 1)
-                && ($pub->rank_id > 2))
+                && ($pub->category->cat_id == 1)) {
+                if ($pub->rank_id > 2) {
+                    $bad_rank[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Should be Tier 2';
+                }
 
                 // check if its a tier 1 conference
-                if (is_object($pub->venue)
-                    && isset($pub->venue->title)
-                    && ($pub->rank_id == 1)) {
-                    $is_tier1 = false;
-                    foreach ($this->tier1 as $venue) {
-                        if (strpos($pub->venue->title, $venue) !== false)
-                            $is_tier1 = true;
-                    }
-
-                    if (!$is_tier1)
-                        $bad_rank[] = $pub->pub_id;
-                }
-                else
+                if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1)) {
                     $bad_rank[] = $pub->pub_id;
+                    $additional[$pub->pub_id] = 'Should be Tier 1';
+                }
+            }
         }
 
         echo '<h2>Conference publication entries with suspect rankings</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
-        echo $this->displayPubList($pub_list, true);
+        echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     function venueWorkshopRank() {
