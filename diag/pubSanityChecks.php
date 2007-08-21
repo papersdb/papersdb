@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.6 2007/08/17 22:38:50 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.7 2007/08/21 17:17:39 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -27,8 +27,13 @@ class pubSanityChecks extends pdHtmlPage {
                             'Posters');
     var $tier1 = array('AAAI',
                        'AIJ',
+                       'CCR',
                        'ICML',
                        'IJCAI',
+                       'JAIR',
+                       'JMLR',
+                       'MLJ',
+                       'NAR',
                        'NIPS',
                        'UAI');
 
@@ -192,7 +197,22 @@ class pubSanityChecks extends pdHtmlPage {
             if (is_object($pub->category)
                 && ($pub->category->cat_id == 1)
                 && ($pub->rank_id > 2))
-                $bad_rank[] = $pub->pub_id;
+
+                // check if its a tier 1 conference
+                if (is_object($pub->venue)
+                    && isset($pub->venue->title)
+                    && ($pub->rank_id == 1)) {
+                    $is_tier1 = false;
+                    foreach ($this->tier1 as $venue) {
+                        if (strpos($pub->venue->title, $venue) !== false)
+                            $is_tier1 = true;
+                    }
+
+                    if (!$is_tier1)
+                        $bad_rank[] = $pub->pub_id;
+                }
+                else
+                    $bad_rank[] = $pub->pub_id;
         }
 
         echo '<h2>Conference publication entries with suspect rankings</h1>';
