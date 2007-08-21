@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.117 2007/07/09 19:17:27 aicmltec Exp $
+// $Id: pdPublication.php,v 1.118 2007/08/21 20:16:06 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -456,6 +456,18 @@ class pdPublication extends pdDbAccessor {
         $db->delete('additional_info', array('add_id' => $r->add_id),
                     'pdPublication::dbAttRemove');
 
+    }
+
+    function authorsToArray() {
+        assert('is_object($$this->authors)');
+        assert('count($$this->authors) > 0');
+
+        $authors = array();
+        foreach ($this->authors as $pub_auth) {
+            $authors[$pub_auth->author_id]
+                = $pub_auth->lastname . ', ' . $pub_auth->fistname;
+        }
+        return $authors;
     }
 
     function authorsToHtml($urlPrefix = null) {

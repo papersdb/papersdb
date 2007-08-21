@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.22 2007/03/23 20:45:23 aicmltec Exp $
+# Name: $Id: report.pl,v 1.23 2007/08/21 20:16:06 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -347,6 +347,7 @@ sub getPubsWithCriteria {
     }
 
     $statement .= $categoryCriteria
+        . 'AND (category.cat_id="1" OR category.cat_id="3")'
         . 'AND category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
         . 'AND publication.keywords LIKE "%machine learning%" '

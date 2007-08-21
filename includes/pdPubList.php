@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.24 2007/08/17 22:10:23 aicmltec Exp $
+// $Id: pdPubList.php,v 1.25 2007/08/21 20:16:06 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -40,6 +40,11 @@ class pdPubList {
         else if (isset($options['author_id'])) {
             $this->authorIdPubsDbLoad($db, $options['author_id'],
                                     $options['num_to_load']);
+        }
+        else if (isset($options['author_name'])) {
+            $this->authorNamePubsDbLoad($db, $options['author_name'],
+                                        $options['date_start'],
+                                        $options['date_end']);
         }
         else if (isset($options['venue_id'])) {
             $this->venuePubsDbLoad($db, $options['venue_id']);
@@ -153,6 +158,48 @@ class pdPubList {
             $this->list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
             $numToLoad--;
+        }
+
+        if (is_array($this->list))
+            uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+    }
+
+    /**
+     * Retrieves publications for a given author name.
+     */
+    function authorNamePubsDbLoad($db, $author_name, $date_start = null,
+                                  $date_end = null) {
+        assert('is_object($db)');
+        assert('$author_name != ""');
+
+        $conds = array('pub_author.pub_id=publication.pub_id',
+                       'author.author_id=pub_author.author_id',
+                       'author.name LIKE "' . $author_name . '%"');
+
+        if ($date_start != null) {
+            if ($date_end == null)
+                $date_end = date('Y-m-d');
+
+            $conds[]
+                = 'publication.published BETWEEN \'' . $date_start
+                . '\' AND \'' . $date_end . '\'';
+    }
+
+        $q = $db->select(array('publication', 'author', 'pub_author'),
+                         array('publication.pub_id', 'publication.title',
+                               'publication.paper', 'publication.abstract',
+                               'publication.keywords', 'publication.published',
+                               'publication.updated'),
+                         $conds,
+                         "pdPubList::authorIdPubsDbLoad",
+                         array('ORDER BY' => 'publication.published ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $this->list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
         }
 
         if (is_array($this->list))

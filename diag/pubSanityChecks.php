@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.8 2007/08/21 18:02:58 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.9 2007/08/21 20:16:06 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -25,7 +25,7 @@ class pubSanityChecks extends pdHtmlPage {
     var $tab;
     var $valid_tabs = array('Rankings', 'Categories', 'Tier 1',
                             'Journals', 'Conferences', 'Workshops',
-                            'Posters');
+                            'Posters', 'Non ML');
     var $tier1 = array('AAAI',
                        'AIJ',
                        'CCR',
@@ -37,6 +37,21 @@ class pubSanityChecks extends pdHtmlPage {
                        'NAR',
                        'NIPS',
                        'UAI');
+
+    var $years = array('0' => array('2002-09-01', '2003-08-31'),
+                       '1' => array('2003-09-01', '2004-08-31'),
+                       '2' => array('2004-09-01', '2006-03-31'),
+                       '3' => array('2006-04-01', '2007-03-31'));
+
+    var $pi_authors = array(
+        'Szepesvari, C' => array('2006-09-01', '2007-03-31'),
+        'Schuurmans, D' => array('2003-07-01', '2007-03-31'),
+        'Schaeffer, J'  => array('2002-09-01', '2007-03-31'),
+        'Bowling, M'    => array('2003-07-01', '2007-03-31'),
+        'Goebel, R'     => array('2002-09-01', '2007-03-31'),
+        'Sutton, R'     => array('2003-09-01', '2007-03-31'),
+        'Holte, R'      => array('2002-09-01', '2007-03-31'),
+        'Greiner, R'    => array('2002-09-01', '2007-03-31'));
 
 
     function pubSanityChecks() {
@@ -83,6 +98,10 @@ class pubSanityChecks extends pdHtmlPage {
 
             case $this->valid_tabs[6]:
                 $this->venuePosterRank();
+                break;
+
+            case $this->valid_tabs[7]:
+                $this->nonML();
                 break;
 
             default:
@@ -275,6 +294,29 @@ class pubSanityChecks extends pdHtmlPage {
         echo '<h2>Poster publication entries with suspect rankings</h1>';
         $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true);
+    }
+
+    function nonML() {
+        foreach ($this->pi_authors as $name => &$dates) {
+            $all_pubs = new pdPubList($this->db,
+                                      array('author_name' => $name,
+                                            'date_start' => $dates[0],
+                                            'date_end' => date('Y-m-d')));
+
+            if (count($all_pubs->list) == 0) continue;
+
+            $non_ml = array();
+
+            foreach ($all_pubs->list as &$pub) {
+                $keywords = strtolower($pub->keywords);
+                if (strpos($keywords, 'machine learning') === false)
+                    $non_ml[] = $pub->pub_id;
+            }
+
+            echo '<h2>Non Machine Learning papers for ' . $name . '</h1>';
+            $pub_list =  new pdPubList($this->db, array('pub_ids' => $non_ml));
+            echo $this->displayPubList($pub_list, true);
+        }
     }
 
     function selMenu() {
