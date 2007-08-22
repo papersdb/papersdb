@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.23 2007/08/21 20:16:06 aicmltec Exp $
+# Name: $Id: report.pl,v 1.24 2007/08/22 17:40:18 aicmltec Exp $
 #
 # See $USAGE.
 #
@@ -33,16 +33,17 @@ my $debugSql = 0;
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
              2 => ['2004-09-01', '2006-03-31'],
-             3 => ['2006-04-01', '2007-03-31']);
+             3 => ['2006-04-01', '2007-03-31'],
+             4 => ['2007-04-01', '2008-03-31']);
 
-my %pi_authors = ('Szepesvari, C' => ['2006-09-01', '2007-03-31'],
-                  'Schuurmans, D' => ['2003-07-01', '2007-03-31'],
-                  'Schaeffer, J'  => ['2002-09-01', '2007-03-31'],
-                  'Bowling, M'    => ['2003-07-01', '2007-03-31'],
-                  'Goebel, R'     => ['2002-09-01', '2007-03-31'],
-                  'Sutton, R'     => ['2003-09-01', '2007-03-31'],
-                  'Holte, R'      => ['2002-09-01', '2007-03-31'],
-                  'Greiner, R'    => ['2002-09-01', '2007-03-31']);
+my %pi_authors = ('Szepesv.ri, C' => ['2006-09-01', '2010-01-01'],
+                  'Schuurmans, D' => ['2003-07-01', '2010-01-01'],
+                  'Schaeffer, J'  => ['2002-09-01', '2010-01-01'],
+                  'Bowling, M'    => ['2003-07-01', '2010-01-01'],
+                  'Goebel, R'     => ['2002-09-01', '2010-01-01'],
+                  'Sutton, R'     => ['2003-09-01', '2010-01-01'],
+                  'Holte, R'      => ['2002-09-01', '2010-01-01'],
+                  'Greiner, R'    => ['2002-09-01', '2010-01-01']);
 
 my @pdf_authors = ('Botea, A',
                    'Brown, M',
@@ -347,7 +348,7 @@ sub getPubsWithCriteria {
     }
 
     $statement .= $categoryCriteria
-        . 'AND (category.cat_id="1" OR category.cat_id="3")'
+        . 'AND (category.cat_id="1" OR category.cat_id="3") '
         . 'AND category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
         . 'AND publication.keywords LIKE "%machine learning%" '
@@ -401,7 +402,7 @@ sub piReport {
                 foreach my $pub_author (@{ $pub{'authors'} }) {
                     foreach my $pi_author (keys %pi_authors) {
                         if (($pub_author =~ /$pi_author/)
-                            && pubDateValid($pi_author, $pub{'published'})) {
+                            && (pubDateValid($pi_author, $pub{'published'}))) {
                             push(@pub_authors, $pub_author);
                         }
                     }
