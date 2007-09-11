@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.118 2007/08/21 20:16:06 aicmltec Exp $
+// $Id: pdPublication.php,v 1.119 2007/09/11 14:52:06 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1070,6 +1070,7 @@ class pdPublication extends pdDbAccessor {
                 if (isset($venue_short))
                     $bibtex .= ':' . $venue_short;
 
+                $bibtex = preg_replace("/\s/", '', $bibtex);
                 $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
 
                 $arr = array();
