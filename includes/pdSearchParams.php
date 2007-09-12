@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.9 2007/03/27 22:03:15 aicmltec Exp $
+// $Id: pdSearchParams.php,v 1.10 2007/09/12 16:26:05 loyola Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -58,8 +58,9 @@ class pdSearchParams {
             if (isset($this->$param) && ($this->$param != '')) {
                 if (is_array($this->$param)) {
                     foreach ($this->$param as $key => $value) {
-                        $results[]
-                            = $param . '[' . $key . ']=' . urlencode($value);
+                        if (strlen($value) > 0)
+                            $results[] = $param . '[' . $key . ']='
+                                . urlencode($value);
                     }
                 }
                 else {
