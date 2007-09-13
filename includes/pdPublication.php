@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.119 2007/09/11 14:52:06 loyola Exp $
+// $Id: pdPublication.php,v 1.120 2007/09/13 16:54:34 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1041,6 +1041,10 @@ class pdPublication extends pdDbAccessor {
             else if (($this->category->category == 'In Book')
                      || ($this->category->category == 'Book')) {
                 $bibtex = '@book{';
+            }
+            else  {
+                $text = preg_replace('/\s/' , '', $this->category->category);
+                $bibtex = '@' . $text . '{';
             }
         }
 

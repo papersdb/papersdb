@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.62 2007/05/29 20:31:43 aicmltec Exp $
+// $Id: advanced_search.php,v 1.63 2007/09/13 16:54:34 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -222,6 +222,12 @@ class advanced_search extends pdHtmlPage {
 
         if (count($this->authorselect) > 0)
             $defaults['authorselect'] =& $this->authorselect;
+
+        if (empty($this->enddate)
+            || (empty($this->enddate['Y']) && ($this->enddate['M']))) {
+            $defaults['enddate']['Y'] = date('Y');
+            $defaults['enddate']['M'] = date('m');
+        }
 
         $this->form->setConstants($defaults);
     }
