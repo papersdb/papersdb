@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.9 2007/08/21 20:16:06 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.10 2007/10/03 20:01:17 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -55,7 +55,8 @@ class pubSanityChecks extends pdHtmlPage {
 
 
     function pubSanityChecks() {
-        parent::pdHtmlPage('sanity_checks');
+        parent::pdHtmlPage('pub_sanity_checks', 'Pub Sanity Checks',
+                           'diag/pubSanityChecks.php');
 
         if ($this->loginError) return;
 
