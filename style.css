@@ -195,14 +195,13 @@ div#nav {
   border-top: 3px solid #006633;
   clear: left;
   float: left;
-  font-size: 0.9em;
   margin: 10px 10px 10px 0;
   padding: 3px 5px 0 0;
   width: 180px;
 }
 
 div#nav ul {
-  font-size: 1.1em;
+  font-size: 0.9em;
   list-style: none;
   margin: 0 0 20px 0;
   padding: 0;
@@ -218,7 +217,7 @@ div#nav li a, div#nav li.selected {
   border-left: 4px solid #cccccc;
   color: #006633;
   display: block;
-  font-weight: bold;
+  font-weight: normal;
   height: 20px !important;
   padding: 0 0 0 10px;
   text-decoration: none;

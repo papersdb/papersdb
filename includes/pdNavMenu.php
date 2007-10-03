@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.17 2007/08/13 21:49:38 aicmltec Exp $
+// $Id: pdNavMenu.php,v 1.18 2007/10/03 19:55:47 aicmltec Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -48,13 +48,11 @@ class pdNavMenuItem {
 class pdNavMenu {
     var $nav_items;
 
-    // private date to this class
-    //
     // used to build the navigation menu and other things.
     //
     // kinda kludgey but works
     //
-    var $nav_items_init = array(
+    var $all_items = array(
         'home'               => array('Home', 'index.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'add_publication'    => array('Add Publication',
@@ -63,34 +61,11 @@ class pdNavMenu {
         'add_author'         => array('Add Author',
                                       'Admin/add_author.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
-        'author_confirm'     => array('Author Confirm',
-                                      'Admin/author_confirm.php',
-                                      PD_NAV_MENU_NEVER),
         'batch_add_authors'  => array('Batch Add Authors',
                                       'Admin/batch_add_authors.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),
         'add_venue'          => array('Add Venue', 'Admin/add_venue.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
-        'delete_publication' => array('Delete Publication',
-                                      'Admin/delete_pbublication.php',
-                                      PD_NAV_MENU_NEVER),
-        'delete_author'      => array('Delete Author',
-                                      'Admin/delete_author.php',
-                                      PD_NAV_MENU_NEVER),
-        'delete_category'    => array('Delete Category',
-                                      'Admin/delete_category.php',
-                                      PD_NAV_MENU_NEVER),
-        'delete_venue'       => array('Delete Venue', 'Admin/delete_venue.php',
-                                      PD_NAV_MENU_NEVER),
-        'delete_interest'    => array('Delete Interest',
-                                      'Admin/delete_interest.php',
-                                      PD_NAV_MENU_NEVER),
-        'edit_publication'   => array('Edit Publication',
-                                      'Admin/add_pub1.php',
-                                      PD_NAV_MENU_NEVER),
-        'edit_author'        => array('Edit Author',
-                                      'Admin/add_author.php',
-                                      PD_NAV_MENU_NEVER),
         'advanced_search'    => array('Advanced Search', 'advanced_search.php',
                                       PD_NAV_MENU_LOGIN_NOT_REQ),
         'search_results'    => array('Search Results',
@@ -112,33 +87,39 @@ class pdNavMenu {
         'edit_user'          => array('User Preferences',
                                       'Admin/edit_user.php',
                                       PD_NAV_MENU_LOGIN_REQUIRED),
-        'view_publication'   => array('View Publication',
-                                      'view_publication.php',
-                                      PD_NAV_MENU_NEVER),
-        'view_authors'       => array('Author Information',
-                                      'view_author.php',
-                                      PD_NAV_MENU_NEVER),
         'add_category'       => array('Add Category', 'Admin/add_category.php',
                                       PD_NAV_MENU_LEVEL_ADMIN),
         'sanity_checks'      => array('Sanity Checks',
-                                      'diag/pubSanityChecks.php',
-                                      PD_NAV_MENU_LEVEL_ADMIN),
-        'check_attachments'  => array('Check Attachments',
-                                      'diag/check_attachments.php',
-                                      PD_NAV_MENU_LEVEL_ADMIN),
-        'author_report'      => array('Author Report',
-                                      'diag/author_report.php',
-                                      PD_NAV_MENU_LEVEL_ADMIN),
-        'duplicatePubs'      => array('Duplicate Publications',
-                                      'diag/duplicatePubs.php',
-                                      PD_NAV_MENU_LEVEL_ADMIN),
-        'dbcreate'          => array('Create Database',
-                                      'diag/dbcreate_mysql.php',
+                                      'diag/sanity_checks.php',
                                       PD_NAV_MENU_LEVEL_ADMIN)
         );
 
+    var $not_logged_in = array(
+        'Home' ,
+        'Search' => array(
+            'advanced_search',
+            'search_results'),
+        'Publications' => array(
+            'add_publication',
+            'view_publications'),
+        'Authors' => array(
+            'add_author',
+            'batch_add_authors',
+            'all_authors'),
+        'Venue'  => array(
+            'add_venue',
+            'all_venues'
+            ),
+        'Categories'  => array(
+            'add_category',
+            'all_categories'
+            ),
+        'User'  => array(
+            'logout',
+            'edit_user')
+        );
     function pdNavMenu() {
-        foreach ($this->nav_items_init as $id => $item) {
+        foreach ($this->all_items as $id => $item) {
             $this->nav_items[$id]
                 = new pdNavMenuItem($id, $item[0], $item[1], $item[2]);
         }

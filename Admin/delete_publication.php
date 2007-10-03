@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.19 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: delete_publication.php,v 1.20 2007/10/03 19:55:47 aicmltec Exp $
 
 /**
  * Deletes a publication from the database.
@@ -28,7 +28,8 @@ class delete_publication extends pdHtmlPage {
     var $pub_id;
 
     function delete_publication() {
-        parent::pdHtmlPage('delete_publication');
+        parent::pdHtmlPage('delete_publication', 'Delete Publication',
+                           'Admin/delete_pbublication.php');
 
         if ($this->loginError) return;
 
