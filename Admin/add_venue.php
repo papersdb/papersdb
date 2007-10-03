@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.51 2007/07/09 18:43:51 aicmltec Exp $
+// $Id: add_venue.php,v 1.52 2007/10/03 17:49:47 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -191,7 +191,7 @@ class add_venue extends pdHtmlPage {
                                   array('size' => 50, 'maxlength' => 250));
 
                 $form->addElement('date', 'venue_date', 'Date:',
-                                  array('format' => 'YM', 'minYear' => '1985'));
+                                  array('format' => 'YM', 'minYear' => '1970'));
             }
 
             if (($this->venue->category->category == 'In Conference')
@@ -214,7 +214,7 @@ class add_venue extends pdHtmlPage {
                     $form->addElement('date', 'newOccurrenceDate[' . $i . ']',
                                       'Date:',
                                       array('format' => 'YM',
-                                            'minYear' => '1985'));
+                                            'minYear' => '1970'));
 
                     $form->addElement('text',
                                       'newOccurrenceUrl[' . $i . ']',

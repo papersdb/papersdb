@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.40 2007/08/17 22:10:23 aicmltec Exp $
+// $Id: add_pub3.php,v 1.41 2007/10/03 17:49:47 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -176,7 +176,7 @@ class add_pub3 extends add_pub_base {
         }
 
         $form->addElement('date', 'pub_date', 'Date:',
-                          array('format' => 'YM', 'minYear' => '1985'));
+                          array('format' => 'YM', 'minYear' => '1970'));
 
         $form->addElement('header', 'other_info', 'Other information', null);
 

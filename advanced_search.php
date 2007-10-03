@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.63 2007/09/13 16:54:34 aicmltec Exp $
+// $Id: advanced_search.php,v 1.64 2007/10/03 17:49:47 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -182,11 +182,11 @@ class advanced_search extends pdHtmlPage {
             array(
                 HTML_QuickForm::createElement(
                     'date', 'startdate', 'Start Date:',
-                    array('format' => 'YM', 'minYear' => '1985')),
+                    array('format' => 'YM', 'minYear' => '1970')),
                 HTML_QuickForm::createElement('static', null, null, 'and'),
                 HTML_QuickForm::createElement(
                     'date', 'enddate', 'End Date:',
-                    array('format' => 'YM', 'minYear' => '1985')),
+                    array('format' => 'YM', 'minYear' => '1970')),
                 ),
             null, 'Published Between:', '&nbsp;', false);
 

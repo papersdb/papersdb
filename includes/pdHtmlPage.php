@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.94 2007/08/17 22:10:23 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.95 2007/10/03 17:49:47 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -592,7 +592,7 @@ END;
 
         // create a new renderer because $form->defaultRenderer() creates
         // a single copy
-        $renderer =& new HTML_QuickForm_Renderer_Default();
+        $renderer = new HTML_QuickForm_Renderer_Default();
         $form->accept($renderer);
 
         return $renderer->toHtml();
