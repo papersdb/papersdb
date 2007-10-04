@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.30 2007/06/27 18:07:38 aicmltec Exp $
+// $Id: pdVenue.php,v 1.31 2007/10/04 18:41:50 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -194,7 +194,13 @@ class pdVenue extends pdDbAccessor {
 
     function addOccurrence($location, $date, $url) {
         assert('$location != ""');
-        assert('($this->type == "Conference") || ($this->type == "Workshop")');
+        assert('is_object($this->category)');
+
+        // make sure this venue is a conference or workshop
+        if (($this->category->category != "In Conference")
+            && ($this->category->category != "In Workshop")) {
+            assert('0');
+        }
 
         $o = new stdClass;
         $o->location = $location;
@@ -256,7 +262,9 @@ class pdVenue extends pdDbAccessor {
             }
         }
 
-        if (($this->type == 'Conference') && ($location == null)) {
+        if (is_object($this->category)
+            && ($this->category->category == 'Conference')
+            && ($location == null)) {
             $location = $this->data;
         }
 
