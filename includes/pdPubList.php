@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.25 2007/08/21 20:16:06 aicmltec Exp $
+// $Id: pdPubList.php,v 1.26 2007/10/04 19:57:59 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -315,6 +315,13 @@ class pdPubList {
                 if (is_object($pub->category))
                     switch ($pub->category->category) {
                         case 'In Conference':
+                            if ($pub->rank_id < 3)
+                                $app = ' (referreed)';
+                            else
+                                $app = ' (unreferreed)';
+                            $this->list[$pub->category->category . $app][] = $pub;
+                            break;
+
                         case 'In Journal':
                         case 'In Workshop':
                             $this->list[$pub->category->category][] = $pub;

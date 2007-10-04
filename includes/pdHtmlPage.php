@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.95 2007/10/03 17:49:47 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.96 2007/10/04 19:57:59 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -865,7 +865,10 @@ END;
 
         $col_desciptions = pdPublication::collaborationsGet($this->db);
 
-        $cat_display_order = array('In Journal', 'In Conference',
+        $cat_display_order = array('In Journal (referreed)',
+                                   'In Journal (unrefereed)',
+                                   'In Conference (referreed)',
+                                   'In Conference (unrefereed)',
                                    'In Workshop', 'Other');
 
         foreach ($cat_display_order as $category) {
