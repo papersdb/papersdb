@@ -1,12 +1,12 @@
-html {
-  font-size:100.01%;
+body, html {
+  background: #F2F2F2;
 }
 
 body {
-  background-color: #F2F2F2;
   font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size:0.75em;
+  font-size: small;
   margin: 0;
+  min-width: 800px;
   padding: 0;
 }
 
@@ -94,24 +94,60 @@ a:hover { text-decoration: underline; color: #666600;}
 .helpHeading a:visited { text-decoration: none; color: #FFFFFF;}
 .helpHeading a:hover { text-decoration: none; color: #EEEEEE;}
 
+div#container {
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 800px;
+}
+
 #statusbar {
-  background-image:url('statusbar.png');
-  color: #444444;
-  font-size: .7em;
-  font-weight: bold;
-  height: 3ex;
-  margin: 0;
-  padding: 0;
+  background:url(images/statusbar.png) no-repeat top left;
+  clear: both;
   text-align: right;
+  width: 100%;
+}
+
+
+#statusbar h1 {
+  color: #444444;
+  font-size:0.6em;
+  font-weight: bold;
+  margin: 0;
+  padding: 3px 6px;
 }
 
 #titlebar {
-  background-color: #006633;
+  background: #006633;
   border-bottom: 1px solid #FFCC00;
-  height: 3.5ex;
+  float: left;
+  list-style: none;
   margin: 0;
   padding: 0;
-  text-align: left;
+  width: 800px;
+}
+
+#compsci {
+  font-family: Times New Roman;
+  font-weight: bold;
+  float: left;
+  letter-spacing: 2px;
+  margin: 0;
+  padding: 8px 14px;
+}
+
+#uofa {
+  color: #000000;
+  font-family: Times New Roman;
+  font-weight: bold;
+  float: right;
+  letter-spacing: 2px;
+  margin: 0;
+  padding: 8px 14px;
+}
+
+#compsci a:link, #compsci a:visited, #uofa a:link, #uofa a:visited {
+  color: #ffffff;
+  text-decoration: none;
 }
 
 .highlight {
@@ -175,9 +211,9 @@ div.field:hover {
 }
 
 div#header {
-  background-image:url('header.png');
+  background:url(images/header.png) no-repeat top left;
+  clear: both;
   color: #006633;
-  height:40px;
   min-width:800px;
 }
 
@@ -185,17 +221,16 @@ div#header h1 {
   font-family: "Trebuchet MS", Verdana, Arial, Helvetica, sans-serif;
   font-size: 2em;
   font-weight: bold;
-  margin: 0 0 0 0;
-  padding: 4px 0 0 0;
+  margin: 0;
+  padding: 4px 8px;
   text-align: center;
 }
 
 div#nav {
   border-bottom: 2px solid #006633;
   border-top: 3px solid #006633;
-  clear: left;
   float: left;
-  margin: 10px 10px 10px 0;
+  margin: 8px 8px 10px 0;
   padding: 3px 5px 0 0;
   width: 180px;
 }
@@ -233,28 +268,22 @@ div#nav li.selected {
 }
 
 div#sel {
-  margin-bottom: 1em;
-  margin: 10px auto 0px auto;
-  z-index: 1;
-}
-
-div#sel {
-  margin-bottom: 1em;
+  clear: both;
+  font-size: 0.85em;
+  list-style: none;
   margin: 8px auto 0px auto;
   z-index: 1;
 }
 
 div#sel ul {
-  font-size: 0.9em;
-  list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 2px 3px;
   z-index: 2;
 }
 
 div#sel li {
   display: inline;
-  margin: 0 0.15em;
+  margin: 0 0.12em;
   position: relative;
 }
 
@@ -265,11 +294,11 @@ div#sel li a {
   color: #006633;
   float: left;
   font-weight: bold;
-  height: 3ex;
-  padding: 0 0 0 10px;
+  margin: 0;
+  padding: 0 0 0 8px;
   text-decoration: none;
   vertical-align: middle;
-  width: 18ex;
+  width: 16ex;
 }
 
 div#sel li a:hover,  div#sel li a.selected {
@@ -370,12 +399,13 @@ div#selalpha li a:visited {
 
 div#content {
   background-color: #FFFFFF;
+  float: right;
   line-height:1.4;
-  margin: 8px 0 5px 200px;
+  margin: 4px 0 3px 0;
   min-height: 500px;
-  min-width: 600px;
+  width: 600px;
   padding: 0 0 3px 0;
-  _width: 98%; /* IE6 bug */
+  /*_width: 98%; *//* IE6 bug */
 }
 
 div#footer {
@@ -386,7 +416,7 @@ div#footer {
   font-size:.7em;
   font-weight:bold;
   margin: 0;
-  min-width:800px;
+  width:800px;
   padding:4px 0;
   text-align:left;
 }
@@ -400,7 +430,7 @@ div#footer2 {
   color: #FFFFFF;
   font-size:.7em;
   font-weight:bold;
-  min-width:800px;
+  width:800px;
   padding:0 0;
   text-align:left;
 }

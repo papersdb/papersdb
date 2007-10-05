@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.96 2007/10/04 19:57:59 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.97 2007/10/05 21:28:52 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -494,15 +494,14 @@ class pdHtmlPage {
             $dir_prefix = '../';
 
         return <<<END
-            <div id="statusbar">{$status}</div>
-            <div id="titlebar">
-            <a href="http://www.uofaweb.ualberta.ca/science/">
-            <img class="floatLeft" src="{$dir_prefix}images/science.gif"
-            alt="Faculty of Science Home Page" border="0"/></a>
-            <a href="http://www.ualberta.ca/">
-            <img class="floatRight" src="{$dir_prefix}images/uofa_top.gif"
-            alt="University of Alberta Home Page" border="0"/></a>
-            </div>
+            <div id="container">
+            <div id="statusbar"><h1>{$status}</h1></div>
+            <ul id="titlebar">
+            <li id="compsci"><a href="http://www.uofaweb.ualberta.ca/science/">
+            FACULTY OF SCIENCE</a></li>
+            <li id="uofa"><a href="http://www.ualberta.ca/">
+            UNIVERSITY OF ALBERTA</a></li>
+            </ul>
 
             <div id="header">
             <h1>PapersDB</h1>
@@ -547,6 +546,7 @@ END;
                                      </td>
                                      </tr>
                                      </table>
+                                     </div>
                                      </div>
 
 END;
