@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.36 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: list_publication.php,v 1.37 2007/10/12 20:17:05 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -44,7 +44,7 @@ class list_publication extends pdHtmlPage {
 
         if (isset($this->year)) {
             $pub_list = new pdPubList(
-                $this->db, array('year' => $this->year));
+                $this->db, array('year_cat' => $this->year));
             $title = '<h1>Publications in ' .$this->year . '</h1>';
         }
         else if (isset($this->venue_id)) {
@@ -91,7 +91,7 @@ class list_publication extends pdHtmlPage {
             //
             // This is used when viewing an author.
             $pub_list = new pdPubList(
-                $this->db, array('author_id' => $this->author_id));
+                $this->db, array('author_id_cat' => $this->author_id));
 
             $auth = new pdAuthor();
             $auth->dbLoad($this->db, $this->author_id,
@@ -111,8 +111,8 @@ class list_publication extends pdHtmlPage {
             $this->pageError = true;
         }
 
-        echo $this->pubSelMenu() . "<br/>\n" . $title
-            . $this->displayPubList($pub_list);
+        echo $this->pubSelMenu() . "<br/>\n" . $title;
+        echo $this->displayPubList($pub_list);
     }
 
     function pubSelect($viewCat = null) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.27 2007/10/05 17:22:28 aicmltec Exp $
+// $Id: pdPubList.php,v 1.28 2007/10/12 20:17:05 aicmltec Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -21,6 +21,12 @@ class pdPubList {
     var $list;
     var $type;
     var $count;
+    protected static $cat_display_order = array('In Journal (referreed)',
+                                                'In Journal (unreferreed)',
+                                                'In Conference (referreed)',
+                                                'In Conference (unreferreed)',
+                                                'In Workshop',
+                                                'Other');
 
     /**
      * The publications that are loaded depend on the $options array.
@@ -40,6 +46,9 @@ class pdPubList {
         else if (isset($options['author_id'])) {
             $this->authorIdPubsDbLoad($db, $options['author_id'],
                                     $options['num_to_load']);
+        }
+        else if (isset($options['author_id_cat'])) {
+            $this->authorIdCatPubsDbLoad($db, $options['author_id_cat']);
         }
         else if (isset($options['author_name'])) {
             $this->authorNamePubsDbLoad($db, $options['author_name'],
@@ -63,6 +72,9 @@ class pdPubList {
         }
         else if (isset($options['year'])) {
             $this->yearPubsDBLoad($db, $options['year']);
+        }
+        else if (isset($options['year_cat'])) {
+            $this->yearCategoryPubsDBLoad($db, $options['year_cat']);
         }
         else if (isset($options['title']) && is_array($options['title'])) {
             $this->titlePubsDBLoad($db, $options['title']);
@@ -162,6 +174,33 @@ class pdPubList {
 
         if (is_array($this->list))
             uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+    }
+
+    /**
+     * Retrieves publications for a given author.
+     */
+    function authorIdCatPubsDbLoad($db, $author_id) {
+        assert('is_object($db)');
+        assert('$author_id != ""');
+
+        $q = $db->select(array('publication', 'pub_author'),
+                         'publication.pub_id',
+                         array('pub_author.pub_id=publication.pub_id',
+                               'pub_author.author_id'
+                               => quote_smart($author_id)),
+                         "pdPubList::authorIdPubsDbLoad",
+                         array('ORDER BY' => 'publication.published ASC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $pub_ids = array();
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $pub_ids[] = $r->pub_id;
+            $r = $db->fetchObject($q);
+        }
+
+        $this->arrayPubsDBLoadByCategory($db, $pub_ids);
     }
 
     /**
@@ -316,7 +355,7 @@ class pdPubList {
                     switch ($pub->category->category) {
                         case 'In Journal':
                         case 'In Conference':
-                            if ($pub->rank_id < 3)
+                            if ($pub->rank_id <= 3)
                                 $app = ' (referreed)';
                             else
                                 $app = ' (unreferreed)';
@@ -396,6 +435,26 @@ class pdPubList {
         }
     }
 
+    function yearCategoryPubsDBLoad($db, $year) {
+        assert('is_object($db)');
+
+        $q = $db->select('publication', 'pub_id',
+                         array('year(published)' => $year),
+                         "pdPubList::publicationsDbLoad",
+                         array( 'ORDER BY' => 'published DESC'));
+
+        if ($db->numRows($q) == 0) return;
+
+        $pub_ids = array();
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $pub_ids[] = $r->pub_id;
+            $r = $db->fetchObject($q);
+        }
+
+        $this->arrayPubsDBLoadByCategory($db, $pub_ids);
+    }
+
     function titlePubsDBLoad($db, $title) {
         assert('is_object($db)');
 
@@ -454,6 +513,10 @@ class pdPubList {
 
         if (is_array($this->list))
             uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+    }
+
+    function catDisplayOrder() {
+        return self::$cat_display_order;
     }
 }
 

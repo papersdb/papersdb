@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.97 2007/10/05 21:28:52 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.98 2007/10/12 20:17:05 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -865,13 +865,7 @@ END;
 
         $col_desciptions = pdPublication::collaborationsGet($this->db);
 
-        $cat_display_order = array('In Journal (referreed)',
-                                   'In Journal (unrefereed)',
-                                   'In Conference (referreed)',
-                                   'In Conference (unrefereed)',
-                                   'In Workshop', 'Other');
-
-        foreach ($cat_display_order as $category) {
+        foreach (pdPubList::catDisplayOrder() as $category) {
             $pubs =& $pub_list->list[$category];
 
             if (empty($pubs)) continue;
@@ -879,7 +873,7 @@ END;
             if ($category == 'Other')
                 $result .= "<h3>Other Categories</h3>\n";
             else
-            $result .= '<h3>' . $category . "</h3>\n";
+                $result .= '<h3>' . $category . "</h3>\n";
 
             $table = new HTML_Table(array('width' => '100%',
                                           'border' => '0',
