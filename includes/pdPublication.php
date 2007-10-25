@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.120 2007/09/13 16:54:34 aicmltec Exp $
+// $Id: pdPublication.php,v 1.121 2007/10/25 18:46:06 aicmltec Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -50,7 +50,7 @@ class pdPublication extends pdDbAccessor {
     var $updated;
     var $info;
     var $category;
-    var $pub_links;
+    var $related_pubs;
     var $web_links;
     var $dbLoadFlags;
     var $additional_info; // these are the additional attached files
@@ -167,7 +167,7 @@ class pdPublication extends pdDbAccessor {
                              "pdPublication::dbLoad");
             $r = $db->fetchObject($q);
             while ($r) {
-                $this->pub_links[] = $r->value;
+                $this->related_pubs[] = $r->value;
                 $r = $db->fetchObject($q);
             }
 
@@ -324,8 +324,8 @@ class pdPublication extends pdDbAccessor {
                                        'value'  => $link));
             }
 
-        if (count($this->pub_links ) > 0)
-            foreach ($this->pub_links as $pub_id) {
+        if (count($this->related_pubs ) > 0)
+            foreach ($this->related_pubs as $pub_id) {
                 array_push($arr, array('pub_id' => $this->pub_id,
                                        'type'   => 'int',
                                        'name'   => '-',
@@ -671,10 +671,6 @@ class pdPublication extends pdDbAccessor {
             unset($this->web_links[$name]);
     }
 
-    function addPubLink($pub_id) {
-        $this->pub_links[] = $pub_id;
-    }
-
     function paperDbUpdate($db, $paper) {
         $this->paper = $paper;
         $db->update('publication', array('paper' => $this->paper),
@@ -688,16 +684,24 @@ class pdPublication extends pdDbAccessor {
         unset($this->web_links[$text]);
     }
 
-    function pubLinkRemove($pub_id) {
-        if (count($this->pub_links) == 0) return;
+    function relatedPubsGet() {
+        return $this->related_pubs;
+    }
 
-        foreach ($this->pub_links as $key => $link_pub_id) {
+    function relatedPubAdd($pub_id) {
+        $this->related_pubs[] = $pub_id;
+    }
+
+    function relatedPubRemove($pub_id) {
+        if (count($this->related_pubs) == 0) return;
+
+        foreach ($this->related_pubs as $key => $link_pub_id) {
             if ($link_pub_id == $pub_id)
-                unset($this->pub_links[$key]);
+                unset($this->related_pubs[$key]);
         }
 
         // reindex
-        $this->pub_links = array_values($this->pub_links);
+        $this->related_pubs = array_values($this->related_pubs);
     }
 
     function paperExists() {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.80 2007/10/25 17:44:51 aicmltec Exp $
+// $Id: view_publication.php,v 1.81 2007/10/25 18:46:06 aicmltec Exp $
 
 /**
  * View Publication
@@ -171,20 +171,20 @@ class view_publication extends pdHtmlPage {
             }
         }
 
-        if (count($pub->pub_links) > 0) {
+        if (count($pub->relatedPubsGet()) > 0) {
             $c = 0;
-            foreach ($pub->pub_links as $link_pub_id) {
+            foreach ($pub->relatedPubsGet() as $related_pub_id) {
                 if ($c == 0)
-                    $label = 'Publication Links:';
+                    $label = 'Related Publication(s):';
                 else
                     $label = '';
-                $linked_pub = new pdPublication();
-                $linked_pub->dbLoad($this->db, $link_pub_id);
+                $rel_pub = new pdPublication();
+                $rel_pub->dbLoad($this->db, $related_pub_id);
 
                 $table->addRow(array($label, '<a href="view_publication.php?'
-                                     . 'pub_id=' . $linked_pub->pub_id . '" '
+                                     . 'pub_id=' . $rel_pub->pub_id . '" '
                                      . ' target="_blank">'
-                                     . $linked_pub->title . '</a>'));
+                                     . $rel_pub->title . '</a>'));
                 $c++;
             }
         }
@@ -196,7 +196,8 @@ class view_publication extends pdHtmlPage {
 
         $bibtex = $pub->getBibtex();
         if ($bibtex !== false)
-        $content .= '<h3>BibTeX</h3><pre>' . $bibtex . '</pre><p/>';
+        $content .= '<h3>BibTeX</h3><pre class="bibtex">' . $bibtex
+            . '</pre><p/>';
 
         $updateStr = $this->lastUpdateGet($pub);
         if ($updateStr != '') {

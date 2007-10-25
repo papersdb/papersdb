@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.37 2007/06/07 16:43:03 aicmltec Exp $
+// $Id: add_pub4.php,v 1.38 2007/10/25 18:46:06 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -54,7 +54,7 @@ class add_pub4 extends add_pub_base {
         $this->form =& $form;
         $this->formAddAttachments();
         $this->formAddWebLinks();
-        $this->formAddPubLinks();
+        $this->formRelatedPubs();
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
@@ -149,8 +149,10 @@ class add_pub4 extends add_pub_base {
                 HTML_QuickForm::createElement(
                     'file', 'new_att', null, array('size' => 35))
                 ),
-            'new_att_group', 'Attachment ' . ($num_att + 1) . ':', '&nbsp;',
-            false);
+            'new_att_group',
+            $this->helpTooltip('Attachment ' . ($num_att + 1) . ':',
+                               'otherAtt'),
+            '&nbsp;', false);
 
         $form->addElement('submit', 'add_att', 'Add Attachment');
     }
@@ -198,25 +200,25 @@ class add_pub4 extends add_pub_base {
                     array('size' => 25, 'maxlength' => 250))
                 ),
             'new_web_links_group',
-            'New Link :<br/><span class="small">name&nbsp;:&nbsp;url</span>',
+            $this->helpTooltip('New Link', 'webLinks') . ':'
+            . '<br/><span class="small">name&nbsp;:&nbsp;url</span>',
             '&nbsp;', false);
 
         $form->addElement('submit', 'add_web_link', 'Add Web Link');
         $form->addElement('hidden', 'num_web_links', $num_web_links);
     }
 
-    function formAddPubLinks() {
+    function formRelatedPubs() {
         $form =& $this->form;
 
-        // publication links
-        $num_pub_links = count($this->pub->pub_links);
+        $num_related_pubs = count($this->pub->related_pubs);
 
-        $form->addElement('header', 'pub_links_hdr', 'Publication Links',
-                          null);
+        $form->addElement('header', 'related_pubs_hdr',
+                          'Related Publication(s)', null);
 
-        if (count($this->pub->pub_links) > 0) {
+        if (count($this->pub->related_pubs) > 0) {
             $c = 0;
-            foreach ($this->pub->pub_links as $pub_id) {
+            foreach ($this->pub->related_pubs as $pub_id) {
                 $intPub = new pdPublication();
                 $result = $intPub->dbLoad($this->db, $pub_id);
 
@@ -225,13 +227,14 @@ class add_pub4 extends add_pub_base {
                 $form->addGroup(
                     array(
                         HTML_QuickForm::createElement(
-                            'static', 'curr_pub_link' . $c, null,
+                            'static', 'curr_related_pub' . $c, null,
                             $intPub->title),
                         HTML_QuickForm::createElement(
-                            'submit', 'remove_pub_link' . $c, 'Remove')
+                            'submit', 'remove_related_pub' . $c, 'Remove'),
+                        HTML_QuickForm::createElement(
+                            'hidden', 'related_pub_id' . $c, $intPub->pub_id)
                         ),
-                    'curr_web_links_group',
-                    $this->helpTooltip('Link ' . ($c+1), 'intLinks') . ':',
+                    'curr_related_pubs_group', 'Pub ' . ($c+1) . ':',
                     '&nbsp;', false);
                 $label = '';
                 $c++;
@@ -246,10 +249,13 @@ class add_pub4 extends add_pub_base {
             else
                 $options[$p->pub_id] = $p->title;
         }
-        $form->addElement('select', 'new_pub_link', 'New Link', $options);
+        $form->addElement('select', 'new_related_pub',
+                          $this->helpTooltip('New Pub', 'relatedPubs') . ':',
+                          $options);
 
-        $form->addElement('submit', 'add_pub_links', 'Add Publication Link');
-        $form->addElement('hidden', 'num_pub_links', $num_pub_links);
+        $form->addElement('submit', 'add_related_pubs',
+                          'Add Related Publication');
+        $form->addElement('hidden', 'num_related_pubs', $num_related_pubs);
     }
 
     function renderForm() {
@@ -302,9 +308,12 @@ class add_pub4 extends add_pub_base {
 
         $values = $form->exportValues();
 
+        debugVar('$values', $values);
+
         $element =& $form->getElement('uploadpaper');
         if (!isset($element->message) && ($element->isUploadedFile())) {
-            $basename = 'paper_' . $_FILES['uploadpaper']['name'] . '.' . $user->login;
+            $basename = 'paper_' . $_FILES['uploadpaper']['name'] . '.'
+                . $user->login;
             $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
             $_SESSION['paper'] = FS_PATH_UPLOAD . $basename;
         }
@@ -363,27 +372,28 @@ class add_pub4 extends add_pub_base {
         for ($i = 0; $i < $values['num_web_links']; $i++) {
             if (isset($values['remove_web_link' . $i])) {
                 $this->pub->delWebLink($values['curr_web_link_text' . $i]);
-                header('Location: add_pub4.php');
+
+                if (! $this->debug)
+                    header('Location: add_pub4.php');
                 return;
             }
         }
 
-        if ($values['new_pub_link'] > 0) {
-            $this->pub->addPubLink($values['new_pub_link']);
+        if ($values['new_related_pub'] > 0) {
+            $this->pub->relatedPubAdd($values['new_related_pub']);
         }
 
-        for ($i = 0; $i < $values['num_pub_links']; $i++) {
-            if (isset($values['remove_pub_link' . $i])) {
-                $this->pub->pubLinkRemove($values['curr_pub_link' . $i]);
-                header('Location: add_pub4.php');
+        for ($i = 0; $i < $values['num_related_pubs']; $i++) {
+            if (isset($values['remove_related_pub' . $i])) {
+                $this->pub->relatedPubRemove($values['related_pub_id' . $i]);
+
+                if (! $this->debug)
+                    header('Location: add_pub4.php');
                 return;
             }
         }
 
         if ($this->debug) {
-            echo 'element<pre>' . print_r($form, true) . '</pre>'
-                . 'sess<pre>' . print_r($_SESSION, true) . '</pre>'
-                . 'values<pre>' . print_r($values, true) . '</pre>';
             return;
         }
 
@@ -393,7 +403,7 @@ class add_pub4 extends add_pub_base {
         else if (isset($values['add_web_link'])) {
             header('Location: add_pub4.php');
         }
-        else if (isset($values['add_pub_links'])) {
+        else if (isset($values['add_related_pubs'])) {
             header('Location: add_pub4.php');
         }
         else if (isset($values['prev_step']))

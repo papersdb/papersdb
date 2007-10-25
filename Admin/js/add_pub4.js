@@ -2,23 +2,14 @@ var paperAtt =
      "Attach a postscript, PDF, or other version of the publication.";
 
 var otherAtt =
-    "In addition to the primary paper attachment, attach additional "
-    + "files to this publication.";
+    "Used to attach additional files to this publication entry.";
 
-var extraInfoHelp=
-    "Specify auxiliary information, to help classify this "
-    + "publication. Eg, &quot;with student&quot; or &quot;best "
-    + "paper&quot;, etc. Note that, by default, this information will "
-    + "NOT be shown when this document is presented. Separate using "
-    + "semiolons(;).";
-
-var extLinks=
+var webLinks=
     "Used to link this publication to an outside source such as a "
     + "website or a publication that is not in the current database.";
 
-var pubLinks =
-    "Used to link other publications in the database to this "
-    + "publication.";
+var relatedPubs =
+    "Creates a relationship between this publication and another publication that already has an entry in the database.";
 
 function dataKeep(num) {
     var form =  document.forms["add_pub4"];

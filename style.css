@@ -164,6 +164,11 @@ div#container {
   font-size:0.75em;
 }
 
+.bibtex {
+  font-size:1.0em;
+  width: 600px;
+}
+
 h1 {
   color: #006633;
 }
