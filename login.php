@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.32 2007/03/15 19:52:41 aicmltec Exp $
+// $Id: login.php,v 1.33 2007/10/25 20:36:02 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -20,7 +20,7 @@ require_once 'includes/pdPublication.php';
  */
 class login extends pdHtmlPage {
     var $redirect;
-    var $passwd_hash;
+    var $password_hash;
 
     function login() {
         parent::pdHtmlPage('login');
@@ -29,7 +29,7 @@ class login extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
 
-        $this->passwd_hash = "aicml";
+        $this->password_hash = "aicml";
 
         if ($this->access_level > 0) {
             echo 'You are already logged in as '
@@ -47,19 +47,19 @@ class login extends pdHtmlPage {
 
         $form->addElement('header', 'login_header', 'Login');
 
-        $form->addElement('text', 'loginid', 'Login:',
+        $form->addElement('text', 'username', 'Login:',
                           array('size' => 25, 'maxlength' => 40));
-        $form->addRule('loginid', 'login cannot be empty', 'required',
+        $form->addRule('username', 'login cannot be empty', 'required',
                        null, 'client');
-        $form->addElement('password', 'passwd', 'Password:',
+        $form->addElement('password', 'password', 'Password:',
                           array('size' => 25, 'maxlength' => 40));
-        $form->addRule('passwd', 'password cannot be empty', 'required',
+        $form->addRule('password', 'password cannot be empty', 'required',
                        null, 'client');
-        $form->addElement('submit', 'submit_login', 'Login');
+        $form->addElement('submit', 'submit_username', 'Login');
 
         $form->addElement('header', 'new_users', 'New Users Only');
 
-        $form->addElement('password', 'passwd_again', 'Confirm Password:',
+        $form->addElement('password', 'password_again', 'Confirm Password:',
                           array('size' => 25, 'maxlength' => 40));
         $form->addElement('text', 'email', 'email:',
                           array('size' => 25, 'maxlength' => 80));
@@ -100,16 +100,16 @@ class login extends pdHtmlPage {
         $values = $this->form->exportValues();
 
         if (!get_magic_quotes_gpc()) {
-            $values['loginid'] = addslashes($values['loginid']);
+            $values['username'] = addslashes($values['username']);
         }
-        $user->dbLoad($this->db, $values['loginid']);
+        $user->dbLoad($this->db, $values['username']);
 
-        if (isset($values['submit_login'])) {
+        if (isset($values['submit_username'])) {
           // check passwords match
-          $values['passwd'] = md5(stripslashes($this->passwd_hash
-                                               . $values['passwd']));
+          $values['password'] = md5(stripslashes($this->password_hash
+                                               . $values['password']));
 
-          if ($values['passwd'] != $user->password) {
+          if ($values['password'] != $user->password) {
             echo'Incorrect password, please try again.';
             $this->pageError = true;
             return;
@@ -117,7 +117,7 @@ class login extends pdHtmlPage {
 
           // if we get here username and password are correct,
           //register session variables and set last login time.
-          $values['loginid'] = stripslashes($values['loginid']);
+          $values['username'] = stripslashes($values['username']);
           $_SESSION['user'] = $user;
 
           // reset search results
@@ -148,34 +148,34 @@ class login extends pdHtmlPage {
             // check if username exists in database.
             if (isset($user->login)) {
                 echo 'Sorry, the username <strong>'
-                    . $values['loginid'] . '</strong> is already taken, '
+                    . $values['username'] . '</strong> is already taken, '
                     . 'please pick another one.';
                 $this->pageError = true;
                 return;
             }
 
             // check passwords match
-            if ($values['passwd'] != $values['passwd_again']) {
+            if ($values['password'] != $values['password_again']) {
                 echo 'Passwords did not match.';
                 $this->pageError = true;
                 return;
             }
 
             // no HTML tags in username, website, location, password
-            $values['loginid'] = strip_tags($values['loginid']);
-            $values['passwd']
-                = strip_tags($this->passwd_hash . $values['passwd']);
+            $values['username'] = strip_tags($values['username']);
+            $values['password']
+                = strip_tags($this->password_hash . $values['password']);
 
             // now we can add them to the database.  encrypt password
-            $values['passwd'] = md5($values['passwd']);
+            $values['password'] = md5($values['password']);
 
             if (!get_magic_quotes_gpc()) {
-                $values['passwd'] = addslashes($values['passwd']);
+                $values['password'] = addslashes($values['password']);
                 $values['email'] = addslashes($values['email']);
             }
 
-            $this->db->insert('user', array('login'    => $values['loginid'],
-                                      'password' => $values['passwd'],
+            $this->db->insert('user', array('login'    => $values['username'],
+                                      'password' => $values['password'],
                                       'email'    => $values['email'],
                                       'name'     => $values['realname']),
                         'login.php');
@@ -188,13 +188,13 @@ class login extends pdHtmlPage {
                      'The following user has requested editor access '
                      . 'level for PapersDB.' . "\n\n"
                      . 'name: ' . $values['realname'] . "\n"
-                     . 'login: ' . $values['loginid'] . "\n"
+                     . 'login: ' . $values['username'] . "\n"
                      . 'email: '. $values['email']);
             }
 
             echo '<h2>Login Request Submitted</h1>'
                 . 'A request to create your login <b>'
-                . $values['loginid'] . '</b> has been submitted. '
+                . $values['username'] . '</b> has been submitted. '
                 . 'A confirmation email will be sent to <code>'
                 . $values['email']
                 . '</code> when your account is ready. '

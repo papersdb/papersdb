@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.62 2007/09/12 16:26:05 loyola Exp $
+// $Id: search_publication_db.php,v 1.63 2007/10/25 20:36:02 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -219,7 +219,8 @@ class search_publication_db extends pdHtmlPage {
                 foreach ($fields as $field) {
                     $this->add_to_array(
                         'SELECT DISTINCT pub_id from publication WHERE ' . $field
-                        . ' LIKE ' . quote_smart('%'.$or_terms.'%'),
+                        . ' REGEXP '
+                        . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'),
                         $union_array);
                 }
 
@@ -230,9 +231,10 @@ class search_publication_db extends pdHtmlPage {
                 $this->venuesSearch('name', $or_terms, $union_array);
 
                 //Search Categories
-                $search_result = query_db('SELECT cat_id from category '
-                                          . 'WHERE category LIKE '
-                                          . quote_smart("%".$or_terms."%"));
+                $search_result = query_db(
+                    'SELECT cat_id from category WHERE category REGEXP '
+                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $cat_id = $search_array['cat_id'];
@@ -246,14 +248,15 @@ class search_publication_db extends pdHtmlPage {
 
                 //Search category specific fields
                 $this->add_to_array(
-                    'SELECT DISTINCT pub_id from pub_cat_info WHERE value LIKE '
-                                    . quote_smart("%".$or_terms."%"),
-                                    $union_array);
+                    'SELECT DISTINCT pub_id from pub_cat_info WHERE value '
+                    . 'REGEXP ' . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'),
+                    $union_array);
 
                 //Search Authors
                 $search_result = query_db(
-                    'SELECT author_id from author WHERE name LIKE '
-                    . quote_smart("%".$or_terms."%"));
+                    'SELECT author_id from author WHERE name REGEXP '
+                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     if ($search_array !== false) {
@@ -268,9 +271,11 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // search pub_ranking
-                $search_result = query_db('SELECT rank_id from pub_rankings '
-                                          . 'WHERE description LIKE '
-                                          . quote_smart("%".$or_terms."%"));
+                $search_result = query_db(
+                    'SELECT rank_id from pub_rankings '
+                    . 'WHERE description REGEXP '
+                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $rank_id = $search_array['rank_id'];
@@ -286,8 +291,9 @@ class search_publication_db extends pdHtmlPage {
                 // search venue_ranking
                 $search_result = query_db(
                     'SELECT venue_id from venue_rankings '
-                    . 'WHERE description LIKE '
-                    . quote_smart("%".$or_terms."%"));
+                    . 'WHERE description REGEXP '
+                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $venue_id = $search_array['venue_id'];
@@ -301,9 +307,11 @@ class search_publication_db extends pdHtmlPage {
                 }
 
                 // search collaborations
-                $search_result = query_db('SELECT col_id from collaboration '
-                                          . 'WHERE description LIKE '
-                                          . quote_smart("%".$or_terms."%"));
+                $search_result = query_db(
+                    'SELECT col_id from collaboration '
+                    . 'WHERE description REGEXP '
+                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+
                 while ($search_array
                        = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
                     $col_id = $search_array['col_id'];
@@ -372,7 +380,8 @@ class search_publication_db extends pdHtmlPage {
                     $search_query = "SELECT DISTINCT pub_id "
                         . "FROM pub_cat_info WHERE cat_id=" . quote_smart($cat_id)
                         . " AND info_id=" . quote_smart($info_id)
-                        . " AND value LIKE " . quote_smart("%".$info_name."%");
+                        . " AND value REGEXP "
+                        . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]');
                     $this->add_to_array($search_query, $temporary_array);
 
                     $this->result_pubs
