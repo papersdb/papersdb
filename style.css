@@ -30,7 +30,6 @@ li.wide {
 table {
   border: 1px;
   margin: 5px 0;
-  vertical-align: top;
 }
 
 table tr {
@@ -39,9 +38,8 @@ table tr {
 
 table td, table th  {
   font-size:1em;
-  padding: 2px;
+  padding: 0.2em;
   text-align: left;
-  vertical-align: top;
 }
 
 table.nomargins {
@@ -61,6 +59,13 @@ table.nomargins td, table th.nomargins  {
   padding: 0 0 0 0;
   text-align: left;
   vertical-align: top;
+}
+
+table.publist {
+  background-color: #F2F2F2;
+  border: 1px solid #AAAAAA;
+  width: 98%;
+  margin: 5px 1%;
 }
 
 td.middle {
@@ -169,16 +174,27 @@ div#container {
   width: 600px;
 }
 
+td.item {
+  color: #006633;
+  font-weight: bold;
+  padding: 0.2em 0;
+  vertical-align: top;
+  width: 2%;
+}
+
 h1 {
   color: #006633;
+  margin: 0.4em 0 0.1em;
 }
 
 h2 {
   color: #006633;
+  margin: 0.4em 0 0.1em;
 }
 
 h3 {
   color: #006633;
+  margin: 0.4em 0 0.1em;
 }
 
 td.emph {
@@ -196,13 +212,18 @@ td.emph_large {
 }
 
 td.footer {
-  font-size: 9px;
+  font-size: 0.6em;
   text-align: right;
 }
 
 td.publist, td.venuelist, td.catlist {
   padding: 1ex 1ex 1ex 1ex;
   vertical-align: middle;
+}
+
+td.publist {
+  font-size: 0.9em;
+  line-height:1.6;
 }
 
 div.field {
@@ -423,7 +444,7 @@ div#footer {
   margin: 0;
   width:800px;
   padding:4px 0;
-  text-align:left;
+  text-align: center;
 }
 
 div#footer a:link {
@@ -489,6 +510,7 @@ div#footer2 {
 
 pre {
   font-size: 1.25em;
+  margin: 0.5em 0;
 }
 
 /* required for WICK */
@@ -527,3 +549,4 @@ pre {
 .siwCredit {
   margin:0;padding:0;margin-top:10px;font-size:0.7em;color:black;
 }
+

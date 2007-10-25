@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.37 2007/10/12 20:17:05 aicmltec Exp $
+// $Id: list_publication.php,v 1.38 2007/10/25 23:43:41 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -142,12 +142,13 @@ class list_publication extends pdHtmlPage {
                 break;
 
             case 'author':
-                $table = new HTML_Table(array('class' => 'nomargins',
-                                              'width' => '100%'));
+                echo '<h2>Publications by Author:</h2>';
 
                 $al = new pdAuthorList($this->db);
 
                 for ($c = 65; $c <= 90; ++$c) {
+                    $table = new HTML_Table(array('class' => 'publist'));
+
                     $text = '';
                     foreach ($al->list as $auth_id => $name) {
                         if (substr($name, 0, 1) == chr($c))
@@ -155,23 +156,23 @@ class list_publication extends pdHtmlPage {
                                 . $auth_id . '">' . $name . '</a>&nbsp;&nbsp; ';
                     }
                     $table->addRow(array(chr($c), $text));
+                    $table->updateColAttributes(
+                        0, array('class' => 'item'), NULL);
+                    echo $table->toHtml();
                 }
-
-                $this->tableHighlits($table);
-
-                echo '<h2>Publications by Author:</h2>'
-                    . $table->toHtml();
                 break;
 
             case 'venue':
                 // publications by keyword
                 unset($table);
-                $table = new HTML_Table(array('class' => 'nomargins',
-                                              'width' => '100%'));
 
                 $vl = new pdVenueList($this->db);
 
+                echo '<h2>Publications by Venue:</h2>';
+
                 for ($c = 65; $c <= 90; ++$c) {
+                    $table = new HTML_Table(array('class' => 'publist'));
+
                     $text = '';
                     foreach ($vl->list as $vid => $v) {
                         if (substr($v, 0, 1) == chr($c))
@@ -179,12 +180,10 @@ class list_publication extends pdHtmlPage {
                                 . $vid . '">' . $v . '</a>&nbsp;&nbsp; ';
                     }
                     $table->addRow(array(chr($c), $text));
+                    $table->updateColAttributes(
+                        0, array('class' => 'item'), NULL);
+                    echo $table->toHtml();
                 }
-
-                $this->tableHighlits($table);
-
-                echo '<h2>Publications by Venue:</h2>'
-                    . $table->toHtml();
                 break;
 
             case 'category':
@@ -210,12 +209,13 @@ class list_publication extends pdHtmlPage {
             case 'keywords':
                 // publications by keyword
                 unset($table);
-                $table = new HTML_Table(array('class' => 'nomargins',
-                                              'width' => '100%'));
 
                 $kl = new pdPubList($this->db, array('keywords_list' => true));
 
+                echo '<h2>Publications by Keyword:</h2>';
+
                 for ($c = 65; $c <= 90; ++$c) {
+                    $table = new HTML_Table(array('class' => 'publist'));
                     $text = '';
                     foreach ($kl->list as $kw) {
                         if (substr($kw, 0, 1) == chr($c))
@@ -223,11 +223,10 @@ class list_publication extends pdHtmlPage {
                                 . $kw . '">' . $kw . '</a>&nbsp;&nbsp; ';
                     }
                     $table->addRow(array(chr($c), $text));
+                    $table->updateColAttributes(
+                        0, array('class' => 'item'), NULL);
+                    echo $table->toHtml();
                 }
-
-                $this->tableHighlits($table);
-
-                echo '<h2>Publications by Keyword:</h2>' . $table->toHtml();
                 break;
 
             default:

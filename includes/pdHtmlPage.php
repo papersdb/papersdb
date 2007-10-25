@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.99 2007/10/25 17:44:51 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.100 2007/10/25 23:43:41 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -791,22 +791,22 @@ END;
             return $this->displayPubListByCategory($pub_list, $enumerate, $max);
         }
 
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '0',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
-
         if (count($pub_list->list) == 0) {
             return 'No Publications';
         }
 
         $col_desciptions = pdPublication::collaborationsGet($this->db);
 
+        $result = '';
         $count = 0;
         foreach ($pub_list->list as $pub_id => $pub) {
             ++$count;
             $pub->dbload($this->db, $pub->pub_id);
+
+            $table = new HTML_Table(array('class' => 'publist',
+                                          'cellpadding' => '0',
+                                          'cellspacing' => '0'));
+            $table->setAutoGrow(true);
 
             $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
@@ -835,27 +835,19 @@ END;
                     . $additional[$pub_id] . '</span>';
 
             if ($enumerate)
-                $cells = array($count, $citation);
+                $cells = array($count . '.', $citation);
             else
                 $cells = array(null, $citation);
 
             $table->addRow($cells);
+            $table->updateColAttributes(0, array('class' => 'item'), NULL);
+
+            $result .= $table->toHtml();
 
             if (($max > 0) && ($count >= $max)) break;
         }
 
-        // now assign table attributes including highlighting for even and odd
-        // rows
-        for ($i = 0; $i < $table->getRowCount(); $i++) {
-            if ($i & 1)
-                $table->updateRowAttributes($i, array('class' => 'even'), true);
-            else
-                $table->updateRowAttributes($i, array('class' => 'odd'), true);
-        }
-        $table->updateColAttributes(0, array('class' => 'emph'), true);
-        $table->updateColAttributes(1, array('class' => 'publist'), true);
-
-        return $table->toHtml();
+        return $result;
     }
 
     function displayPubListByCategory($pub_list, $enumerate = true,
@@ -876,15 +868,14 @@ END;
             else
                 $result .= '<h3>' . $category . "</h3>\n";
 
-            $table = new HTML_Table(array('width' => '100%',
-                                          'border' => '0',
-                                          'cellpadding' => '0',
-                                          'cellspacing' => '0'));
-            $table->setAutoGrow(true);
-
             foreach ($pubs as $pub) {
                 ++$count;
                 $pub->dbLoad($this->db, $pub->pub_id);
+
+                $table = new HTML_Table(array('class' => 'publist',
+                                              'cellpadding' => '0',
+                                              'cellspacing' => '0'));
+                $table->setAutoGrow(true);
 
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
@@ -910,29 +901,17 @@ END;
                 }
 
                 if ($enumerate)
-                    $cells = array($count, $citation);
+                    $cells = array($count . '.', $citation);
                 else
                     $cells = array(null, $citation);
 
                 $table->addRow($cells);
+                $table->updateColAttributes(0, array('class' => 'item'), NULL);
+
+                $result .= $table->toHtml();
 
                 if (($max > 0) && ($count >= $max)) break;
             }
-
-            // now assign table attributes including highlighting for even and
-            // odd rows
-            for ($i = 0; $i < $table->getRowCount(); $i++) {
-                if ($i & 1)
-                    $table->updateRowAttributes($i, array('class' => 'even'),
-                                                true);
-                else
-                    $table->updateRowAttributes($i, array('class' => 'odd'),
-                                                true);
-            }
-            $table->updateColAttributes(0, array('class' => 'emph'), true);
-            $table->updateColAttributes(1, array('class' => 'publist'), true);
-
-            $result .= $table->toHtml();
         }
 
         return $result;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.3 2007/03/20 16:47:19 aicmltec Exp $
+// $Id: bibtex.php,v 1.4 2007/10/25 23:43:41 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -68,8 +68,7 @@ class bibtex extends pdHtmlPage {
                 return;
             }
 
-            $table->addRow(array($pub_count,
-                                 '<pre>' . $pub->getBibtex() . '</pre>'));
+            $table->addRow(array('<pre>' . $pub->getBibtex() . '</pre>'));
         }
 
         // now assign table attributes including highlighting for even and odd
@@ -79,7 +78,6 @@ class bibtex extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
             else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
         }
         $table->updateColAttributes(0, array('class' => 'publist'), true);
 
