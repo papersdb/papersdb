@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.37 2007/05/04 02:07:14 loyola Exp $
+// $Id: functions.php,v 1.38 2007/10/25 21:20:42 aicmltec Exp $
 
 /**
  * Common functions used by all pages.
@@ -97,7 +97,9 @@ function format80($text) {
         if (strlen($line) > 80) {
             while (strlen($line) > 80) {
                 $splt = strrpos(substr($line, 0, 80), ' ');
-                if ($splt !== false) {
+                if ($splt === false)
+                    break;
+                else {
                     $new_lines[] = substr($line, 0, $splt);
                     $line = $indent . $indent . substr($line, $splt+1);
                 }

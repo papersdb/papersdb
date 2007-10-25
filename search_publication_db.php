@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.63 2007/10/25 20:36:02 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.64 2007/10/25 21:20:42 aicmltec Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -212,119 +212,121 @@ class search_publication_db extends pdHtmlPage {
         foreach ($quick_search_array as $and_terms) {
             $union_array = array();
             foreach ($and_terms as $or_terms) {
-                //Search through the publication table
-                $fields = array('title', 'paper', 'abstract', 'keywords',
+                foreach (explode(' ', $or_terms) as $term) {
+                    //Search through the publication table
+                    $fields = array('title', 'paper', 'abstract', 'keywords',
                                     'extra_info');
 
-                foreach ($fields as $field) {
-                    $this->add_to_array(
-                        'SELECT DISTINCT pub_id from publication WHERE ' . $field
-                        . ' REGEXP '
-                        . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'),
-                        $union_array);
-                }
-
-                // search venues - title
-                $this->venuesSearch('title', $or_terms, $union_array);
-
-                // search venues - name
-                $this->venuesSearch('name', $or_terms, $union_array);
-
-                //Search Categories
-                $search_result = query_db(
-                    'SELECT cat_id from category WHERE category REGEXP '
-                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
-
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $cat_id = $search_array['cat_id'];
-                    if($cat_id != null) {
+                    foreach ($fields as $field) {
                         $this->add_to_array(
-                            'SELECT DISTINCT pub_id from pub_cat WHERE cat_id='
-                            . quote_smart($cat_id),
+                            'SELECT DISTINCT pub_id from publication WHERE ' . $field
+                            . ' RLIKE '
+                            . quote_smart('[[:<:]]'.$term.'[[:>:]]'),
                             $union_array);
                     }
-                }
 
-                //Search category specific fields
-                $this->add_to_array(
-                    'SELECT DISTINCT pub_id from pub_cat_info WHERE value '
-                    . 'REGEXP ' . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'),
-                    $union_array);
+                    // search venues - title
+                    $this->venuesSearch('title', $term, $union_array);
 
-                //Search Authors
-                $search_result = query_db(
-                    'SELECT author_id from author WHERE name REGEXP '
-                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
+                    // search venues - name
+                    $this->venuesSearch('name', $term, $union_array);
 
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    if ($search_array !== false) {
-                        $author_id = $search_array['author_id'];
-                        if($author_id != null) {
+                    //Search Categories
+                    $search_result = query_db(
+                        'SELECT cat_id from category WHERE category RLIKE '
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
+
+                    while ($search_array
+                           = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                        $cat_id = $search_array['cat_id'];
+                        if($cat_id != null) {
                             $this->add_to_array(
-                                'SELECT DISTINCT pub_id from pub_author '
-                                . 'WHERE author_id=' . quote_smart($author_id),
+                                'SELECT DISTINCT pub_id from pub_cat WHERE cat_id='
+                                . quote_smart($cat_id),
+                                $union_array);
+                        }
+                    }
+
+                    //Search category specific fields
+                    $this->add_to_array(
+                        'SELECT DISTINCT pub_id from pub_cat_info WHERE value '
+                        . 'RLIKE ' . quote_smart('[[:<:]]'.$term.'[[:>:]]'),
+                        $union_array);
+
+                    //Search Authors
+                    $search_result = query_db(
+                        'SELECT author_id from author WHERE name RLIKE '
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
+
+                    while ($search_array
+                           = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                        if ($search_array !== false) {
+                            $author_id = $search_array['author_id'];
+                            if($author_id != null) {
+                                $this->add_to_array(
+                                    'SELECT DISTINCT pub_id from pub_author '
+                                    . 'WHERE author_id=' . quote_smart($author_id),
+                                    $union_array);
+                            }
+                        }
+                    }
+
+                    // search pub_ranking
+                    $search_result = query_db(
+                        'SELECT rank_id from pub_rankings '
+                        . 'WHERE description RLIKE '
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
+
+                    while ($search_array
+                           = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                        $rank_id = $search_array['rank_id'];
+
+                        if (is_numeric($rank_id)) {
+                            $this->add_to_array(
+                                'SELECT DISTINCT pub_id from publication '
+                                . 'WHERE rank_id=' . quote_smart($rank_id),
+                                $union_array);
+                        }
+                    }
+
+                    // search venue_ranking
+                    $search_result = query_db(
+                        'SELECT venue_id from venue_rankings '
+                        . 'WHERE description RLIKE '
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
+
+                    while ($search_array
+                           = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                        $venue_id = $search_array['venue_id'];
+
+                        if (is_numeric($rank_id)) {
+                            $this->add_to_array(
+                                'SELECT DISTINCT pub_id from publication '
+                                . 'WHERE venue_id=' . quote_smart($venue_id),
+                                $union_array);
+                        }
+                    }
+
+                    // search collaborations
+                    $search_result = query_db(
+                        'SELECT col_id from collaboration '
+                        . 'WHERE description RLIKE '
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
+
+                    while ($search_array
+                           = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
+                        $col_id = $search_array['col_id'];
+                        if($col_id != null) {
+                            $this->add_to_array(
+                                'SELECT DISTINCT pub_id from pub_col '
+                                . 'WHERE col_id=' . quote_smart($col_id),
                                 $union_array);
                         }
                     }
                 }
-
-                // search pub_ranking
-                $search_result = query_db(
-                    'SELECT rank_id from pub_rankings '
-                    . 'WHERE description REGEXP '
-                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
-
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $rank_id = $search_array['rank_id'];
-
-                    if (is_numeric($rank_id)) {
-                        $this->add_to_array(
-                            'SELECT DISTINCT pub_id from publication '
-                            . 'WHERE rank_id=' . quote_smart($rank_id),
-                            $union_array);
-                    }
-                }
-
-                // search venue_ranking
-                $search_result = query_db(
-                    'SELECT venue_id from venue_rankings '
-                    . 'WHERE description REGEXP '
-                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
-
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $venue_id = $search_array['venue_id'];
-
-                    if (is_numeric($rank_id)) {
-                        $this->add_to_array(
-                            'SELECT DISTINCT pub_id from publication '
-                            . 'WHERE venue_id=' . quote_smart($venue_id),
-                            $union_array);
-                    }
-                }
-
-                // search collaborations
-                $search_result = query_db(
-                    'SELECT col_id from collaboration '
-                    . 'WHERE description REGEXP '
-                    . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]'));
-
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $col_id = $search_array['col_id'];
-                    if($col_id != null) {
-                        $this->add_to_array(
-                            'SELECT DISTINCT pub_id from pub_col '
-                            . 'WHERE col_id=' . quote_smart($col_id),
-                            $union_array);
-                    }
-                }
+                $this->result_pubs = array_intersect($this->result_pubs,
+                                                     $union_array);
             }
-            $this->result_pubs = array_intersect($this->result_pubs,
-                                                 $union_array);
         }
         // All results from quick search are in $this->result_pubs
         return $this->result_pubs;
@@ -381,7 +383,7 @@ class search_publication_db extends pdHtmlPage {
                         . "FROM pub_cat_info WHERE cat_id=" . quote_smart($cat_id)
                         . " AND info_id=" . quote_smart($info_id)
                         . " AND value REGEXP "
-                        . quote_smart('[[:<:]]'.$or_terms.'[[:>:]]');
+                        . quote_smart('[[:<:]]'.$term.'[[:>:]]');
                     $this->add_to_array($search_query, $temporary_array);
 
                     $this->result_pubs
@@ -599,7 +601,8 @@ class search_publication_db extends pdHtmlPage {
         assert('($field == "name") || ($field == "title")');
 
         $search_result = query_db('SELECT venue_id from venue WHERE ' . $field
-                                  . ' LIKE ' . quote_smart('%'. $value . '%'));
+                                  . ' RLIKE '
+                                  . quote_smart('[[:<:]]'. $value . '[[:>:]]'));
         while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
             $venue_id = $search_array['venue_id'];
             if ($venue_id != null) {
