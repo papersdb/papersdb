@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.32 2007/03/20 19:25:56 aicmltec Exp $
+// $Id: pdUser.php,v 1.33 2007/10/25 17:44:51 aicmltec Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -13,7 +13,7 @@
 require_once 'includes/pdDbAccessor.php';
 require_once 'pdAuthorList.php';
 
-define('PD_USER_OPTION_SHOW_EXTRA_INFO', 1);
+define('PD_USER_OPTION_SHOW_INTERNAL_INFO', 1);
 
 /**
  * Class that accesses user information from the database.
@@ -188,6 +188,10 @@ class pdUser extends pdDbAccessor {
                 $this->venue_ids[$r->venue_id] = $r->title;
             $r = $db->fetchObject($q);
         }
+    }
+
+    function showInternalInfo() {
+        return ($this->options & PD_USER_OPTION_SHOW_INTERNAL_INFO);
     }
 }
 

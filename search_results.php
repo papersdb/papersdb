@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.22 2007/06/06 22:28:39 aicmltec Exp $
+// $Id: search_results.php,v 1.23 2007/10/25 17:44:51 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -173,31 +173,33 @@ class search_results extends pdHtmlPage {
                 $table->addRow(array('<b>Author(s)</b>:',
                                      implode(' AND ', $values)));
 
+            if (isset($_SESSION['user'])
+                && ($_SESSION['user']->showInternalInfo())) {
+                // ranking
+                $label = 'Ranking:';
+                $rankings = pdPublication::rankingsGlobalGet($this->db);
 
-            // ranking
-            $label = 'Ranking:';
-            $rankings = pdPublication::rankingsGlobalGet($this->db);
+                foreach ($sp->paper_rank as $rank_id => $value) {
+                    if ($value != 'yes') continue;
 
-            foreach ($sp->paper_rank as $rank_id => $value) {
-                if ($value != 'yes') continue;
+                    $table->addRow(array($label, $rankings[$rank_id]));
+                    $label = '';
+                }
 
-                $table->addRow(array($label, $rankings[$rank_id]));
-                $label = '';
-            }
+                if ($sp->paper_rank_other != '') {
+                    $table->addRow(array($label, $sp->paper_rank_other));
+                }
 
-            if ($sp->paper_rank_other != '') {
-                $table->addRow(array($label, $sp->paper_rank_other));
-            }
+                // collaboration
+                $label = 'Collaboration:';
+                $collaborations = pdPublication::collaborationsGet($this->db);
 
-            // collaboration
-            $label = 'Collaboration:';
-            $collaborations = pdPublication::collaborationsGet($this->db);
+                foreach ($sp->paper_col as $col_id => $value) {
+                    if ($value != 'yes') continue;
 
-            foreach ($sp->paper_col as $col_id => $value) {
-                if ($value != 'yes') continue;
-
-                $table->addRow(array($label, $collaborations[$col_id]));
-                $label = '';
+                    $table->addRow(array($label, $collaborations[$col_id]));
+                    $label = '';
+                }
             }
 
             if (($sp->startdate != '') && ($sp->enddate != '')) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.64 2007/10/03 17:49:47 aicmltec Exp $
+// $Id: advanced_search.php,v 1.65 2007/10/25 17:44:51 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -136,33 +136,36 @@ class advanced_search extends pdHtmlPage {
         $form->addGroup($authElements, 'authors', 'Authors:', '<br/>',
                         false);
 
-        // rankings selections
-        $rankings = pdPublication::rankingsGlobalGet($this->db);
-        foreach ($rankings as $rank_id => $description) {
+        if (isset($_SESSION['user'])
+            && ($_SESSION['user']->showInternalInfo())) {
+            // rankings selections
+            $rankings = pdPublication::rankingsGlobalGet($this->db);
+            foreach ($rankings as $rank_id => $description) {
+                $radio_rankings[] = HTML_QuickForm::createElement(
+                    'advcheckbox', 'paper_rank[' . $rank_id . ']', null,
+                    $description, null, array('', 'yes'));
+            }
             $radio_rankings[] = HTML_QuickForm::createElement(
-                'advcheckbox', 'paper_rank[' . $rank_id . ']', null,
-                $description, null, array('', 'yes'));
+                'static', 'paper_ranking_label', null, 'other', -1);
+            $radio_rankings[] = HTML_QuickForm::createElement(
+                'text', 'paper_rank_other', null,
+                array('size' => 30, 'maxlength' => 250));
+
+            $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
+                            false);
+
+            // collaborations radio selections
+            $collaborations = pdPublication::collaborationsGet($this->db);
+
+            foreach ($collaborations as $col_id => $description) {
+                $radio_cols[] = HTML_QuickForm::createElement(
+                    'advcheckbox', 'paper_col[' . $col_id . ']', null,
+                    $description, null, array('', 'yes'));
+            }
+
+            $form->addGroup($radio_cols, 'group_collaboration',
+                            'Collaboration:', '<br/>', false);
         }
-        $radio_rankings[] = HTML_QuickForm::createElement(
-            'static', 'paper_ranking_label', null, 'other', -1);
-        $radio_rankings[] = HTML_QuickForm::createElement(
-            'text', 'paper_rank_other', null,
-            array('size' => 30, 'maxlength' => 250));
-
-        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
-                        false);
-
-        // collaborations radio selections
-        $collaborations = pdPublication::collaborationsGet($this->db);
-
-        foreach ($collaborations as $col_id => $description) {
-            $radio_cols[] = HTML_QuickForm::createElement(
-                'advcheckbox', 'paper_col[' . $col_id . ']', null,
-                $description, null, array('', 'yes'));
-        }
-
-        $form->addGroup($radio_cols, 'group_collaboration',
-                        'Collaboration:', '<br/>', false);
 
         $form->addElement('text', 'paper', 'Paper filename:',
                           array('size' => 60, 'maxlength' => 250));

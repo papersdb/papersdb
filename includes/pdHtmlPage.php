@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.98 2007/10/12 20:17:05 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.99 2007/10/25 17:44:51 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -811,7 +811,8 @@ END;
             $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
 
-            if ($this->access_level > 0) {
+            if (isset($_SESSION['user'])
+                && ($_SESSION['user']->showInternalInfo())) {
                 $citation .= '<br/><span style="font-size:80%">';
                 if (isset($pub->ranking))
                     $citation .= 'Ranking: ' . $pub->ranking;
@@ -888,7 +889,8 @@ END;
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
 
-                if ($this->access_level > 0) {
+                if (isset($_SESSION['user'])
+                    && ($_SESSION['user']->showInternalInfo())) {
                     $citation .= '<br/><span style="font-size:80%">';
                     if (isset($pub->ranking))
                         $citation .= 'Ranking: ' . $pub->ranking;

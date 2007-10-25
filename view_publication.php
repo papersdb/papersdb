@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.79 2007/10/03 19:55:47 aicmltec Exp $
+// $Id: view_publication.php,v 1.80 2007/10/25 17:44:51 aicmltec Exp $
 
 /**
  * View Publication
@@ -135,22 +135,25 @@ class view_publication extends pdHtmlPage {
 
         $table->addRow(array('Keywords:', $pub->keywordsGet()));
         $table->addRow(array('Category:', $category));
-        $table->addRow(array('Ranking:', $pub->ranking));
-
-        if (is_array($pub->collaborations)
-            && (count($pub->collaborations) > 0)) {
-            $col_desciptions = $pub->collaborationsGet($this->db);
-
-            foreach ($pub->collaborations as $col_id) {
-                $values[] = $col_desciptions[$col_id];
-            }
-
-            $table->addRow(array('Collaboration:', implode(', ', $values)));
-        }
 
         if (isset($_SESSION['user'])
-            && ($_SESSION['user']->options & PD_USER_OPTION_SHOW_EXTRA_INFO))
+            && ($_SESSION['user']->showInternalInfo())) {
+            $table->addRow(array('Ranking:', $pub->ranking));
+
+            if (is_array($pub->collaborations)
+                && (count($pub->collaborations) > 0)) {
+                $col_desciptions = $pub->collaborationsGet($this->db);
+
+                foreach ($pub->collaborations as $col_id) {
+                    $values[] = $col_desciptions[$col_id];
+                }
+
+                $table->addRow(array('Collaboration:',
+                                     implode(', ', $values)));
+            }
+
             $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
+        }
 
         if ($pub->user != '')
             $table->addRow(array('User Info:', $pub->user));
