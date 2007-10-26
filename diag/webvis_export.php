@@ -5,10 +5,11 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/functions.php';
+require_once 'includes/pdDb.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdPubList.php';
 
-$db = dbCreate(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
+$db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
 
 $authors = new pdAuthorList($db);
 

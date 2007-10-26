@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.33 2007/10/25 20:36:02 aicmltec Exp $
+// $Id: login.php,v 1.34 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Allows a user to log into the system.
@@ -23,7 +23,7 @@ class login extends pdHtmlPage {
     var $password_hash;
 
     function login() {
-        parent::pdHtmlPage('login');
+        parent::__construct('login');
 
         if ($this->loginError) return;
 

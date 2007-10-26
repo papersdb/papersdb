@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.16 2007/03/20 21:38:15 aicmltec Exp $
+// $Id: list_categories.php,v 1.17 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -21,17 +21,13 @@ require_once 'includes/pdCategory.php';
  */
 class list_categories extends pdHtmlPage {
     function list_categories() {
-        parent::pdHtmlPage('all_categories');
+        parent::__construct('all_categories');
 
         if ($this->loginError) return;
 
         $cat_list = new pdCatList($this->db);
 
-        $table = new HTML_Table(array('width' => '100%',
-                                            'border' => '0',
-                                            'cellpadding' => '6',
-                                            'cellspacing' => '0'));
-        $table->setAutoGrow(true);
+        echo '<h1>Publication Categories</h1>';
 
         foreach (array_keys($cat_list->list) as $cat_id) {
             unset($fields);
@@ -40,6 +36,9 @@ class list_categories extends pdHtmlPage {
             $category = new pdCategory();
             $result = $category->dbLoad($this->db, $cat_id);
             assert('$result');
+
+            $table = new HTML_Table(array('class' => 'publist'));
+            $table->setAutoGrow(true);
 
             $cells[] = '<b>' . $category->category . '</b><br/>';
 
@@ -53,24 +52,14 @@ class list_categories extends pdHtmlPage {
                 $cells[] = '';
             }
 
-            if ($this->access_level > 0) {
+            if ($this->access_level > 0)
                 $cells[] = $this->getCategoryIcons($category);
-            }
 
-            $table->addRow($cells, array('class' => 'catlist'));
+            $table->addRow($cells);
+            $table->updateColAttributes(0, array('class' => 'category'), NULL);
+            $table->updateColAttributes(2, array('class' => 'icons'), NULL);
+            echo $table->toHtml();
         }
-
-        // now assign table attributes including highlighting for even and odd
-        // rows
-        for ($i = 0; $i < $table->getRowCount(); $i++) {
-            if ($i & 1)
-                $table->updateRowAttributes($i, array('class' => 'even'), true);
-            else
-                $table->updateRowAttributes($i, array('class' => 'odd'), true);
-        }
-
-        echo '<h1>Publication Categories</h1>';
-        $this->table =& $table;
     }
 }
 

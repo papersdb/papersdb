@@ -1,4 +1,12 @@
-// $Id: add_venue.js,v 1.3 2007/05/11 20:12:10 aicmltec Exp $
+// $Id: add_venue.js,v 1.4 2007/10/26 22:03:15 aicmltec Exp $
+
+var categoryHelp=
+    "The category the venue falls under. For examplethis could "
+    + "be a conference, journal, a book chapter, etc.<br/><br/>"
+    + "Please use the drop down menu to select an appropriate "
+    + "category to classify the publication entry. If you cannot find an "
+    + "appropriate category you can select 'Add New Category' from "
+    + "the navigation menu.<br/><br/>";
 
 function dataKeep(num) {
     var qsArray = new Array();

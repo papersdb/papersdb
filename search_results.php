@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.23 2007/10/25 17:44:51 aicmltec Exp $
+// $Id: search_results.php,v 1.24 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -27,7 +27,7 @@ class search_results extends pdHtmlPage {
     var $debug = 0;
 
     function search_results() {
-        parent::pdHtmlPage('search_results');
+        parent::__construct('search_results');
 
         if ($this->loginError) return;
 

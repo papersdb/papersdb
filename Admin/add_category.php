@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.37 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: add_category.php,v 1.38 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -32,7 +32,7 @@ class add_category extends pdHtmlPage {
     var $info;
 
     function add_category() {
-        parent::pdHtmlPage('add_category');
+        parent::__construct('add_category');
 
         $this->loadHttpVars();
 

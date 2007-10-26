@@ -5,36 +5,38 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 require_once 'includes/functions.php';
+require_once 'includes/pdDb.php';
 require_once 'includes/pdPubList.php';
 
-$rankings = array('1' => array('AAAI', 'ACL', 'AIJ', 'ALT', 'Bioinformatics',
-                               'CCR', 'COLT', 'ComputingSurveys', 'IJCAI',
-                               'ICML', 'IUI', 'J.LogicProgramming',
-                               'JAIR', 'JMLR', 'KR', 'MLJ',  'NIPS',
-                               'NAR', 'PODS', 'UAI', 'UM', 'WWW'),
-                  '2' => array('AIIA', 'ANZIIS', 'ANZCIIS',
-                               'AustralianAI',
-                               'CAI', 'CCAI', 'CIBCB', 'ECCV', 'ECML',
-                               'FG', 'ICGI', 'ICMLA', 'IEEE-SMC(B)',
-                               'ICPR', 'ICRA', 'ICTAI',
-                               'IVCNZ',
-                               'JCP', 'PKDD',
-                               'Proceedings of Third UNB Artificial Intelligence Workshop'),
-                  '3' => array('AMFG2005', 'CHI2003 Workshop', 'CISGM', 'CLNL',
-                               'Conference on Information Sciences and Systems',
-                               'Continuum-ICML2003',
-                               'IUI-BeyondPersonalization',
-                               'ICCV-CVBIA', 'L&PinMP', 'MTNS', 'NIPS-BMforNL',
-                               'PSB', 'RTDS', 'SARA',
-                               'SRL2004',
-                               'UBDM', 'VOI-NIPS'),
-                  '4' => array('ACB Annual Meeting', 'ISMB',
-                               'MetabolomicsSymposium2006',
-                               'Metabolomics Society Meeting',
-                               'NYU-CRM',
-                               'TSC2007'));
+$rankings = array(
+    '1' => array('AAAI', 'ACL', 'AIJ', 'ALT', 'Bioinformatics',
+                 'CCR', 'COLT', 'ComputingSurveys', 'IJCAI',
+                 'ICML', 'IUI', 'J.LogicProgramming',
+                 'JAIR', 'JMLR', 'KR', 'MLJ',  'NIPS',
+                 'NAR', 'PODS', 'UAI', 'UM', 'WWW'),
+    '2' => array('AIIA', 'ANZIIS', 'ANZCIIS',
+                 'AustralianAI',
+                 'CAI', 'CCAI', 'CIBCB', 'ECCV', 'ECML',
+                 'FG', 'ICGI', 'ICMLA', 'IEEE-SMC(B)',
+                 'ICPR', 'ICRA', 'ICTAI',
+                 'IVCNZ',
+                 'JCP', 'PKDD',
+                 'Proceedings of Third UNB Artificial Intelligence Workshop'),
+    '3' => array('AMFG2005', 'CHI2003 Workshop', 'CISGM', 'CLNL',
+                 'Conference on Information Sciences and Systems',
+                 'Continuum-ICML2003',
+                 'IUI-BeyondPersonalization',
+                 'ICCV-CVBIA', 'L&PinMP', 'MTNS', 'NIPS-BMforNL',
+                 'PSB', 'RTDS', 'SARA',
+                 'SRL2004',
+                 'UBDM', 'VOI-NIPS'),
+    '4' => array('ACB Annual Meeting', 'ISMB',
+                 'MetabolomicsSymposium2006',
+                 'Metabolomics Society Meeting',
+                 'NYU-CRM',
+                 'TSC2007'));
 
-$db = dbCreate(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
+$db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDBdev');
 
 $pubs = new pdPubList($db);
 

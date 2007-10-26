@@ -25,7 +25,7 @@ class list_author extends pdHtmlPage {
     var $tab;
 
     function list_author() {
-        parent::pdHtmlPage('all_authors');
+        parent::__construct('all_authors');
 
         if ($this->loginError) return;
 

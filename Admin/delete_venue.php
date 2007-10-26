@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.23 2007/10/03 19:55:47 aicmltec Exp $
+// $Id: delete_venue.php,v 1.24 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -27,7 +27,7 @@ class delete_venue extends pdHtmlPage {
     var $venue_id;
 
     function delete_venue() {
-        parent::pdHtmlPage('delete_venue', 'Delete Venue',
+        parent::__construct('delete_venue', 'Delete Venue',
                            'Admin/delete_venue.php');
 
         if ($this->loginError) return;

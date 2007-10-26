@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.38 2007/10/25 23:43:41 aicmltec Exp $
+// $Id: list_publication.php,v 1.39 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Lists all the publications in database.
@@ -36,7 +36,7 @@ class list_publication extends pdHtmlPage {
     var $by;
 
     function list_publication() {
-        parent::pdHtmlPage('view_publications');
+        parent::__construct('view_publications');
 
         if ($this->loginError) return;
 

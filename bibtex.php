@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.4 2007/10/25 23:43:41 aicmltec Exp $
+// $Id: bibtex.php,v 1.5 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -27,7 +27,7 @@ class bibtex extends pdHtmlPage {
     var $pub_ids;
 
     function bibtex() {
-        parent::pdHtmlPage('bibtex', null, false);
+        parent::__construct('bibtex', null, false);
 
         if ($this->loginError) return;
 

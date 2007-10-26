@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.29 2007/06/11 16:24:14 aicmltec Exp $
+// $Id: list_venues.php,v 1.30 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This page displays all venues.
@@ -23,7 +23,7 @@ class list_venues extends pdHtmlPage {
     var $tab;
 
     function list_venues() {
-        parent::pdHtmlPage('all_venues');
+        parent::__construct('all_venues');
 
         if ($this->loginError) return;
 
@@ -50,21 +50,16 @@ class list_venues extends pdHtmlPage {
             return;
         }
 
-        $this->table = new HTML_Table(array('width' => '100%',
-                                            'border' => '0',
-                                            'cellpadding' => '12',
-                                            'cellspacing' => '0'));
-        $table =& $this->table;
-        $table->setAutoGrow(true);
-
         foreach ($venue_list->list as $venue) {
             // only show global venues
             if ($venue->v_usage == 'single') continue;
 
             $venue->dbLoad($this->db, $venue->venue_id);
 
-            unset($cells);
+            $table = new HTML_Table(array('class' => 'publist'));
+            $cells = array();
             $text = '';
+
             if ($venue->title != '')
                 $text .= '<b>' . $venue->title . '</b><br/>';
             $v_cat = $venue->categoryGet();
@@ -134,16 +129,10 @@ class list_venues extends pdHtmlPage {
                 $cells[] = $this->getVenueIcons($venue);
             }
 
-            $table->addRow($cells, array('class' => 'venuelist'));
-        }
+            $table->addRow($cells);
+            $table->updateColAttributes(1, array('class' => 'icons'), NULL);
 
-        // now assign table attributes including highlighting for even and odd
-        // rows
-        for ($i = 0; $i < $table->getRowCount(); $i++) {
-            if ($i & 1)
-                $table->updateRowAttributes($i, array('class' => 'even'), true);
-            else
-                $table->updateRowAttributes($i, array('class' => 'odd'), true);
+            echo $table->toHtml();
         }
     }
 }

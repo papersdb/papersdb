@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.11 2007/10/03 20:01:17 aicmltec Exp $
+// $Id: dbcreate_mysql.php,v 1.12 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Creates the PapersDB database.
@@ -25,7 +25,7 @@ class dbCreate extends pdHtmlPage {
     var $numNewInterests = 0;
 
     function dbCreate() {
-        parent::pdHtmlPage('dbcreate', 'Create Database',
+        parent::__construct('dbcreate', 'Create Database',
                            'diag/dbcreate_mysql.php');
 
         if ($this->loginError) return;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.22 2007/10/03 19:55:47 aicmltec Exp $
+// $Id: delete_category.php,v 1.23 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Deletes a category from the database.
@@ -31,7 +31,7 @@ class delete_category extends pdHtmlPage {
     var $cat_id;
 
     function delete_category() {
-        parent::pdHtmlPage('delete_category', 'Delete Category',
+        parent::__construct('delete_category', 'Delete Category',
                            'Admin/delete_category.php');
 
         if ($this->loginError) return;

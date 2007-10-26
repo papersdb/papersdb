@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.10 2007/05/29 19:56:11 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.11 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -23,7 +23,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class batch_add_authors extends pdHtmlPage {
     function batch_add_authors() {
-        parent::pdHtmlPage('batch_add_authors');
+        parent::__construct('batch_add_authors');
 
         if ($this->loginError) return;
 

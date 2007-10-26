@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.19 2007/06/08 17:02:23 aicmltec Exp $
+// $Id: add_pub_submit.php,v 1.20 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -28,7 +28,7 @@ class add_pub_submit extends pdHtmlPage {
     var $debug = 0;
 
     function add_pub_submit() {
-        parent::pdHtmlPage(null, 'Publication Submitted',
+        parent::__construct(null, 'Publication Submitted',
                            'Admin/add_pub_submit.php', PD_NAV_MENU_NEVER);
 
         if ($this->loginError) return;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.3 2007/10/03 19:55:47 aicmltec Exp $
+// $Id: author_confirm.php,v 1.4 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * The user reaches this page only when he is adding a new author, and the
@@ -26,7 +26,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  */
 class author_confirm extends pdHtmlPage {
     function author_confirm() {
-        parent::pdHtmlPage('author_confirm', 'Author Confirm',
+        parent::__construct('author_confirm', 'Author Confirm',
             'Admin/author_confirm.php');
 
         if ($this->loginError) return;

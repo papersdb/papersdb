@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.52 2007/10/03 17:49:47 aicmltec Exp $
+// $Id: add_venue.php,v 1.53 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -24,23 +24,23 @@ require_once 'Admin/add_pub_base.php';
  * @package PapersDB
  */
 class add_venue extends pdHtmlPage {
-    var $debug = 0;
-    var $venue_id = null;
-    var $venue;
-    var $cat_id;
-    var $title;
-    var $name;
-    var $url;
-    var $v_usage;
-    var $numNewOccurrences;
-    var $newOccurrenceLocation;
-    var $newOccurrenceDate;
-    var $newOccurrenceUrl;
-    var $newOccurrences;
-    var $referer;
+    private $debug = 0;
+    private $venue_id = null;
+    private $venue;
+    private $cat_id;
+    private $title;
+    private $name;
+    private $url;
+    private $v_usage;
+    private $numNewOccurrences;
+    private $newOccurrenceLocation;
+    private $newOccurrenceDate;
+    private $newOccurrenceUrl;
+    private $newOccurrences;
+    private $referer;
 
-    function add_venue() {
-        parent::pdHtmlPage('add_venue');
+    function __construct() {
+        parent::__construct('add_venue');
 
         if ($this->loginError) return;
 
@@ -274,7 +274,7 @@ class add_venue extends pdHtmlPage {
             $this->renderForm();
     }
 
-    function renderForm() {
+    private function renderForm() {
         $form =& $this->form;
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
@@ -382,7 +382,7 @@ class add_venue extends pdHtmlPage {
         $this->javascript();
     }
 
-    function processForm() {
+    private function processForm() {
         $form =& $this->form;
 
         $values = $form->exportValues();
@@ -472,7 +472,7 @@ class add_venue extends pdHtmlPage {
         }
     }
 
-    function javascript() {
+    private function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_venue.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);

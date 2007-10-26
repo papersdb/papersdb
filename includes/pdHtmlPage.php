@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.100 2007/10/25 23:43:41 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.101 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -11,6 +11,7 @@
 
 /** Requries classes to build the navigation menu. */
 require_once 'includes/functions.php';
+require_once 'includes/pdDb.php';
 require_once 'includes/pdUser.php';
 require_once 'includes/pdNavMenu.php';
 
@@ -30,56 +31,31 @@ require_once 'HTML/Table.php';
  * @package PapersDB
  */
 class pdHtmlPage {
-    var $page_id;
-    var $page_title;
-    var $relative_url;
-    var $redirectUrl;
-    var $redirectTimeout;
-    var $access_level;
-    var $login_level;
-    var $db;
-    var $loginError;
-    var $pageError;
-    var $table;
-    var $form;
-    var $renderer;
-    var $js;
-    var $useStdLayout;
-    var $hasHelpTooltips;
-    var $form_controller;
-    var $nav_menu;
-
-    var $db_tables = array('additional_info',
-                           'attachment_types',
-                           'author',
-                           'author_interest',
-                           'cat_info',
-                           'category',
-                           'collaboration',
-                           'extra_info',
-                           'help_fields',
-                           'info',
-                           'interest',
-                           'pointer',
-                           'pub_add',
-                           'pub_author',
-                           'pub_cat',
-                           'pub_cat_info',
-                           'pub_col',
-                           'pub_rankings',
-                           'publication',
-                           'user',
-                           'user_author',
-                           'venue',
-                           'venue_occur',
-                           'venue_rankings');
+    protected $page_id;
+    protected $page_title;
+    protected $relative_url;
+    protected $redirectUrl;
+    protected $redirectTimeout;
+    protected $access_level;
+    protected $login_level;
+    protected $db;
+    protected $loginError;
+    protected $pageError;
+    protected $table;
+    protected $form;
+    protected $renderer;
+    protected $js;
+    protected $useStdLayout;
+    protected $hasHelpTooltips;
+    protected $form_controller;
+    protected $nav_menu;
 
     /**
      * Constructor.
      */
-    function pdHtmlPage($page_id, $title = null, $relative_url = null,
-                        $login_level = PD_NAV_MENU_NEVER,
-                        $useStdLayout = true) {
+    function __construct($page_id, $title = null, $relative_url = null,
+                         $login_level = PD_NAV_MENU_NEVER,
+                         $useStdLayout = true) {
         if (MAINTENANCE == 1) {
             echo 'PapersDB is under maintenance, please check back later';
             exit;
@@ -105,29 +81,10 @@ class pdHtmlPage {
         // a derived page may already have needed access to the database prior
         // to invoking the base class constructor, so only create the database
         // object if not already set
-        if (!is_object($this->db))
-            $this->db = dbCreate();
-
-        if (!$this->db->isOpen()) {
-            switch (mysql_errno()) {
-                case 1045:
-                case 2000:
-                    echo 'failed due to authentication errors. '
-                        . 'Check database username and password<br>/';
-                    break;
-
-                case 2002:
-                case 2003:
-                default:
-                    // General connection problem
-                    echo 'failed with error [' . $errno . '] '
-                        . htmlspecialchars(mysql_error()) . '.<br>';
-                    break;
-            }
-            return;
+        if (!is_object($this->db)) {
+            $this->db = pdDb::newFromParams();
         }
 
-        $this->dbIntegrityCheck();
         $this->check_login();
         $this->nav_menu = new pdNavMenu();
 
@@ -164,38 +121,15 @@ class pdHtmlPage {
         }
     }
 
-    function dbIntegrityCheck() {
-        if (isset($_SESSION['dbcheck'])) return;
-
-        $q = $this->db->query('show tables');
-
-        if ($this->db->numRows($q) == 0) {
-            echo "Database error encountered: not all tables available";
-            die();
-        }
-
-        $member = 'Tables_in_' . DB_NAME;
-
-        $r = $this->db->fetchObject($q);
-        while ($r) {
-            $tables[] = $r->$member;
-            $r = $this->db->fetchObject($q);
-        }
-
-        if ($tables != $this->db_tables) {
-            echo "Database error encountered: not all tables available<br/>";
-            debugVar('valid', $this->db_tables);
-            debugVar('db', $tables);
-            die();
-        }
-        $_SESSION['dbcheck'] = true;
+    function __destruct() {
+        $this->db->close();
     }
 
     /**
      * Assigns $this->access_level according to whether the user is logged
      * in or not.
      */
-    function check_login() {
+    private function check_login() {
         $passwd_hash = "aicml";
         $this->access_level = 0;
 
@@ -234,7 +168,7 @@ class pdHtmlPage {
         }
     }
 
-    function stripSlashesArray($arr) {
+    private function stripSlashesArray($arr) {
         assert('is_array($arr)');
 
         $new_arr = array();
@@ -250,7 +184,7 @@ class pdHtmlPage {
         return $new_arr;
     }
 
-    function loadHttpVars($get = true, $post = true) {
+    protected function loadHttpVars($get = true, $post = true) {
         $arr = null;
         if ($get && ($_SERVER['REQUEST_METHOD'] == 'GET')) {
             if (!isset($_GET)) return;
@@ -273,7 +207,7 @@ class pdHtmlPage {
         }
     }
 
-    function htmlPageHeader() {
+    private function htmlPageHeader() {
         $result =
             "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
             . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
@@ -302,9 +236,9 @@ class pdHtmlPage {
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
 
-        $result .= '<link rel="stylesheet" href="' . $url_prefix . 'style.css" />' . "\n"
-            . "</head>\n"
-            . "\n<body>\n";
+        $result .= '<link rel="stylesheet" href="' . $url_prefix
+            . 'style.css" />' . "\n"
+            . "</head>\n\n<body>\n";
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
@@ -315,7 +249,7 @@ class pdHtmlPage {
         return $result;
     }
 
-    function htmlPageFooter() {
+    private function htmlPageFooter() {
         $result = '';
         if($this->useStdLayout) {
             $result .= '</div>' . $this->pageFooter();
@@ -353,7 +287,7 @@ class pdHtmlPage {
     // set up for google analytics
     //
     // note this code is added only on the real site
-    function googleAnalytics() {
+    private function googleAnalytics() {
         return '<script src="http://www.google-analytics.com/urchin.js" '
             . 'type="text/javascript">' . "\n"
             . '</script>' . "\n"
@@ -366,15 +300,19 @@ class pdHtmlPage {
     /**
      * Renders the page.
      */
-    function toHtml() {
+    public function toHtml() {
         if (isset($this->redirectUrl) && ($this->redirectTimeout == 0)) {
             session_write_close();
             header('Location: ' . $this->redirectUrl);
             return;
         }
 
-        $result = $this->htmlPageHeader() . ob_get_contents();
-        ob_end_clean();
+        $result = $this->htmlPageHeader();
+
+        if (ob_get_length() > 0) {
+            $result .= ob_get_contents();
+            ob_end_clean();
+        }
 
         if ($this->loginError)
             $result .= $this->loginErrorMessage();
@@ -389,13 +327,10 @@ class pdHtmlPage {
 
         $result .= $this->htmlPageFooter();
 
-        // assume no more need for the database connection
-        $this->db->close();
-
         return $result;
     }
 
-    function navMenu() {
+    private function navMenu() {
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
@@ -462,13 +397,13 @@ class pdHtmlPage {
         return $result;
     }
 
-    function loginErrorMessage() {
+    private function loginErrorMessage() {
         return '<br/>'
             . '<h4>You must be logged in to access this page.</h4>'
             . '</div>';
     }
 
-    function errorMessage() {
+    private function errorMessage() {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
@@ -477,7 +412,7 @@ class pdHtmlPage {
             . 'Please return to the <a href="' . $url . '">main page<a>.';
     }
 
-    function pageHeader() {
+    private function pageHeader() {
         if ($this->access_level > 0) {
             $status = 'Logged in as: ' . $_SESSION['user']->login;
 
@@ -510,7 +445,7 @@ class pdHtmlPage {
 END;
     }
 
-    function pageFooter() {
+    private function pageFooter() {
         $uofa_logo = 'images/uofa_logo.gif';
         $aicml_logo = 'images/aicml.gif';
 
@@ -552,14 +487,14 @@ END;
 END;
     }
 
-    function helpTooltip($text, $varname, $class = 'help') {
+    protected function helpTooltip($text, $varname, $class = 'help') {
         $this->hasHelpTooltips = true;
         return '<span class="' . $class . '">'
             . '<a href="javascript:void(0);" onmouseover="this.T_WIDTH=300;'
             . 'return escape(' . $varname . ')">' . $text . '</a></span>';
     }
 
-    function &confirmForm($name, $action = null, $label = 'Delete') {
+    protected function &confirmForm($name, $action = null, $label = 'Delete') {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
         $form->addGroup(
@@ -574,7 +509,7 @@ END;
         return $form;
     }
 
-    function quickSearchFormCreate() {
+    private function quickSearchFormCreate() {
         if (strstr($this->relative_url, '/') !== false)
             $script = '../search_publication_db.php';
         else
@@ -598,17 +533,17 @@ END;
         return $renderer->toHtml();
     }
 
-    function navMenuItemDisplay($page_id, $enable) {
+    protected function navMenuItemDisplay($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
         $this->nav_menu->nav_items[$page_id]->display = $enable;
     }
 
-    function navMenuItemEnable($page_id, $enable) {
+    protected function navMenuItemEnable($page_id, $enable) {
         assert('isset($this->nav_menu->nav_items[$page_id])');
         $this->nav_menu->nav_items[$page_id]->enabled = $enable;
     }
 
-    function getPubIcons($pub, $flags = 0xf) {
+    protected function getPubIcons($pub, $flags = 0xf) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -666,7 +601,7 @@ END;
         return $html;
     }
 
-    function getPubAddAttIcons($att) {
+    protected function getPubAddAttIcons($att) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -694,7 +629,7 @@ END;
         return $html;
     }
 
-    function getAuthorIcons($author, $flags = 0x7) {
+    protected function getAuthorIcons($author, $flags = 0x7) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
@@ -729,7 +664,7 @@ END;
         return $html;
     }
 
-    function getCategoryIcons($category, $flags = 0x3) {
+    protected function getCategoryIcons($category, $flags = 0x3) {
         if ($this->access_level < 1) return null;
 
         $html = '';
@@ -756,7 +691,7 @@ END;
         return $html;
     }
 
-    function getVenueIcons($venue, $flags = 0x3) {
+    protected function getVenueIcons($venue, $flags = 0x3) {
         if ($this->access_level < 1) return null;
 
         $html = '';
@@ -783,7 +718,7 @@ END;
         return $html;
     }
 
-    function displayPubList($pub_list, $enumerate = true, $max = -1,
+    protected function displayPubList($pub_list, $enumerate = true, $max = -1,
                             $additional = null) {
         assert('is_object($pub_list)');
 
@@ -803,6 +738,7 @@ END;
             ++$count;
             $pub->dbload($this->db, $pub->pub_id);
 
+            $cells = array();
             $table = new HTML_Table(array('class' => 'publist',
                                           'cellpadding' => '0',
                                           'cellspacing' => '0'));
@@ -835,12 +771,14 @@ END;
                     . $additional[$pub_id] . '</span>';
 
             if ($enumerate)
-                $cells = array($count . '.', $citation);
-            else
-                $cells = array(null, $citation);
+                $cells[] = $count . '.';
+
+            $cells[] = $citation;
 
             $table->addRow($cells);
-            $table->updateColAttributes(0, array('class' => 'item'), NULL);
+
+            if ($enumerate)
+                $table->updateColAttributes(0, array('class' => 'item'), NULL);
 
             $result .= $table->toHtml();
 
@@ -850,8 +788,8 @@ END;
         return $result;
     }
 
-    function displayPubListByCategory($pub_list, $enumerate = true,
-                                      $max = -1) {
+    private function displayPubListByCategory($pub_list, $enumerate = true,
+                                              $max = -1) {
         assert('is_object($pub_list)');
         $result = '';
         $count = 0;
@@ -872,6 +810,7 @@ END;
                 ++$count;
                 $pub->dbLoad($this->db, $pub->pub_id);
 
+                $cells = array();
                 $table = new HTML_Table(array('class' => 'publist',
                                               'cellpadding' => '0',
                                               'cellspacing' => '0'));
@@ -901,12 +840,15 @@ END;
                 }
 
                 if ($enumerate)
-                    $cells = array($count . '.', $citation);
-                else
-                    $cells = array(null, $citation);
+                    $cells[] = $count . '.';
+
+                $cells[] = $citation;
 
                 $table->addRow($cells);
-                $table->updateColAttributes(0, array('class' => 'item'), NULL);
+
+                if ($enumerate)
+                    $table->updateColAttributes(
+                        0, array('class' => 'item'), NULL);
 
                 $result .= $table->toHtml();
 
@@ -917,7 +859,7 @@ END;
         return $result;
     }
 
-    function alphaSelMenu($viewTab, $page) {
+    protected function alphaSelMenu($viewTab, $page) {
         $text = '<div id="selalpha"><ul>';
         for ($c = 65; $c <= 90; ++$c) {
             if ($c == ord($viewTab))

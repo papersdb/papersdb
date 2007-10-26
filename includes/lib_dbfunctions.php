@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.15 2007/04/27 22:15:53 aicmltec Exp $
+// $Id: lib_dbfunctions.php,v 1.16 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * DB connection is only hard coded here and in lib_functions.
@@ -18,20 +18,11 @@
 
 /** Requires the global defines and the class that accesses the databse. */
 require_once "defines.php";
-require_once 'Database.php';
-
-/**
- * Creates a database object to operate on the database.
- */
-function dbCreate($server = DB_SERVER, $user = DB_USER, $passwd = DB_PASSWD,
-                  $name = DB_NAME) {
-    return Database::newFromParams($server, $user, $passwd, $name);
-}
 
 /**
  * \todo this function should not be used anymore.
  *
- * \see dbCreate
+ * \see pdDB.php
  */
 function connect_db() {
 
@@ -45,7 +36,7 @@ function connect_db() {
 /**
  * \todo this function should not be used anymore.
  *
- * \see dbCreate
+ * \see pdDB.php
  */
 function disconnect_db($link) {
 	mysql_close($link);
@@ -54,36 +45,11 @@ function disconnect_db($link) {
 /**
  * \todo this function should not be used anymore.
  *
- * \see dbCreate
+ * \see pdDB.php
  */
 function query_db($query) {
 	$result = mysql_query($query) or die("Query failed : " . mysql_error());
 	return $result;
 }
-
-function wfDebug( $text, $logonly = false ) {
-    echo $text;
-}
-
-function wfDie($txt) { echo $txt . "<br/>\n"; }
-
-$wgProfiling = 0;
-
-function wfProfileIn($str) {}
-function wfProfileOut($str) { echo $str . "<br/>\n"; }
-function wfLogDBError( $text ) { echo $text . "<br/>\n"; }
-function wfGetSiteNotice() {}
-function wfErrorExit() {
-    //echo papersdb_backtrace();
-    die();
-}
-function wfSetBit( &$dest, $bit, $state = true ) {}
-function wfSuppressWarnings( $end = false ) {}
-function wfRestoreWarnings() {}
-function wfDebugDieBacktrace( $msg = '' ) {
-    echo papersdb_backtrace();
-    die($msg);
-}
-function wfSetVar( &$dest, $source ) {}
 
 ?>

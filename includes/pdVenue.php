@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.31 2007/10/04 18:41:50 loyola Exp $
+// $Id: pdVenue.php,v 1.32 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -10,6 +10,10 @@
  */
 require_once 'includes/pdDbAccessor.php';
 require_once 'includes/pdCategory.php';
+
+/* TODO: Explore the possibility of using a hierarchy in the database for
+ * workshops that are associated with conferences.
+ */
 
 /**
  * Class that accesses venue information from the database.
@@ -35,8 +39,8 @@ class pdVenue extends pdDbAccessor {
     /**
      * Constructor.
      */
-    function pdVenue($mixed = null) {
-        parent::pdDbAccessor($mixed);
+    function __construct($mixed = null) {
+        parent::__construct($mixed);
     }
 
     /**

@@ -179,7 +179,23 @@ td.item {
   font-weight: bold;
   padding: 0.2em 0;
   vertical-align: top;
-  width: 2%;
+  width: 3%;
+}
+
+td.category {
+  color: #006633;
+  font-weight: bold;
+  padding: 0.2em 0;
+  vertical-align: top;
+  width: 25%;
+}
+
+td.icons {
+  color: #006633;
+  font-weight: bold;
+  padding: 0.2em 0;
+  vertical-align: top;
+  width: 4%;
 }
 
 h1 {
@@ -354,47 +370,8 @@ div#selalpha li {
   margin: 0 0.15em;
   position: relative;
 }
-div#sel2 {
-  margin-bottom: 1em;
-  margin: 8px auto 0px auto;
-  z-index: 1;
-}
 
-div#sel2 ul {
-  font-size: 0.9em;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  z-index: 2;
-}
-
-div#sel2 li {
-  display: inline;
-  margin: 0 0.15em;
-  position: relative;
-}
-
-div#sel2 li a {
-  background: #f4f4f4;
-  border-bottom: 0;
-  border-left: 4px solid #cccccc;
-  color: #006633;
-  float: left;
-  font-weight: bold;
-  height: 3ex;
-  padding: 0 0 0 10px;
-  text-decoration: none;
-  vertical-align: middle;
-  width: 13ex;
-}
-
-div#sel2 li a:hover,  div#sel2 li a.selected {
-  background: #CCCC99;
-  border-left: 4px solid #006633;
-  color: #006633;
-}
-
-div#selalpha li a {
+div#selalpha ul li a {
   background: #f4f4f4;
   border-bottom: 0;
   border-left: 4px solid #cccccc;
@@ -416,6 +393,51 @@ div#selalpha li a:hover, div#selalpha li a.selected {
 }
 
 div#selalpha li a:visited {
+}
+
+div#sel2, div#seltiny {
+  margin-bottom: 1em;
+  margin: 8px auto 0px auto;
+  z-index: 1;
+}
+
+div#sel2 ul, div#seltiny ul {
+  font-size: 0.9em;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  z-index: 2;
+}
+
+div#seltiny ul {
+  font-size: 0.60em;
+}
+
+div#sel2 ul li, div#seltiny ul li{
+  display: inline;
+  margin: 0 0.15em;
+  position: relative;
+}
+
+div#sel2 ul li a,  div#seltiny ul li a {
+  background: #f4f4f4;
+  border-bottom: 0;
+  border-left: 4px solid #cccccc;
+  color: #006633;
+  float: left;
+  font-weight: bold;
+  height: 3ex;
+  padding: 0 0 0 10px;
+  text-decoration: none;
+  vertical-align: middle;
+  width: 13ex;
+}
+
+div#sel2 ul li a:hover,  div#sel2 ul li a.selected,
+div#seltiny ul li a:hover,  div#seltiny ul li a.selected {
+  background: #CCCC99;
+  border-left: 4px solid #006633;
+  color: #006633;
 }
 
 /* Fix IE. Hide from IE Mac \*/

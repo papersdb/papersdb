@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.62 2007/06/07 17:36:52 aicmltec Exp $
+// $Id: add_author.php,v 1.63 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -31,7 +31,7 @@ class add_author extends pdHtmlPage {
     var $interests;
 
     function add_author() {
-        parent::pdHtmlPage('add_author');
+        parent::__construct('add_author');
         $this->loadHttpVars();
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {

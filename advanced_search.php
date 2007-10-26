@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.65 2007/10/25 17:44:51 aicmltec Exp $
+// $Id: advanced_search.php,v 1.66 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -51,7 +51,7 @@ class advanced_search extends pdHtmlPage {
     var $enddate;
 
     function advanced_search() {
-        parent::pdHtmlPage('advanced_search');
+        parent::__construct('advanced_search');
 
         if ($this->loginError) return;
 

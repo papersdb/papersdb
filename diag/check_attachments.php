@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.9 2007/10/03 20:01:17 aicmltec Exp $
+// $Id: check_attachments.php,v 1.10 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -22,7 +22,7 @@ require_once 'includes/pdPubList.php';
  */
 class check_attachments extends pdHtmlPage {
     function check_attachments() {
-        parent::pdHtmlPage('check_attachments', 'Check Attachments',
+        parent::__construct('check_attachments', 'Check Attachments',
             'diag/check_attachments.php');
 
         if ($this->loginError) return;

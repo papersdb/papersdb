@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.10 2007/10/03 20:01:17 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.11 2007/10/26 22:03:15 aicmltec Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -55,7 +55,7 @@ class pubSanityChecks extends pdHtmlPage {
 
 
     function pubSanityChecks() {
-        parent::pdHtmlPage('pub_sanity_checks', 'Pub Sanity Checks',
+        parent::__construct('pub_sanity_checks', 'Pub Sanity Checks',
                            'diag/pubSanityChecks.php');
 
         if ($this->loginError) return;
@@ -321,7 +321,7 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     function selMenu() {
-        $text = '<div id="sel2"><ul>';
+        $text = '<div id="seltiny"><ul>';
         foreach($this->valid_tabs as $tab) {
             if ($tab == $this->tab)
                 $text .= '<li><a href="#" class="selected">'
