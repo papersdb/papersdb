@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.101 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: pdHtmlPage.php,v 1.102 2007/10/28 22:55:49 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -122,7 +122,8 @@ class pdHtmlPage {
     }
 
     function __destruct() {
-        $this->db->close();
+        if (is_object($this->db) && $this->db->isOpen())
+            $this->db->close();
     }
 
     /**

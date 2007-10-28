@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.41 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: index.php,v 1.42 2007/10/28 22:55:49 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -22,7 +22,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class index extends pdHtmlPage {
-    function index() {
+    public function __construct() {
         parent::__construct('home');
 
         if ($this->loginError) return;
@@ -31,7 +31,7 @@ class index extends pdHtmlPage {
         $this->pubByYears();
     }
 
-    function recentAdditions() {
+    private function recentAdditions() {
         $pub_list = new pdPubList($this->db, array('sort_by_updated' => true));
 
         if (!isset($pub_list->list)) return;
@@ -41,7 +41,7 @@ class index extends pdHtmlPage {
         echo $this->displayPubList($pub_list, false, 6);
     }
 
-    function pubByYears() {
+    private function pubByYears() {
         $pub_years = new pdPubList($this->db, array('year_list' => true));
 
         if (!isset($pub_years->list)) return;
