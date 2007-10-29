@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.18 2007/10/29 16:26:45 aicmltec Exp $
+// $Id: pdVenueList.php,v 1.19 2007/10/29 21:35:25 loyola Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -15,7 +15,7 @@
  * @package PapersDB
  */
 class pdVenueList {
-    var $list;
+    public $list;
 
     /**
      * Constructor.
@@ -30,11 +30,11 @@ class pdVenueList {
         }
         else if (isset($options['cat_id']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
-                             array('cat_id'    => $options['cat_id']),
+                             array('cat_id' => $options['cat_id']),
                              "pdVenueList::dbLoad");
         else
-            $q = $db->select('venue', array('venue_id', 'title', 'name'), null,
-                             "pdVenueList::dbLoad");
+            $q = $db->select('venue', array('venue_id', 'title', 'name'),
+                              null, "pdVenueList::dbLoad");
 
         if ($q === false) return;
         $r = $db->fetchObject($q);
@@ -121,7 +121,7 @@ class pdVenueList {
             uasort($this->list, array(get_class($this), 'sortVenuesObjs'));
     }
 
-    private function sortVenues($a, $b) {
+    private static function sortVenues($a, $b) {
         return (strtolower($a) > strtolower($b));
     }
 

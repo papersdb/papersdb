@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.1 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: pdDb.php,v 1.2 2007/10/29 21:35:25 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -39,12 +39,12 @@ class pdDb {
         'venue',
         'venue_occur',
         'venue_rankings',
-        'venue_vopt',
+        'venue_vopts',
         'vopts'
         );
 
-    public function newFromParams($server = DB_SERVER, $user = DB_USER,
-                                  $passwd = DB_PASSWD, $name = DB_NAME) {
+    public static function newFromParams($server = DB_SERVER, $user = DB_USER,
+                                         $passwd = DB_PASSWD, $name = DB_NAME) {
         self::$_db = Database::newFromParams($server, $user, $passwd, $name);
         self::$_db_name = $name;
 

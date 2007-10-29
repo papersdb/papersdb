@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.32 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: pdVenue.php,v 1.33 2007/10/29 21:35:25 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -21,25 +21,26 @@ require_once 'includes/pdCategory.php';
  * @package PapersDB
  */
 class pdVenue extends pdDbAccessor {
-    var $venue_id;
-    var $title;
-    var $name;
-    var $url;
-    var $type;
-    var $cat_id;
-    var $data;
-    var $editor;
-    var $date;
-    var $occurrences;
-    var $v_usage;
-    var $rank_id;
-    var $ranking;
-    var $category;
+    public $venue_id;
+    public $title;
+    public $name;
+    public $url;
+    public $type;
+    public $cat_id;
+    public $data;
+    public $editor;
+    public $date;
+    public $occurrences;
+    public $v_usage;
+    public $rank_id;
+    public $ranking;
+    public $category;
+    private static $vopts = null;
 
     /**
      * Constructor.
      */
-    function __construct($mixed = null) {
+    public function __construct($mixed = null) {
         parent::__construct($mixed);
     }
 
@@ -48,7 +49,7 @@ class pdVenue extends pdDbAccessor {
      *
      * Use flags to load individual tables
      */
-    function dbLoad($db, $id) {
+    public function dbLoad($db, $id) {
         assert('is_object($db)');
 
         if (count($this->occurrences) > 0)
@@ -97,6 +98,21 @@ class pdVenue extends pdDbAccessor {
             $result = $this->category->dbLoad($db, $this->cat_id);
             assert('$result');
         }
+        
+        if (self::$vopts == null)
+        	self::voptsGet($db);
+        
+        // venue options
+        $q = $db->select('venue_vopts', '*', array('venue_id' => $id),
+                         "pdVenue::dbLoadVenue");
+        if ($q !== false) {
+	        $r = $db->fetchObject($q);
+    	    while ($r) {
+    	    	$member = self::$vopts[$r->vopt_id];
+        	    $this->$member = $r->value;
+            	$r = $db->fetchObject($q);
+	        }
+        }
 
         return true;
     }
@@ -104,12 +120,34 @@ class pdVenue extends pdDbAccessor {
     /**
      *
      */
-    function dbSave($db) {
+    public function dbSave($db) {
         assert('is_object($db)');
 
         $values = $this->membersAsArray();
         unset($values['occurrences']);
         unset($values['category']);
+        
+        // venue options
+        $db->delete('venue_vopts', array('venue_id' => $this->venue_id),
+                    'pdVenue::dbSave');
+        
+        if (!empty($this->data)) {
+        	$vopt_id = 0;
+        	
+        	if ($this->type == 'Workshop')
+        		$vopt_id = 2;
+        	else if ($this->type == 'Journal')
+        		$vopt_id = 1;
+        	else if ($this->type != 'Conference')
+        		$vopt_id = 3;
+        	
+        	if ($vopt_id > 0)
+ 	      		$db->insert('venue_vopts', 
+    	           			array('venue_id' => $this->venue_id,
+        	       				  'vopt_id'  => $vopt_id,
+      			        		  'value'    => $this->data),
+                	         'pdVenue::dbSave');	
+        }        
 
         // rank_id
         $db->delete('venue_rankings', array('venue_id' => $this->venue_id),
@@ -141,17 +179,15 @@ class pdVenue extends pdDbAccessor {
                         'pdVenue::dbSave');
             $this->venue_id = $db->insertId();
             $this->dbUpdateOccurrence($db);
-            return $db->affectedRows();
         }
         else {
             $db->insert('venue', $values, 'pdVenue::dbSave');
             $this->venue_id = $db->insertId();
             $this->dbUpdateOccurrence($db);
-            return true;
         }
     }
 
-    function dbUpdateOccurrence($db) {
+    public function dbUpdateOccurrence($db) {
         if (isset($this->venue_id))
             $db->delete('venue_occur', array('venue_id' => $this->venue_id),
                         'pdVenue::dbSave');
@@ -171,7 +207,7 @@ class pdVenue extends pdDbAccessor {
     /**
      *
      */
-    function dbDelete ($db) {
+    public function dbDelete ($db) {
         assert('is_object($db)');
 
         $tables = array('venue', 'venue_occur', 'venue_rankings');
@@ -183,7 +219,7 @@ class pdVenue extends pdDbAccessor {
         return $db->affectedRows();
     }
 
-    function processVenueData($str) {
+    public function processVenueData($str) {
         $this->data = $str;
 
         if (preg_match("/([\w\s-]+)['-](\d+)/", $this->title, $venue_title)) {
@@ -196,7 +232,7 @@ class pdVenue extends pdDbAccessor {
         }
     }
 
-    function addOccurrence($location, $date, $url) {
+    public function addOccurrence($location, $date, $url) {
         assert('$location != ""');
         assert('is_object($this->category)');
 
@@ -214,11 +250,11 @@ class pdVenue extends pdDbAccessor {
         $this->occurrences[] = $o;
     }
 
-    function deleteOccurrences() {
+    public function deleteOccurrences() {
         unset($this->occurrences);
     }
 
-    function urlGet($year = null) {
+    public function urlGet($year = null) {
         $url = null;
 
         if (($year != null) && (count($this->occurrences) > 0)) {
@@ -254,7 +290,7 @@ class pdVenue extends pdDbAccessor {
         return $url;
     }
 
-    function locationGet($year = null) {
+    public function locationGet($year = null) {
         $location = null;
 
         if (($year != null) && (count($this->occurrences) > 0)) {
@@ -277,7 +313,7 @@ class pdVenue extends pdDbAccessor {
 
     // note: some venue names in the database contain URLs. This function
     // returns the name without the URL text.
-    function nameGet() {
+    public function nameGet() {
         if (strpos($this->name, '<a href=') !== false) {
             return preg_replace('/<a href=[\'"][^\'"]+[\'"]>([^<]+)(?:<\/a>)?(.*)/',
                                 '$1$2', $this->name);
@@ -285,7 +321,7 @@ class pdVenue extends pdDbAccessor {
         return $this->name;
     }
 
-    function rankingsGlobalGet(&$db) {
+    public function rankingsGlobalGet(&$db) {
         $q = $db->select('venue_rankings', '*', 'venue_id is NULL',
                          "pdVenue::dbLoad");
         assert('$q !== false');
@@ -299,7 +335,7 @@ class pdVenue extends pdDbAccessor {
         return $rankings;
     }
 
-    function categoryAdd($db, $cat_id) {
+    public function categoryAdd($db, $cat_id) {
         if ($cat_id > 0) {
             $this->category = new pdCategory();
             $result = $this->category->dbLoad($db, $cat_id);
@@ -307,13 +343,39 @@ class pdVenue extends pdDbAccessor {
         }
     }
 
-    function categoryGet() {
+    public function categoryGet() {
         if (!is_object($this->category))
             return null;
 
         if (strpos($this->category->category, 'In ') === 0)
             return substr($this->category->category, 3);
         return $this->category->category;
+    }
+    
+    private static function voptsGet($db) {
+        assert('is_object($db)');
+    
+    	if (is_array(self::$vopts)) return;
+    	
+        $q = $db->select('vopts', '*', null, "pdVenue::dbLoadVenue");
+        
+        if ($q === false) return null;
+        self::$vopts = array();
+        
+        $r = $db->fetchObject($q);
+        while ($r) {
+            self::$vopts[$r->vopt_id] = $r->name;
+            $r = $db->fetchObject($q);
+        }
+    }
+    
+    public function venueVoptsGet() {
+    	$result = array();
+    	foreach (self::$vopts as $vopt) {
+    		if (! empty($this->$vopt))
+    			$result[$vopt] = $this->$vopt;
+    	}
+    	return $result;
     }
 }
 

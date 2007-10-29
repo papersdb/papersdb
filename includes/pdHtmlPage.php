@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.102 2007/10/28 22:55:49 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.103 2007/10/29 21:35:25 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -8,6 +8,9 @@
  * @package PapersDB
  * @subpackage HTML_Generator
  */
+
+ini_set("include_path",  ini_get("include_path") . ':' . dirname(__FILE__) . '/..'
+    . ':' . dirname(__FILE__) . '/../pear');
 
 /** Requries classes to build the navigation menu. */
 require_once 'includes/functions.php';
@@ -31,7 +34,7 @@ require_once 'HTML/Table.php';
  * @package PapersDB
  */
 class pdHtmlPage {
-    protected $page_id;
+	protected $page_id;
     protected $page_title;
     protected $relative_url;
     protected $redirectUrl;
@@ -198,7 +201,7 @@ class pdHtmlPage {
 
         if (!is_array($arr) || (count($arr) == 0)) return;
 
-        foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+        foreach (array_keys(get_object_vars($this)) as $member) {
             if (isset($arr[$member])) {
                 if (is_array($arr[$member]))
                     $this->$member = $this->stripSlashesArray($arr[$member]);

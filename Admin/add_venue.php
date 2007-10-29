@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.53 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: add_venue.php,v 1.54 2007/10/29 21:35:25 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -9,7 +9,7 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path", ini_get("include_path") . ":..");
+ini_set("include_path", ini_get("include_path") . ':' . dirname(__FILE__) . '/..');
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
@@ -25,19 +25,19 @@ require_once 'Admin/add_pub_base.php';
  */
 class add_venue extends pdHtmlPage {
     private $debug = 0;
-    private $venue_id = null;
-    private $venue;
-    private $cat_id;
-    private $title;
-    private $name;
-    private $url;
-    private $v_usage;
-    private $numNewOccurrences;
-    private $newOccurrenceLocation;
-    private $newOccurrenceDate;
-    private $newOccurrenceUrl;
-    private $newOccurrences;
-    private $referer;
+    protected $venue_id = null;
+    protected $venue;
+    protected $cat_id;
+    protected $title;
+    protected $name;
+    protected $url;
+    protected $v_usage;
+    protected $numNewOccurrences;
+    protected $newOccurrenceLocation;
+    protected $newOccurrenceDate;
+    protected $newOccurrenceUrl;
+    protected $newOccurrences;
+    protected $referer;
 
     function __construct() {
         parent::__construct('add_venue');
@@ -277,7 +277,7 @@ class add_venue extends pdHtmlPage {
     private function renderForm() {
         $form =& $this->form;
 
-        foreach (array_keys(get_class_vars(get_class($this))) as $member) {
+        foreach (array_keys(get_object_vars($this)) as $member) {
             $defaults[$member] = $this->$member;
         }
 
