@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.103 2007/10/29 21:35:25 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.104 2007/10/30 16:35:51 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -9,8 +9,7 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path",  ini_get("include_path") . ':' . dirname(__FILE__) . '/..'
-    . ':' . dirname(__FILE__) . '/../pear');
+ini_set("include_path",  ini_get("include_path") . '..');
 
 /** Requries classes to build the navigation menu. */
 require_once 'includes/functions.php';
@@ -52,6 +51,21 @@ class pdHtmlPage {
     protected $hasHelpTooltips;
     protected $form_controller;
     protected $nav_menu;
+    
+	const HTML_TOP_CONTENT = '<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
+        <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"
+            "http://www.w3.org/TR/html4/strict.dtd\">
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang=\"en\">
+        <head>
+        <title>';
+
+	const GOOGLE_ANALYTICS = '
+		<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+        </script>
+        <script type="text/javascript">
+        _uacct = "UA-584619-1";
+        urchinTracker();
+        </script>';
 
     /**
      * Constructor.
@@ -212,14 +226,7 @@ class pdHtmlPage {
     }
 
     private function htmlPageHeader() {
-        $result =
-            "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
-            . "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"\n"
-            . "\"http://www.w3.org/TR/html4/strict.dtd\">\n"
-            . '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" '
-            . "lang=\"en\">\n"
-            . "<head>\n"
-            . "<title>\n";
+        $result = self::HTML_TOP_CONTENT;
 
         // change the HTML title tag if this is the index page
         if ($this->page_title == 'Home')
@@ -263,7 +270,7 @@ class pdHtmlPage {
         //
         // note this code is added only on the real site
         if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
-            $result .= $this->googleAnalytics();
+            $result .= self::GOOGLE_ANALYTICS;
         }
 
         $result .= "<script type=\"text/JavaScript\">\n"
@@ -286,19 +293,6 @@ class pdHtmlPage {
         $result .= '</body></html>';
 
         return $result;
-    }
-
-    // set up for google analytics
-    //
-    // note this code is added only on the real site
-    private function googleAnalytics() {
-        return '<script src="http://www.google-analytics.com/urchin.js" '
-            . 'type="text/javascript">' . "\n"
-            . '</script>' . "\n"
-            . '<script type="text/javascript">' . "\n"
-            . '_uacct = "UA-584619-1";' . "\n"
-            . 'urchinTracker();' . "\n"
-            . '</script>' . "\n";
     }
 
     /**
@@ -445,7 +439,6 @@ class pdHtmlPage {
             <div id="header">
             <h1>PapersDB</h1>
             </div>
-
 END;
     }
 
