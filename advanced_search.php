@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.67 2007/10/30 16:36:57 loyola Exp $
+// $Id: advanced_search.php,v 1.68 2007/10/30 16:37:38 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -91,8 +91,6 @@ class advanced_search extends pdHtmlPage {
     /**
      * Creates the from used on this page. The renderer is then used to
      * display the form correctly on the page.
-     *
-     * Note: jscalendar.php is used as a shorcut way of entering date values.
      */
     function createForm() {
         $user = null;
