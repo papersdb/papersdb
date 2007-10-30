@@ -1,4 +1,4 @@
-// $Id: add_venue.js,v 1.5 2007/10/30 21:24:58 loyola Exp $
+// $Id: add_venue.js,v 1.6 2007/10/30 22:26:23 loyola Exp $
 
 var categoryHelp=
     "The category the venue falls under. For examplethis could "
@@ -49,7 +49,6 @@ function dataKeep(num) {
 
     location.href = "http://{host}{self}?" + qsString;
 }
-
 function dataRemove(num) {
     var qsArray = new Array();
     var qsString = "";
@@ -64,7 +63,12 @@ function dataRemove(num) {
             && (element.type != "button")
             && (element.value != "") && (element.value != null)) {
 
-            if (element.name == "venue_id") {
+            if ((element.type == "checkbox") || (element.type == "radio")) {
+                if (element.checked) {
+                    qsArray.push(element.name + "=" + element.value);
+                }
+            }
+            else if (element.name == "venue_id") {
                 qsArray.push(element.name + "=" + element.value);
                 qsArray.push("status=change");
             }
@@ -87,8 +91,7 @@ function dataRemove(num) {
             }
             else if (element.name.indexOf("newOccurrenceDate") >= 0) {
                 if (element.name != "newOccurrenceDate[" + num + "]") {
-                    qsArray.push("newOccurrenceDate["
-                                 + indexDate + "]=" + element.value);
+                    qsArray.push(element.name + "=" + element.value);
                     indexDate++;
                 }
             }
@@ -98,6 +101,9 @@ function dataRemove(num) {
                                  + indexUrl + "]=" + element.value);
                     indexUrl++;
                 }
+            }
+            else {
+                qsArray.push(element.name + "=" + element.value);
             }
         }
     }

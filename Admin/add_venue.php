@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.56 2007/10/30 21:31:41 loyola Exp $
+// $Id: add_venue.php,v 1.57 2007/10/30 22:26:23 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -45,7 +45,7 @@ class add_venue extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars();
-
+        
         if (!isset($this->referer)) {
             $referer = getenv('HTTP_REFERER');
             if (strpos($referer, 'list_venues.php') !== false) {
@@ -96,12 +96,6 @@ class add_venue extends pdHtmlPage {
             $label = 'Add Venue';
         }
 
-        if (is_object($this->venue->category)
-            && (($this->venue->category->category == 'In Conference')
-                || ($this->venue->category->category == 'In Workshop')))
-            $label .= '&nbsp;<span class="small"><a href="javascript:dataKeep('
-                . ($this->newOccurrences+1) .')">[Add Occurrence]</a></span>';
-
         $form->addElement('header', null, $label);
 
         if (!empty($this->venue_id)) {
@@ -118,6 +112,8 @@ class add_venue extends pdHtmlPage {
             if (strpos($category, 'In ') === 0)
                 $category_list->list[$key] = substr($category, 3);
         }
+        
+        $onchange = 'javascript:dataKeep(' . $this->newOccurrences .');';
 
         $form->addElement(
             'select', 'cat_id',
@@ -125,7 +121,7 @@ class add_venue extends pdHtmlPage {
             array(''  => '--- Please Select a Category ---',
                   '-1' => '-- No Category --')
             + $category_list->list,
-            array('onchange' => 'dataKeep();'));
+            array('onchange' => $onchange));
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $form->addElement('advcheckbox', 'v_usage', 'Usage:',
@@ -245,6 +241,14 @@ class add_venue extends pdHtmlPage {
                 array('onclick' => "location.href='" . $url . "';"));
             $buttons[] = HTML_QuickForm::createElement(
                 'reset', 'reset', 'Reset');
+            
+	        if (is_object($this->venue->category)
+    	        && (($this->venue->category->category == 'In Conference')
+        	        || ($this->venue->category->category == 'In Workshop')))               	
+              	$buttons[] = HTML_QuickForm::createElement(                	
+                	'button', 'addOccurrence', 'Add Occurrence',
+                    'onClick=dataKeep(' . ($this->newOccurrences+1) . ');');
+              	
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'next_step', 'Next Step >>');
 
@@ -261,13 +265,21 @@ class add_venue extends pdHtmlPage {
                 $label = 'Submit';
             else
                 $label = 'Add Venue';
+            
+            $buttons[] = HTML_QuickForm::createElement(
+            	'reset', 'Reset', 'Reset');
+            
+	        if (is_object($this->venue->category)
+    	        && (($this->venue->category->category == 'In Conference')
+        	        || ($this->venue->category->category == 'In Workshop')))               	
+              	$buttons[] = HTML_QuickForm::createElement(                	
+                	'button', 'addOccurrence', 'Add Occurrence',
+                    'onClick=dataKeep(' . ($this->newOccurrences+1) . ');');
 
-            $form->addGroup(
-                array(
-                    HTML_QuickForm::createElement('reset', 'Reset', 'Reset'),
-                    HTML_QuickForm::createElement('submit', 'Submit', $label)
-                    ),
-                'submit_group', null, '&nbsp;', false);
+            $buttons[] = HTML_QuickForm::createElement(
+            	'submit', 'Submit', $label);
+
+            $form->addGroup($buttons, 'submit_group', null, '&nbsp;', false);
         }
 
         if ($form->validate())
@@ -330,7 +342,7 @@ class add_venue extends pdHtmlPage {
                         $arr['newOccurrenceUrl'][$i]
                             = $this->newOccurrenceUrl[$i];
                     }
-                }
+                }                
             }
             else if (count($this->venue->occurrences) > 0) {
                 $c = 0;
@@ -356,7 +368,7 @@ class add_venue extends pdHtmlPage {
             $curdate = array('Y' => date('Y'), 'M' => date('m'));
             $arr = array('venue_date' => $curdate);
             for ($i = 0; $i < $this->newOccurrences; ++$i) {
-                if (isset($this->numNewOccurrences[$i])) {
+                if (isset($this->newOccurrenceLocation[$i])) {
                     $arr['newOccurrenceLocation'][$i]
                         = $this->newOccurrenceLocation[$i];
                     $arr['newOccurrenceDate'][$i]
