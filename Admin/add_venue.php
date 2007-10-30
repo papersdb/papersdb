@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.55 2007/10/30 21:24:58 loyola Exp $
+// $Id: add_venue.php,v 1.56 2007/10/30 21:31:41 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -179,6 +179,10 @@ class add_venue extends pdHtmlPage {
     	    if (!empty($vopts) && (count($vopts) > 0)) {
         		foreach ($vopts as $vopt) {
 			   	    $name = strtolower(preg_replace('/\s+/', '_', $vopt));
+			   	    
+			   	    if (($name == 'location') && ($this->newOccurrences > 0))
+			   	    	continue;
+			   	    
     		    	$form->addElement('text', $name, $vopt . ':',
         	                          array('size' => 50, 'maxlength' => 250));
 	        	}
@@ -308,7 +312,11 @@ class add_venue extends pdHtmlPage {
             	$vopt_names = $this->venue->voptsGet();
             	foreach ($this->venue->options as $vopt_id => $value) {
     		    	$name = strtolower(preg_replace('/\s+/', '_', $vopt_names[$vopt_id]));
-        			$arr[$name] = $value;
+    		    	
+			   	    if (($name == 'location') && ($this->newOccurrences > 0))
+			   	    	continue;
+    		    	
+			   	    $arr[$name] = $value;
     		    }
             }
             
