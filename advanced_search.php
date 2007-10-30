@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.66 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: advanced_search.php,v 1.67 2007/10/30 16:36:57 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -26,7 +26,6 @@ require_once 'includes/pdCategory.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdSearchParams.php';
-require_once 'includes/jscalendar.php';
 
 /**
  * Renders the whole page.
