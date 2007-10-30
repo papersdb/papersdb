@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.54 2007/10/29 21:35:25 loyola Exp $
+// $Id: add_venue.php,v 1.55 2007/10/30 21:24:58 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -9,7 +9,7 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path", ini_get("include_path") . ':' . dirname(__FILE__) . '/..');
+ini_set("include_path", ini_get("include_path") . ':..');
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
@@ -87,7 +87,7 @@ class add_venue extends pdHtmlPage {
                 $this->page_title = 'Add Publication';
             $label = 'Add Venue';
         }
-        else if ($this->venue_id != '') {
+        else if (!empty($this->venue_id)) {
             $this->page_title = 'Edit Venue';
             $label = 'Edit Venue';
         }
@@ -104,7 +104,7 @@ class add_venue extends pdHtmlPage {
 
         $form->addElement('header', null, $label);
 
-        if ($this->venue_id != '') {
+        if (!empty($this->venue_id)) {
             $form->addElement('hidden', 'venue_id', $this->venue_id);
         }
 
@@ -173,20 +173,18 @@ class add_venue extends pdHtmlPage {
 
         $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
                         false);
-
+                        
         if (is_object($this->venue->category)) {
-            if (($this->venue->category->category == 'In Journal')
-                || ($this->venue->category->category == 'In Workshop')) {
-                if ($this->venue->category->category == 'In Journal')
-                    $label = 'Publisher:';
-                else
-                    $label = 'Associated Conference:';
-
-                $form->addElement('text', 'data', $label,
-                                  array('size' => 50, 'maxlength' => 250));
-            }
-
-            if ($this->venue->category->category == 'In Workshop') {
+	        $vopts = $this->venue->voptsGet($this->venue->category->cat_id);
+    	    if (!empty($vopts) && (count($vopts) > 0)) {
+        		foreach ($vopts as $vopt) {
+			   	    $name = strtolower(preg_replace('/\s+/', '_', $vopt));
+    		    	$form->addElement('text', $name, $vopt . ':',
+        	                          array('size' => 50, 'maxlength' => 250));
+	        	}
+    	    }
+	
+    	    if ($this->venue->category->category == 'In Workshop') {
                 $form->addElement('text', 'editor', 'Editor:',
                                   array('size' => 50, 'maxlength' => 250));
 
@@ -255,7 +253,7 @@ class add_venue extends pdHtmlPage {
             add_pub_base::addPubDisableMenuItems();
         }
         else {
-            if ($this->venue_id != '')
+            if (!empty($this->venue_id))
                 $label = 'Submit';
             else
                 $label = 'Add Venue';
@@ -282,14 +280,17 @@ class add_venue extends pdHtmlPage {
         }
 
         if (isset($this->venue->rank_id)) {
-            $defaults['venue_rank'] = $this->venue->rank_id;
-            if ($this->venue->rank_id == -1)
+        	if ($this->venue->rank_id > 4) {
+	            $defaults['venue_rank'] = -1;
                 $defaults['venue_rank_other'] = $this->venue->ranking;
+        	}
+        	else
+	    	    $defaults['venue_rank'] = $this->venue->rank_id;
         }
 
         $form->setConstants($defaults);
-
-        if ($this->venue_id != '') {
+        
+        if (!empty($this->venue_id)) {
             $arr = array('title'      => $this->venue->title,
                          'name'       => $this->venue->nameGet(),
                          'url'        => $this->venue->urlGet(),
@@ -302,7 +303,15 @@ class add_venue extends pdHtmlPage {
                 $arr['cat_id'] = -1;
             else if ($this->cat_id > 0)
                 $arr['cat_id'] = $this->cat_id;
-
+                
+            if (!empty($this->venue->options)) {
+            	$vopt_names = $this->venue->voptsGet();
+            	foreach ($this->venue->options as $vopt_id => $value) {
+    		    	$name = strtolower(preg_replace('/\s+/', '_', $vopt_names[$vopt_id]));
+        			$arr[$name] = $value;
+    		    }
+            }
+            
             if (isset($this->numNewOccurrences)) {
                 for ($i = 0; $i < $this->numNewOccurrences; $i++) {
                     if (isset($this->newOccurrenceLocation[$i])) {
@@ -387,7 +396,7 @@ class add_venue extends pdHtmlPage {
 
         $values = $form->exportValues();
         $this->venue->load($values);
-
+        
         //add http:// to webpage address if needed
         if (($this->venue->url != '')
             && (strpos($this->venue->url, 'http') === false)) {
@@ -421,6 +430,13 @@ class add_venue extends pdHtmlPage {
                     . '-1',
                     $values['newOccurrenceUrl'][$i]);
             }
+            
+      	$vopt_names = $this->venue->voptsGet();
+      	if (!empty($vopt_names))
+	      	foreach ($vopt_names as $vopt_id => $name) {
+				$name = strtolower(preg_replace('/\s+/', '_', $name));
+				$this->venue->options[$vopt_id] = $values[$name];
+	         }
 
         $this->venue->dbSave($this->db);
 
@@ -442,7 +458,7 @@ class add_venue extends pdHtmlPage {
                 header('Location: add_pub4.php');
         }
         else {
-            if (!isset($this->venue_id) || ($this->venue_id == '')) {
+            if (empty($this->venue_id)) {
                 echo 'You have successfully added the venue "';
 
                 if (!empty($this->venue->title))

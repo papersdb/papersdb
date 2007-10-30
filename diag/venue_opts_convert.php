@@ -27,10 +27,10 @@ if (0)
 		if ((pdDB::venueTableUpgraded() == 0) && ! empty($venue->data)) {
 			$op = array($pub_id, $venue->nameGet()); 
 			
-			if (!empty($venue->type))
-				$op[] = $venue->type;
+			if (!empty($venue->cat_id))
+				$op[] = $venue->cat_id;
 			else
-				$op[] = '****';
+				$op[] = '*';
 				
 			$op[] = $venue->data;
 			
@@ -47,12 +47,15 @@ else
 		if ((pdDB::venueTableUpgraded() == 0) && ! empty($venue->data)) {
 			$op = array($pub_id, $venue->nameGet()); 
 		
-			if (!empty($venue->type))
-				$op[] = $venue->type;
+			if (!empty($venue->cat_id))
+				$op[] = $venue->cat_id;
 			else
-				$op[] = '****';
-			
-			$op = array_merge($op, $venue->venueVoptsGet());
+				$op[] = '*';
+
+		    if (is_array($venue->options)) 
+		    	foreach ($venue->options as $vopt)
+		    		if (!empty($vopt))
+						$op[] = $vopt;
 			
 			echo '<pre>' . implode("\t", $op) .  '</pre>' . "\n";
 		}

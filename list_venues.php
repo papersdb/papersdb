@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.30 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: list_venues.php,v 1.31 2007/10/30 21:24:58 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -76,18 +76,16 @@ class list_venues extends pdHtmlPage {
 
             if ($url != null)
                 $text .= '</a>';
-
-            if ($venue->data != '') {
-                $text .= '<br/>';
-                if ($v_cat == 'Conference')
-                    $text .= '<b>Location:&nbsp;</b>';
-                else if ($v_cat == 'Journal')
-                    $text .= '<b>Publisher:&nbsp;</b>';
-                else if ($v_cat == 'Workshop')
-                    $text .= '<b>Associated Conference:&nbsp;</b>';
-                $text .= $venue->data;
+            
+            if (!empty($venue->options)) {
+            	$vopt_names = $venue->voptsGet();
+	            foreach ($venue->options as $vopt_id => $value) {
+	            	if (!empty($value))
+	        	    	$text .= '<br/><b>' . $vopt_names[$vopt_id]
+	        	    		 . '</b>:&nbsp;' . $value;
+	            }
             }
-
+            
             if ($venue->editor != '')
                 $text .= "<br/><b>Editor:&nbsp;</b>" . $venue->editor;
 

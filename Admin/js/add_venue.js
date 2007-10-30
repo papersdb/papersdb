@@ -1,4 +1,4 @@
-// $Id: add_venue.js,v 1.4 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: add_venue.js,v 1.5 2007/10/30 21:24:58 loyola Exp $
 
 var categoryHelp=
     "The category the venue falls under. For examplethis could "
@@ -18,7 +18,12 @@ function dataKeep(num) {
             && (element.type != "button")
             && (element.value != "") && (element.value != null)) {
 
-            if (element.name == "venue_id") {
+            if ((element.type == "checkbox") || (element.type == "radio")) {
+                if (element.checked) {
+                    qsArray.push(element.name + "=" + element.value);
+                }
+            }
+            else if (element.name == "venue_id") {
                 qsArray.push(element.name + "=" + element.value);
                 qsArray.push("status=change");
             }

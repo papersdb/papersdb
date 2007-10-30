@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.2 2007/10/29 21:35:25 loyola Exp $
+// $Id: pdDb.php,v 1.3 2007/10/30 21:24:58 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -20,6 +20,7 @@ class pdDb {
         'author',
         'author_interest',
         'cat_info',
+	    'cat_vopts',
         'category',
         'collaboration',
         'extra_info',

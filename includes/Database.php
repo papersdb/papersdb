@@ -1332,6 +1332,7 @@ class Database {
 		if ( $conds != '*' ) {
 			$sql .= ' WHERE ' . $this->makeList( $conds, LIST_AND );
 		}
+		//echo $sql . "<br/>\n";
 		return $this->query( $sql, $fname );
 	}
 

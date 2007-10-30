@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.104 2007/10/30 16:35:51 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.105 2007/10/30 21:24:58 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -9,9 +9,9 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path",  ini_get("include_path") . '..');
+ini_set("include_path",  ini_get("include_path") . ':..');
 
-/** Requries classes to build the navigation menu. */
+/** Requried classes to build the navigation menu. */
 require_once 'includes/functions.php';
 require_once 'includes/pdDb.php';
 require_once 'includes/pdUser.php';
@@ -52,10 +52,10 @@ class pdHtmlPage {
     protected $form_controller;
     protected $nav_menu;
     
-	const HTML_TOP_CONTENT = '<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>
-        <!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\"
-            "http://www.w3.org/TR/html4/strict.dtd\">
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang=\"en\">
+	const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="iso-8859-1"?>
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+            "http://www.w3.org/TR/html4/strict.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
         <head>
         <title>';
 
@@ -421,10 +421,6 @@ class pdHtmlPage {
         else {
             $status = 'Not Logged In';
         }
-
-        $dir_prefix = '';
-        if (strstr($this->relative_url, '/'))
-            $dir_prefix = '../';
 
         return <<<END
             <div id="container">
