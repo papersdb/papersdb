@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.69 2007/10/31 15:18:29 loyola Exp $
+// $Id: advanced_search.php,v 1.70 2007/10/31 16:34:13 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -273,7 +273,8 @@ class advanced_search extends pdHtmlPage {
                                        '{paper_col2}',
                                        '{paper_col3}',
                                        '{paper_col4}',
-                                       '{author_myself}'),
+                                       '{author_myself}',
+								       '{show_internal_info}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF'],
                                        $this->selected_authors,
@@ -297,7 +298,8 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->paper_col[2] == 'yes'),
                                        ($sp->paper_col[3] == 'yes'),
                                        ($sp->paper_col[4] == 'yes'),
-                                       $sp->author_myself),
+                                       ($sp->author_myself != ''),
+                                       ($sp->show_internal_info == 'yes')),
                                  $content);
     }
 }

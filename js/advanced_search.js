@@ -1,4 +1,4 @@
-// $Id: advanced_search.js,v 1.2 2007/05/29 20:31:43 aicmltec Exp $
+// $Id: advanced_search.js,v 1.3 2007/10/31 16:34:13 loyola Exp $
 
 function dataKeep(num) {
     var form = document.forms["advSearchForm"];
@@ -16,7 +16,8 @@ function dataKeep(num) {
                 if (element.checked) {
                     qsArray.push(element.name + "=" + element.value);
                 }
-            } else if (element.type == "select-multiple"){
+            } 
+            else if (element.type == "select-multiple"){
                 var select_name = element.name;
                 if (select_name.indexOf("[]") > 0) {
                     select_name = select_name.substr(0, select_name.length - 2);
@@ -29,7 +30,8 @@ function dataKeep(num) {
                         count++;
                     }
                 }
-            } else {
+            } 
+            else {
                 qsArray.push(element.name + "=" + element.value);
             }
         }
@@ -55,61 +57,61 @@ function lastSearchUse() {
     form.abstract.value    = "{abstract}";
     form.venue.value       = "{venue}";
     form.keywords.value    = "{keywords}";
-    form.paper_rank_other.value = "{paper_rank_other}";
+        
+    // since we are using PEAR HTML_QuickForm the radio checkboxes have 2
+    // elements with the same name, we need to access the checkbox element
+    form.author_myself[1].checked = "{author_myself}"
+    form.show_internal_info[1].checked = "{show_internal_info}";
+    
+    var paper_rank = document.getElementsByName("paper_rank[1]");
+    if (paper_rank.length == 2) 
+    	paper_rank[1].checked = "{paper_rank1}";
+    	
+  	paper_rank = document.getElementsByName("paper_rank[2]");
+    if (paper_rank.length == 2) 
+    	paper_rank[1].checked = "{paper_rank2}";
+    	
+  	paper_rank = document.getElementsByName("paper_rank[3]");
+    if (paper_rank.length == 2) 
+    	paper_rank[1].checked = "{paper_rank3}";
 
-    for (var i = 0; i < form.elements.length; i++) {
-        if (form.elements[i].name == "startdate[Y]") {
-            form.elements[i].value = "{startdateY}";
-        }
-        if (form.elements[i].name == "startdate[M]") {
-            form.elements[i].value = "{startdateM}";
-        }
-        if (form.elements[i].name == "enddate[Y]") {
-            form.elements[i].value = "{enddateY}";
-        }
-        if (form.elements[i].name == "enddate[M]") {
-            form.elements[i].value = "{enddateM}";
-        }
+  	paper_rank = document.getElementsByName("paper_rank[4]");
+    if (paper_rank.length == 4) 
+    	paper_rank[1].checked = "{paper_rank4}";
+    	
+    var paper_rank_other = document.getElementsByName("paper_rank_other");  
+    if (paper_rank_other.length > 0)
+    	form.paper_rank_other.value = "{paper_rank_other}";
+   	
+    var paper_col = document.getElementsByName("paper_col[1]");
+    if (paper_col.length == 2) 
+    	paper_col[1].checked = "{paper_col1}";
+    	
+  	paper_col = document.getElementsByName("paper_col[2]");
+    if (paper_col.length == 2) 
+    	paper_col[1].checked = "{paper_col2}";
+    	
+  	paper_col = document.getElementsByName("paper_col[3]");
+    if (paper_col.length == 2) 
+    	paper_col[1].checked = "{paper_col3}";
 
-        if (form.elements[i].type == "checkbox") {
-            if (form.elements[i].name == "paper_rank[1]") {
-                form.elements[i].checked = "{paper_rank1}";
-            }
-            if (form.elements[i].name == "paper_rank[2]") {
-                form.elements[i].checked = "{paper_rank2}";
-            }
-            if (form.elements[i].name == "paper_rank[3]") {
-                form.elements[i].checked = "{paper_rank3}";
-            }
-            if (form.elements[i].name == "paper_rank[4]") {
-                form.elements[i].checked = "{paper_rank4}";
-            }
-
-            if (form.elements[i].name == "paper_col[1]") {
-                form.elements[i].checked = "{paper_col1}";
-            }
-            if (form.elements[i].name == "paper_col[2]") {
-                form.elements[i].checked = "{paper_col2}";
-            }
-            if (form.elements[i].name == "paper_col[3]") {
-                form.elements[i].checked = "{paper_col3}";
-            }
-            if (form.elements[i].name == "paper_col[4]") {
-                form.elements[i].checked = "{paper_col4}";
-            }
-        }
-    }
-
-    var author_myself = "{author_myself}";
-    if (author_myself.length > 0) {
-        form.author_myself[1].checked = true;
-    }
-
-    //for (var i =0; i < authorselect.length; i++) {
-    //    authorselect.options[i].selected = false;
-    //    if (selected_authors.indexOf(":" + authorselect.options[i].value + ":") >= 0) {
-    //        authorselect.options[i].selected = true;
-    //    }
-    //}
-    //dataKeep(0);
+  	paper_col = document.getElementsByName("paper_col[4]");
+    if (paper_col.length == 4) 
+    	paper_col[1].checked = "{paper_col4}";
+    	    	
+    var date = document.getElementsByName("startdate[Y]");
+    if (date.length > 0)
+    	date[0].value = "{startdateY}";
+    
+    date = document.getElementsByName("startdate[M]");
+    if (date.length > 0)
+    	date[0].value = "{startdateM}";
+    	
+    date = document.getElementsByName("enddate[Y]");
+    if (date.length > 0)
+    	date[0].value = "{enddateY}";
+    
+    date = document.getElementsByName("enddate[M]");
+    if (date.length > 0)
+    	date[0].value = "{enddateM}";
 }
