@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.25 2007/10/31 15:18:29 loyola Exp $
+// $Id: search_results.php,v 1.26 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -115,7 +115,7 @@ class search_results extends pdHtmlPage {
         $sp =& $_SESSION['search_params'];
 
         $table = new HTML_Table(array('class' => 'nomargins',
-                                      'width' => '60%'));
+                                      'width' => '90%'));
 
         if ($sp->search != '') {
             $table->addRow(array($sp->search));
@@ -127,8 +127,7 @@ class search_results extends pdHtmlPage {
                                 array('startdate',
                                       'enddate',
                                       'author_myself',
-                                      'authortyped',
-                                      'authorselect',
+                                      'authors',
                                       'paper_rank',
                                       'paper_rank_other',
                                       'paper_col'))
@@ -145,6 +144,10 @@ class search_results extends pdHtmlPage {
                         $name = preg_replace('/_/', ' ', ucwords($param));
                         $value = $sp->$param;
                     }
+                    
+                    if (($param == 'show_internal_info') 
+                         && ($sp->$param == 'no'))
+                         continue;
 
                     if ($name != '')
                         $table->addRow(array($name . ':', $value));
@@ -153,24 +156,16 @@ class search_results extends pdHtmlPage {
             $al = null;
             $values = array();
 
-            if ($sp->authortyped != '') {
-                $values[] = $sp->authortyped;
-            }
-
             if (($sp->author_myself != '')
                 && ($_SESSION['user']->author_id != '')) {
                 $al = new pdAuthorList($this->db);
+                $authors = $al->asFirstLast();
 
-                $values[] = $al->list[$_SESSION['user']->author_id];
+                $values[] = $authors[$_SESSION['user']->author_id];
             }
 
-            if (count($sp->authorselect) > 0) {
-                if ($al == null)
-                    $al = new pdAuthorList($this->db);
-                foreach ($sp->authorselect as $auth_id)
-                    $values[] = $al->list[$auth_id];
-
-            }
+            if (!empty($sp->authors))
+	            $values[] = $sp->authors;
 
             if (count($values) > 0)
                 $table->addRow(array('<b>Author(s)</b>:',

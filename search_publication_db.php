@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.65 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: search_publication_db.php,v 1.66 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -15,6 +15,7 @@
  */
 
 /** Requries the base class and classes to access the database. */
+require_once 'includes/functions.php';
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdSearchParams.php';
@@ -27,12 +28,13 @@ require_once 'includes/pdSearchParams.php';
  * @package PapersDB
  */
 class search_publication_db extends pdHtmlPage {
-    var $debug = 0;
-    var $sp;
-    var $result_pubs;
-    var $parse_search_add_word_or_next = false;
+    protected $debug = 0;
+    protected $sp;
+    protected $result_pubs;
+    protected $parse_search_add_word_or_next = false;
+    protected $db_authors;
 
-    function search_publication_db() {
+    public function __construct() {
         parent::__construct('search_results');
 
         if ($this->loginError) return;
@@ -42,6 +44,13 @@ class search_publication_db extends pdHtmlPage {
         if ($this->debug) {
             debugVar('_SESSION', $_SESSION);
         }
+        
+        $auth_list = new pdAuthorList($this->db);
+        $this->db_authors = $auth_list->asFirstLast();
+        
+        $sel_author_names = explode(', ', preg_replace('/\s\s+/', ' ',
+                                                       $this->sp->authors));
+        $this->sp->authors = implode(', ', cleanArray($sel_author_names));        
 
         $link = connect_db();
         $pub_id_count = 0;
@@ -91,7 +100,7 @@ class search_publication_db extends pdHtmlPage {
      * This code deals with advanced_search.php's form naming the 'startdate'
      * and 'enddate' fields in an array named 'datesGroup.'
      */
-    function optionsGet() {
+    private function optionsGet() {
         if (($_SERVER['REQUEST_METHOD'] == 'POST') && (count($_POST) > 0))
             $arr =& $_POST;
         else if ($_SERVER['REQUEST_METHOD'] == 'GET')
@@ -109,7 +118,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Simple function to check to see if the string is a common word or not
      */
-    function is_common_word($string){
+    private function is_common_word($string){
         $common_words = array("a", "all", "am", "an", "and","any","are","as",
                               "at", "be","but","can","did","do","does","for",
                               "from", "had", "has","have","here","how","i",
@@ -125,7 +134,7 @@ class search_publication_db extends pdHtmlPage {
      * Add words to the array except for special tokens, keeps track of ors,
      * doesn't keep track of quotes.
      */
-    function parse_search_add_word($word, &$array) {
+    private function parse_search_add_word($word, &$array) {
         if (strlen($word) == 0)
             return $array;
         if (strcasecmp($word, "and") == 0)
@@ -149,7 +158,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Chunk the search into an array of and-ed array of or-ed terms.
      */
-    function parse_search($search) {
+    private function parse_search($search) {
         $search_terms = array();
         $word = "";
         $quote_mode = false;
@@ -188,7 +197,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * adds the queried pub_ids to the array, checking for repeats as well
      */
-    function add_to_array($query, &$thearray) {
+    private function add_to_array($query, &$thearray) {
         if ($thearray == null)
             $thearray = array();
 
@@ -205,7 +214,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Performs a quick search.
      */
-    function quickSearch() {
+    private function quickSearch() {
         $quick_search_array
             = $this->parse_search(stripslashes($this->sp->search));
 
@@ -335,7 +344,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Performs and advanced search.
      */
-    function advancedSearch() {
+    private function advancedSearch() {
         // VENUE SEARCH ------------------------------------------
         if ($this->sp->venue != '') {
             $the_search_array
@@ -418,10 +427,25 @@ class search_publication_db extends pdHtmlPage {
 
         // MYSELF or AUTHOR SELECTED SEARCH -----------------------------------
         $authors = array();
-        $author_pubs = array();
+        
+        if (!empty($this->sp->authors)) {
+            // need to retrieve author_ids for the selected authors
+            $sel_author_names = explode(', ', preg_replace('/\s\s+/', ' ',
+                                                           $this->sp->authors));
+                                                     
+        	$author_ids = array();
+            foreach ($sel_author_names as $author_name) {
+                if (empty($author_name)) continue;
+                
+                $author_id = array_search($author_name, $this->db_authors);
+                if ($author_id !== false)
+	                $author_ids[] = $author_id;
+            }
 
-        if (count($this->sp->authorselect) > 0)
-            $authors += $this->sp->authorselect;
+            if (count($author_ids) > 0) {
+                $authors = array_merge ($authors, $author_ids);
+            }
+        }
 
         if (($this->sp->author_myself != '')
             && ($_SESSION['user']->author_id != ''))
@@ -436,48 +460,6 @@ class search_publication_db extends pdHtmlPage {
 
                 $this->result_pubs = array_intersect($this->result_pubs,
                                                      $author_pubs);
-            }
-        }
-
-        // AUTHOR TYPED SEARCH --------------------------------------
-        if ($this->sp->authortyped != "") {
-            $the_search_array = $this->parse_search($this->sp->authortyped);
-
-            foreach ($the_search_array as $and_terms) {
-                $authors = array();
-                $author_pubs = array();
-                $terms = array();
-
-                $search_query = "SELECT DISTINCT author_id from author WHERE ";
-
-                foreach ($and_terms as $or_term) {
-                    $terms[] = 'name LIKE ' . quote_smart('%'.$or_term.'%');
-                }
-
-                $search_query .= implode(' OR ', $terms);
-                $search_result = query_db($search_query);
-                while ($search_array
-                       = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $authors[] = $search_array['author_id'];
-                }
-
-                if (count($authors) > 0) {
-                    $terms = array();
-                    $search_query = "SELECT DISTINCT pub_id from pub_author WHERE ";
-
-                    foreach ($authors as $author_id) {
-                        $terms[] = 'author_id=' . quote_smart($author_id);
-                    }
-                    $search_query .= implode(' OR ', $terms);
-                    $this->add_to_array($search_query, $author_pubs);
-
-                    $this->result_pubs = array_intersect($this->result_pubs,
-                                                         $author_pubs);
-                }
-                else {
-                    // no such author
-                    $this->result_pubs = array();
-                }
             }
         }
 
@@ -586,7 +568,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      *
      */
-    function cvFormCreate() {
+    private function cvFormCreate() {
         if ($this->result_pubs == null) return;
 
         $form = new HTML_QuickForm('cvForm', 'post', 'cv.php', '_blank',
@@ -597,7 +579,7 @@ class search_publication_db extends pdHtmlPage {
         return $form;
     }
 
-    function venuesSearch($field, $value, &$union_array) {
+    private function venuesSearch($field, $value, &$union_array) {
         assert('($field == "name") || ($field == "title")');
 
         $search_result = query_db('SELECT venue_id from venue WHERE ' . $field

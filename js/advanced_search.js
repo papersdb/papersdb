@@ -1,4 +1,4 @@
-// $Id: advanced_search.js,v 1.3 2007/10/31 16:34:13 loyola Exp $
+// $Id: advanced_search.js,v 1.4 2007/10/31 17:49:36 loyola Exp $
 
 function dataKeep(num) {
     var form = document.forms["advSearchForm"];
@@ -52,7 +52,7 @@ function lastSearchUse() {
 
     form.cat_id.value      = "{cat_id}";
     form.title.value       = "{title}";
-    form.authortyped.value = "{authortyped}";
+    form.authors.value     = "{authors}";
     form.paper.value       = "{paper}";
     form.abstract.value    = "{abstract}";
     form.venue.value       = "{venue}";

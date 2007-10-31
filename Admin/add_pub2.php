@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.31 2007/06/07 18:02:53 aicmltec Exp $
+// $Id: add_pub2.php,v 1.32 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -15,7 +15,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
-require_once 'includes/authorselect.php';
 
 /**
  * This is just a stub, see javascript check_authors() for the real code

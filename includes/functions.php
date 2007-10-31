@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.38 2007/10/25 21:20:42 aicmltec Exp $
+// $Id: functions.php,v 1.39 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -77,6 +77,16 @@ function arr2obj($arg_array) {
         }
     }
     return $tmp; // return the object!
+}
+
+/**
+ * removes empty values from an array.
+ * */
+function cleanArray($array) {
+    foreach ($array as $index => $value) {
+        if (empty($value)) unset($array[$index]);
+    }
+    return $array;
 }
 
 /**

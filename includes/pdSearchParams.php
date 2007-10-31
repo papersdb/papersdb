@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.11 2007/10/31 15:18:28 loyola Exp $
+// $Id: pdSearchParams.php,v 1.12 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -19,9 +19,8 @@ class pdSearchParams {
     public $search;
     public $cat_id;
     public $title;
+    public $authors;
     public $author_myself;
-    public $authortyped;
-    public $authorselect;
     public $paper;
     public $abstract;
     public $venue;

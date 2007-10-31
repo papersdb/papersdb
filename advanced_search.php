@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.70 2007/10/31 16:34:13 loyola Exp $
+// $Id: advanced_search.php,v 1.71 2007/10/31 17:49:36 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -33,28 +33,31 @@ require_once 'includes/pdSearchParams.php';
  * @package PapersDB
  */
 class advanced_search extends pdHtmlPage {
-    var $debug = 0;
-    var $cat_list;
-    var $category;
-    var $search;
-    var $cat_id;
-    var $title;
-    var $authortyped;
-    var $paper;
-    var $abstract;
-    var $venue;
-    var $keywords;
-    var $authorselect;
-    var $selected_authors;
-    var $startdate;
-    var $enddate;
+    protected $debug = 0;
+    protected $cat_list;
+    protected $category;
+    protected $search;
+    protected $cat_id;
+    protected $title;
+    protected $paper;
+    protected $abstract;
+    protected $venue;
+    protected $keywords;
+    protected $authors;
+    protected $selected_authors;
+    protected $startdate;
+    protected $enddate;
+    protected $db_authors;
 
-    function advanced_search() {
+    function __construct() {
         parent::__construct('advanced_search');
 
         if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
+        
+        $auth_list = new pdAuthorList($this->db);
+        $this->db_authors = $auth_list->asFirstLast();
 
         $this->cat_list = new pdCatList($this->db);
 
@@ -64,13 +67,6 @@ class advanced_search extends pdHtmlPage {
         $form = $this->createForm();
         $this->form =& $form;
         $this->setFormValues();
-
-        if (isset($_SESSION['search_params'])
-            && (count($_SESSION['search_params']->authorselect) > 0))
-            $this->selected_authors = ':'
-                . implode(':', $_SESSION['search_params']->authorselect)
-                . ':';
-
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
@@ -82,6 +78,11 @@ class advanced_search extends pdHtmlPage {
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+
+        $renderer->setElementTemplate(
+            '<tr><td><b>{label}</b></td>'
+            . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="font-size:1.1em;position:absolute;top:50px;left:0;background-color:#f4f4f4;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
+            'authors');
 
         $form->accept($renderer);
         $this->renderer =& $renderer;
@@ -115,23 +116,24 @@ class advanced_search extends pdHtmlPage {
             unset($auth_list->list[$user->author_id]);
         }
 
-        $authElements[] =& HTML_QuickForm::createElement(
-            'text', 'authortyped', null,
-            array('size' => 60, 'maxlength' => 250));
-        $authElements[] =& HTML_QuickForm::createElement(
-            'static', 'auth_label', null, 'or select from list');
-        $authElements[] =& HTML_QuickForm::createElement(
-            'select', 'authorselect', null, $auth_list->list,
-            array('multiple' => 'multiple', 'size' => 10));
 
+        $form->addElement('textarea', 'authors', 'Authors:',
+                          array('cols' => 60,
+                                'rows' => 5,
+                                'class' => 'wickEnabled:MYCUSTOMFLOATER',
+                                'wrap' => 'virtual'));
+
+        $form->addElement('static', null, null,
+                          '<span class="small">'
+                          . 'There are ' . count($this->db_authors)
+                          . ' authors in the database. Type a partial name to '
+                          . 'see a list of matching authors. Separate names '
+                          . 'using commas.</span>');
+                          
         if ($user != null) {
-            $authElements[] =& HTML_QuickForm::createElement(
-                'advcheckbox', 'author_myself',
-                null, 'myself', null, array('', $user->author_id));
+            $form->addElement('advcheckbox', 'author_myself',
+                null, 'add me to the search', null, array('', $user->author_id));
         }
-
-        $form->addGroup($authElements, 'authors', 'Authors:', '<br/>',
-                        false);
 
         if (isset($_SESSION['user'])
             && ($_SESSION['user']->showInternalInfo())) {
@@ -190,6 +192,11 @@ class advanced_search extends pdHtmlPage {
                 ),
             null, 'Published Between:', '&nbsp;', false);
 
+        $form->addElement(
+                'advcheckbox', 'show_internal_info',
+                'Options:', 'show internal information', null, 
+        		array('no', 'yes'));
+            
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement('reset', 'Clear', 'Clear'),
@@ -200,10 +207,6 @@ class advanced_search extends pdHtmlPage {
                 ),
             'buttonsGroup', '', '&nbsp;', false);
                 
-        $form->addElement(
-                'advcheckbox', 'show_internal_info',
-                'Options:', 'show internal information', null, 
-        		array('no', 'yes'));
         return $form;
     }
 
@@ -215,7 +218,6 @@ class advanced_search extends pdHtmlPage {
             'search'     => $this->search,
             'cat_id'     => $this->cat_id,
             'title'      => $this->title,
-            'authortyped'=> $this->authortyped,
             'paper'      => $this->paper,
             'abstract'   => $this->abstract,
             'venue'      => $this->venue,
@@ -224,9 +226,12 @@ class advanced_search extends pdHtmlPage {
                                   'M' => $this->startdate['M']),
             'enddate'    => array('Y' => $this->enddate['Y'],
                                   'M' => $this->enddate['M']));
-
-        if (count($this->authorselect) > 0)
-            $defaults['authorselect'] =& $this->authorselect;
+        
+        if (count($this->authors) > 0) {
+            foreach ($this->authors as $author)
+                $auth_names[] = $author->firstname . ' ' . $author->lastname;
+            $defaults['authors'] = implode(', ', $auth_names);
+        }
 
         if (empty($this->enddate)
             || (empty($this->enddate['Y']) && ($this->enddate['M']))) {
@@ -245,6 +250,14 @@ class advanced_search extends pdHtmlPage {
             $sp = $_SESSION['search_params'];
         else
             $sp = new pdSearchParams();
+            
+        $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+        $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+        // WICK
+        $this->js .= "\ncollection="
+            . convertArrayToJavascript($this->db_authors, false)
+            . "\n";
 
         $js_file = FS_PATH . '/js/advanced_search.js';
         assert('file_exists($js_file)');
@@ -255,7 +268,7 @@ class advanced_search extends pdHtmlPage {
                                        '{selected_authors}',
                                        '{cat_id}',
                                        '{title}',
-                                       '{authortyped}',
+                                       '{authors}',
                                        '{paper}',
                                        '{abstract}',
                                        '{venue}',
@@ -280,7 +293,7 @@ class advanced_search extends pdHtmlPage {
                                        $this->selected_authors,
                                        $sp->cat_id,
                                        $sp->title,
-                                       $sp->authortyped,
+                                       $sp->authors,
                                        $sp->paper,
                                        $sp->abstract,
                                        $sp->venue,
@@ -300,6 +313,16 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->paper_col[4] == 'yes'),
                                        ($sp->author_myself != ''),
                                        ($sp->show_internal_info == 'yes')),
+                                 $content);
+
+        $js_file = FS_PATH . '/js/wick.js';
+        assert('file_exists($js_file)');
+        $content = file_get_contents($js_file);
+
+        $this->js .= str_replace(array('{host}', '{self}', '{new_location}'),
+                                 array($_SERVER['HTTP_HOST'],  
+                                       $_SERVER['PHP_SELF'],
+                                       $url),
                                  $content);
     }
 }
