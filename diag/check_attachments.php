@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.12 2007/10/31 20:37:27 loyola Exp $
+// $Id: check_attachments.php,v 1.13 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -21,7 +21,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class check_attachments extends pdHtmlPage {
-    function check_attachments() {
+    public function __construct() {
         parent::__construct('check_attachments', 'Check Attachments',
             'diag/check_attachments.php');
 

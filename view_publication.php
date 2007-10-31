@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.83 2007/10/31 19:29:47 loyola Exp $
+// $Id: view_publication.php,v 1.84 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * View Publication
@@ -29,7 +29,7 @@ class view_publication extends pdHtmlPage {
     var $debug = 0;
     var $pub_id;
 
-    function view_publication() {
+    public function __construct() {
         parent::__construct('view_publication', 'View Publication',
                            'view_publication.php');
 

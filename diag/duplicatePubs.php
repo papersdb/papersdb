@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.11 2007/10/31 20:37:27 loyola Exp $
+// $Id: duplicatePubs.php,v 1.12 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -21,7 +21,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class duplicatePubs extends pdHtmlPage {
-    function duplicatePubs() {
+    public function __construct() {
         parent::__construct('duplicatePubs', 'Duplicate Publications',
                            'diag/duplicatePubs.php');
 

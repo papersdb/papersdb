@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.48 2007/10/31 20:37:27 loyola Exp $
+// $Id: add_pub1.php,v 1.49 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -29,8 +29,8 @@ class add_pub1 extends add_pub_base {
     var $cat_venue_options;
     var $category_list;
 
-    function add_pub1() {
-        parent::add_pub_base();
+    public function __construct() {
+        parent::__construct();
 
         if ($this->loginError) return;
 

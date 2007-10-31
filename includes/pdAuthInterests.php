@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.9 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdAuthInterests.php,v 1.10 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Storage and retrieval of author interests to / from the
@@ -21,7 +21,7 @@ class pdAuthInterests {
     /**
      * Constructor.
      */
-    function pdAuthInterests($db) {
+    public function __construct($db) {
         $q = $db->select('interest', '*', '', "pdAuthInterests::dbLoad");
         $r = $db->fetchObject($q);
         while ($r) {

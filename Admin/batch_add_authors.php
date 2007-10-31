@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.13 2007/10/31 20:37:27 loyola Exp $
+// $Id: batch_add_authors.php,v 1.14 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -22,7 +22,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  * @package PapersDB
  */
 class batch_add_authors extends pdHtmlPage {
-    function batch_add_authors() {
+    public function __construct() {
         parent::__construct('batch_add_authors');
 
         if ($this->loginError) return;

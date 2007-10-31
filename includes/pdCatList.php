@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.14 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdCatList.php,v 1.15 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that retrieves category information for all categories.
@@ -20,7 +20,7 @@ class pdCatList {
     /**
      * Retrieves the cat_id for all categories in the database.
      */
-    function pdCatList($db) {
+    public function __construct($db) {
         assert('is_object($db)');
         $q = $db->select('category', array('cat_id', 'category'), '',
                          "pdCatList::dbLoad");

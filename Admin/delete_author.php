@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.25 2007/10/31 19:29:47 loyola Exp $
+// $Id: delete_author.php,v 1.26 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -29,7 +29,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
 class delete_author extends pdHtmlPage {
     var $author_id;
 
-    function delete_author() {
+    public function __construct() {
         parent::__construct('delete_author', 'Delete Author',
                            'Admin/delete_author.php');
 

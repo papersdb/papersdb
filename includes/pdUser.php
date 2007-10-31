@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.33 2007/10/25 17:44:51 aicmltec Exp $
+// $Id: pdUser.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -39,8 +39,8 @@ class pdUser extends pdDbAccessor {
     /**
      * Constructor.
      */
-    function pdUser($mixed = null) {
-        parent::pdDbAccessor($mixed);
+    public function __construct($mixed = null) {
+        parent::__construct($mixed);
         $this->search_params = null;
     }
 

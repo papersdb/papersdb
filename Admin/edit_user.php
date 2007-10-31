@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.31 2007/10/31 20:37:27 loyola Exp $
+// $Id: edit_user.php,v 1.32 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -45,7 +45,7 @@ class edit_user extends pdHtmlPage {
 	{javascript}';
    
 
-    function edit_user() {
+    public function __construct() {
         parent::__construct('edit_user');
 
         if ($this->loginError) return;

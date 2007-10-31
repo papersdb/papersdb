@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.5 2007/10/31 19:29:47 loyola Exp $
+// $Id: author_confirm.php,v 1.6 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * The user reaches this page only when he is adding a new author, and the
@@ -25,7 +25,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  * @package PapersDB
  */
 class author_confirm extends pdHtmlPage {
-    function author_confirm() {
+    public function __construct() {
         parent::__construct('author_confirm', 'Author Confirm',
             'Admin/author_confirm.php');
 

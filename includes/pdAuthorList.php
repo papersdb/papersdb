@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.17 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdAuthorList.php,v 1.18 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -22,7 +22,7 @@ class pdAuthorList {
     /**
      * Constructor.
      */
-    function pdAuthorList($db, $firstname = null, $lastname = null) {
+    public function __construct($db, $firstname = null, $lastname = null) {
         assert('is_object($db)');
 
         if (($firstname == null) && ($lastname == null)) {

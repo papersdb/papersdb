@@ -24,7 +24,7 @@ require_once 'includes/pdAuthor.php';
 class list_author extends pdHtmlPage {
     var $tab;
 
-    function list_author() {
+    public function __construct() {
         parent::__construct('all_authors');
 
         if ($this->loginError) return;

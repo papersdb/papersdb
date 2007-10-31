@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.121 2007/10/25 18:46:06 aicmltec Exp $
+// $Id: pdPublication.php,v 1.122 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -59,10 +59,10 @@ class pdPublication extends pdDbAccessor {
     var $ranking;
     var $collaborations;
 
-    function pdPublication($mixed = NULL) {
+    public function __construct($mixed = NULL) {
         $this->paper = 'no paper';
 
-        parent::pdDbAccessor($mixed);
+        parent::__construct($mixed);
     }
 
     /**

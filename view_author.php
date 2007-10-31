@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.33 2007/10/31 19:29:47 loyola Exp $
+// $Id: view_author.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -29,7 +29,7 @@ require_once 'includes/pdAuthor.php';
 class view_author extends pdHtmlPage {
     var $author_id;
 
-    function view_author() {
+    public function __construct() {
         parent::__construct('view_authors', 'Author Information',
                            'view_author.php');
 
@@ -76,8 +76,9 @@ class view_author extends pdHtmlPage {
                              "<a href='mailto:" . $auth->email . "'>"
                              . $auth->email . "</a>"));
         $table->addRow(array('Organization:', $auth->organization));
-
-        if (isset($auth->webpage) && (trim($auth->webpage) != ""))
+        
+        $webpage = str_replace('http://', '', $auth->webpage);
+        if (isset($auth->webpage) && !empty($webpage))
             $webpage = "<a href=\"" . $auth->webpage . "\" target=\"_blank\">"
                 . $auth->webpage . "</a>";
         else

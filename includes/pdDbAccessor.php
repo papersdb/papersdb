@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDbAccessor.php,v 1.3 2007/03/27 17:19:33 aicmltec Exp $
+// $Id: pdDbAccessor.php,v 1.4 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * A base class for objects that access the database.
@@ -10,7 +10,7 @@
  */
 
 class pdDbAccessor {
-    function pdDbAccessor($mixed) {
+    public function __construct($mixed) {
         if (isset($mixed))
             $this->load($mixed);
     }

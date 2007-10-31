@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.18 2007/10/31 20:37:27 loyola Exp $
+// $Id: list_categories.php,v 1.19 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -20,7 +20,7 @@ require_once 'includes/pdCategory.php';
  * @package PapersDB
  */
 class list_categories extends pdHtmlPage {
-    function list_categories() {
+    public function __construct() {
         parent::__construct('all_categories');
 
         if ($this->loginError) return;

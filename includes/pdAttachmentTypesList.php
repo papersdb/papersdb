@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.4 2007/03/19 22:04:39 aicmltec Exp $
+// $Id: pdAttachmentTypesList.php,v 1.5 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Queries the databse for the different attachment types allowed.
@@ -20,7 +20,7 @@ class pdAttachmentTypesList {
     /**
      * Constructor.
      */
-    function pdAttachmentTypesList($db) {
+    public function __construct($db) {
         assert('is_object($db)');
 
         $this->list = array();

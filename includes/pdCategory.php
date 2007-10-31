@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.17 2007/07/09 18:43:51 aicmltec Exp $
+// $Id: pdCategory.php,v 1.18 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -29,8 +29,8 @@ class pdCategory extends pdDbAccessor {
     /**
      * Constructor.
      */
-    function pdCategory($mixed = null) {
-        parent::pdDbAccessor($mixed);
+    public function __construct($mixed = null) {
+        parent::__construct($mixed);
     }
 
     /**

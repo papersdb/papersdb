@@ -1,14 +1,9 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.5 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: bibtex.php,v 1.6 2007/10/31 23:17:34 loyola Exp $
 
 /**
- * This file outputs all the search results given to it in a CV format.
- *
- * This is mainly for the authors needing to publish there CV.  Given the ID
- * numbers of the publications, it extracts the information from the database
- * and outputs the data in a certain format.  Input: $_POST['pub_ids'] - a
- * string file of the publication ids seperated by commas Output: CV Format
+ * This file outputs all the search results given to it in a BibTeX format.
  *
  * @package PapersDB
  * @subpackage HTML_Generator
@@ -26,7 +21,7 @@ require_once 'includes/pdPublication.php';
 class bibtex extends pdHtmlPage {
     var $pub_ids;
 
-    function bibtex() {
+    public function __construct() {
         parent::__construct('bibtex', null, false);
 
         if ($this->loginError) return;

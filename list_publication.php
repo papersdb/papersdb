@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.40 2007/10/31 19:29:47 loyola Exp $
+// $Id: list_publication.php,v 1.41 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -35,7 +35,7 @@ class list_publication extends pdHtmlPage {
     var $keyword;
     var $by;
 
-    function list_publication() {
+    public function __construct() {
         parent::__construct('view_publications');
 
         if ($this->loginError) return;

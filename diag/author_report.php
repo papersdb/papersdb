@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.18 2007/10/31 20:37:27 loyola Exp $
+// $Id: author_report.php,v 1.19 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -43,7 +43,7 @@ class author_report extends pdHtmlPage {
     var $pi_pubs;
     var $pi_pdf_pubs;
 
-    function author_report() {
+    public function __construct() {
         parent::__construct('author_report', 'Author Report',
                            'diag/author_report.php');
 

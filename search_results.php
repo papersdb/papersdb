@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.27 2007/10/31 19:29:47 loyola Exp $
+// $Id: search_results.php,v 1.28 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -26,7 +26,7 @@ require_once 'includes/pdUser.php';
 class search_results extends pdHtmlPage {
     var $debug = 0;
 
-    function search_results() {
+    public function __construct() {
         parent::__construct('search_results');
 
         if ($this->loginError) return;
@@ -173,30 +173,34 @@ class search_results extends pdHtmlPage {
 
             if (isset($_SESSION['user'])
                 && ($_SESSION['user']->showInternalInfo())) {
-                // ranking
-                $label = 'Ranking:';
-                $rankings = pdPublication::rankingsGlobalGet($this->db);
+                if (!empty($sp->paper_rank)) {
+	                // ranking
+    	            $label = 'Ranking:';
+        	        $rankings = pdPublication::rankingsGlobalGet($this->db);
+                
+            	    foreach ($sp->paper_rank as $rank_id => $value) {
+    	                if ($value != 'yes') continue;
+	
+    	                $table->addRow(array($label, $rankings[$rank_id]));
+        	            $label = '';
+            	    }
 
-                foreach ($sp->paper_rank as $rank_id => $value) {
-                    if ($value != 'yes') continue;
-
-                    $table->addRow(array($label, $rankings[$rank_id]));
-                    $label = '';
+	                if ($sp->paper_rank_other != '') {
+    	                $table->addRow(array($label, $sp->paper_rank_other));
+        	        }
                 }
 
-                if ($sp->paper_rank_other != '') {
-                    $table->addRow(array($label, $sp->paper_rank_other));
-                }
-
-                // collaboration
-                $label = 'Collaboration:';
-                $collaborations = pdPublication::collaborationsGet($this->db);
-
-                foreach ($sp->paper_col as $col_id => $value) {
-                    if ($value != 'yes') continue;
-
-                    $table->addRow(array($label, $collaborations[$col_id]));
-                    $label = '';
+                if (!empty($sp->paper_col)) {
+	                // collaboration
+    	            $label = 'Collaboration:';
+        	        $collaborations = pdPublication::collaborationsGet($this->db);
+	
+    	            foreach ($sp->paper_col as $col_id => $value) {
+        	            if ($value != 'yes') continue;
+	
+    	                $table->addRow(array($label, $collaborations[$col_id]));
+        	            $label = '';
+            	    }
                 }
             }
 

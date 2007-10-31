@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.13 2007/10/31 20:37:27 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.14 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -54,7 +54,7 @@ class pubSanityChecks extends pdHtmlPage {
         'Greiner, R'    => array('2002-09-01', '2007-03-31'));
 
 
-    function pubSanityChecks() {
+    public function __construct() {
         parent::__construct('pub_sanity_checks', 'Pub Sanity Checks',
                            'diag/pubSanityChecks.php');
 

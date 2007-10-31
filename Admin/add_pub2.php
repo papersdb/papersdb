@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.33 2007/10/31 19:29:47 loyola Exp $
+// $Id: add_pub2.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -32,8 +32,8 @@ class add_pub2 extends add_pub_base {
     var $debug = 0;
     var $author_id = null;
 
-    function add_pub2() {
-        parent::add_pub_base();
+    public function __construct() {
+        parent::__construct();
 
         if ($this->loginError) return;
 

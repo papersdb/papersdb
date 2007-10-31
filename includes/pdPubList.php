@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.28 2007/10/12 20:17:05 aicmltec Exp $
+// $Id: pdPubList.php,v 1.29 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -34,7 +34,7 @@ class pdPubList {
      * @param object $db      Database access object.
      * @param array  $options An associative array.
      */
-    function pdPubList($db, $options = null) {
+    public function __construct($db, $options = null) {
         assert('is_object($db)');
 
         if (!isset($options['num_to_load']))

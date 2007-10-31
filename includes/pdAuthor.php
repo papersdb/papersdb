@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.25 2007/06/07 17:36:52 aicmltec Exp $
+// $Id: pdAuthor.php,v 1.26 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -44,8 +44,8 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Constructor.
      */
-    function pdAuthor($mixed = NULL) {
-        parent::pdDbAccessor($mixed);
+    public function __construct($mixed = NULL) {
+        parent::__construct($mixed);
     }
 
     function makeNull() {

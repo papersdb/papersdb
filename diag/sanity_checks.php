@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.2 2007/10/31 19:27:49 loyola Exp $
+// $Id: sanity_checks.php,v 1.3 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -32,7 +32,7 @@ class sanity_checks extends pdHtmlPage {
         array('Create Database',        'dbcreate_mysql.php')
         );
 
-    function sanity_checks() {
+    public function __construct() {
         parent::__construct('sanity_checks');
 
         if ($this->loginError) return;

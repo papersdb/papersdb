@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.39 2007/10/31 19:29:47 loyola Exp $
+// $Id: add_category.php,v 1.40 2007/10/31 23:17:34 loyola Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -31,7 +31,7 @@ class add_category extends pdHtmlPage {
     var $numNewFields;
     var $info;
 
-    function add_category() {
+    public function __construct() {
         parent::__construct('add_category');
 
         $this->loadHttpVars();
