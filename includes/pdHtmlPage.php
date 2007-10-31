@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.105 2007/10/30 21:24:58 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.106 2007/10/31 15:18:29 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -712,11 +712,12 @@ END;
     }
 
     protected function displayPubList($pub_list, $enumerate = true, $max = -1,
-                            $additional = null) {
+                           			  $additional = null, $options = null) {
         assert('is_object($pub_list)');
 
         if (isset($pub_list->type) && ($pub_list->type == 'category')) {
-            return $this->displayPubListByCategory($pub_list, $enumerate, $max);
+            return $this->displayPubListByCategory($pub_list, $enumerate, $max,
+            									   $options);
         }
 
         if (count($pub_list->list) == 0) {
@@ -740,8 +741,10 @@ END;
             $citation = $pub->getCitationHtml() . '&nbsp;'
                 . $this->getPubIcons($pub);
 
-            if (isset($_SESSION['user'])
-                && ($_SESSION['user']->showInternalInfo())) {
+            if ((is_array($options) && !empty($options['show_internal_info'])
+                 && $options['show_internal_info'])
+                || (isset($_SESSION['user'])
+                    && ($_SESSION['user']->showInternalInfo()))) {
                 $citation .= '<br/><span style="font-size:80%">';
                 if (isset($pub->ranking))
                     $citation .= 'Ranking: ' . $pub->ranking;
@@ -782,7 +785,7 @@ END;
     }
 
     private function displayPubListByCategory($pub_list, $enumerate = true,
-                                              $max = -1) {
+                                              $max = -1, $options = null) {
         assert('is_object($pub_list)');
         $result = '';
         $count = 0;
@@ -811,9 +814,11 @@ END;
 
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
-
-                if (isset($_SESSION['user'])
-                    && ($_SESSION['user']->showInternalInfo())) {
+                    
+	            if ((is_array($options) && !empty($options['show_internal_info'])
+    	             && $options['show_internal_info'])
+        	        || (isset($_SESSION['user'])
+            	        && ($_SESSION['user']->showInternalInfo()))) {
                     $citation .= '<br/><span style="font-size:80%">';
                     if (isset($pub->ranking))
                         $citation .= 'Ranking: ' . $pub->ranking;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.24 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: search_results.php,v 1.25 2007/10/31 15:18:29 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -74,6 +74,7 @@ class search_results extends pdHtmlPage {
     }
 
     function renderForm() {
+        $sp =& $_SESSION['search_params'];
         $renderer =& $this->form->defaultRenderer();
         $this->form->accept($renderer);
 
@@ -81,7 +82,9 @@ class search_results extends pdHtmlPage {
             $this->db, array('cat_pub_ids' => $_SESSION['search_results']));
 
         echo $renderer->toHtml();
-        echo $this->displayPubList($pubs);
+        echo $this->displayPubList($pubs, true, -1, null, 
+        						   array('show_internal_info' 
+        						          => ($sp->show_internal_info == 'yes')));
 
         $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
                                                 'border' => '0',
@@ -139,7 +142,7 @@ class search_results extends pdHtmlPage {
                         $value =& $cl->list[$sp->cat_id];
                     }
                     else {
-                        $name = ucwords($param);
+                        $name = preg_replace('/_/', ' ', ucwords($param));
                         $value = $sp->$param;
                     }
 

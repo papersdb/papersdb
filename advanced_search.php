@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.68 2007/10/30 16:37:38 loyola Exp $
+// $Id: advanced_search.php,v 1.69 2007/10/31 15:18:29 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -199,6 +199,11 @@ class advanced_search extends pdHtmlPage {
                 HTML_QuickForm::createElement('submit', 'Submit', 'Search')
                 ),
             'buttonsGroup', '', '&nbsp;', false);
+                
+        $form->addElement(
+                'advcheckbox', 'show_internal_info',
+                'Options:', 'show internal information', null, 
+        		array('no', 'yes'));
         return $form;
     }
 
