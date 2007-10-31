@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.22 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: cv.php,v 1.23 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -62,8 +62,7 @@ class cv extends pdHtmlPage {
                 return;
             }
 
-            echo '<b>[' . $pub_count . ']</b> '
-              . $pub->getCitationText() . '<p/>';
+            echo '<b>[', $pub_count, ']</b> ', $pub->getCitationText(), '<p/>';
         }
     }
 }

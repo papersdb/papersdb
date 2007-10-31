@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.24 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: delete_author.php,v 1.25 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -53,10 +53,9 @@ class delete_author extends pdHtmlPage {
                                   array('author_id' => $this->author_id));
 
         if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
-            echo 'Cannot delete Author <b>' . $author->name . '</b>.<p/>'
-                . 'The author has the following ' . 'publications '
-                . 'in the database:' . "\n"
-                . $this->displayPubList($pub_list);
+            echo 'Cannot delete Author <b>', $author->name, '</b>.<p/>', 
+            	'The author has the following publications in the database:',
+            	$this->displayPubList($pub_list);
             return;
         }
 
@@ -70,9 +69,8 @@ class delete_author extends pdHtmlPage {
             $name = $author->name;
             $author->dbDelete($this->db);
 
-            echo 'You have successfully removed the '
-                . 'following author from the database: <p/>'
-                . '<b>' . $name . '</b>';
+            echo 'You have successfully removed the following author from the database:',
+            	'<p/><b>', $name, '</b>';
         }
         else {
             if (!isset($this->author_id) || !is_numeric($this->author_id)) {
@@ -107,8 +105,7 @@ class delete_author extends pdHtmlPage {
             $table->updateColAttributes(0, array('class' => 'emph',
                                                  'width' => '25%'));
 
-            echo '<h3>Delete Author</h3><p/>'
-                . 'Delete the following author?';
+            echo '<h3>Delete Author</h3><p/>Delete the following author?';
 
             $this->form =& $form;
             $this->renderer =& $renderer;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.39 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: list_publication.php,v 1.40 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -111,13 +111,13 @@ class list_publication extends pdHtmlPage {
             $this->pageError = true;
         }
 
-        echo $this->pubSelMenu() . "<br/>\n" . $title;
+        echo $this->pubSelMenu(), "<br/>\n", $title;
         echo $this->displayPubList($pub_list);
     }
 
     function pubSelect($viewCat = null) {
         assert('is_object($this->db)');
-        echo $this->pubSelMenu($viewCat) . '<br/>';
+        echo $this->pubSelMenu($viewCat), '<br/>';
         $text = '';
 
         switch ($viewCat) {
@@ -137,8 +137,7 @@ class list_publication extends pdHtmlPage {
                     $table->addRow($cells);
                 }
 
-                echo '<h2>Publications by Year:</h2>'
-                    . $table->toHtml();
+                echo '<h2>Publications by Year:</h2>', $table->toHtml();
                 break;
 
             case 'author':
@@ -202,8 +201,7 @@ class list_publication extends pdHtmlPage {
                     $table->addRow($cells);
                 }
 
-                echo '<h2>Publications by Category:</h2>'
-                    . $table->toHtml();
+                echo '<h2>Publications by Category:</h2>', $table->toHtml();
                 break;
 
             case 'keywords':

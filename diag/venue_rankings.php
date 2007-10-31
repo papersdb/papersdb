@@ -54,15 +54,14 @@ foreach ($pubs->list as $pub) {
 
         if (in_array($pub->venue->title, $venues)) {
             if ($pub->rank_id != $rank) {
-                echo 'pub '. $pub->pub_id . ' old rank: ' . $pub->rank_id
-                    . ' new rank: ' . $rank . '<br/>';
+                echo 'pub '. $pub->pub_id, ' old rank: ', $pub->rank_id, ' new rank: ', $rank, '<br/>';
                 $pub->rank_id = $rank;
                 $pub->dbSave($db);
             }
         }
     }
 
-    //echo $pub->getCitationText() . "\n";
+    //echo $pub->getCitationText(), "\n";
 }
 
 $db->close();

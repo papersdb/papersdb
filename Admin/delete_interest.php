@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.18 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: delete_interest.php,v 1.19 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Deletes author interests from the database.
@@ -57,11 +57,9 @@ class delete_interest extends pdHtmlPage {
 
             $interest_list->dbDelete($this->db, $values['interests']);
 
-            echo 'You have successfully removed the '
-                . 'following interest from the database: <br/><b>'
-                . implode(', ', $names) . '</b></p>'
-                . '<br><a href="' . $_SERVER['PHP_SELF']
-                . '">Delete another interest</a>';
+            echo 'You have successfully removed the following interest from the ',
+            	'database: <br/><b>', implode(', ', $names), '</b></p>', 
+            	'<br><a href="', $_SERVER['PHP_SELF'], '">Delete another interest</a>';
         }
         else {
             $renderer =& $form->defaultRenderer();

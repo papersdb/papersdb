@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.39 2007/10/31 17:49:36 loyola Exp $
+// $Id: functions.php,v 1.40 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -145,9 +145,9 @@ function debug_capture_print_r($data)
 
 function debugVar($name,$data) {
     $captured = explode("\n",debug_capture_print_r($data));
-    echo $name . "<br/>\n<pre>";
+    echo $name, "<br/>\n<pre>";
     foreach  ($captured as $line) {
-        echo debug_colorize_string($line) . "\n";
+        echo debug_colorize_string($line), "\n";
     }
     echo "</pre>\n";
 }

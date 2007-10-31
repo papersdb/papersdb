@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.82 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: view_publication.php,v 1.83 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * View Publication
@@ -51,7 +51,7 @@ class view_publication extends pdHtmlPage {
         }
 
         if ($this->debug) {
-            echo 'pub<pre>' . print_r($pub, true) . '</pre>';
+        	debugVar('$pub', $pub);
         }
 
         $content = "<h1>" . $pub->title;
@@ -205,8 +205,7 @@ class view_publication extends pdHtmlPage {
         }
         $updateStr .= 'Submitted by ' . $pub->submit;
 
-        echo $content . '<span class="small">' . $updateStr
-            . '</span>';
+        echo $content, '<span class="small">', $updateStr, '</span>';
     }
 
     function lastUpdateGet($pub) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.10 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: check_attachments.php,v 1.11 2007/10/31 19:27:49 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -67,14 +67,13 @@ class check_attachments extends pdHtmlPage {
         }
 
         if (!file_exists($filename)) {
-            echo 'pub_id ' . $pub_id
-                . ' missing ';
+            echo 'pub_id ', $pub_id, ' missing ';
             if ($is_additional)
                 echo 'additional ';
             else
                 echo 'paper ';
 
-            echo $basename . '<br/>' . "\n";
+            echo $basename, '<br/>', "\n";
         }
     }
 }

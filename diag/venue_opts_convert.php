@@ -34,7 +34,7 @@ if (0)
 				
 			$op[] = $venue->data;
 			
-			echo '<pre>' . implode("\t", $op) .  '</pre>' . "\n";
+			echo '<pre>', implode("\t", $op),  '</pre>', "\n";
 		}
 		
 		$venue->dbSave($db);
@@ -57,7 +57,7 @@ else
 		    		if (!empty($vopt))
 						$op[] = $vopt;
 			
-			echo '<pre>' . implode("\t", $op) .  '</pre>' . "\n";
+			echo '<pre>', implode("\t", $op),  '</pre>', "\n";
 		}
 	}
 

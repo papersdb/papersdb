@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.32 2007/10/31 17:49:36 loyola Exp $
+// $Id: add_pub2.php,v 1.33 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -131,10 +131,9 @@ class add_pub2 extends add_pub_base {
         else
             echo '<h3>Adding Publication Entry</h3>';
 
-        echo $this->pub->getCitationHtml('', false) . '&nbsp;'
-            . $this->getPubIcons($this->pub, 0x1)
-            . '<p/>'
-            . add_pub_base::similarPubsHtml();
+        echo $this->pub->getCitationHtml('', false), '&nbsp;',
+            $this->getPubIcons($this->pub, 0x1), '<p/>',
+            add_pub_base::similarPubsHtml();
 
         $renderer =& $form->defaultRenderer();
 

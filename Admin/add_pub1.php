@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.46 2007/08/16 16:31:41 aicmltec Exp $
+// $Id: add_pub1.php,v 1.47 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -141,10 +141,9 @@ class add_pub1 extends add_pub_base {
             else
                 echo '<h3>Adding Publication Entry</h3>';
 
-            echo $this->pub->getCitationHtml('..', false) . '&nbsp;'
-                . $this->getPubIcons($this->pub, 0x1)
-                . '<p/>'
-                . add_pub_base::similarPubsHtml();
+            echo $this->pub->getCitationHtml('..', false), '&nbsp;',
+                $this->getPubIcons($this->pub, 0x1), '<p/>',
+                add_pub_base::similarPubsHtml();
         }
 
         $renderer =& $this->form->defaultRenderer();

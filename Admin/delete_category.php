@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.23 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: delete_category.php,v 1.24 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Deletes a category from the database.
@@ -58,11 +58,9 @@ class delete_category extends pdHtmlPage {
         $pub_list = new pdPubList($this->db, array('cat_id' => $this->cat_id));
 
         if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
-            echo 'Cannot delete category <b>'
-                . $category->category . '</b>.<p/>'
-                . 'The category is used by the following '
-                . 'publications:' . "\n"
-                . $this->displayPubList($pub_list);
+            echo 'Cannot delete category <b>', $category->category, '</b>.<p/>', 
+            	'The category is used by the following publications:', "\n", 
+            	$this->displayPubList($pub_list);
             return;
         }
 
@@ -78,12 +76,10 @@ class delete_category extends pdHtmlPage {
             // This is where the actual deletion happens.
             $category->dbDelete($this->db);
 
-            echo 'Category <b>' . $category->category
-                . '</b> removed from the database.';
+            echo 'Category <b>', $category->category, '</b> removed from the database.';
         }
         else {
-            echo '<h3>Confirm</h3>'
-                . 'Delete category <b>' . $category->category . '</b>?<p/>';
+            echo '<h3>Confirm</h3>Delete category <b>', $category->category, '</b>?<p/>';
 
             $this->form =& $form;
             $this->renderer =& $renderer;

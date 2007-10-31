@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.1 2007/10/30 21:24:09 aicmltec Exp $
+// $Id: sanity_checks.php,v 1.2 2007/10/31 19:27:49 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -41,8 +41,7 @@ class sanity_checks extends pdHtmlPage {
         echo '<ul>';
 
         foreach ($this->sub_pages as $page_info) {
-            echo '<li><a href="' . $page_info[1] . '">' . $page_info[0]
-                . '</a></li>';
+            echo '<li><a href="', $page_info[1], '">', $page_info[0], '</a></li>';
         }
 
         echo '</ul>';

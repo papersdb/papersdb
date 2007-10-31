@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.11 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: pubSanityChecks.php,v 1.12 2007/10/31 19:27:49 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -314,7 +314,7 @@ class pubSanityChecks extends pdHtmlPage {
                     $non_ml[] = $pub->pub_id;
             }
 
-            echo '<h2>Non Machine Learning papers for ' . $name . '</h1>';
+            echo '<h2>Non Machine Learning papers for ', $name, '</h1>';
             $pub_list =  new pdPubList($this->db, array('pub_ids' => $non_ml));
             echo $this->displayPubList($pub_list, true);
         }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.34 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: login.php,v 1.35 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -32,8 +32,7 @@ class login extends pdHtmlPage {
         $this->password_hash = "aicml";
 
         if ($this->access_level > 0) {
-            echo 'You are already logged in as '
-                . $_SESSION['user']->login . '.';
+            echo 'You are already logged in as ', $_SESSION['user']->login, '.';
             $this->pageError = true;
             return;
         }
@@ -126,8 +125,7 @@ class login extends pdHtmlPage {
           $this->access_level = $_SESSION['user']->access_level;
 
           if ($this->access_level == 0) {
-            echo 'Your login request has not been '
-              . 'processed yet.';
+            echo 'Your login request has not been processed yet.';
             return;
           }
 
@@ -136,20 +134,17 @@ class login extends pdHtmlPage {
             $this->redirectTimeout = 0;
           }
           else {
-            echo '<h2>Logged in</h1>'
-              . 'You have succesfully logged in as '
-              . $_SESSION['user']->login
-              . '<p/>Return to <a href="index.php">main page</a>.'
-              . '<br/><br/><br/><br/><br/><br/>'
-              . '</div>';
+            echo '<h2>Logged in</h1>', 
+            	'You have succesfully logged in as ', $_SESSION['user']->login, 
+            	'<p/>Return to <a href="index.php">main page</a>.', 
+            	'</div>';
           }
         }
         else if (isset($values['newaccount'])) {
             // check if username exists in database.
             if (isset($user->login)) {
-                echo 'Sorry, the username <strong>'
-                    . $values['username'] . '</strong> is already taken, '
-                    . 'please pick another one.';
+                echo 'Sorry, the username <strong>', $values['username'], 
+                	'</strong> is already taken, please pick another one.';
                 $this->pageError = true;
                 return;
             }
@@ -192,17 +187,14 @@ class login extends pdHtmlPage {
                      . 'email: '. $values['email']);
             }
 
-            echo '<h2>Login Request Submitted</h1>'
-                . 'A request to create your login <b>'
-                . $values['username'] . '</b> has been submitted. '
-                . 'A confirmation email will be sent to <code>'
-                . $values['email']
-                . '</code> when your account is ready. '
-                . '<p/>Return to <a href="index.php">main page</a>.';
+            echo '<h2>Login Request Submitted</h1>', 
+            	'A request to create your login <b>', $values['username'], 
+            	'</b> has been submitted. A confirmation email will be sent to <code>', 
+            	$values['email'], '</code> when your account is ready. ', 
+            	'<p/>Return to <a href="index.php">main page</a>.';
         }
         else {
-          echo 'Could not process form<br/>'
-            . '<pre>' . print_r($values, true) . '</pre>';
+          echo 'Could not process form<br/><pre>', print_r($values, true), '</pre>';
         }
     }
 }

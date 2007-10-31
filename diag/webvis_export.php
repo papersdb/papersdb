@@ -31,7 +31,7 @@ foreach ($authors->list as $auth_id => $name) {
             $auth_names[] = $other_auths->name;
         }
 
-        echo $author->name . "\t" . $pub->title . "\t";
+        echo $author->name, "\t", $pub->title, "\t";
         echo implode("\t", array_diff($auth_names, array($author->name)));
         echo "\n";
     }

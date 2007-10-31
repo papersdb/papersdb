@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.7 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: add_pub_base.php,v 1.8 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -16,10 +16,10 @@ require_once 'includes/functions.php';
 
 
 class add_pub_base extends pdHtmlPage {
-    var $pub;
-    var $pub_id;
+    protected $pub;
+    protected $pub_id;
 
-    function add_pub_base() {
+    public function __construct() {
         parent::__construct('add_publication');
 
         if ($this->loginError) return;
@@ -36,10 +36,7 @@ class add_pub_base extends pdHtmlPage {
         $this->addPubDisableMenuItems();
     }
 
-    /**
-     * This is a static function.
-     */
-    function similarPubsHtml() {
+    public static function similarPubsHtml() {
         if (!isset($_SESSION['similar_pubs'])) return;
 
         $html = '<h3>Similar Publications in Database</h3>';
@@ -53,7 +50,7 @@ class add_pub_base extends pdHtmlPage {
         return $html;
     }
 
-    function addPubDisableMenuItems() {
+    public function addPubDisableMenuItems() {
         $this->navMenuItemEnable('add_publication', 0);
         $this->navMenuItemDisplay('add_author', 0);
         $this->navMenuItemDisplay('add_category', 0);

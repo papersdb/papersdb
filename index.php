@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.42 2007/10/28 22:55:49 loyola Exp $
+// $Id: index.php,v 1.43 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -57,8 +57,7 @@ class index extends pdHtmlPage {
 
         $table->addRow(array($text));
 
-        echo '<h2>Publications by Year:</h2>'
-            . $table->toHtml();
+        echo '<h2>Publications by Year:</h2>', $table->toHtml();
     }
 }
 

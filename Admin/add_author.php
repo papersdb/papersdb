@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.63 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: add_author.php,v 1.64 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -208,8 +208,8 @@ class add_author extends pdHtmlPage {
             else
                 echo '<h3>Adding Publication Entry</h3>';
 
-            echo $pub->getCitationHtml('..', false) . '<p/>'
-                . add_pub_base::similarPubsHtml();
+            echo $pub->getCitationHtml('..', false), '<p/>',
+                add_pub_base::similarPubsHtml();
         }
 
         $renderer =& $form->defaultRenderer();
@@ -305,16 +305,13 @@ class add_author extends pdHtmlPage {
         }
         else {
             if ($this->author_id == null)
-              echo 'Author "' . $values['firstname'] . ' '
-                . $values['lastname'] . '" '
-                . 'succesfully added to the database.'
-                . '<p/>'
-                . '<a href="' . $_SERVER['PHP_SELF'] . '">'
-                . 'Add another new author</a>';
+              echo 'Author "', $values['firstname'], ' ', $values['lastname'], 
+              	'" ', 'succesfully added to the database.', '<p/>', 
+              	'<a href="', $_SERVER['PHP_SELF'], '">', 
+              	'Add another new author</a>';
             else
-              echo 'Changes to author "'
-                . $values['firstname'] . ' ' . $values['lastname'] . '" '
-                . 'submitted to the database.';
+              echo 'Changes to author "', $values['firstname'], ' ', 
+              	$values['lastname'], '" ', 'submitted to the database.';
         }
     }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.26 2007/10/31 17:49:36 loyola Exp $
+// $Id: search_results.php,v 1.27 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -99,7 +99,7 @@ class search_results extends pdHtmlPage {
                   . 'height="16" width="16" border="0" align="top" />'
                   . ' Link to this search</a></div><br/>'));
 
-        echo '<hr/>' . $searchLinkTable->toHtml();
+        echo '<hr/>', $searchLinkTable->toHtml();
     }
 
     function processForm() {

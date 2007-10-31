@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.9 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: duplicatePubs.php,v 1.10 2007/10/31 19:27:49 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -27,9 +27,7 @@ class duplicatePubs extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        echo '<h1>Publications with same title</h1>'
-            . 'Note that some publications may exist both in a conference '
-            . 'and later in time in a journal.';
+        echo '<h1>Publications with same title</h1>', 'Note that some publications may exist both in a conference ', 'and later in time in a journal.';
 
         $all_pubs = new pdPubList($this->db);
         $titles = array();
@@ -46,13 +44,12 @@ class duplicatePubs extends pdHtmlPage {
         for ($i = 0, $n = count($titles); $i < $n - 1; ++$i) {
             for ($j = $i + 1; $j < $n; ++$j) {
                 if ($titles[$i][1] == $titles[$j][1]) {
-                    echo '<h2>Match ' . $count . '</h2>';
+                    echo '<h2>Match ', $count, '</h2>';
 
                     $titles[$i][0]->dbLoad($this->db, $titles[$i][0]->pub_id);
                     $titles[$j][0]->dbLoad($this->db, $titles[$j][0]->pub_id);
 
-                    echo $this->citationGet( $titles[$i][0])
-                        . '<br/>' . $this->citationGet( $titles[$j][0]);
+                    echo $this->citationGet( $titles[$i][0]), '<br/>', $this->citationGet( $titles[$j][0]);
 
                     ++$count;
                 }

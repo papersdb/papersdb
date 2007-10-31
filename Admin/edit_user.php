@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.29 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: edit_user.php,v 1.30 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -165,12 +165,10 @@ function showUser() {
     $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
-        echo '<h2>Login Information&nbsp;'
-            . '<a href="edit_user.php?status=edit">'
-            . '<img src="../images/pencil.gif" title="edit" '
-            . 'alt="edit" height="16" width="16" border="0" '
-            . 'align="top" /></a>'
-            . '</h2>';
+        echo '<h2>Login Information&nbsp;<a href="edit_user.php?status=edit">', 
+        	'<img src="../images/pencil.gif" title="edit" ', 
+        	'alt="edit" height="16" width="16" border="0" ', 
+        	'align="top" /></a></h2>';
 
         $table = new HTML_Table(array('width' => '100%',
                                       'border' => '0',

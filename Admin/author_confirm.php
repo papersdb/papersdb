@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.4 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: author_confirm.php,v 1.5 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * The user reaches this page only when he is adding a new author, and the
@@ -59,11 +59,9 @@ class author_confirm extends pdHtmlPage {
                 return;
             }
 
-            echo 'Author <span class="emph">' . $new_author->name . '</span> '
-                . 'succesfully added to the database.'
-                . '<p/>'
-                . '<a href="add_author.php">'
-                . 'Add another new author</a>';
+            echo 'Author <span class="emph">', $new_author->name, '</span> ', 
+            	'succesfully added to the database.', '<p/>', 
+            	'<a href="add_author.php">', 'Add another new author</a>';
         }
         else {
             $like_authors = new pdAuthorList($this->db,
@@ -72,12 +70,12 @@ class author_confirm extends pdHtmlPage {
 
             assert('count($like_authors->list) > 0');
 
-            echo 'Attempting to add new author: '
-                . '<span class="emph">' . $new_author->name . "</span><p/>\n"
-                . 'The following authors, already in the database, have similar names:<ul>';
+            echo 'Attempting to add new author: ', '<span class="emph">', 
+            	$new_author->name, "</span><p/>\n", 
+            	'The following authors, already in the database, have similar names:<ul>';
 
             foreach ($like_authors->list as $auth) {
-                echo '<li>' . $auth . '</li>';
+                echo '<li>', $auth, '</li>';
             }
             echo '</ul>Do you really want to add this author?';
 

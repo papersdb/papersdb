@@ -41,13 +41,12 @@ class list_author extends pdHtmlPage {
 
         $auth_list = new pdAuthorList($this->db, null, $this->tab);
 
-        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
+        echo $this->alphaSelMenu($this->tab, get_class($this), '.php');
 
         echo "<h2>Authors</h2>";
 
         if (!isset($auth_list->list) || (count($auth_list->list) == 0)) {
-            echo 'No authors with last name starting with ' . $this->tab
-                . '<br/>';
+            echo 'No authors with last name starting with ', $this->tab, '<br/>';
             return;
         }
 

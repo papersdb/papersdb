@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.16 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: author_report.php,v 1.17 2007/10/31 19:27:49 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -79,16 +79,13 @@ class author_report extends pdHtmlPage {
         }
 
         echo '<h3>Two PIs</h3>';
-        echo 'Number of publications: ' . count($pi_pubs)
-            . '<p/>';
+        echo 'Number of publications: ', count($pi_pubs), '<p/>';
 
         $c = 0;
         foreach ($pi_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
-            echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
-                . '&nbsp;' . $this->getPubIcons($pub)
-                . '<br/><span class="small">' . $authors . '</span><p/>';
+            echo ($c + 1), '. ', $pub->getCitationHtml('..'), '&nbsp;', $this->getPubIcons($pub), '<br/><span class="small">', $authors, '</span><p/>';
             $c++;
         }
 
@@ -124,16 +121,13 @@ class author_report extends pdHtmlPage {
         }
 
         echo '<h3>One PI and one PDF</h3>';
-        echo 'Number of publications: ' . count($pi_pdf_pubs)
-            . '<p/>';
+        echo 'Number of publications: ', count($pi_pdf_pubs), '<p/>';
 
         $c = 0;
         foreach ($pi_pdf_pubs as $pub_id => $authors) {
             $pub = new pdPublication();
             $pub->dbLoad($this->db, $pub_id);
-            echo ($c + 1) . '. ' . $pub->getCitationHtml('..')
-                . '&nbsp;' . $this->getPubIcons($pub)
-                . '<br/><span class="small">' . $authors . '</span><p/>';
+            echo ($c + 1), '. ', $pub->getCitationHtml('..'), '&nbsp;', $this->getPubIcons($pub), '<br/><span class="small">', $authors, '</span><p/>';
             $c++;
         }
     }

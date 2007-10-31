@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.24 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: delete_venue.php,v 1.25 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -50,11 +50,9 @@ class delete_venue extends pdHtmlPage {
                                   array('venue_id' => $this->venue_id));
 
         if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
-            echo 'Cannot delete venue <b>'
-                . $venue->nameGet() . '</b>.<p/>'
-                . 'The venue is used by the following '
-                . 'publications:' . "\n"
-                . $this->displayPubList($pub_list);
+            echo 'Cannot delete venue <b>', $venue->nameGet(), '</b>.<p/>', 
+            	'The venue is used by the following ', 'publications:', "\n", 
+            	$this->displayPubList($pub_list);
             return;
         }
 
@@ -64,8 +62,7 @@ class delete_venue extends pdHtmlPage {
         if ($form->validate()) {
             $venue->dbDelete($this->db);
 
-            echo 'Venue <b>' . $venue->title
-                . '</b> successfully removed from database.';
+            echo 'Venue <b>', $venue->title, '</b> successfully removed from database.';
         }
         else {
             $renderer =& $form->defaultRenderer();
@@ -76,9 +73,8 @@ class delete_venue extends pdHtmlPage {
             else
                 $disp_name = $venue->nameGet();
 
-            echo '<h3>Confirm</h3><p/>'
-                . 'Delete Venue <b>' . $disp_name
-                . '</b> from the database?';
+            echo '<h3>Confirm</h3><p/>', 'Delete Venue <b>', $disp_name, 
+            	'</b> from the database?';
 
             $this->form =& $form;
             $this->renderer =& $renderer;

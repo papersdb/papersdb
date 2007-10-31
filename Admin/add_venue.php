@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.57 2007/10/30 22:26:23 loyola Exp $
+// $Id: add_venue.php,v 1.58 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -392,8 +392,8 @@ class add_venue extends pdHtmlPage {
             else
                 echo '<h3>Adding Publication Entry</h3>';
 
-            echo $pub->getCitationHtml('..', false) . '<p/>'
-                . add_pub_base::similarPubsHtml();
+            echo $pub->getCitationHtml('..', false), '<p/>',
+                add_pub_base::similarPubsHtml();
         }
 
         $renderer =& $form->defaultRenderer();
@@ -482,9 +482,9 @@ class add_venue extends pdHtmlPage {
                 echo 'You have successfully added the venue "';
 
                 if (!empty($this->venue->title))
-                    echo  $this->venue->title . '".';
+                    echo  $this->venue->title, '".';
                 else
-                    echo  $this->venue->name . '".';
+                    echo   $this->venue->name, '".';
 
                 echo '<br><a href="./add_venue.php">Add another venue</a>';
             }
@@ -492,13 +492,13 @@ class add_venue extends pdHtmlPage {
                 echo 'You have successfully edited the venue "';
 
                 if (!empty($this->venue->title))
-                    echo $this->venue->title . '".';
+                    echo  $this->venue->title, '".';
                 else
-                    echo  $this->venue->name . '".';
+                    echo   $this->venue->name, '".';
             }
 
             if (!empty($this->referer))
-                echo '<p/><a href="' . $this->referer . '">Return to venue list</a>';
+                echo   '<p/><a href="', $this->referer, '">Return to venue list</a>';
         }
 
         if ($this->debug) {

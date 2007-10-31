@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.11 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: batch_add_authors.php,v 1.12 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -73,32 +73,29 @@ class batch_add_authors extends pdHtmlPage {
             }
 
             if (count($in_db_auths) > 0) {
-                echo 'These authors were already in the '
-                    . 'database:<ul>';
+                echo 'These authors were already in the database:<ul>';
                 foreach ($in_db_auths as $auth_name) {
-                    echo '<li>' . $auth_name . '</li>';
+                    echo '<li>', $auth_name, '</li>';
                 }
             }
 
             if (count($new_auths) > 0) {
                 if (count($in_db_auths) > 0) {
-                    echo '</ul>'
-                        . 'Only these authors were added to the database:'
-                        . '<ul>';
+                    echo '</ul>', 'Only these authors were added to the database:', 
+                    	'<ul>';
                 }
                 else {
                     echo 'These authors were added to the database:<ul>';
                 }
 
                 foreach ($new_auths as $auth_name) {
-                    echo '<li>' . $auth_name . '</li>';
+                    echo '<li>', $auth_name, '</li>';
                 }
 
                 echo '</ul>';
             }
             else {
-                echo '</ul>'
-                    . 'No authors were added to the database.';
+                echo '</ul>No authors were added to the database.';
             }
         }
         else {

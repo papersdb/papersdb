@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.3 2007/10/30 21:24:58 loyola Exp $
+// $Id: pdDb.php,v 1.4 2007/10/31 19:29:47 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -53,16 +53,16 @@ class pdDb {
             switch (mysql_errno()) {
                 case 1045:
                 case 2000:
-                    echo 'failed due to authentication errors. '
-                        . 'Check database username and password<br>/';
+                    echo 'failed due to authentication errors. ', 
+                    	'Check database username and password<br>/';
                     break;
 
                 case 2002:
                 case 2003:
                 default:
                     // General connection problem
-                    echo 'failed with error [' . $errno . '] '
-                        . htmlspecialchars(mysql_error()) . '.<br>';
+                    echo 'failed with error [', $errno, '] ', 
+                    	htmlspecialchars(mysql_error()), '.<br>';
                     break;
             }
             die();
@@ -131,13 +131,13 @@ function wfDebug( $text, $logonly = false ) {
     echo $text;
 }
 
-function wfDie($txt) { echo $txt . "<br/>\n"; }
+function wfDie($txt) { echo $txt, "<br/>\n"; }
 
 $wgProfiling = 0;
 
 function wfProfileIn($str) {}
-function wfProfileOut($str) { echo $str . "<br/>\n"; }
-function wfLogDBError( $text ) { echo $text . "<br/>\n"; }
+function wfProfileOut($str) { echo $str, "<br/>\n"; }
+function wfLogDBError( $text ) { echo $text, "<br/>\n"; }
 function wfGetSiteNotice() {}
 function wfErrorExit() {
     //echo papersdb_backtrace();
