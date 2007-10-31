@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.32 2007/10/31 19:29:47 loyola Exp $
+// $Id: list_venues.php,v 1.33 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -40,7 +40,7 @@ class list_venues extends pdHtmlPage {
         $venue_list = new pdVenueList($this->db,
                                       array('starting_with' => $this->tab));
 
-        echo $this->alphaSelMenu($this->tab, get_class($this), '.php');
+        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
 
         echo '<h2>Publication Venues</h2>';
 
@@ -128,8 +128,8 @@ class list_venues extends pdHtmlPage {
 
             $table->addRow($cells);
             $table->updateColAttributes(1, array('class' => 'icons'), NULL);
-
             echo $table->toHtml();
+            unset($table);
         }
     }
 }

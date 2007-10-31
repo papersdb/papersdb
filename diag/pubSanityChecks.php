@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.12 2007/10/31 19:27:49 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.13 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -116,7 +116,7 @@ class pubSanityChecks extends pdHtmlPage {
         $additional = array();
         $rankings = pdPublication::rankingsGlobalGet($this->db);
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs->list as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -127,6 +127,7 @@ class pubSanityChecks extends pdHtmlPage {
                 $additional[$pub->pub_id]
                     = 'Venue ranking: ' . $rankings[$pub->venue->rank_id];
             }
+            unset($pub);
         }
 
         echo '<h2>Non Matching Venue Rankings</h1>';
@@ -175,6 +176,7 @@ class pubSanityChecks extends pdHtmlPage {
 
             if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1))
                 $bad_pubs[] = $pub->pub_id;
+            unset($pub);
         }
 
         echo '<h2>Mislabelled Tier 1</h1>';
@@ -223,6 +225,7 @@ class pubSanityChecks extends pdHtmlPage {
                     $additional[$pub->pub_id] = 'Should be Tier 1';
                 }
             }
+            unset($pub);
         }
 
         echo '<h2>Journal publication entries with suspect rankings</h1>';
@@ -252,6 +255,7 @@ class pubSanityChecks extends pdHtmlPage {
                     $additional[$pub->pub_id] = 'Should be Tier 1';
                 }
             }
+            unset($pub);
         }
 
         echo '<h2>Conference publication entries with suspect rankings</h1>';
@@ -271,6 +275,7 @@ class pubSanityChecks extends pdHtmlPage {
                 && ($pub->category->cat_id == 4)
                 && ($pub->rank_id != 3))
                 $bad_rank[] = $pub->pub_id;
+            unset($pub);
         }
 
         echo '<h2>Workshop publication entries with suspect rankings</h1>';
@@ -290,6 +295,7 @@ class pubSanityChecks extends pdHtmlPage {
                 && ($pub->category->cat_id == 12)
                 && ($pub->rank_id != 4))
                 $bad_rank[] = $pub->pub_id;
+            unset($pub);
         }
 
         echo '<h2>Poster publication entries with suspect rankings</h1>';
@@ -317,6 +323,7 @@ class pubSanityChecks extends pdHtmlPage {
             echo '<h2>Non Machine Learning papers for ', $name, '</h1>';
             $pub_list =  new pdPubList($this->db, array('pub_ids' => $non_ml));
             echo $this->displayPubList($pub_list, true);
+            unset($all_pubs);
         }
     }
 

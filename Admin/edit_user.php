@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.30 2007/10/31 19:29:47 loyola Exp $
+// $Id: edit_user.php,v 1.31 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -24,7 +24,26 @@ require_once 'includes/pdAuthorList.php';
  * @package PapersDB
  */
 class edit_user extends pdHtmlPage {
-    var $status;
+    protected $status;
+    
+    // template for a dual multi-select element shape
+    const TEMPLATE = '{javascript}
+	<table{class}>
+	<tr>
+	  <th>&nbsp;</th>
+	  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
+	  <th>&nbsp;</th>
+	  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
+	 </tr>
+	 <tr>
+	   <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
+	   <td class="middle">{selected}</td>
+	   <td class="middle">{add}</td>
+	   <td class="middle">{unselected}</td>
+	 </tr>
+	</table>
+	{javascript}';
+   
 
     function edit_user() {
         parent::__construct('edit_user');
@@ -80,27 +99,7 @@ class edit_user extends pdHtmlPage {
         $authSelect->setButtonAttributes('movedown',
                                          array('class' => 'inputCommand'));
 
-        // template for a dual multi-select element shape
-        $template = <<<END
-{javascript}
-<table{class}>
-<tr>
-  <th>&nbsp;</th>
-  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
-  <th>&nbsp;</th>
-  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
-</tr>
-<tr>
-  <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-  <td class="middle">{selected}</td>
-  <td class="middle">{add}</td>
-  <td class="middle">{unselected}</td>
-</tr>
-</table>
-{javascript}
-END;
-
-        $authSelect->setElementTemplate($template);
+        $authSelect->setElementTemplate(self::TEMPLATE);
 
         $form->addElement('submit', 'Submit', 'Save');
 

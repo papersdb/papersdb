@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.11 2007/10/31 19:27:49 loyola Exp $
+// $Id: check_attachments.php,v 1.12 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -45,6 +45,7 @@ class check_attachments extends pdHtmlPage {
                     $this->checkAtt($pub->pub_id, $att->location,
                                     $paper_arr[1], 1);
                 }
+            unset($pub);
         }
     }
 

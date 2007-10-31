@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.106 2007/10/31 15:18:29 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.107 2007/10/31 20:37:28 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -777,6 +777,7 @@ END;
                 $table->updateColAttributes(0, array('class' => 'item'), NULL);
 
             $result .= $table->toHtml();
+            unset($table);
 
             if (($max > 0) && ($count >= $max)) break;
         }
@@ -849,6 +850,7 @@ END;
                         0, array('class' => 'item'), NULL);
 
                 $result .= $table->toHtml();
+                unset($table);
 
                 if (($max > 0) && ($count >= $max)) break;
             }

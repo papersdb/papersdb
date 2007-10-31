@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.17 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: list_categories.php,v 1.18 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -59,6 +59,7 @@ class list_categories extends pdHtmlPage {
             $table->updateColAttributes(0, array('class' => 'category'), NULL);
             $table->updateColAttributes(2, array('class' => 'icons'), NULL);
             echo $table->toHtml();
+            unset($table);
         }
     }
 }

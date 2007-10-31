@@ -41,7 +41,7 @@ class list_author extends pdHtmlPage {
 
         $auth_list = new pdAuthorList($this->db, null, $this->tab);
 
-        echo $this->alphaSelMenu($this->tab, get_class($this), '.php');
+        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
 
         echo "<h2>Authors</h2>";
 
@@ -50,12 +50,6 @@ class list_author extends pdHtmlPage {
             return;
         }
 
-        $table = new HTML_Table(array('width' => '100%',
-                                      'border' => '0',
-                                      'cellpadding' => '0',
-                                      'cellspacing' => '0'));
-        $table->setAutoGrow(true);
-
         foreach ($auth_list->list as $author_id => $name) {
             $author = new pdAuthor();
             $author->dbLoad($this->db, $author_id,
@@ -63,8 +57,8 @@ class list_author extends pdHtmlPage {
                             | PD_AUTHOR_DB_LOAD_PUBS_MIN);
 
             $name = '<span class="emph"><a href="view_author.php?author_id='
-                . $author_id . '">' . $name . '</a>&nbsp;'
-                . $this->getAuthorIcons($author) . '</span>';
+                . $author_id . '">' . $name . '</a>&nbsp;';
+            $icons = $this->getAuthorIcons($author) . '</span>';
 
             $info = array();
             if ($author->title != '')
@@ -74,24 +68,17 @@ class list_author extends pdHtmlPage {
                 $info[] = '<span class="small">' . $author->organization
                     . '</span>';
 
-            $info[] = '<span class="small">Number of publication entries in '
-                . 'database: ' . $author->totalPublications . '</span>';
+            $info[] = '<span class="small" style="color:#000;font-weight:normal;">'
+	            . 'Publication entries in database: ' 
+	            . $author->totalPublications . '</span>';
 
-            $table->addRow(array($name, implode('<br/>', $info)));
+            $table = new HTML_Table(array('class' => 'publist'));
+            $table->addRow(array($name . '<br/>' . implode('<br/>', $info), 
+                                 $icons));
+            $table->updateColAttributes(1, array('class' => 'icons'), NULL);
+            echo $table->toHtml();
+            unset($table);
         }
-
-        // now assign table attributes including highlighting for even and odd
-        // rows
-        for ($i = 0; $i < $table->getRowCount(); $i++) {
-            if ($i & 1)
-                $table->updateRowAttributes($i, array('class' => 'even'), true);
-            else
-                $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
-        }
-        $table->updateColAttributes(0, array('class' => 'publist'), true);
-
-        $this->table =& $table;
     }
 }
 

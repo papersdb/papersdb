@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.8 2007/10/31 19:29:47 loyola Exp $
+// $Id: add_pub_base.php,v 1.9 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -45,6 +45,7 @@ class add_pub_base extends pdHtmlPage {
             $sim_pub->dbLoad($this->db, $sim_pub_id);
 
             $html .= $sim_pub->getCitationHtml('..', false) . '<p/>';
+            unset($sim_pub);
         }
 
         return $html;

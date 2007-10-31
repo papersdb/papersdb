@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.10 2007/10/31 19:27:49 loyola Exp $
+// $Id: duplicatePubs.php,v 1.11 2007/10/31 20:37:27 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -33,9 +33,9 @@ class duplicatePubs extends pdHtmlPage {
         $titles = array();
 
         foreach ($all_pubs->list as $pub) {
-            $titles[]
-                = array($pub,
-                        preg_replace('/\s\s+/', ' ', strtolower($pub->title)));
+            $titles[]= array($pub,
+                             preg_replace('/\s\s+/', ' ', 
+                                          strtolower($pub->title)));
         }
 
         //$this->debugVar('titles', $titles);
