@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.122 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdPublication.php,v 1.123 2007/11/01 14:58:45 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -70,7 +70,7 @@ class pdPublication extends pdDbAccessor {
      *
      * Use $flags to load information from other tables.
      */
-    function dbLoad($db, $id, $flags = PD_PUB_DB_LOAD_ALL) {
+    public function dbLoad($db, $id, $flags = PD_PUB_DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
@@ -214,7 +214,7 @@ class pdPublication extends pdDbAccessor {
         return true;
     }
 
-    function dbLoadVenue($db) {
+    private function dbLoadVenue($db) {
         assert("($this->dbLoadFlags & PD_PUB_DB_LOAD_VENUE)");
 
         if (($this->venue_id == null) || ($this->venue_id == '')
@@ -224,7 +224,7 @@ class pdPublication extends pdDbAccessor {
         $this->venue->dbload($db, $this->venue_id);
     }
 
-    function dbDelete($db) {
+    public function dbDelete($db) {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
@@ -250,7 +250,7 @@ class pdPublication extends pdDbAccessor {
         $this->deleteFiles($db);
     }
 
-    function dbSave($db) {
+    public function dbSave($db) {
         assert('is_object($db)');
 
         $arr = array('title'      => $this->title,
@@ -407,7 +407,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function dbAttUpdate($db, $filename, $type) {
+    public function dbAttUpdate($db, $filename, $type) {
         assert('$this->pub_id != null');
 
         $filename = $this->pub_id . '/' . $filename;
@@ -433,7 +433,7 @@ class pdPublication extends pdDbAccessor {
                     'pdPublication::dbAttUpdate');
     }
 
-    function dbAttRemove($db, $filename) {
+    public function dbAttRemove($db, $filename) {
         assert('$this->pub_id != null');
         assert('count($this->additional_info) > 0');
 
@@ -458,7 +458,7 @@ class pdPublication extends pdDbAccessor {
 
     }
 
-    function authorsToArray() {
+    public function authorsToArray() {
         assert('is_object($$this->authors)');
         assert('count($$this->authors) > 0');
 
@@ -470,7 +470,7 @@ class pdPublication extends pdDbAccessor {
         return $authors;
     }
 
-    function authorsToHtml($urlPrefix = null) {
+    public function authorsToHtml($urlPrefix = null) {
         if (!isset($this->authors)) return null;
 
         if ($urlPrefix == null) $urlPrefix = '.';
@@ -494,7 +494,7 @@ class pdPublication extends pdDbAccessor {
     /**
      * removes all keywords of length 0
      */
-    function keywordsGet() {
+    public function keywordsGet() {
         if (!isset($this->keywords)) return '';
 
         $keywords = preg_split("/;\s*/", $this->keywords);
@@ -506,7 +506,7 @@ class pdPublication extends pdDbAccessor {
         return implode(", ", $keywords);
     }
 
-    function keywordsSet($keywords) {
+    public function keywordsSet($keywords) {
         assert('is_array($keywords)');
 
         if (count($keywords) == 0) return;
@@ -519,7 +519,7 @@ class pdPublication extends pdDbAccessor {
     /**
      * removes all extra_info items of length 0
      */
-    function extraInfoGet() {
+    public function extraInfoGet() {
         if (!isset($this->extra_info)) return '';
 
         $extra_info = preg_split('/;\s*/', $this->extra_info);
@@ -531,7 +531,7 @@ class pdPublication extends pdDbAccessor {
         return implode(", ", $extra_info);
     }
 
-    function extraInfoSet($info) {
+    public function extraInfoSet($info) {
         assert('is_array($info)');
 
         if (count($info) == 0) {
@@ -545,7 +545,7 @@ class pdPublication extends pdDbAccessor {
         $this->extra_info = $words;
     }
 
-    function addVenue($db, $mixed) {
+    public function addVenue($db, $mixed) {
         if (is_object($mixed)) {
             // if this publication already has a unique venue associated with
             // it, the venue must first be deleted
@@ -591,7 +591,7 @@ class pdPublication extends pdDbAccessor {
         assert('false');
     }
 
-    function addCategory($db, $mixed) {
+    public function addCategory($db, $mixed) {
         if (is_object($mixed)) {
             $this->category = $mixed;
         }
@@ -615,12 +615,12 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function clearAuthors() {
+    public function clearAuthors() {
         if (count($this->authors) == 0) return;
         unset($this->authors);
     }
 
-    function addAuthor($db, $mixed) {
+    public function addAuthor($db, $mixed) {
         if (is_object($mixed)) {
             // check if publication already has this author
             if ($this->authors != null)
@@ -662,37 +662,37 @@ class pdPublication extends pdDbAccessor {
         $this->authors[] = $author;
     }
 
-    function addWebLink($name, $url) {
+    public function addWebLink($name, $url) {
         $this->web_links[$name] = $url;
     }
 
-    function delWebLink($name) {
+    public function delWebLink($name) {
         if (isset($this->web_links[$name]))
             unset($this->web_links[$name]);
     }
 
-    function paperDbUpdate($db, $paper) {
+    public function webLinkRemove($text, $link) {
+        if (count($this->web_links) == 0) return;
+
+        unset($this->web_links[$text]);
+    }
+
+    public function paperDbUpdate($db, $paper) {
         $this->paper = $paper;
         $db->update('publication', array('paper' => $this->paper),
                     array('pub_id' => $this->pub_id),
                     'pdPublication::updatePaper');
     }
 
-    function webLinkRemove($text, $link) {
-        if (count($this->web_links) == 0) return;
-
-        unset($this->web_links[$text]);
-    }
-
-    function relatedPubsGet() {
+    public function relatedPubsGet() {
         return $this->related_pubs;
     }
 
-    function relatedPubAdd($pub_id) {
+    public function relatedPubAdd($pub_id) {
         $this->related_pubs[] = $pub_id;
     }
 
-    function relatedPubRemove($pub_id) {
+    public function relatedPubRemove($pub_id) {
         if (count($this->related_pubs) == 0) return;
 
         foreach ($this->related_pubs as $key => $link_pub_id) {
@@ -704,7 +704,7 @@ class pdPublication extends pdDbAccessor {
         $this->related_pubs = array_values($this->related_pubs);
     }
 
-    function paperExists() {
+    public function paperExists() {
         $path = FS_PATH;
         if (strpos($this->paper, 'uploaded_files/') === false)
             $path .= '/uploaded_files/' . $this->pub_id . '/';
@@ -713,7 +713,7 @@ class pdPublication extends pdDbAccessor {
         return is_file($path);
     }
 
-    function attExists($att) {
+    public function attExists($att) {
         $path = FS_PATH;
         if (strpos($att->location, 'uploaded_files/') === false)
             $path .= '/uploaded_files/';
@@ -722,7 +722,7 @@ class pdPublication extends pdDbAccessor {
         return is_file($path);
     }
 
-    function paperSave($db, $papername) {
+    public function paperSave($db, $papername) {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
@@ -754,7 +754,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function attSave($db, $att_name, $att_type) {
+    public function attSave($db, $att_name, $att_type) {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
@@ -789,7 +789,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    function deletePaper($db) {
+    public function deletePaper($db) {
         assert('isset($this->pub_id)');
 
         if (!isset($this->paper)) return;
@@ -804,7 +804,7 @@ class pdPublication extends pdDbAccessor {
         $this->paperDbUpdate($db, 'no paper');
     }
 
-    function deleteAtt($db, $att) {
+    public function deleteAtt($db, $att) {
         assert('isset($this->pub_id)');
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
@@ -815,7 +815,7 @@ class pdPublication extends pdDbAccessor {
         $this->dbAttRemove($db, $att->location);
     }
 
-    function deleteFiles($db) {
+    public function deleteFiles($db) {
         $this->deletePaper($db);
 
         if (count($this->additional_info) > 0) {
@@ -829,7 +829,7 @@ class pdPublication extends pdDbAccessor {
         rm($pub_path);
     }
 
-    function attFilenameGet($num) {
+    public function attFilenameGet($num) {
         if ($this->pub_id == '') return null;
 
         assert('$num < count($this->additional_info)');
@@ -838,7 +838,7 @@ class pdPublication extends pdDbAccessor {
             . basename($this->additional_info[$num]->location);
     }
 
-    function paperAttGetUrl() {
+    public function paperAttGetUrl() {
         if(strtolower($this->paper) == 'no paper') return '';
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
@@ -851,7 +851,7 @@ class pdPublication extends pdDbAccessor {
         return $result;
     }
 
-    function attachmentGetUrl($att_num) {
+    public function attachmentGetUrl($att_num) {
         if($att_num >= count($this->additional_info)) return '';
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
@@ -866,7 +866,7 @@ class pdPublication extends pdDbAccessor {
         return $result;
     }
 
-    function getCitationHtml($urlPrefix = '.', $author_links = true) {
+    public function getCitationHtml($urlPrefix = '.', $author_links = true) {
         $citation = '';
 
         $first = true;
@@ -970,7 +970,7 @@ class pdPublication extends pdDbAccessor {
         return $citation;
     }
 
-    function getCitationText() {
+    public function getCitationText() {
         $citation = '';
 
         if (count($this->authors) > 0) {
@@ -1032,7 +1032,7 @@ class pdPublication extends pdDbAccessor {
         return $citation;
     }
 
-    function getBibtex() {
+    public function getBibtex() {
         $bibtex = '@inproceedings{';
 
         if (is_object($this->category) && isset($this->category->category)) {
@@ -1129,7 +1129,7 @@ class pdPublication extends pdDbAccessor {
         return format80($bibtex);
     }
 
-    function getInfoForCitation() {
+    public function getInfoForCitation() {
         if (count($this->info) == 0) return null;
 
         $info = array();
@@ -1191,7 +1191,7 @@ class pdPublication extends pdDbAccessor {
         return $this->info2str($validKeys, $this->info);
     }
 
-    function info2str($validKeys, $values) {
+    public function info2str($validKeys, $values) {
         $info = array();
 
         // need to merge 'Volume' and 'Number' if they exist
@@ -1224,7 +1224,7 @@ class pdPublication extends pdDbAccessor {
 
     // Previous versions of the code used 'No Paper' and '<path>/paper_' to
     // state that there was no attachment.
-    function paperFilenameGet() {
+    public function paperFilenameGet() {
         $basename = basename($this->paper);
         if (($this->pub_id == '') || (strtolower($this->paper) == 'no paper')
             || ($this->paper == '') || ($basename == 'paper_')) return null;
@@ -1232,7 +1232,7 @@ class pdPublication extends pdDbAccessor {
         return FS_PATH_UPLOAD . $this->pub_id . '/' . $basename;
     }
 
-    function duplicateTitleCheck($db) {
+    public function duplicateTitleCheck($db) {
         assert('is_object($db)');
 
         $myTitleLower = preg_replace('/\s\s+/', ' ', strtolower($this->title));
@@ -1253,13 +1253,13 @@ class pdPublication extends pdDbAccessor {
         return $similarPubs;
     }
 
-    function pubsTitleSort($a , $b) {
+    public static function pubsTitleSort($a , $b) {
         if (strtolower($a->title) == strtolower($b->title)) return 0;
 
         return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
     }
 
-    function pubsDateSortDesc($a , $b) {
+    public static function pubsDateSortDesc($a , $b) {
         if (strtolower($a->published) == strtolower($b->published)) {
             if (strtolower($a->title) == strtolower($b->title)) return 0;
 
@@ -1270,7 +1270,7 @@ class pdPublication extends pdDbAccessor {
             ? -1 : 1;
     }
 
-    function rankingsGlobalGet(&$db) {
+    public static function rankingsGlobalGet(&$db) {
         $q = $db->select('pub_rankings', '*', 'pub_id is NULL',
                          "pdPublication::dbLoad");
         assert('$q !== false');
@@ -1284,7 +1284,7 @@ class pdPublication extends pdDbAccessor {
         return $rankings;
     }
 
-    function collaborationsGet(&$db) {
+    public static function collaborationsGet(&$db) {
         $q = $db->select('collaboration', '*', '', "pdPublication::dbLoad");
         assert('$q !== false');
 
