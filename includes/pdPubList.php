@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.29 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdPubList.php,v 1.30 2007/11/01 15:10:36 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -327,7 +327,8 @@ class pdPubList {
             if (!is_numeric($pub_id)) continue;
 
             $pub = new pdPublication();
-            $result = $pub->dbLoad($db, $pub_id, PD_PUB_DB_LOAD_BASIC);
+            $result = $pub->dbLoad($db, $pub_id, 
+	            pdPublication::PD_PUB_DB_LOAD_BASIC);
             if ($result !== false)
                 $this->list[$pub_id] = $pub;
 
@@ -348,8 +349,8 @@ class pdPubList {
 
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id,
-                                   PD_PUB_DB_LOAD_BASIC
-                                   | PD_PUB_DB_LOAD_CATEGORY);
+                                   pdPublication::PD_PUB_DB_LOAD_BASIC
+                                   | pdPublication::PD_PUB_DB_LOAD_CATEGORY);
             if ($result !== false) {
                 if (is_object($pub->category))
                     switch ($pub->category->category) {
