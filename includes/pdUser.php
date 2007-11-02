@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.35 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdUser.php,v 1.36 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -142,11 +142,11 @@ class pdUser extends pdDbAccessor {
             arsort($this->author_rank, SORT_NUMERIC);
 
             // now remove the author ids that are invalid
-            $valid_authors = new pdAuthorList($db);
+            $valid_authors = pdAuthorList::create($db);
 
             $ranked_author_ids = array_keys($this->author_rank);
             foreach ($ranked_author_ids as $id) {
-                if (!isset($valid_authors->list[$id]))
+                if (!isset($valid_authors[$id]))
                     unset($this->author_rank[$id]);
             }
         }

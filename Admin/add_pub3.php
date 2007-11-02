@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.44 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_pub3.php,v 1.45 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -17,7 +17,6 @@ require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdCatList.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdAuthor.php';
-require_once 'includes/pdExtraInfoList.php';
 
 /**
  * Renders the whole page.
@@ -72,11 +71,11 @@ class add_pub3 extends add_pub_base {
         $form->addElement('header', null, 'Category Information');
 
         // category
-        $category_list = new pdCatList($this->db);
+        $category_list = pdCatList::create($this->db);
         $category[] = HTML_QuickForm::createElement(
             'select', 'cat_id', null,
             array('' => '--- Please Select a Category ---')
-            + $category_list->list,
+            + $category_list,
             array('onchange' => 'dataKeep();'));
         $text = '';
         if (is_object($this->pub->venue)
@@ -84,7 +83,7 @@ class add_pub3 extends add_pub_base {
             && ($this->pub->venue->cat_id != 0)
             && ($this->pub->venue->cat_id != $this->pub->category->cat_id))
             $text = '<span class="emph">(venue default is: '
-                . $category_list->list[$this->pub->venue->cat_id]
+                . $category_list[$this->pub->venue->cat_id]
                 . ')</span>';
         $category[] = HTML_QuickForm::createElement(
             'static', null, null, $text);
@@ -184,8 +183,6 @@ class add_pub3 extends add_pub_base {
                           $this->helpTooltip('Extra Information',
                                              'extraInfoHelp') . ':',
                           array('cols' => 60, 'rows' => 5));
-
-        $extra_info = new pdExtraInfoList($this->db);
 
         $form->addElement('static', null, null,
                           '<span class="small">'

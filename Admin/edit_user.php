@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.33 2007/11/02 16:36:28 loyola Exp $
+// $Id: edit_user.php,v 1.34 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -77,11 +77,10 @@ class edit_user extends pdHtmlPage {
                           'Options:', 'show internal info', null,
                           array('No', 'Yes'));
 
-        $auth_list = new pdAuthorList($this->db);
-        assert('is_array($auth_list->list)');
+        $auth_list = pdAuthorList::create($this->db);
 
         $authSelect =& $form->addElement('advmultiselect', 'authors', null,
-                                         $auth_list->list,
+                                         $auth_list,
                                          array('class' => 'pool',
                                                'style' => 'width:150px;'),
                                          SORT_ASC);
@@ -116,11 +115,10 @@ class edit_user extends pdHtmlPage {
 
             unset($user->collaborators);
             if (count($values['authors']) > 0) {
-                $auth_list = new pdAuthorList($this->db);
+                $auth_list = pdAuthorList::create($this->db);
 
                 foreach ($values['authors'] as $author_id) {
-                    $user->collaborators[$author_id]
-                        = $auth_list->list[$author_id];
+                    $user->collaborators[$author_id] = $auth_list[$author_id];
                 }
             }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.42 2007/11/02 16:36:28 loyola Exp $
+// $Id: list_publication.php,v 1.43 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -61,9 +61,9 @@ class list_publication extends pdHtmlPage {
                 . $vl->list[$this->venue_id] . '"</h1>';
         }
         else if (isset($this->cat_id)) {
-            $cl = new pdCatList($this->db);
+            $cl = pdCatList::create($this->db);
 
-            if (!array_key_exists($this->cat_id, $cl->list)) {
+            if (!array_key_exists($this->cat_id, $cl)) {
                 $this->pageError = true;
                 return;
             }
@@ -71,7 +71,7 @@ class list_publication extends pdHtmlPage {
             $pub_list = new pdPubList(
                 $this->db, array('cat_id' => $this->cat_id));
             $title = '<h1>Publications in Category "'
-                . $cl->list[$this->cat_id] . '"</h1>';
+                . $cl[$this->cat_id] . '"</h1>';
         }
         else if (isset($this->keyword)) {
             $pub_list = new pdPubList(
@@ -188,16 +188,16 @@ class list_publication extends pdHtmlPage {
             case 'category':
                 $table = new HTML_Table(array('class' => 'nomargins',
                                               'width' => '100%'));
-                $cl = new pdCatList($this->db);
+                $cl = pdCatList::create($this->db);
 
                 $table->addRow(array('Category', 'Num. Publications'),
                                array('class' => 'emph'));
 
-                foreach ($cl->list as $cat_id => $category) {
+                foreach ($cl as $cat_id => $category) {
                     $cells = array();
                     $cells[] = '<a href="list_publication.php?cat_id='
                         . $cat_id . '">' . $category . '</a><br/>';
-                    $cells[] = $cl->catNumPubs($this->db, $cat_id);
+                    $cells[] = pdCatList::catNumPubs($this->db, $cat_id);
                     $table->addRow($cells);
                 }
 

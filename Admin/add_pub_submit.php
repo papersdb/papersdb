@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.23 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_pub_submit.php,v 1.24 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -14,10 +14,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
-require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthor.php';
-require_once 'includes/pdExtraInfoList.php';
-require_once 'includes/pdAttachmentTypesList.php';
 
 /**
  * Renders the whole page.

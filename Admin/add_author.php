@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.66 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_author.php,v 1.67 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -15,6 +15,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
+require_once 'includes/pdAuthorList.php';
 require_once 'Admin/add_pub_base.php';
 
 /**
@@ -83,9 +84,9 @@ class add_author extends pdHtmlPage {
         $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
 
-        $auth_list = new pdAuthorList($this->db);
-        $form->addElement('select', 'authors_in_db', null, $auth_list->list,
-                          array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
+        $form->addElement('select', 'authors_in_db', null, 
+        	pdAuthorList::create($this->db),
+            array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
 
         $form->addElement('text', 'title',
                           $this->helpTooltip('Title', 'authTitleHelp') . ':',
@@ -99,13 +100,11 @@ class add_author extends pdHtmlPage {
         $form->addElement('text', 'webpage', 'Webpage:',
                           array('size' => 50, 'maxlength' => 250));
 
-        $interests = new pdAuthInterests($this->db);
-
         $ref = '<br/><div class="small"><a href="javascript:dataKeep('
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
         $form->addElement('select', 'interests', 'Interests:' . $ref,
-                          $interests->list,
+                          pdAuthInterests::createList($this->db),
                           array('multiple' => 'multiple', 'size' => 15));
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
@@ -278,9 +277,9 @@ class add_author extends pdHtmlPage {
 
         // check if an author with a similar name already exists
         if ($this->author_id == null) {
-            $like_authors = new pdAuthorList($this->db, $values['firstname'],
-                                             $values['lastname']);
-            if (count($like_authors->list) > 0) {
+            $like_authors = pdAuthorList::create($this->db, $values['firstname'],
+                                                 $values['lastname']);
+            if (count($like_authors) > 0) {
                 $_SESSION['new_author'] = $author;
                 header('Location: author_confirm.php');
                 return;

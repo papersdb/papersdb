@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.15 2007/11/02 16:36:29 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.16 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -139,7 +139,7 @@ class pubSanityChecks extends pdHtmlPage {
         $all_pubs = new pdPubList($this->db);
         $bad_cat = array();
         $additional = array();
-        $categories = new pdCatList($this->db);
+        $categories = pdCatList::create($this->db);
 
         foreach ($all_pubs->list as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
@@ -154,9 +154,9 @@ class pubSanityChecks extends pdHtmlPage {
                 else if ($pub->venue->cat_id != $pub->category->cat_id) {
                     $bad_cat[] = $pub->pub_id;
                     $additional[$pub->pub_id] = 'Venue category is: '
-                        . $categories->list[$pub->venue->cat_id] .
+                        . $categories[$pub->venue->cat_id] .
                         '<br/> Pub entry category is: '
-                        . $categories->list[$pub->category->cat_id];
+                        . $categories[$pub->category->cat_id];
                 }
             }
         }

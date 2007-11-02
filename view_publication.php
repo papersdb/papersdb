@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.85 2007/11/02 16:36:28 loyola Exp $
+// $Id: view_publication.php,v 1.86 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * View Publication
@@ -79,7 +79,7 @@ class view_publication extends pdHtmlPage {
         }
 
         // Show Additional Materials
-        $att_types = new pdAttachmentTypesList($this->db);
+        $att_types = pdAttachmentTypesList::create($this->db);
 
         if (count($pub->additional_info) > 0) {
             $table = new HTML_Table(array('width' => '350',
@@ -104,7 +104,7 @@ class view_publication extends pdHtmlPage {
 
                     $cell .= '</a>';
 
-                    if (in_array($att->type, $att_types->list))
+                    if (in_array($att->type, $att_types))
                         $cell .= '&nbsp;[' . $att->type . ']';
 
                     $cell .= '&nbsp;<a href="'

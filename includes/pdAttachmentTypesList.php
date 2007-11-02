@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.6 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdAttachmentTypesList.php,v 1.7 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Queries the databse for the different attachment types allowed.
@@ -15,26 +15,26 @@
  * @package PapersDB
  */
 class pdAttachmentTypesList {
-    public $list;
-
-    /**
-     * Constructor.
-     */
-    public function __construct($db) {
+    public static function create($db) {
         assert('is_object($db)');
-
-        $this->list = array();
+        
+        if (isset($_SESSION['attachment_types'])
+            && is_array($_SESSION["attachment_types"])) 
+            return $_SESSION['attachment_types'];
+        
+        $list = array();
 
         $q = $db->select('attachment_types', array('DISTINCT type'), '',
-                         "pdAttachmentTypesList::pdAttachmentTypesList");
-        if ($q === false) return;
+                         "pdAttachmentTypesList::create");
+        if ($q === false) return null;
 
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[$r->type] = $r->type;
+            $list[$r->type] = $r->type;
             $r = $db->fetchObject($q);
         }
-        assert('is_array($this->list)');
+        $_SESSION['attachment_types'] =& $list;
+        return $list;        
     }
 }
 

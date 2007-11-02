@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.66 2007/10/31 17:49:36 loyola Exp $
+// $Id: search_publication_db.php,v 1.67 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -45,8 +45,7 @@ class search_publication_db extends pdHtmlPage {
             debugVar('_SESSION', $_SESSION);
         }
         
-        $auth_list = new pdAuthorList($this->db);
-        $this->db_authors = $auth_list->asFirstLast();
+        $this->db_authors = pdAuthorList::create($this->db, null, null, true);
         
         $sel_author_names = explode(', ', preg_replace('/\s\s+/', ' ',
                                                        $this->sp->authors));

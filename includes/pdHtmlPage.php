@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.108 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.109 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -713,14 +713,14 @@ END;
 
     protected function displayPubList($pub_list, $enumerate = true, $max = -1,
                            			  $additional = null, $options = null) {
-        assert('is_object($pub_list)');
-
-        if (isset($pub_list->type) && ($pub_list->type == 'category')) {
+        assert('is_array($pub_list)');
+        
+        if (isset($pub_list['type']) && ($pub_list['type'] == 'category')) {
             return $this->displayPubListByCategory($pub_list, $enumerate, $max,
             									   $options);
         }
 
-        if (count($pub_list->list) == 0) {
+        if (count($pub_list) == 0) {
             return 'No Publications';
         }
 
@@ -728,7 +728,7 @@ END;
 
         $result = '';
         $count = 0;
-        foreach ($pub_list->list as $pub_id => $pub) {
+        foreach ($pub_list as $pub_id => $pub) {
             ++$count;
             $pub->dbload($this->db, $pub->pub_id);
 
@@ -787,14 +787,14 @@ END;
 
     private function displayPubListByCategory($pub_list, $enumerate = true,
                                               $max = -1, $options = null) {
-        assert('is_object($pub_list)');
+        assert('is_array($pub_list)');
         $result = '';
         $count = 0;
 
         $col_desciptions = pdPublication::collaborationsGet($this->db);
 
         foreach (pdPubList::catDisplayOrder() as $category) {
-            $pubs =& $pub_list->list[$category];
+            $pubs =& $pub_list[$category];
 
             if (empty($pubs)) continue;
 

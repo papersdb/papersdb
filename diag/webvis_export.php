@@ -13,13 +13,13 @@ $db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
 
 $authors = new pdAuthorList($db);
 
-if (count($authors->list) == 0) {
+if (count($authors) == 0) {
     echo 'No authors in database';
     $db->close();
     exit;
 }
 
-foreach ($authors->list as $auth_id => $name) {
+foreach ($authors as $auth_id => $name) {
     $author = new pdAuthor();
     $author->dbLoad($db, $auth_id);
 

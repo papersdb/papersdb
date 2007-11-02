@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.43 2007/10/31 19:29:47 loyola Exp $
+// $Id: index.php,v 1.44 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -32,9 +32,9 @@ class index extends pdHtmlPage {
     }
 
     private function recentAdditions() {
-        $pub_list = new pdPubList($this->db, array('sort_by_updated' => true));
+        $pub_list = pdPubList::create($this->db, array('sort_by_updated' => true));
 
-        if (!isset($pub_list->list)) return;
+        if (empty($pub_list) || (count($pub_list) == 0)) return;
 
         echo '<h2>Recent Additions:</h2>';
 

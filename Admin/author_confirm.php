@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.6 2007/10/31 23:17:34 loyola Exp $
+// $Id: author_confirm.php,v 1.7 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * The user reaches this page only when he is adding a new author, and the
@@ -64,17 +64,16 @@ class author_confirm extends pdHtmlPage {
             	'<a href="add_author.php">', 'Add another new author</a>';
         }
         else {
-            $like_authors = new pdAuthorList($this->db,
-                                             $new_author->firstname,
-                                             $new_author->lastname);
+            $like_authors = pdAuthorList::create(
+            	$this->db, $new_author->firstname, $new_author->lastname);
 
-            assert('count($like_authors->list) > 0');
+            assert('count($like_authors) > 0');
 
             echo 'Attempting to add new author: ', '<span class="emph">', 
             	$new_author->name, "</span><p/>\n", 
             	'The following authors, already in the database, have similar names:<ul>';
 
-            foreach ($like_authors->list as $auth) {
+            foreach ($like_authors as $auth) {
                 echo '<li>', $auth, '</li>';
             }
             echo '</ul>Do you really want to add this author?';

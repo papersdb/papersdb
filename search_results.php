@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.29 2007/11/02 16:36:28 loyola Exp $
+// $Id: search_results.php,v 1.30 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -78,8 +78,10 @@ class search_results extends pdHtmlPage {
         $renderer =& $this->form->defaultRenderer();
         $this->form->accept($renderer);
 
-        $pubs = new pdPubList(
+        $pubs = pdPubList::create(
             $this->db, array('cat_pub_ids' => $_SESSION['search_results']));
+            
+        if ($pubs == null) return;
 
         echo $renderer->toHtml();
         echo $this->displayPubList($pubs, true, -1, null, 
@@ -136,9 +138,9 @@ class search_results extends pdHtmlPage {
                     $name = '';
 
                     if ($param == 'cat_id') {
-                        $cl = new pdCatList($this->db);
+                        $cl = pdCatList::create($this->db);
                         $name = 'Category';
-                        $value =& $cl->list[$sp->cat_id];
+                        $value =& $cl[$sp->cat_id];
                     }
                     else {
                         $name = preg_replace('/_/', ' ', ucwords($param));
@@ -158,9 +160,7 @@ class search_results extends pdHtmlPage {
 
             if (($sp->author_myself != '')
                 && ($_SESSION['user']->author_id != '')) {
-                $al = new pdAuthorList($this->db);
-                $authors = $al->asFirstLast();
-
+                $authors = pdAuthorList::create($this->db, null, null, true);
                 $values[] = $authors[$_SESSION['user']->author_id];
             }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.19 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdCategory.php,v 1.20 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Implements a class that accesses category information from the database.
@@ -114,11 +114,11 @@ class pdCategory extends pdDbAccessor {
     public function dbSaveInfo ($db) {
         if (!isset($this->info))  return;
 
-        $info_list = new pdInfoList($db);
+        $info_list = pdInfoList::create($db);
 
         $arr = array();
         foreach ($this->info as $info) {
-            if (!$info_list->infoExists($info->name)) {
+            if (!in_array($info->name, $info_list)) {
                 $db->insert('info', array('name' =>$info->name),
                             'pdCategory::dbSaveInfo');
             }

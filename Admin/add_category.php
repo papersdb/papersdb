@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.41 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_category.php,v 1.42 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -85,8 +85,8 @@ class add_category extends pdHtmlPage {
 
         // info list
         $label = 'Related Fields:';
-        $info_list = new pdInfoList($this->db);
-        foreach ($info_list->list as $info_id => $name) {
+        $info_list = pdInfoList::create($this->db);
+        foreach ($info_list as $info_id => $name) {
             $form->addElement('advcheckbox', 'info[' . $info_id . ']',
                               $label, $name, null, array('', $name));
             $label = '';

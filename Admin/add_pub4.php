@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.41 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_pub4.php,v 1.42 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -14,9 +14,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 /** Requries the base class and classes to access the database. */
 require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthInterests.php';
-require_once 'includes/pdCatList.php';
 require_once 'includes/pdAuthor.php';
-require_once 'includes/pdExtraInfoList.php';
 require_once 'includes/pdAttachmentTypesList.php';
 
 /**
@@ -113,13 +111,12 @@ class add_pub4 extends add_pub_base {
                               array('size' => 45));
         }
 
-        $att_types = new pdAttachmentTypesList($this->db);
         $form->addElement('hidden', 'num_att', $num_att);
 
         for ($i = 0; $i < $num_att; $i++) {
             unset($filename);
 
-            $filename = basename($_SESSION['attachments'][$i],                                 '.' . $user->login);
+            $filename = basename($_SESSION['attachments'][$i], '.' . $user->login);
             $filename = str_replace('additional_', '', $filename);
             $att_type = $_SESSION['att_types'][$i];
 
@@ -142,10 +139,11 @@ class add_pub4 extends add_pub_base {
             }
         }
 
+        $att_types = pdAttachmentTypesList::create($this->db);
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
-                    'select', 'new_att_type', null, $att_types->list),
+                    'select', 'new_att_type', null, $att_types),
                 HTML_QuickForm::createElement(
                     'file', 'new_att', null, array('size' => 35))
                 ),

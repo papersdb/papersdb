@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.19 2007/10/31 23:17:34 loyola Exp $
+// $Id: list_categories.php,v 1.20 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -25,11 +25,11 @@ class list_categories extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $cat_list = new pdCatList($this->db);
+        $cat_list = pdCatList::create($this->db);
 
         echo '<h1>Publication Categories</h1>';
 
-        foreach (array_keys($cat_list->list) as $cat_id) {
+        foreach (array_keys($cat_list) as $cat_id) {
             unset($fields);
             unset($cells);
 

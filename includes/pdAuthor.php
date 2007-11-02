@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.27 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdAuthor.php,v 1.28 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -191,7 +191,7 @@ class pdAuthor extends pdDbAccessor{
         }
 
         if (count($this->interests) > 0) {
-            $db_interests = new pdAuthInterests($db);
+            $db_interests = pdAuthInterests::createList($db);
 
             // first add the interests
             $arr = array();
@@ -201,7 +201,7 @@ class pdAuthor extends pdDbAccessor{
                     continue;
                 }
 
-                if (!$db_interests->interestExists($i)) {
+                if (in_array($db_interests, $i)) {
                     array_push($arr, array('interest_id' => 'NULL',
                                            'interest' => $i));
                 }

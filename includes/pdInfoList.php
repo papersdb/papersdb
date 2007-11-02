@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.8 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdInfoList.php,v 1.9 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Class to retrieve information table data.
@@ -15,25 +15,18 @@
  * @package PapersDB
  */
 class pdInfoList {
-    public $list;
-
-    /**
-     * Constructor.
-     */
-    public function __construct($db) {
+    public static function create($db) {
         assert('is_object($db)');
         $q = $db->select('info', '*', '', "pdInfoList::dbLoad");
+        
+        if ($q === false) return null;
+        
         $r = $db->fetchObject($q);
         while ($r) {
-            $this->list[$r->info_id] = $r->name;
+            $list[$r->info_id] = $r->name;
             $r = $db->fetchObject($q);
         }
-        assert('is_array($this->list)');
-    }
-
-    public function infoExists($name) {
-        assert('isset($this->list)');
-        return in_array($name, $this->list);
+        return $list;
     }
 }
 

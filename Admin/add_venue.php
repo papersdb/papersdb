@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.59 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_venue.php,v 1.60 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -108,9 +108,9 @@ class add_venue extends pdHtmlPage {
         $category_list = new pdCatList($this->db);
 
         // Remove "In " from category names
-        foreach ($category_list->list as $key => $category) {
+        foreach ($category_list as $key => $category) {
             if (strpos($category, 'In ') === 0)
-                $category_list->list[$key] = substr($category, 3);
+                $category_list[$key] = substr($category, 3);
         }
         
         $onchange = 'javascript:dataKeep(' . $this->newOccurrences .');';
@@ -120,7 +120,7 @@ class add_venue extends pdHtmlPage {
             $this->helpTooltip('Category', 'categoryHelp') . ':',
             array(''  => '--- Please Select a Category ---',
                   '-1' => '-- No Category --')
-            + $category_list->list,
+            + $category_list,
             array('onchange' => $onchange));
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {

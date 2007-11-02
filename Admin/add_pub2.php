@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_pub2.php,v 1.36 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -19,7 +19,7 @@ require_once 'includes/pdAuthor.php';
 /**
  * This is just a stub, see javascript check_authors() for the real code
  */
-public function check_authors() {
+function check_authors() {
     return true;
 }
 
@@ -42,8 +42,7 @@ class add_pub2 extends add_pub_base {
         if (isset($this->pub->pub_id))
             $this->page_title = 'Edit Publication';
 
-        $auth_list = new pdAuthorList($this->db);
-        $this->authors = $auth_list->asFirstLast();
+        $this->authors = pdAuthorList::create($this->db, null, null, true);
 
         $form = new HTML_QuickForm('add_pub2', 'post', '', '',
                                    array('onsubmit' => 'return check_authors();'));

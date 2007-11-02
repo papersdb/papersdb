@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.50 2007/11/02 16:36:28 loyola Exp $
+// $Id: add_pub1.php,v 1.51 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -16,8 +16,6 @@ require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/pdPubList.php';
-require_once 'includes/pdExtraInfoList.php';
-require_once 'includes/pdAttachmentTypesList.php';
 
 /**
  * Renders the whole page.

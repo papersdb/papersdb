@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.72 2007/11/02 16:36:28 loyola Exp $
+// $Id: advanced_search.php,v 1.73 2007/11/02 22:42:26 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -56,10 +56,7 @@ class advanced_search extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
         
-        $auth_list = new pdAuthorList($this->db);
-        $this->db_authors = $auth_list->asFirstLast();
-
-        $this->cat_list = new pdCatList($this->db);
+        $this->db_authors = pdAuthorList::create($this->db, null, null, true);
 
         $this->category = new pdCategory();
         $this->category->dbLoad($this->db, $this->cat_id);
@@ -107,15 +104,16 @@ class advanced_search extends pdHtmlPage {
                           array('size' => 60, 'maxlength' => 250));
         $form->addElement('select', 'cat_id', 'Category:',
                           array('' => '-- All Categories --')
-                          + $this->cat_list->list);
+                          + pdCatList::create($this->db));
 
-        $auth_list = new pdAuthorList($this->db);
+                          
+
+        $auth_list = pdAuthorList::create($this->db);
 
         if (($this->access_level > 0) && ($_SESSION['user']->author_id != '')) {
             $user =& $_SESSION['user'];
-            unset($auth_list->list[$user->author_id]);
+            unset($auth_list[$user->author_id]);
         }
-
 
         $form->addElement('textarea', 'authors', 'Authors:',
                           array('cols' => 60,
