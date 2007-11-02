@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.24 2007/10/31 23:17:34 loyola Exp $
+// $Id: cv.php,v 1.25 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a CV format.
@@ -24,7 +24,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class cv extends pdHtmlPage {
-    var $pub_ids;
+    public $pub_ids;
 
     public function __construct() {
         parent::__construct('cv', null, false);

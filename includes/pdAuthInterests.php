@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.10 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdAuthInterests.php,v 1.11 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Storage and retrieval of author interests to / from the
@@ -16,7 +16,7 @@
  * @package PapersDB
  */
 class pdAuthInterests {
-    var $list;
+    public $list;
 
     /**
      * Constructor.
@@ -31,7 +31,7 @@ class pdAuthInterests {
         assert('is_array($this->list)');
     }
 
-    function interestExists($interest) {
+    public function interestExists($interest) {
         assert('isset($this->list)');
         return in_array($interest, $this->list);
     }
@@ -39,7 +39,7 @@ class pdAuthInterests {
     /**
      * \param $interest_id mixed.
      */
-    function dbDelete($db, $interest_id) {
+    public function dbDelete($db, $interest_id) {
         assert('is_array($this->list)');
 
         if ($interest_id == null)

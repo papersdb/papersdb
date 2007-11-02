@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.7 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdInfoList.php,v 1.8 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Class to retrieve information table data.
@@ -15,7 +15,7 @@
  * @package PapersDB
  */
 class pdInfoList {
-    var $list;
+    public $list;
 
     /**
      * Constructor.
@@ -31,7 +31,7 @@ class pdInfoList {
         assert('is_array($this->list)');
     }
 
-    function infoExists($name) {
+    public function infoExists($name) {
         assert('isset($this->list)');
         return in_array($name, $this->list);
     }

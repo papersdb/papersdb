@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.84 2007/10/31 23:17:34 loyola Exp $
+// $Id: view_publication.php,v 1.85 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * View Publication
@@ -26,8 +26,8 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class view_publication extends pdHtmlPage {
-    var $debug = 0;
-    var $pub_id;
+    public $debug = 0;
+    public $pub_id;
 
     public function __construct() {
         parent::__construct('view_publication', 'View Publication',
@@ -208,7 +208,7 @@ class view_publication extends pdHtmlPage {
         echo $content, '<span class="small">', $updateStr, '</span>';
     }
 
-    function lastUpdateGet($pub) {
+    public function lastUpdateGet($pub) {
         $string = "";
         $published = split("-",$pub->updated);
         if($published[1] != 00)

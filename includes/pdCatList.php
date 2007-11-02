@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.15 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdCatList.php,v 1.16 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Implements a class that retrieves category information for all categories.
@@ -15,7 +15,7 @@
  * @package PapersDB
  */
 class pdCatList {
-    var $list;
+    public $list;
 
     /**
      * Retrieves the cat_id for all categories in the database.
@@ -32,7 +32,7 @@ class pdCatList {
         assert('is_array($this->list)');
     }
 
-    function catNumPubs($db, $cat_id) {
+    public function catNumPubs($db, $cat_id) {
         assert('is_object($db)');
         assert('$cat_id != ""');
 

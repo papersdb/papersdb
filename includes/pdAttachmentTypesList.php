@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.5 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdAttachmentTypesList.php,v 1.6 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Queries the databse for the different attachment types allowed.
@@ -15,7 +15,7 @@
  * @package PapersDB
  */
 class pdAttachmentTypesList {
-    var $list;
+    public $list;
 
     /**
      * Constructor.

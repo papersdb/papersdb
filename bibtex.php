@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.6 2007/10/31 23:17:34 loyola Exp $
+// $Id: bibtex.php,v 1.7 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a BibTeX format.
@@ -19,7 +19,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class bibtex extends pdHtmlPage {
-    var $pub_ids;
+    public $pub_ids;
 
     public function __construct() {
         parent::__construct('bibtex', null, false);

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.28 2007/10/31 23:17:34 loyola Exp $
+// $Id: search_results.php,v 1.29 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -24,7 +24,7 @@ require_once 'includes/pdUser.php';
  * @package PapersDB
  */
 class search_results extends pdHtmlPage {
-    var $debug = 0;
+    public $debug = 0;
 
     public function __construct() {
         parent::__construct('search_results');
@@ -55,7 +55,7 @@ class search_results extends pdHtmlPage {
     /**
      *
      */
-    function otherFormatForm($result_pubs) {
+    public function otherFormatForm($result_pubs) {
         if ($result_pubs == null) return;
 
         $form = new HTML_QuickForm('otherFormatForm');
@@ -73,7 +73,7 @@ class search_results extends pdHtmlPage {
         return $form;
     }
 
-    function renderForm() {
+    public function renderForm() {
         $sp =& $_SESSION['search_params'];
         $renderer =& $this->form->defaultRenderer();
         $this->form->accept($renderer);
@@ -102,7 +102,7 @@ class search_results extends pdHtmlPage {
         echo '<hr/>', $searchLinkTable->toHtml();
     }
 
-    function processForm() {
+    public function processForm() {
         $values = $this->form->exportValues();
 
         if (isset($values['cv_format']))
@@ -111,7 +111,7 @@ class search_results extends pdHtmlPage {
             header('Location: bibtex.php?pub_ids=' . $values['pub_ids']);
     }
 
-    function showSearchParams() {
+    public function showSearchParams() {
         $sp =& $_SESSION['search_params'];
 
         $table = new HTML_Table(array('class' => 'nomargins',

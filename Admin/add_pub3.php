@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.43 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_pub3.php,v 1.44 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -25,18 +25,18 @@ require_once 'includes/pdExtraInfoList.php';
  * @package PapersDB
  */
 class add_pub3 extends add_pub_base {
-    var $debug = 0;
-    var $cat_id;
-    var $venue_id;
-    var $used_by_me;
-    var $booktitle;
-    var $publisher;
-    var $edition;
-    var $editor;
-    var $volume;
-    var $number;
-    var $pages;
-    var $author_id = null;
+    public $debug = 0;
+    public $cat_id;
+    public $venue_id;
+    public $used_by_me;
+    public $booktitle;
+    public $publisher;
+    public $edition;
+    public $editor;
+    public $volume;
+    public $number;
+    public $pages;
+    public $author_id = null;
 
     public function __construct() {
         parent::__construct();
@@ -222,7 +222,7 @@ class add_pub3 extends add_pub_base {
             $this->renderForm();
     }
 
-    function renderForm() {
+    public function renderForm() {
         $form =& $this->form;
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
@@ -301,7 +301,7 @@ class add_pub3 extends add_pub_base {
         $this->javascript();
     }
 
-    function processForm() {
+    public function processForm() {
         $form =& $this->form;
 
         $values = $form->exportValues();
@@ -365,7 +365,7 @@ class add_pub3 extends add_pub_base {
             header('Location: add_pub4.php');
     }
 
-    function formInfoElementsGet() {
+    public function formInfoElementsGet() {
         if (!is_array($this->pub->category->info)) return null;
 
         $infoElements = array_values($this->pub->category->info);
@@ -379,7 +379,7 @@ class add_pub3 extends add_pub_base {
         return $formElements;
     }
 
-    function javascript() {
+    public function javascript() {
         $js_files = array(FS_PATH . '/Admin/js/add_pub3.js',
                           FS_PATH . '/Admin/js/add_pub_cancel.js');
 
@@ -399,7 +399,7 @@ class add_pub3 extends add_pub_base {
         }
     }
 
-    function templateGet() {
+    public function templateGet() {
         $template = <<<END
 {javascript}
 <table{class}>

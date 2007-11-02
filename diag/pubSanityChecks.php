@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.14 2007/10/31 23:17:34 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.15 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -22,11 +22,11 @@ require_once 'includes/pdCatList.php';
  * @package PapersDB
  */
 class pubSanityChecks extends pdHtmlPage {
-    var $tab;
-    var $valid_tabs = array('Rankings', 'Categories', 'Tier 1',
+    public $tab;
+    public $valid_tabs = array('Rankings', 'Categories', 'Tier 1',
                             'Journals', 'Conferences', 'Workshops',
                             'Posters', 'Non ML');
-    var $tier1 = array('AAAI',
+    public $tier1 = array('AAAI',
                        'AIJ',
                        'CCR',
                        'ICML',
@@ -38,12 +38,12 @@ class pubSanityChecks extends pdHtmlPage {
                        'NIPS',
                        'UAI');
 
-    var $years = array('0' => array('2002-09-01', '2003-08-31'),
+    public $years = array('0' => array('2002-09-01', '2003-08-31'),
                        '1' => array('2003-09-01', '2004-08-31'),
                        '2' => array('2004-09-01', '2006-03-31'),
                        '3' => array('2006-04-01', '2007-03-31'));
 
-    var $pi_authors = array(
+    public $pi_authors = array(
         'Szepesvari, C' => array('2006-09-01', '2007-03-31'),
         'Schuurmans, D' => array('2003-07-01', '2007-03-31'),
         'Schaeffer, J'  => array('2002-09-01', '2007-03-31'),
@@ -110,7 +110,7 @@ class pubSanityChecks extends pdHtmlPage {
         }
     }
 
-    function venueRankings() {
+    public function venueRankings() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
         $additional = array();
@@ -135,7 +135,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
-    function venueCategories() {
+    public function venueCategories() {
         $all_pubs = new pdPubList($this->db);
         $bad_cat = array();
         $additional = array();
@@ -166,7 +166,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
-    function tier1Report() {
+    public function tier1Report() {
         $bad_pubs = array();
 
         // check for T1 pubs
@@ -184,7 +184,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true);
     }
 
-    function pubVenueIsTier1(&$pub) {
+    public function pubVenueIsTier1(&$pub) {
         assert('is_object($pub)');
 
         if (is_object($pub->category)
@@ -203,7 +203,7 @@ class pubSanityChecks extends pdHtmlPage {
         return false;
     }
 
-    function venueJournalRank() {
+    public function venueJournalRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
         $additional = array();
@@ -233,7 +233,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
-    function venueConferenceRank() {
+    public function venueConferenceRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
         $additional = array();
@@ -263,7 +263,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
-    function venueWorkshopRank() {
+    public function venueWorkshopRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
 
@@ -283,7 +283,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true);
     }
 
-    function venuePosterRank() {
+    public function venuePosterRank() {
         $all_pubs = new pdPubList($this->db);
         $bad_rank = array();
 
@@ -303,7 +303,7 @@ class pubSanityChecks extends pdHtmlPage {
         echo $this->displayPubList($pub_list, true);
     }
 
-    function nonML() {
+    public function nonML() {
         foreach ($this->pi_authors as $name => &$dates) {
             $all_pubs = new pdPubList($this->db,
                                       array('author_name' => $name,
@@ -327,7 +327,7 @@ class pubSanityChecks extends pdHtmlPage {
         }
     }
 
-    function selMenu() {
+    public function selMenu() {
         $text = '<div id="seltiny"><ul>';
         foreach($this->valid_tabs as $tab) {
             if ($tab == $this->tab)

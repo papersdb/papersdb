@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.19 2007/10/31 23:17:34 loyola Exp $
+// $Id: author_report.php,v 1.20 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -21,7 +21,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class author_report extends pdHtmlPage {
-    var $pi_authors = array('Szepesvari, C',
+    public $pi_authors = array('Szepesvari, C',
                             'Schuurmans, D',
                             'Schaeffer, J',
                             'Bowling, M',
@@ -30,7 +30,7 @@ class author_report extends pdHtmlPage {
                             'Holte, R',
                             'Greiner, R');
 
-    var $pdf_authors = array('Engel, Y',
+    public $pdf_authors = array('Engel, Y',
                              'Kirshner, S',
                              'Price, R',
                              'Ringlstetter, C',
@@ -40,8 +40,8 @@ class author_report extends pdHtmlPage {
                              'Cheng, L',
                              'Southey, F');
 
-    var $pi_pubs;
-    var $pi_pdf_pubs;
+    public $pi_pubs;
+    public $pi_pdf_pubs;
 
     public function __construct() {
         parent::__construct('author_report', 'Author Report',

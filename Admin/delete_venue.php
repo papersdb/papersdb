@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.26 2007/10/31 23:17:34 loyola Exp $
+// $Id: delete_venue.php,v 1.27 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -24,7 +24,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_venue extends pdHtmlPage {
-    var $venue_id;
+    public $venue_id;
 
     public function __construct() {
         parent::__construct('delete_venue', 'Delete Venue',

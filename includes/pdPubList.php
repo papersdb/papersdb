@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.30 2007/11/01 15:10:36 loyola Exp $
+// $Id: pdPubList.php,v 1.31 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -18,9 +18,9 @@ require_once 'pdPublication.php';
  * @package PapersDB
  */
 class pdPubList {
-    var $list;
-    var $type;
-    var $count;
+    public $list;
+    public $type;
+    public $count;
     protected static $cat_display_order = array('In Journal (referreed)',
                                                 'In Journal (unreferreed)',
                                                 'In Conference (referreed)',
@@ -97,7 +97,7 @@ class pdPubList {
     /**
      * Retrieves all publications.
      */
-    function allPubsDbLoad($db, $sortByDesc = false) {
+    public function allPubsDbLoad($db, $sortByDesc = false) {
         assert('is_object($db)');
 
         if ($sortByDesc)
@@ -119,7 +119,7 @@ class pdPubList {
     /**
      * Retrieves the number of publications for a given author.
      */
-    function authorPubsNumGet($db, $author_name) {
+    public function authorPubsNumGet($db, $author_name) {
         assert('is_object($db)');
         assert('$author_name != ""');
 
@@ -142,7 +142,7 @@ class pdPubList {
     /**
      * Retrieves publications for a given author.
      */
-    function authorIdPubsDbLoad($db, $author_id, $numToLoad) {
+    public function authorIdPubsDbLoad($db, $author_id, $numToLoad) {
         assert('is_object($db)');
         assert('$author_id != ""');
 
@@ -179,7 +179,7 @@ class pdPubList {
     /**
      * Retrieves publications for a given author.
      */
-    function authorIdCatPubsDbLoad($db, $author_id) {
+    public function authorIdCatPubsDbLoad($db, $author_id) {
         assert('is_object($db)');
         assert('$author_id != ""');
 
@@ -206,7 +206,7 @@ class pdPubList {
     /**
      * Retrieves publications for a given author name.
      */
-    function authorNamePubsDbLoad($db, $author_name, $date_start = null,
+    public function authorNamePubsDbLoad($db, $author_name, $date_start = null,
                                   $date_end = null) {
         assert('is_object($db)');
         assert('$author_name != ""');
@@ -248,7 +248,7 @@ class pdPubList {
     /**
      * Retrieves publications for a given category.
      */
-    function venuePubsDbLoad($db, $venue_id) {
+    public function venuePubsDbLoad($db, $venue_id) {
         assert('is_object($db)');
         assert('$venue_id != ""');
 
@@ -271,7 +271,7 @@ class pdPubList {
     /**
      * Retrieves publications for a given category.
      */
-    function categoryPubsDbLoad($db, $cat_id) {
+    public function categoryPubsDbLoad($db, $cat_id) {
         assert('is_object($db)');
         assert('$cat_id != ""');
 
@@ -299,7 +299,7 @@ class pdPubList {
     /**
      *
      */
-    function authorNumPublications ($db, $author_id) {
+    public function authorNumPublications ($db, $author_id) {
         $q = $db->select(array('publication', 'pub_author'),
                          'publication.pub_id',
                          array('publication.pub_id=pub_author.pub_id',
@@ -309,7 +309,7 @@ class pdPubList {
         return $db->numRows($q);
     }
 
-    function pubTitle($pub_id) {
+    public function pubTitle($pub_id) {
         assert('count($this->list) > 0');
         foreach ($this->list as $pub) {
             if ($pub->pub_id == $pub_id) return $pub->title;
@@ -317,7 +317,7 @@ class pdPubList {
         return null;
     }
 
-    function arrayPubsDBLoad($db, $pub_ids) {
+    public function arrayPubsDBLoad($db, $pub_ids) {
         assert('is_object($db)');
         assert('is_array($pub_ids)');
 
@@ -328,7 +328,7 @@ class pdPubList {
 
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id, 
-	            pdPublication::PD_PUB_DB_LOAD_BASIC);
+	            pdPublication::DB_LOAD_BASIC);
             if ($result !== false)
                 $this->list[$pub_id] = $pub;
 
@@ -338,7 +338,7 @@ class pdPubList {
             uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
-    function arrayPubsDBLoadByCategory($db, $pub_ids) {
+    public function arrayPubsDBLoadByCategory($db, $pub_ids) {
         assert('is_object($db)');
         assert('is_array($pub_ids)');
 
@@ -349,8 +349,8 @@ class pdPubList {
 
             $pub = new pdPublication();
             $result = $pub->dbLoad($db, $pub_id,
-                                   pdPublication::PD_PUB_DB_LOAD_BASIC
-                                   | pdPublication::PD_PUB_DB_LOAD_CATEGORY);
+                                   pdPublication::DB_LOAD_BASIC
+                                   | pdPublication::DB_LOAD_CATEGORY);
             if ($result !== false) {
                 if (is_object($pub->category))
                     switch ($pub->category->category) {
@@ -387,7 +387,7 @@ class pdPubList {
         $this->type = 'category';
     }
 
-    function toPubIdList() {
+    public function toPubIdList() {
         $result = array();
         foreach ($this->list as $pub) {
             array_push($resutl, $pub->pub_id);
@@ -395,7 +395,7 @@ class pdPubList {
         return $result;
     }
 
-    function yearsPubsDBLoad($db) {
+    public function yearsPubsDBLoad($db) {
         assert('is_object($db)');
 
         $q = $db->select('publication',
@@ -419,7 +419,7 @@ class pdPubList {
         }
     }
 
-    function yearPubsDBLoad($db, $year) {
+    public function yearPubsDBLoad($db, $year) {
         assert('is_object($db)');
 
         $q = $db->select('publication', '*',
@@ -436,7 +436,7 @@ class pdPubList {
         }
     }
 
-    function yearCategoryPubsDBLoad($db, $year) {
+    public function yearCategoryPubsDBLoad($db, $year) {
         assert('is_object($db)');
 
         $q = $db->select('publication', 'pub_id',
@@ -456,7 +456,7 @@ class pdPubList {
         $this->arrayPubsDBLoadByCategory($db, $pub_ids);
     }
 
-    function titlePubsDBLoad($db, $title) {
+    public function titlePubsDBLoad($db, $title) {
         assert('is_object($db)');
 
         $title = str_replace(' ', '%', $title);
@@ -475,7 +475,7 @@ class pdPubList {
         }
     }
 
-    function keywordsList($db) {
+    public function keywordsList($db) {
         assert('is_object($db)');
 
         $q = $db->select('publication', 'keywords', '',
@@ -496,7 +496,7 @@ class pdPubList {
         $this->list = array_keys($list);
     }
 
-    function keywordPubsDBLoad($db, $kw) {
+    public function keywordPubsDBLoad($db, $kw) {
         assert('is_object($db)');
 
         $q = $db->select(array('publication'), '*',
@@ -516,7 +516,7 @@ class pdPubList {
             uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
     }
 
-    function catDisplayOrder() {
+    public function catDisplayOrder() {
         return self::$cat_display_order;
     }
 }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.6 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdExtraInfoList.php,v 1.7 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Retrieves the extra information items from the database.
@@ -15,7 +15,7 @@
  * @package PapersDB
  */
 class pdExtraInfoList {
-    var $list;
+    public $list;
 
     /**
      * Constructor.

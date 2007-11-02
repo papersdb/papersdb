@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.32 2007/10/31 23:17:34 loyola Exp $
+// $Id: edit_user.php,v 1.33 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This page displays/edits the users information.
@@ -59,7 +59,7 @@ class edit_user extends pdHtmlPage {
 
     }
 
-    function editUser() {
+    public function editUser() {
         $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
@@ -160,7 +160,7 @@ class edit_user extends pdHtmlPage {
         }
 }
 
-function showUser() {
+public function showUser() {
     $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 

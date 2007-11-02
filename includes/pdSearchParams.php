@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.12 2007/10/31 17:49:36 loyola Exp $
+// $Id: pdSearchParams.php,v 1.13 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Storage and retrieval of user data to / from the database.
@@ -35,7 +35,7 @@ class pdSearchParams {
     /**
      * Constructor.
      */
-    function __construct($mixed = null) {
+    public function __construct($mixed = null) {
         if (is_array($mixed)) {
             foreach (array_keys(get_class_vars(get_class($this))) as $member) {
                 if (isset($mixed[$member])) {
@@ -45,13 +45,13 @@ class pdSearchParams {
         }
     }
 
-    function paramGet($param) {
+    public function paramGet($param) {
         if (!in_array($param, $this->params)) return null;
 
         return $this->$param;
     }
 
-    function paramsToHtmlQueryStr() {
+    public function paramsToHtmlQueryStr() {
         $results = array();
 
         foreach (array_keys(get_class_vars(get_class($this))) as $param) {

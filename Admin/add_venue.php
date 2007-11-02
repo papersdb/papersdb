@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.58 2007/10/31 19:29:47 loyola Exp $
+// $Id: add_venue.php,v 1.59 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -39,7 +39,7 @@ class add_venue extends pdHtmlPage {
     protected $newOccurrences;
     protected $referer;
 
-    function __construct() {
+    public function __construct() {
         parent::__construct('add_venue');
 
         if ($this->loginError) return;

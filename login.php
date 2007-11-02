@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.36 2007/10/31 23:17:34 loyola Exp $
+// $Id: login.php,v 1.37 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -19,8 +19,8 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class login extends pdHtmlPage {
-    var $redirect;
-    var $password_hash;
+    public $redirect;
+    public $password_hash;
 
     public function __construct() {
         parent::__construct('login');
@@ -93,7 +93,7 @@ class login extends pdHtmlPage {
         $this->form->accept($this->renderer);
     }
 
-    function processForm() {
+    public function processForm() {
         $user = new pdUser();
 
         $values = $this->form->exportValues();

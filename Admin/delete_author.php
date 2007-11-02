@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.26 2007/10/31 23:17:34 loyola Exp $
+// $Id: delete_author.php,v 1.27 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -27,7 +27,7 @@ require_once('HTML/QuickForm/Renderer/QuickHtml.php');
  * @package PapersDB
  */
 class delete_author extends pdHtmlPage {
-    var $author_id;
+    public $author_id;
 
     public function __construct() {
         parent::__construct('delete_author', 'Delete Author',

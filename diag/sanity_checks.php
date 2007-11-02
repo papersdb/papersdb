@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.3 2007/10/31 23:17:34 loyola Exp $
+// $Id: sanity_checks.php,v 1.4 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -24,7 +24,7 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class sanity_checks extends pdHtmlPage {
-    var $sub_pages = array(
+    public $sub_pages = array(
         array('Pub Sanity Checks',      'pubSanityChecks.php'),
         array('Check Attachments',      'check_attachments.php'),
         array('Author Report',          'author_report.php'),

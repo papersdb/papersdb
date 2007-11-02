@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: logout.php,v 1.11 2007/10/26 22:03:15 aicmltec Exp $
+// $Id: logout.php,v 1.12 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Allows a user to log out of the system.
@@ -12,7 +12,7 @@
 require_once 'includes/pdHtmlPage.php';
 
 class logout extends pdHtmlPage {
-    function __construct() {
+    public function __construct() {
         pdHtmlPage::__construct('logout');
 
         if ($this->access_level <= 0) {

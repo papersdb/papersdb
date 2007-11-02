@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.25 2007/10/31 23:17:34 loyola Exp $
+// $Id: delete_category.php,v 1.26 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Deletes a category from the database.
@@ -28,7 +28,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_category extends pdHtmlPage {
-    var $cat_id;
+    public $cat_id;
 
     public function __construct() {
         parent::__construct('delete_category', 'Delete Category',

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.49 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_pub1.php,v 1.50 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -25,9 +25,9 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class add_pub1 extends add_pub_base {
-    var $debug = 0;
-    var $cat_venue_options;
-    var $category_list;
+    public $debug = 0;
+    public $cat_venue_options;
+    public $category_list;
 
     public function __construct() {
         parent::__construct();
@@ -120,7 +120,7 @@ class add_pub1 extends add_pub_base {
             $this->renderForm();
     }
 
-    function renderForm() {
+    public function renderForm() {
         assert('isset($_SESSION["pub"])');
 
         $form =& $this->form;
@@ -168,7 +168,7 @@ class add_pub1 extends add_pub_base {
         $this->javascript();
     }
 
-    function processForm() {
+    public function processForm() {
         assert('isset($_SESSION["pub"])');
         $form =& $this->form;
 
@@ -197,7 +197,7 @@ class add_pub1 extends add_pub_base {
             header('Location: add_pub4.php');
     }
 
-    function javascript() {
+    public function javascript() {
         $js_files = array(FS_PATH . '/Admin/js/add_pub1.js',
                           FS_PATH . '/Admin/js/add_pub_cancel.js');
 

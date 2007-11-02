@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.13 2007/10/31 23:17:34 loyola Exp $
+// $Id: check_attachments.php,v 1.14 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -49,7 +49,7 @@ class check_attachments extends pdHtmlPage {
         }
     }
 
-    function checkAtt($pub_id, $dbname, $basename, $is_additional) {
+    public function checkAtt($pub_id, $dbname, $basename, $is_additional) {
         $filename = $dbname;
 
         if ($is_additional) {

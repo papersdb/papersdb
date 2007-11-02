@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
+// $Id: view_author.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -27,7 +27,7 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class view_author extends pdHtmlPage {
-    var $author_id;
+    public $author_id;
 
     public function __construct() {
         parent::__construct('view_authors', 'Author Information',
@@ -45,8 +45,8 @@ class view_author extends pdHtmlPage {
 
         $auth = new pdAuthor();
         $auth->dbLoad($this->db, $this->author_id,
-                      (PD_AUTHOR_DB_LOAD_PUBS_MIN
-                       | PD_AUTHOR_DB_LOAD_INTERESTS));
+                      (pdAuthor::DB_LOAD_PUBS_MIN
+                       | pdAuthor::DB_LOAD_INTERESTS));
 
         echo '<h3>', $auth->name;
 
@@ -57,7 +57,7 @@ class view_author extends pdHtmlPage {
         echo '</h3>',  $this->authorShow($auth);
     }
 
-    function authorShow($auth) {
+    public function authorShow($auth) {
         $result = '';
 
         $table = new HTML_Table(array('width' => '600',

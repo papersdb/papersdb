@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.71 2007/10/31 17:49:36 loyola Exp $
+// $Id: advanced_search.php,v 1.72 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -49,7 +49,7 @@ class advanced_search extends pdHtmlPage {
     protected $enddate;
     protected $db_authors;
 
-    function __construct() {
+    public function __construct() {
         parent::__construct('advanced_search');
 
         if ($this->loginError) return;
@@ -93,7 +93,7 @@ class advanced_search extends pdHtmlPage {
      * Creates the from used on this page. The renderer is then used to
      * display the form correctly on the page.
      */
-    function createForm() {
+    public function createForm() {
         $user = null;
 
         $form = new HTML_QuickForm('advSearchForm', 'get',
@@ -213,7 +213,7 @@ class advanced_search extends pdHtmlPage {
     /**
      * Assigns the form's values as per the HTTP GET string.
      */
-    function setFormValues() {
+    public function setFormValues() {
         $defaults = array(
             'search'     => $this->search,
             'cat_id'     => $this->cat_id,
@@ -245,7 +245,7 @@ class advanced_search extends pdHtmlPage {
     /**
      * Outputs the java script used by the page.
      */
-    function javascript() {
+    public function javascript() {
         if (isset($_SESSION['search_params']))
             $sp = $_SESSION['search_params'];
         else

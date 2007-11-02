@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: batch_add_authors.php,v 1.14 2007/10/31 23:17:34 loyola Exp $
+// $Id: batch_add_authors.php,v 1.15 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -128,9 +128,9 @@ class batch_add_authors extends pdHtmlPage {
         }
     }
 
-    function javascript() {
+    public function javascript() {
         $this->js = <<<JS_END
-            var newAuthorHelp=
+            public newAuthorHelp=
             "A semi-colon separated list of author names. Names can be in "
             + "the following formats: <ul><li>fist last</li><li>fist initials "
             + "last</li><li>last, first</li><li>last, first initials</li></ul>";

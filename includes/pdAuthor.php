@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.26 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdAuthor.php,v 1.27 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -14,32 +14,31 @@ require_once 'includes/pdDbAccessor.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/pdAuthInterests.php';
 
-define('PD_AUTHOR_DB_LOAD_BASIC',     0);
-define('PD_AUTHOR_DB_LOAD_MIN',       1);
-define('PD_AUTHOR_DB_LOAD_INTERESTS', 2);
-define('PD_AUTHOR_DB_LOAD_PUBS_MIN',  4);
-define('PD_AUTHOR_DB_LOAD_PUBS_ALL',  8);
-define('PD_AUTHOR_DB_LOAD_ALL',       0xF);
-
-
 /**
  * Class that accesses author information in the database.
  *
  * @package PapersDB
  */
 class pdAuthor extends pdDbAccessor{
-    var $author_id;
-    var $title;
-    var $webpage;
-    var $name;
-    var $firstname;
-    var $lastname;
-    var $email;
-    var $organization;
-    var $interests;
-    var $dbLoadFlags;
-    var $pub_list;
-    var $totalPublications;
+    public $author_id;
+    public $title;
+    public $webpage;
+    public $name;
+    public $firstname;
+    public $lastname;
+    public $email;
+    public $organization;
+    public $interests;
+    public $dbLoadFlags;
+    public $pub_list;
+    public $totalPublications;
+
+	const DB_LOAD_BASIC     = 0;
+	const DB_LOAD_MIN       = 1;
+	const DB_LOAD_INTERESTS = 2;
+	const DB_LOAD_PUBS_MIN  = 4;
+	const DB_LOAD_PUBS_ALL  = 8;
+	const DB_LOAD_ALL       = 0xF;
 
     /**
      * Constructor.
@@ -48,7 +47,7 @@ class pdAuthor extends pdDbAccessor{
         parent::__construct($mixed);
     }
 
-    function makeNull() {
+    public function makeNull() {
         $this->author_id = null;
         $this->title = null;
         $this->webpage = null;
@@ -66,12 +65,12 @@ class pdAuthor extends pdDbAccessor{
      *
      * Use flags to load individual tables
      */
-    function dbLoad($db, $id, $flags = PD_AUTHOR_DB_LOAD_ALL) {
+    public function dbLoad($db, $id, $flags = self::DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
 
-        if ($flags == PD_AUTHOR_DB_LOAD_MIN)
+        if ($flags == self::DB_LOAD_MIN)
             $fields = array('author_id', 'name');
         else
             $fields = '*';
@@ -81,11 +80,11 @@ class pdAuthor extends pdDbAccessor{
         if ($q === false) return false;
         $this->load($q);
 
-        if ($flags & PD_AUTHOR_DB_LOAD_INTERESTS)
+        if ($flags & self::DB_LOAD_INTERESTS)
             $this->dbLoadInterests($db);
 
-        if ($flags & (PD_AUTHOR_DB_LOAD_PUBS_MIN
-                      | PD_AUTHOR_DB_LOAD_PUBS_ALL)) {
+        if ($flags & (self::DB_LOAD_PUBS_MIN
+                      | self::DB_LOAD_PUBS_ALL)) {
             $this->publicationsDbLoad($db);
         }
 
@@ -95,7 +94,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    function dbLoadInterests($db) {
+    public function dbLoadInterests($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -117,23 +116,23 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    function publicationsDbLoad($db) {
+    public function publicationsDbLoad($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
-        assert('$this->dbLoadFlags & (PD_AUTHOR_DB_LOAD_PUBS_MIN | PD_AUTHOR_DB_LOAD_PUBS_ALL)');
+        assert('$this->dbLoadFlags & (self::DB_LOAD_PUBS_MIN | self::DB_LOAD_PUBS_ALL)');
 
         $this->totalPublications
             = pdPubList::authorNumPublications($db, $this->author_id);
 
-        // if PD_AUTHOR_DB_LOAD_PUBS_MIN flag is set and the author has
+        // if self::DB_LOAD_PUBS_MIN flag is set and the author has
         // published more than 6 papers, then load nothing
         $numToLoad = 0;
-        if (($this->dbLoadFlags & PD_AUTHOR_DB_LOAD_PUBS_MIN)
+        if (($this->dbLoadFlags & self::DB_LOAD_PUBS_MIN)
             && ($this->totalPublications <= 6)) {
             $numToLoad = $this->totalPublications;
         }
 
-        if ($this->dbLoadFlags & PD_AUTHOR_DB_LOAD_PUBS_ALL) {
+        if ($this->dbLoadFlags & self::DB_LOAD_PUBS_ALL) {
             $numToLoad = $this->totalPublications;
         }
 
@@ -147,7 +146,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Adds or modifies an author in the database.
      */
-    function dbSave($db) {
+    public function dbSave($db) {
         assert('is_object($db)');
 
         // add http:// to webpage address if needed
@@ -184,7 +183,7 @@ class pdAuthor extends pdDbAccessor{
         $this->dbSaveInterests($db);
     }
 
-    function dbSaveInterests($db) {
+    public function dbSaveInterests($db) {
         if (isset($this->author_id)) {
             $db->delete('author_interest',
                         array('author_id' => $this->author_id),
@@ -232,7 +231,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Deletes an author from the database.
      */
-    function dbDelete($db) {
+    public function dbDelete($db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -245,14 +244,14 @@ class pdAuthor extends pdDbAccessor{
         $this->makeNull();
     }
 
-    function asArray() {
+    public function asArray() {
         return get_object_vars($this);
     }
 
     /**
      * Loads author data from the object passed in
      */
-    function load($mixed) {
+    public function load($mixed) {
         if (is_object($mixed)) {
             foreach (array_keys(get_class_vars('pdAuthor')) as $member) {
                 if (isset($mixed->$member))
@@ -285,7 +284,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * used when name is in "firstname lastname" format.
      */
-    function nameSet($name) {
+    public function nameSet($name) {
         $commaPos = strrpos($name, ',');
         $spacePos = strrpos($name, ',');
 

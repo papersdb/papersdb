@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.23 2007/10/31 23:17:34 loyola Exp $
+// $Id: delete_publication.php,v 1.24 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Deletes a publication from the database.
@@ -25,7 +25,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class delete_publication extends pdHtmlPage {
-    var $pub_id;
+    public $pub_id;
 
     public function __construct() {
         parent::__construct('delete_publication', 'Delete Publication',

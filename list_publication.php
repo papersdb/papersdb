@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.41 2007/10/31 23:17:34 loyola Exp $
+// $Id: list_publication.php,v 1.42 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -28,12 +28,12 @@ require_once 'includes/pdVenueList.php';
  * @package PapersDB
  */
 class list_publication extends pdHtmlPage {
-    var $year;
-    var $author_id;
-    var $venue_id;
-    var $cat_id;
-    var $keyword;
-    var $by;
+    public $year;
+    public $author_id;
+    public $venue_id;
+    public $cat_id;
+    public $keyword;
+    public $by;
 
     public function __construct() {
         parent::__construct('view_publications');
@@ -95,7 +95,7 @@ class list_publication extends pdHtmlPage {
 
             $auth = new pdAuthor();
             $auth->dbLoad($this->db, $this->author_id,
-                          PD_AUTHOR_DB_LOAD_BASIC);
+                          pdAuthor::DB_LOAD_BASIC);
 
             $title = '<h1>Publications by ' . $auth->name . '</h1>';
         }
@@ -115,7 +115,7 @@ class list_publication extends pdHtmlPage {
         echo $this->displayPubList($pub_list);
     }
 
-    function pubSelect($viewCat = null) {
+    public function pubSelect($viewCat = null) {
         assert('is_object($this->db)');
         echo $this->pubSelMenu($viewCat), '<br/>';
         $text = '';
@@ -232,7 +232,7 @@ class list_publication extends pdHtmlPage {
         }
     }
 
-    function tableHighlits(&$table) {
+    public function tableHighlits(&$table) {
         // now assign table attributes including highlighting for even and odd
         // rows
         for ($i = 0; $i < $table->getRowCount(); $i++) {
@@ -245,7 +245,7 @@ class list_publication extends pdHtmlPage {
         $table->updateColAttributes(0, array('class' => 'publist'), true);
     }
 
-    function pubSelMenu($viewCat = null) {
+    public function pubSelMenu($viewCat = null) {
         $pubShowCats = array('year', 'author', 'venue', 'category',
                              'keywords');
         $text = '<div id="sel"><ul>';

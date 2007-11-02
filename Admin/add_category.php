@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.40 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_category.php,v 1.41 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Creates a form for adding or editing a category.
@@ -27,9 +27,9 @@ require_once 'includes/pdCategory.php';
  * @package PapersDB
  */
 class add_category extends pdHtmlPage {
-    var $cat_id;
-    var $numNewFields;
-    var $info;
+    public $cat_id;
+    public $numNewFields;
+    public $info;
 
     public function __construct() {
         parent::__construct('add_category');
@@ -167,7 +167,7 @@ class add_category extends pdHtmlPage {
         }
     }
 
-    function javascript() {
+    public function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_category.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);

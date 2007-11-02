@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.22 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_pub_submit.php,v 1.23 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -25,11 +25,11 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class add_pub_submit extends pdHtmlPage {
-    var $debug = 0;
+    public $debug = 0;
 
     public function __construct() {
         parent::__construct(null, 'Publication Submitted',
-                           'Admin/add_pub_submit.php', PD_NAV_MENU_NEVER);
+                           'Admin/add_pub_submit.php', pdNavMenu::MENU_NEVER);
 
         if ($this->loginError) return;
 

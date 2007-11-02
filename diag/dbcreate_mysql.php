@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.13 2007/10/31 23:17:34 loyola Exp $
+// $Id: dbcreate_mysql.php,v 1.14 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Creates the PapersDB database.
@@ -20,9 +20,9 @@ require_once 'includes/pdHtmlPage.php';
  * @package PapersDB
  */
 class dbCreate extends pdHtmlPage {
-    var $debug = 0;
-    var $author_id = null;
-    var $numNewInterests = 0;
+    public $debug = 0;
+    public $author_id = null;
+    public $numNewInterests = 0;
 
     public function __construct() {
         parent::__construct('dbcreate', 'Create Database',
@@ -56,14 +56,14 @@ class dbCreate extends pdHtmlPage {
         $this->tblVenueOccur();
     }
 
-    function createDatabase() {
+    public function createDatabase() {
         assert('is_object($this->db)');
 
         $q  = $this->db->query('CREATE DATABASE ' . DB_NAME);
         assert('$q');
     }
 
-    function tblAdditionalInfo() {
+    public function tblAdditionalInfo() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `additional_info`');
@@ -76,7 +76,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblAttachmentTypes() {
+    public function tblAttachmentTypes() {
         assert('is_object($this->db)');
         $q = $this->db->query('DROP TABLE IF EXISTS `attachment_types`');
         $q = $this->db->query(
@@ -91,7 +91,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblAuthor() {
+    public function tblAuthor() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `author`');
@@ -107,7 +107,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblAuthorInterest() {
+    public function tblAuthorInterest() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `author_interest`');
@@ -119,7 +119,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblCatInfo() {
+    public function tblCatInfo() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `cat_info`');
@@ -132,7 +132,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblCategory() {
+    public function tblCategory() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `category`');
@@ -152,7 +152,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblExtraInfo() {
+    public function tblExtraInfo() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `extra_info`');
@@ -184,7 +184,7 @@ class dbCreate extends pdHtmlPage {
     }
 
 
-    function tblInfo() {
+    public function tblInfo() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `info`');
@@ -205,7 +205,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblinterest() {
+    public function tblinterest() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `interest`');
@@ -218,7 +218,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPointer() {
+    public function tblPointer() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `pointer`');
@@ -232,7 +232,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubAdd() {
+    public function tblPubAdd() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `pub_add`');
@@ -245,7 +245,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubAuthor() {
+    public function tblPubAuthor() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `pub_author`');
@@ -259,7 +259,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubCat() {
+    public function tblPubCat() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `pub_cat`');
@@ -272,7 +272,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPubCatInfo() {
+    public function tblPubCatInfo() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `pub_cat_info`');
@@ -287,7 +287,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblPublication() {
+    public function tblPublication() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `publication`');
@@ -310,7 +310,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblUser() {
+    public function tblUser() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `user`');
@@ -330,7 +330,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblUserAuthor() {
+    public function tblUserAuthor() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `user_author`');
@@ -343,7 +343,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblVenue() {
+    public function tblVenue() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `venue`');
@@ -362,7 +362,7 @@ class dbCreate extends pdHtmlPage {
         assert('$q');
     }
 
-    function tblVenueOccur() {
+    public function tblVenueOccur() {
         assert('is_object($this->db)');
 
         $q = $this->db->query('DROP TABLE IF EXISTS `venue_occur`');

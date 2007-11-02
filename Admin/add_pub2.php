@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_pub2.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -19,7 +19,7 @@ require_once 'includes/pdAuthor.php';
 /**
  * This is just a stub, see javascript check_authors() for the real code
  */
-function check_authors() {
+public function check_authors() {
     return true;
 }
 
@@ -29,8 +29,8 @@ function check_authors() {
  * @package PapersDB
  */
 class add_pub2 extends add_pub_base {
-    var $debug = 0;
-    var $author_id = null;
+    public $debug = 0;
+    public $author_id = null;
 
     public function __construct() {
         parent::__construct();
@@ -104,7 +104,7 @@ class add_pub2 extends add_pub_base {
         }
     }
 
-    function renderForm() {
+    public function renderForm() {
         assert('isset($_SESSION["pub"])');
 
         $form =& $this->form;
@@ -154,7 +154,7 @@ class add_pub2 extends add_pub_base {
         $this->javascript();
     }
 
-    function processForm() {
+    public function processForm() {
         assert('isset($_SESSION["pub"])');
 
         $form =& $this->form;
@@ -202,7 +202,7 @@ class add_pub2 extends add_pub_base {
             header('Location: add_pub3.php');
     }
 
-    function javascript() {
+    public function javascript() {
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 

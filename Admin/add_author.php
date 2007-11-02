@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.65 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_author.php,v 1.66 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -23,12 +23,12 @@ require_once 'Admin/add_pub_base.php';
  * @package PapersDB
  */
 class add_author extends pdHtmlPage {
-    var $debug = 0;
-    var $author_id = null;
-    var $numNewInterests = 0;
-    var $firstname;
-    var $lastname;
-    var $interests;
+    public $debug = 0;
+    public $author_id = null;
+    public $numNewInterests = 0;
+    public $firstname;
+    public $lastname;
+    public $interests;
 
     public function __construct() {
         parent::__construct('add_author');
@@ -53,8 +53,8 @@ class add_author extends pdHtmlPage {
 
         if ($this->author_id != null) {
           $result = $author->dbLoad($this->db, $this->author_id,
-                                    PD_AUTHOR_DB_LOAD_BASIC
-                                    | PD_AUTHOR_DB_LOAD_INTERESTS);
+                                    pdAuthor::DB_LOAD_BASIC
+                                    | pdAuthor::DB_LOAD_INTERESTS);
 
             if (!$result) {
                 $this->pageError = true;
@@ -182,7 +182,7 @@ class add_author extends pdHtmlPage {
         }
     }
 
-    function renderForm($author) {
+    public function renderForm($author) {
         $form =& $this->form;
 
         foreach (array_keys(get_class_vars(get_class($this))) as $member) {
@@ -227,7 +227,7 @@ class add_author extends pdHtmlPage {
         $this->javascript();
     }
 
-    function processForm() {
+    public function processForm() {
         $form =& $this->form;
         $values = $form->exportValues();
 
@@ -315,7 +315,7 @@ class add_author extends pdHtmlPage {
         }
     }
 
-    function javascript() {
+    public function javascript() {
         $js_file = FS_PATH . '/Admin/js/add_author.js';
         assert('file_exists($js_file)');
 

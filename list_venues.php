@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.34 2007/10/31 23:17:34 loyola Exp $
+// $Id: list_venues.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -20,7 +20,7 @@ require_once 'includes/pdVenue.php';
  * @package PapersDB
  */
 class list_venues extends pdHtmlPage {
-    var $tab;
+    public $tab;
 
     public function __construct() {
         parent::__construct('all_venues');

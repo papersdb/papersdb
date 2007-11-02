@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.124 2007/11/01 15:10:36 loyola Exp $
+// $Id: pdPublication.php,v 1.125 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -47,15 +47,15 @@ class pdPublication extends pdDbAccessor {
     public $ranking;
     public $collaborations;
 
-	const PD_PUB_DB_LOAD_BASIC           = 0;
-	const PD_PUB_DB_LOAD_CATEGORY        = 1;
-	const PD_PUB_DB_LOAD_CATEGORY_INFO   = 2;
-	const PD_PUB_DB_LOAD_ADDITIONAL_INFO = 4;
-	const PD_PUB_DB_LOAD_AUTHOR_MIN      = 8;
-	const PD_PUB_DB_LOAD_AUTHOR_FULL     = 0x10;
-	const PD_PUB_DB_LOAD_POINTER         = 0x20;
-	const PD_PUB_DB_LOAD_VENUE           = 0x40;
-	const PD_PUB_DB_LOAD_ALL             = 0x77;
+	const DB_LOAD_BASIC           = 0;
+	const DB_LOAD_CATEGORY        = 1;
+	const DB_LOAD_CATEGORY_INFO   = 2;
+	const DB_LOAD_ADDITIONAL_INFO = 4;
+	const DB_LOAD_AUTHOR_MIN      = 8;
+	const DB_LOAD_AUTHOR_FULL     = 0x10;
+	const DB_LOAD_POINTER         = 0x20;
+	const DB_LOAD_VENUE           = 0x40;
+	const DB_LOAD_ALL             = 0x77;
 
     public function __construct($mixed = NULL) {
         $this->paper = 'no paper';
@@ -68,7 +68,7 @@ class pdPublication extends pdDbAccessor {
      *
      * Use $flags to load information from other tables.
      */
-    public function dbLoad($db, $id, $flags = self::PD_PUB_DB_LOAD_ALL) {
+    public function dbLoad($db, $id, $flags = self::DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
@@ -92,19 +92,19 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if ($flags & self::PD_PUB_DB_LOAD_CATEGORY) {
+        if ($flags & self::DB_LOAD_CATEGORY) {
             $q = $db->selectRow('pub_cat', 'cat_id', array('pub_id' => $id),
                                 "pdPublication::dbLoad");
 
             if ($q !== false) {
                 $this->category = new pdCategory();
                 $this->category->dbLoad($db, $q->cat_id, null,
-                                        PD_CATEGORY_DB_LOAD_BASIC);
+                                        pdCategory::DB_LOAD_BASIC);
             }
         }
 
         // some categories are not defined
-        if (($flags & self::PD_PUB_DB_LOAD_CATEGORY_INFO)
+        if (($flags & self::DB_LOAD_CATEGORY_INFO)
             && isset($this->category->cat_id)) {
             $this->category->dbLoadCategoryInfo($db);
 
@@ -123,7 +123,7 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if ($flags & self::PD_PUB_DB_LOAD_ADDITIONAL_INFO) {
+        if ($flags & self::DB_LOAD_ADDITIONAL_INFO) {
             $q = $db->select(array('additional_info', 'pub_add'),
                              array('additional_info.location',
                                    'additional_info.type'),
@@ -137,8 +137,8 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if ($flags & (self::PD_PUB_DB_LOAD_AUTHOR_MIN
-                      | self::PD_PUB_DB_LOAD_AUTHOR_FULL)) {
+        if ($flags & (self::DB_LOAD_AUTHOR_MIN
+                      | self::DB_LOAD_AUTHOR_FULL)) {
             $q = $db->select(array('author', 'pub_author'),
                              array('author.author_id', 'author.name'),
                              array('author.author_id=pub_author.author_id',
@@ -147,11 +147,11 @@ class pdPublication extends pdDbAccessor {
                              array( 'ORDER BY' => 'pub_author.rank'));
             $r = $db->fetchObject($q);
             while ($r) {
-                if ($flags & self::PD_PUB_DB_LOAD_AUTHOR_FULL) {
+                if ($flags & self::DB_LOAD_AUTHOR_FULL) {
                     $auth_count = count($this->authors);
                     $this->authors[$auth_count] = new pdAuthor();
                     $this->authors[$auth_count]->dbLoad($db, $r->author_id,
-                                                        PD_AUTHOR_DB_LOAD_BASIC);
+                                                        pdAuthor::DB_LOAD_BASIC);
                 }
                 else
                     $this->authors[] = $r;
@@ -159,7 +159,7 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if ($flags & self::PD_PUB_DB_LOAD_POINTER) {
+        if ($flags & self::DB_LOAD_POINTER) {
             $q = $db->select('pointer', 'value',
                              array('pub_id' => $id, 'type' => 'int'),
                              "pdPublication::dbLoad");
@@ -181,7 +181,7 @@ class pdPublication extends pdDbAccessor {
             }
         }
 
-        if ($flags & self::PD_PUB_DB_LOAD_VENUE) {
+        if ($flags & self::DB_LOAD_VENUE) {
             $this->dbLoadVenue($db);
         }
 
@@ -213,7 +213,7 @@ class pdPublication extends pdDbAccessor {
     }
 
     private function dbLoadVenue($db) {
-        assert("($this->dbLoadFlags & self::PD_PUB_DB_LOAD_VENUE)");
+        assert("($this->dbLoadFlags & self::DB_LOAD_VENUE)");
 
         if (($this->venue_id == null) || ($this->venue_id == '')
             || ($this->venue_id == '0')) return;
@@ -638,7 +638,7 @@ class pdPublication extends pdDbAccessor {
             foreach ($mixed as $index => $author_id) {
                 $author = new pdAuthor();
                 $result = $author->dbLoad($db, $author_id,
-                                          PD_AUTHOR_DB_LOAD_BASIC);
+                                          pdAuthor::DB_LOAD_BASIC);
                 assert('$result');
                 $this->authors[$index] = $author;
             }
@@ -655,7 +655,7 @@ class pdPublication extends pdDbAccessor {
         assert('is_numeric($mixed)');
 
         $author = new pdAuthor();
-        $result = $author->dbLoad($db, $mixed, PD_AUTHOR_DB_LOAD_BASIC);
+        $result = $author->dbLoad($db, $mixed, pdAuthor::DB_LOAD_BASIC);
         assert('$result');
         $this->authors[] = $author;
     }

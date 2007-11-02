@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.40 2007/10/31 23:17:34 loyola Exp $
+// $Id: add_pub4.php,v 1.41 2007/11/02 16:36:28 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -25,7 +25,7 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class add_pub4 extends add_pub_base {
-    var $debug = 0;
+    public $debug = 0;
 
     public function __construct() {
         parent::__construct();
@@ -79,7 +79,7 @@ class add_pub4 extends add_pub_base {
             $this->renderForm();
     }
 
-    function formAddAttachments() {
+    public function formAddAttachments() {
         $form =& $this->form;
         $user =& $_SESSION['user'];
 
@@ -157,7 +157,7 @@ class add_pub4 extends add_pub_base {
         $form->addElement('submit', 'add_att', 'Add Attachment');
     }
 
-    function formAddWebLinks() {
+    public function formAddWebLinks() {
         $form =& $this->form;
 
         $num_web_links = count($this->pub->web_links);
@@ -208,7 +208,7 @@ class add_pub4 extends add_pub_base {
         $form->addElement('hidden', 'num_web_links', $num_web_links);
     }
 
-    function formRelatedPubs() {
+    public function formRelatedPubs() {
         $form =& $this->form;
 
         $num_related_pubs = count($this->pub->related_pubs);
@@ -258,7 +258,7 @@ class add_pub4 extends add_pub_base {
         $form->addElement('hidden', 'num_related_pubs', $num_related_pubs);
     }
 
-    function renderForm() {
+    public function renderForm() {
         assert('isset($_SESSION["pub"])');
 
         $form =& $this->form;
@@ -299,7 +299,7 @@ class add_pub4 extends add_pub_base {
         $this->javascript();
     }
 
-    function processForm() {
+    public function processForm() {
         assert('isset($_SESSION["pub"])');
 
         $form =& $this->form;
@@ -411,7 +411,7 @@ class add_pub4 extends add_pub_base {
             header('Location: add_pub_submit.php');
     }
 
-    function javascript() {
+    public function javascript() {
         $js_files = array(FS_PATH . '/Admin/js/add_pub4.js',
                           FS_PATH . '/Admin/js/add_pub_cancel.js');
 

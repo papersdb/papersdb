@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.107 2007/10/31 20:37:28 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.108 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -70,8 +70,8 @@ class pdHtmlPage {
     /**
      * Constructor.
      */
-    function __construct($page_id, $title = null, $relative_url = null,
-                         $login_level = PD_NAV_MENU_NEVER,
+    public function __construct($page_id, $title = null, $relative_url = null,
+                         $login_level = pdNavMenuItem::MENU_NEVER,
                          $useStdLayout = true) {
         if (MAINTENANCE == 1) {
             echo 'PapersDB is under maintenance, please check back later';
@@ -102,7 +102,7 @@ class pdHtmlPage {
             $this->db = pdDb::newFromParams();
         }
 
-        $this->check_login();
+        $this->check_login(); 
         $this->nav_menu = new pdNavMenu();
 
         if (($page_id != null) && ($page_id != '')
@@ -130,7 +130,7 @@ class pdHtmlPage {
         $this->hasHelpTooltips = false;
 
         // ensure that the user is logged in if a page requires login access
-        if ((($this->login_level >= PD_NAV_MENU_LOGIN_REQUIRED)
+        if ((($this->login_level >= pdNavMenuItem::MENU_LOGIN_REQUIRED)
              || (strpos($this->relative_url, 'Admin/') !== false))
             && ($this->access_level < 1)) {
             $this->loginError = true;
@@ -138,7 +138,7 @@ class pdHtmlPage {
         }
     }
 
-    function __destruct() {
+    public function __destruct() {
         if (is_object($this->db) && $this->db->isOpen())
             $this->db->close();
     }
@@ -334,7 +334,7 @@ class pdHtmlPage {
             $url_prefix = '../';
 
         foreach ($this->nav_menu->nav_items as $page_id => $item) {
-            if (!$item->display || ($item->access_level <= PD_NAV_MENU_NEVER))
+            if (!$item->display || ($item->access_level <= pdNavMenuItem::MENU_NEVER))
                 continue;
 
             // the first AND statement displays the nav menu links
@@ -345,12 +345,12 @@ class pdHtmlPage {
             // the third and takes care of displaying the guest login level
             // (not logged in) links
             if ((($this->access_level > 0)
-                 && ($item->access_level > PD_NAV_MENU_ALWAYS)
-                 && ($item->access_level < PD_NAV_MENU_LEVEL_ADMIN))
+                 && ($item->access_level > pdNavMenuItem::MENU_ALWAYS)
+                 && ($item->access_level < pdNavMenuItem::MENU_LEVEL_ADMIN))
                 || (($this->access_level >= 2)
-                    && ($item->access_level == PD_NAV_MENU_LEVEL_ADMIN))
+                    && ($item->access_level == pdNavMenuItem::MENU_LEVEL_ADMIN))
                 || (($this->access_level == 0)
-                    && ($item->access_level < PD_NAV_MENU_LOGIN_REQUIRED))) {
+                    && ($item->access_level < pdNavMenuItem::MENU_LOGIN_REQUIRED))) {
 
                 // only display search results if a search was performed
                 if (($page_id == 'search_results')

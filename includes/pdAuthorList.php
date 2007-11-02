@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.18 2007/10/31 23:17:34 loyola Exp $
+// $Id: pdAuthorList.php,v 1.19 2007/11/02 16:36:29 loyola Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -17,7 +17,7 @@
  * @package PapersDB
  */
 class pdAuthorList {
-    var $list;
+    public $list;
 
     /**
      * Constructor.
@@ -56,7 +56,7 @@ class pdAuthorList {
     /**
      * Converts the list to firstname lastname list.
      */
-    function asFirstLast() {
+    public function asFirstLast() {
         assert('count($this->list) > 0');
         $fl_list = array();
         foreach ($this->list as $auth_id => $name) {

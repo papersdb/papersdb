@@ -22,7 +22,7 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class list_author extends pdHtmlPage {
-    var $tab;
+    public $tab;
 
     public function __construct() {
         parent::__construct('all_authors');
@@ -53,8 +53,8 @@ class list_author extends pdHtmlPage {
         foreach ($auth_list->list as $author_id => $name) {
             $author = new pdAuthor();
             $author->dbLoad($this->db, $author_id,
-                            PD_AUTHOR_DB_LOAD_BASIC
-                            | PD_AUTHOR_DB_LOAD_PUBS_MIN);
+                            pdAuthor::DB_LOAD_BASIC
+                            | pdAuthor::DB_LOAD_PUBS_MIN);
 
             $name = '<span class="emph"><a href="view_author.php?author_id='
                 . $author_id . '">' . $name . '</a>&nbsp;';
