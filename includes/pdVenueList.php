@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.19 2007/10/29 21:35:25 loyola Exp $
+// $Id: pdVenueList.php,v 1.20 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Contains class to retrieve a list of venues.
@@ -15,19 +15,15 @@
  * @package PapersDB
  */
 class pdVenueList {
-    public $list;
-
+	private function __construct() {}
+	
     /**
-     * Constructor.
-     *
      * By default venues with URLs in the name are not part of the list. Set
      * $all to true to get venues with URLs in the name also.
      */
-    public function __construct($db, $options = null) {
-        if (isset($options['starting_with'])) {
-            $this->loadStartingWith($db, $options['starting_with']);
-            return;
-        }
+    public static function create($db, $options = null) {
+        if (isset($options['starting_with']))
+            return self::loadStartingWith($db, $options['starting_with']);
         else if (isset($options['cat_id']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
                              array('cat_id' => $options['cat_id']),
@@ -36,7 +32,9 @@ class pdVenueList {
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
                               null, "pdVenueList::dbLoad");
 
-        if ($q === false) return;
+        $list = array();
+        if ($q === false) return $list;
+        
         $r = $db->fetchObject($q);
         while ($r) {
             if (isset($options['concat'])) {
@@ -65,35 +63,37 @@ class pdVenueList {
                     $name = substr($name, 0, 70) . '...';
 
                 if (($title != '') && ($name != '')) {
-                    $this->list[$r->venue_id] = $title . ' - ' . $name;
+                    $list[$r->venue_id] = $title . ' - ' . $name;
                 }
                 else if (($title == '') && ($name != '')) {
-                    $this->list[$r->venue_id] = $name;
+                    $list[$r->venue_id] = $name;
                 }
                 else {
-                    $this->list[$r->venue_id] = $title;
+                    $list[$r->venue_id] = $title;
                 }
             }
             else if ($r->title != '') {
-                $this->list[$r->venue_id] = $r->title;
+                $list[$r->venue_id] = $r->title;
             }
             else if (($r->name != '')
                      && (isset($options['all'])
                          || (strpos($r->name, 'href') === false))) {
                 if (strlen($r->name) > 70)
-                    $this->list[$r->venue_id] = substr($r->name, 0, 70) . '...';
+                    $list[$r->venue_id] = substr($r->name, 0, 70) . '...';
                 else
-                    $this->list[$r->venue_id] = $r->name;
+                    $list[$r->venue_id] = $r->name;
             }
             $r = $db->fetchObject($q);
         }
-        if (is_array($this->list))
-            uasort($this->list, array(get_class($this), 'sortVenues'));
+        
+        uasort($list, array('pdVenueList', 'sortVenues'));
+        return $list;
     }
 
-    private function loadStartingWith($db, $letter) {
+    private static function loadStartingWith($db, $letter) {
         assert('strlen($letter) == 1');
 
+        $list = array();
         $letter .= '%';
         $fields = array('title', 'name');
 
@@ -108,24 +108,24 @@ class pdVenueList {
                                        'LENGTH(title)' => '0'),
                                  "pdVenueList::loadStartingWith");
 
-            if ($q === false) return;
+            if ($q === false) return $list;
 
             $r = $db->fetchObject($q);
             while ($r) {
-                $this->list[] = new pdVenue($r);
+                $list[] = new pdVenue($r);
                 $r = $db->fetchObject($q);
             }
         }
 
-        if (is_array($this->list))
-            uasort($this->list, array(get_class($this), 'sortVenuesObjs'));
+        uasort($list, array('pdVenueList', 'sortVenuesObjs'));
+        return $list;
     }
 
     private static function sortVenues($a, $b) {
         return (strtolower($a) > strtolower($b));
     }
 
-    private function sortVenuesObjs($a, $b) {
+    private static function sortVenuesObjs($a, $b) {
         assert('is_object($a)');
         assert('is_object($b)');
 

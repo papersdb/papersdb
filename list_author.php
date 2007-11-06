@@ -39,18 +39,18 @@ class list_author extends pdHtmlPage {
             return;
         }
 
-        $auth_list = new pdAuthorList($this->db, null, $this->tab);
+        $auth_list = pdAuthorList::create($this->db, null, $this->tab);
 
         echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
 
         echo "<h2>Authors</h2>";
 
-        if (!isset($auth_list->list) || (count($auth_list->list) == 0)) {
+        if (empty($auth_list) || (count($auth_list) == 0)) {
             echo 'No authors with last name starting with ', $this->tab, '<br/>';
             return;
         }
 
-        foreach ($auth_list->list as $author_id => $name) {
+        foreach ($auth_list as $author_id => $name) {
             $author = new pdAuthor();
             $author->dbLoad($this->db, $author_id,
                             pdAuthor::DB_LOAD_BASIC

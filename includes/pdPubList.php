@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.32 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdPubList.php,v 1.33 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -109,9 +109,9 @@ class pdPubList {
         $q = $db->select('publication', '*', '', "pdPubList::allPubsDbLoad",
                          array('ORDER BY' => $order));
 
-        if ($q === false) return null;
-        
         $list = array();
+        if ($q === false) return $list;
+        
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -147,7 +147,8 @@ class pdPubList {
         assert('is_object($db)');
         assert('!empty($author_id)');
 
-        if ($numToLoad == 0) return null;
+        $list = array();
+        if ($numToLoad == 0) return $list;
 
         $q = $db->select(array('publication', 'pub_author'),
                          array('publication.pub_id', 'publication.title',
@@ -160,13 +161,12 @@ class pdPubList {
                          "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.published ASC'));
 
-        if ($db->numRows($q) == 0) return null;
+        if ($db->numRows($q) == 0) return $list;
 
         // if $numToLoad is -1 then we load all publications
         if ($numToLoad == -1)
             $numToLoad = $db->numRows($q);
 
-        $list = array();
         $r = $db->fetchObject($q);
         while ($r && ($numToLoad > 0)) {
             $list[] = new pdPublication($r);
@@ -193,9 +193,9 @@ class pdPubList {
                          "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.published ASC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $pub_ids = array();
+        if ($db->numRows($q) == 0) return $pub_ids;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $pub_ids[] = $r->pub_id;
@@ -234,9 +234,9 @@ class pdPubList {
                          "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.published ASC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -257,9 +257,9 @@ class pdPubList {
         $q = $db->select('publication', '*', array('venue_id' => $venue_id),
                          "pdPubList::venuePubsDbLoad");
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -286,9 +286,9 @@ class pdPubList {
                                'pub_cat.cat_id' => $cat_id),
                          "pdPubList::categoryPubsDbLoad");
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -316,9 +316,9 @@ class pdPubList {
         assert('is_object($db)');
         assert('is_array($pub_ids)');
 
-        if (count($pub_ids) == 0) return null;
-
         $list = array();
+        if (count($pub_ids) == 0) return $list;
+
         foreach ($pub_ids as $pub_id) {
             assert('is_numeric($pub_id)');
 
@@ -329,7 +329,7 @@ class pdPubList {
 
         }
 
-        uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+        uasort($list, array('pdPublication', 'pubsDateSortDesc'));
         return $list;
     }
 
@@ -337,9 +337,10 @@ class pdPubList {
         assert('is_object($db)');
         assert('is_array($pub_ids)');
 
-        if (count($pub_ids) == 0) return null;
+        $list = array();
+        if (count($pub_ids) == 0) return $list;
 
-        $list = array('type' => 'category');
+        $list['type'] = 'category';
         foreach ($pub_ids as $pub_id) {
             if (!is_numeric($pub_id)) continue;
 
@@ -389,9 +390,9 @@ class pdPubList {
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published DESC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = array('year' => $r->year);
@@ -415,9 +416,9 @@ class pdPubList {
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published DESC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -434,16 +435,16 @@ class pdPubList {
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'published DESC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $pub_ids = array();
+        if ($db->numRows($q) == 0) return $pub_ids;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $pub_ids[] = $r->pub_id;
             $r = $db->fetchObject($q);
         }
 
-        $this->arrayPubsDBLoadByCategory($db, $pub_ids);
+        return self::arrayPubsDBLoadByCategory($db, $pub_ids);
     }
 
     private static function titlePubsDBLoad($db, $title) {
@@ -456,9 +457,9 @@ class pdPubList {
                          "pdPubList::titlePubsDBLoad",
                          array( 'ORDER BY' => 'published ASC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
@@ -473,9 +474,9 @@ class pdPubList {
         $q = $db->select('publication', 'keywords', '',
                          "pdPubList::publicationsDbLoad");
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $keywords = split('; *', $r->keywords);
@@ -497,16 +498,16 @@ class pdPubList {
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'title ASC'));
 
-        if ($db->numRows($q) == 0) return null;
-
         $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
         $r = $db->fetchObject($q);
         while ($r) {
             $list[] = new pdPublication($r);
             $r = $db->fetchObject($q);
         }
 
-        uasort($this->list, array('pdPublication', 'pubsDateSortDesc'));
+        uasort($list, array('pdPublication', 'pubsDateSortDesc'));
         return $list;
     }
 

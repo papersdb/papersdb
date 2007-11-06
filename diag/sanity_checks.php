@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.4 2007/11/02 16:36:29 loyola Exp $
+// $Id: sanity_checks.php,v 1.5 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -16,7 +16,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.

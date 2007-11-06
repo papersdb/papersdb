@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.20 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdAuthorList.php,v 1.21 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -17,6 +17,8 @@
  * @package PapersDB
  */
 class pdAuthorList {
+	private function __construct() {}
+	
     public static function create($db, $firstname = null, $lastname = null,
     							  $as_fist_last = false) {
         assert('is_object($db)');

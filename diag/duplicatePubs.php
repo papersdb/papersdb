@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.13 2007/11/02 16:36:29 loyola Exp $
+// $Id: duplicatePubs.php,v 1.14 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -29,13 +29,13 @@ class duplicatePubs extends pdHtmlPage {
 
         echo '<h1>Publications with same title</h1>', 'Note that some publications may exist both in a conference ', 'and later in time in a journal.';
 
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $titles = array();
 
-        foreach ($all_pubs->list as $pub) {
-            $titles[]= array($pub,
-                             preg_replace('/\s\s+/', ' ', 
-                                          strtolower($pub->title)));
+        foreach ($all_pubs as $pub) {
+            $titles[] = array($pub,
+                              preg_replace('/\s\s+/', ' ', 
+                                           strtolower($pub->title)));
         }
 
         //$this->debugVar('titles', $titles);

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.125 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdPublication.php,v 1.126 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -1234,10 +1234,12 @@ class pdPublication extends pdDbAccessor {
         assert('is_object($db)');
 
         $myTitleLower = preg_replace('/\s\s+/', ' ', strtolower($this->title));
-        $all_pubs = new pdPubList($db);
+        $all_pubs = pdPubList::create($db);
+        
         $similarPubs = array();
-
-        foreach ($all_pubs->list as $pub) {
+        if (empty($all_pubs) || (count($all_pubs) == 0)) return $similarPubs;
+                
+        foreach ($all_pubs as $pub) {
             $pubTitleLower
                 = preg_replace('/\s\s+/', ' ', strtolower($pub->title));
 

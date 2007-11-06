@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.60 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_venue.php,v 1.61 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -105,7 +105,7 @@ class add_venue extends pdHtmlPage {
         $form->addElement('hidden', 'referer', $this->referer);
 
         // category
-        $category_list = new pdCatList($this->db);
+        $category_list = pdCatList::create($this->db);
 
         // Remove "In " from category names
         foreach ($category_list as $key => $category) {

@@ -11,16 +11,16 @@ require_once 'includes/pdVenueList.php';
 
 $db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
 
-$venues = new pdVenueList($db);
+$venues = pdVenueList::create($db);
 
-if (count($venues->list) == 0) {
+if (count($venues) == 0) {
     echo 'No venues in database';
     $db->close();
     exit;
 }
 
 if (0)
-	foreach ($venues->list as $pub_id => $title) {
+	foreach ($venues as $pub_id => $title) {
     	$venue = new pdVenue();
 	    $venue->dbLoad($db, $pub_id);
     
@@ -40,7 +40,7 @@ if (0)
 		$venue->dbSave($db);
 	}
 else
-	foreach ($venues->list as $pub_id => $title) {
+	foreach ($venues as $pub_id => $title) {
     	$venue = new pdVenue();
 	    $venue->dbLoad($db, $pub_id);
     

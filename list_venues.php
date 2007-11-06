@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
+// $Id: list_venues.php,v 1.36 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -37,19 +37,19 @@ class list_venues extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
 
-        $venue_list = new pdVenueList($this->db,
-                                      array('starting_with' => $this->tab));
+        $venue_list = pdVenueList::create(
+        	$this->db, array('starting_with' => $this->tab));
 
         echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
 
         echo '<h2>Publication Venues</h2>';
 
-        if (!isset($venue_list->list) || (count($venue_list->list) == 0)) {
+        if (empty($venue_list) || (count($venue_list) == 0)) {
             echo 'No venues with name starting with ', $this->tab, '<br/>';
             return;
         }
 
-        foreach ($venue_list->list as $venue) {
+        foreach ($venue_list as $venue) {
             // only show global venues
             if ($venue->v_usage == 'single') continue;
 

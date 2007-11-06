@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.8 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdExtraInfoList.php,v 1.9 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Retrieves the extra information items from the database.
@@ -15,7 +15,9 @@
  * @package PapersDB
  */
 class pdExtraInfoList {
-    public static function create($db) {
+	private function __construct() {}
+	
+	public static function create($db) {
         assert('is_object($db)');
 
         $q = $db->select('extra_info', array('DISTINCT name'), '',

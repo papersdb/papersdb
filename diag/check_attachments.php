@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.14 2007/11/02 16:36:29 loyola Exp $
+// $Id: check_attachments.php,v 1.15 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Script that reports the publications whose attachments are not
@@ -27,8 +27,8 @@ class check_attachments extends pdHtmlPage {
 
         if ($this->loginError) return;
 
-        $pub_list = new pdPubList($this->db);
-        foreach ($pub_list->list as $pub) {
+        $pub_list = pdPubList::create($this->db);
+        foreach ($pub_list as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             $paper_arr = split('paper_', $pub->paper);

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.27 2007/11/02 16:36:28 loyola Exp $
+// $Id: delete_author.php,v 1.28 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Deletes an author from the database.
@@ -49,8 +49,8 @@ class delete_author extends pdHtmlPage {
             return;
         }
 
-        $pub_list = new pdPubList($this->db,
-                                  array('author_id' => $this->author_id));
+        $pub_list = pdPubList::create(
+        	$this->db, array('author_id' => $this->author_id));
 
         if (isset($pub_list->list) && (count($pub_list->list) > 0)) {
             echo 'Cannot delete Author <b>', $author->name, '</b>.<p/>', 

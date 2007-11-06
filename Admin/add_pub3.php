@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.45 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_pub3.php,v 1.46 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -24,7 +24,7 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class add_pub3 extends add_pub_base {
-    public $debug = 0;
+    public $debug = 1;
     public $cat_id;
     public $venue_id;
     public $used_by_me;
@@ -93,15 +93,13 @@ class add_pub3 extends add_pub_base {
                         '&nbsp;&nbsp;', false);
 
         // Venue
-        if (is_object($this->pub->venue)
-            && is_object($this->pub->category)
-            && ($this->pub->venue->cat_id == $this->cat_id)
+        if (is_object($this->pub->category)
             && in_array($this->cat_id, array(1, 3, 4)))
-            $vlist = new pdVenueList($this->db,
-                                     array('cat_id' => $this->cat_id,
-                                           'concat' => true));
+            $vlist = pdVenueList::create($this->db,
+                                         array('cat_id' => $this->cat_id,
+                                              'concat' => true));
         else
-            $vlist = new pdVenueList($this->db, array('concat' => true));
+            $vlist = pdVenueList::create($this->db, array('concat' => true));
 
         $venues[''] = '--Select Venue--';
         $venues['-1'] = '--No Venue--';
@@ -111,13 +109,13 @@ class add_pub3 extends add_pub_base {
             $user =& $_SESSION['user'];
             $user->venueIdsGet($this->db);
 
-            foreach ($vlist->list as $venue_id => $name) {
+            foreach ($vlist as $venue_id => $name) {
                 if (in_array($venue_id, $user->venue_ids))
                     $venues[$venue_id] = $name;
             }
         }
         else {
-            foreach ($vlist->list as $venue_id => $name) {
+            foreach ($vlist as $venue_id => $name) {
                 $venues[$venue_id] = $name;
             }
         }

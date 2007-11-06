@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.43 2007/11/02 22:42:26 loyola Exp $
+// $Id: list_publication.php,v 1.44 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -43,22 +43,22 @@ class list_publication extends pdHtmlPage {
         $this->loadHttpVars();
 
         if (isset($this->year)) {
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('year_cat' => $this->year));
             $title = '<h1>Publications in ' .$this->year . '</h1>';
         }
         else if (isset($this->venue_id)) {
-            $vl = new pdVenueList($this->db);
+            $vl = pdVenueList::create($this->db);
 
-            if (!array_key_exists($this->venue_id, $vl->list)) {
+            if (!array_key_exists($this->venue_id, $vl)) {
                 $this->pageError = true;
                 return;
             }
 
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('venue_id' => $this->venue_id));
             $title = '<h1>Publications in Venue "'
-                . $vl->list[$this->venue_id] . '"</h1>';
+                . $vl[$this->venue_id] . '"</h1>';
         }
         else if (isset($this->cat_id)) {
             $cl = pdCatList::create($this->db);
@@ -68,19 +68,19 @@ class list_publication extends pdHtmlPage {
                 return;
             }
 
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('cat_id' => $this->cat_id));
             $title = '<h1>Publications in Category "'
                 . $cl[$this->cat_id] . '"</h1>';
         }
         else if (isset($this->keyword)) {
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('keyword' => $this->keyword));
             $title = '<h1>Publications with keyword "' .$this->keyword
                 . '"</h1>';
         }
         else if (isset($this->keyword)) {
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('keyword' => $this->keyword));
             $title = '<h1>Publications with keyword "' .$this->keyword
                 . '"</h1>';
@@ -90,7 +90,7 @@ class list_publication extends pdHtmlPage {
             // that author
             //
             // This is used when viewing an author.
-            $pub_list = new pdPubList(
+            $pub_list = pdPubList::create(
                 $this->db, array('author_id_cat' => $this->author_id));
 
             $auth = new pdAuthor();
@@ -122,34 +122,42 @@ class list_publication extends pdHtmlPage {
 
         switch ($viewCat) {
             case "year":
-                $table = new HTML_Table(array('class' => 'nomargins',
-                                              'width' => '100%'));
-                $pub_years = new pdPubList($this->db, array('year_list' => true));
+                $pub_years = pdPubList::create(
+                	$this->db, array('year_list' => true));
+                	
+                echo '<h2>Publications by Year:</h2>';
+                
+                if (count($pub_years) > 0) {
+                	$table = new HTML_Table(array('class' => 'nomargins',
+                    	                          'width' => '100%'));
+                
+	                $table->addRow(array('Year', 'Num. Publications'),
+    	                           array('class' => 'emph'));
 
-                $table->addRow(array('Year', 'Num. Publications'),
-                               array('class' => 'emph'));
-
-                foreach (array_values($pub_years->list) as $item) {
-                    $cells = array();
-                    $cells[] = '<a href="list_publication.php?year='
-                        . $item['year'] . '">' . $item['year'] . '</a>';
-                    $cells[] = $item['count'];
-                    $table->addRow($cells);
+        	        foreach (array_values($pub_years) as $item) {
+            	        $cells = array();
+                	    $cells[] = '<a href="list_publication.php?year='
+                    	    . $item['year'] . '">' . $item['year'] . '</a>';
+	                    $cells[] = $item['count'];
+    	                $table->addRow($cells);
+        	        }
+        	        
+        	        echo $table->toHtml();
                 }
-
-                echo '<h2>Publications by Year:</h2>', $table->toHtml();
+                else
+                	echo 'No publication entries.';
                 break;
 
             case 'author':
                 echo '<h2>Publications by Author:</h2>';
 
-                $al = new pdAuthorList($this->db);
+                $al = pdAuthorList::create($this->db);
 
                 for ($c = 65; $c <= 90; ++$c) {
                     $table = new HTML_Table(array('class' => 'publist'));
 
                     $text = '';
-                    foreach ($al->list as $auth_id => $name) {
+                    foreach ($al as $auth_id => $name) {
                         if (substr($name, 0, 1) == chr($c))
                             $text .= '<a href="list_publication.php?author_id='
                                 . $auth_id . '">' . $name . '</a>&nbsp;&nbsp; ';
@@ -165,7 +173,7 @@ class list_publication extends pdHtmlPage {
                 // publications by keyword
                 unset($table);
 
-                $vl = new pdVenueList($this->db);
+                $vl = pdVenueList::create($this->db);
 
                 echo '<h2>Publications by Venue:</h2>';
 
@@ -173,7 +181,7 @@ class list_publication extends pdHtmlPage {
                     $table = new HTML_Table(array('class' => 'publist'));
 
                     $text = '';
-                    foreach ($vl->list as $vid => $v) {
+                    foreach ($vl as $vid => $v) {
                         if (substr($v, 0, 1) == chr($c))
                             $text .= '<a href="list_publication.php?venue_id='
                                 . $vid . '">' . $v . '</a>&nbsp;&nbsp; ';
@@ -208,14 +216,14 @@ class list_publication extends pdHtmlPage {
                 // publications by keyword
                 unset($table);
 
-                $kl = new pdPubList($this->db, array('keywords_list' => true));
+                $kl = pdPubList::create($this->db, array('keywords_list' => true));
 
                 echo '<h2>Publications by Keyword:</h2>';
 
                 for ($c = 65; $c <= 90; ++$c) {
                     $table = new HTML_Table(array('class' => 'publist'));
                     $text = '';
-                    foreach ($kl->list as $kw) {
+                    foreach ($kl as $kw) {
                         if (substr($kw, 0, 1) == chr($c))
                             $text .= '<a href="list_publication.php?keyword='
                                 . $kw . '">' . $kw . '</a>&nbsp;&nbsp; ';

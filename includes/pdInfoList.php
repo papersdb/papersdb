@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.9 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdInfoList.php,v 1.10 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Class to retrieve information table data.
@@ -15,7 +15,9 @@
  * @package PapersDB
  */
 class pdInfoList {
-    public static function create($db) {
+	private function __construct() {}
+	
+	public static function create($db) {
         assert('is_object($db)');
         $q = $db->select('info', '*', '', "pdInfoList::dbLoad");
         

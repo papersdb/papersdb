@@ -11,7 +11,7 @@ require_once 'includes/pdPubList.php';
 
 $db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
 
-$authors = new pdAuthorList($db);
+$authors = pdAuthorList::create($db);
 
 if (count($authors) == 0) {
     echo 'No authors in database';

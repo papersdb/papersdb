@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.28 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdAuthor.php,v 1.29 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -137,9 +137,9 @@ class pdAuthor extends pdDbAccessor{
         }
 
         if ($numToLoad > 0) {
-            $this->pub_list
-                = new pdPubList($db, array('author_id' => $this->author_id,
-                                           'num_to_load' => $numToLoad));
+            $this->pub_list = pdPubList::create(
+            	$db, array('author_id' => $this->author_id,
+                'num_to_load' => $numToLoad));
         }
     }
 

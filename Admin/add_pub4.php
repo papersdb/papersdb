@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.42 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_pub4.php,v 1.43 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -239,17 +239,19 @@ class add_pub4 extends add_pub_base {
             }
         }
 
-        $pub_list = new pdPubList($this->db);
-        $options[''] = '--- select publication --';
-        foreach ($pub_list->list as $p) {
-            if (strlen($p->title) > 70)
-                $options[$p->pub_id] = substr($p->title, 0, 67) . '...';
-            else
-                $options[$p->pub_id] = $p->title;
+        $pub_list = pdPubList::create($this->db);
+        if (!empty($pub_list) && (count($pub_list) > 0)) {
+	        $options[''] = '--- select publication --';
+	        foreach ($pub_list as $p) {
+	    	        if (strlen($p->title) > 70)
+	                $options[$p->pub_id] = substr($p->title, 0, 67) . '...';
+	            else
+	                $options[$p->pub_id] = $p->title;
+	        }
+	        $form->addElement('select', 'new_related_pub',
+	                          $this->helpTooltip('New Pub', 'relatedPubs') . ':',
+	                          $options);
         }
-        $form->addElement('select', 'new_related_pub',
-                          $this->helpTooltip('New Pub', 'relatedPubs') . ':',
-                          $options);
 
         $form->addElement('submit', 'add_related_pubs',
                           'Add Related Publication');

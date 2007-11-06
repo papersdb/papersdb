@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.7 2007/11/02 16:36:28 loyola Exp $
+// $Id: bibtex.php,v 1.8 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * This file outputs all the search results given to it in a BibTeX format.
@@ -40,9 +40,9 @@ class bibtex extends pdHtmlPage {
             return;
         }
 
-        $pub_list = new pdPubList($this->db, array('pub_ids' => $pubs));
+        $pub_list = pdPubList::create($this->db, array('pub_ids' => $pubs));
 
-        if (!is_array($pub_list->list) || (count($pub_list->list) == 0)) {
+        if (!is_array($pub_list) || (count($pub_list) == 0)) {
             $this->pageError = true;
             return;
         }
@@ -54,7 +54,7 @@ class bibtex extends pdHtmlPage {
         $table->setAutoGrow(true);
 
         $pub_count = 0;
-        foreach ($pub_list->list as $pub) {
+        foreach ($pub_list as $pub) {
             $pub_count++;
             $result = $pub->dbLoad($this->db, $pub->pub_id);
 

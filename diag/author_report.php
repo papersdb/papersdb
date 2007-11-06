@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.20 2007/11/02 16:36:29 loyola Exp $
+// $Id: author_report.php,v 1.21 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -13,7 +13,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdPubList.php';
 
 /**
  * Renders the whole page.

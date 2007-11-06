@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.16 2007/11/02 22:42:26 loyola Exp $
+// $Id: pubSanityChecks.php,v 1.17 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -111,12 +111,12 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueRankings() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
         $rankings = pdPublication::rankingsGlobalGet($this->db);
 
-        foreach ($all_pubs->list as $pub) {
+        foreach ($all_pubs as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -131,17 +131,17 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Non Matching Venue Rankings</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     public function venueCategories() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_cat = array();
         $additional = array();
         $categories = pdCatList::create($this->db);
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             if (is_object($pub->venue)
@@ -162,7 +162,7 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Non Matching Venue Category</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_cat));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_cat));
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
@@ -170,8 +170,8 @@ class pubSanityChecks extends pdHtmlPage {
         $bad_pubs = array();
 
         // check for T1 pubs
-        $all_pubs = new pdPubList($this->db);
-        foreach ($all_pubs->list as $pub) {
+        $all_pubs = pdPubList::create($this->db);
+        foreach ($all_pubs as $pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1))
@@ -180,7 +180,7 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Mislabelled Tier 1</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_pubs));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_pubs));
         echo $this->displayPubList($pub_list, true);
     }
 
@@ -204,11 +204,11 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueJournalRank() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -229,16 +229,16 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Journal publication entries with suspect rankings</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     public function venueConferenceRank() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -259,15 +259,15 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Conference publication entries with suspect rankings</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true, -1, $additional);
     }
 
     public function venueWorkshopRank() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -279,15 +279,15 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Workshop publication entries with suspect rankings</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true);
     }
 
     public function venuePosterRank() {
-        $all_pubs = new pdPubList($this->db);
+        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
 
-        foreach ($all_pubs->list as &$pub) {
+        foreach ($all_pubs as &$pub) {
             $pub->dbLoad($this->db, $pub->pub_id);
 
             // if the ranking does not match the venue
@@ -299,29 +299,29 @@ class pubSanityChecks extends pdHtmlPage {
         }
 
         echo '<h2>Poster publication entries with suspect rankings</h1>';
-        $pub_list =  new pdPubList($this->db, array('pub_ids' => $bad_rank));
+        $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
         echo $this->displayPubList($pub_list, true);
     }
 
     public function nonML() {
         foreach ($this->pi_authors as $name => &$dates) {
-            $all_pubs = new pdPubList($this->db,
-                                      array('author_name' => $name,
-                                            'date_start' => $dates[0],
-                                            'date_end' => date('Y-m-d')));
+            $all_pubs = pdPubList::create(
+            	$this->db, array('author_name' => $name,
+            				 	 'date_start' => $dates[0],
+                                 'date_end' => date('Y-m-d')));
 
-            if (count($all_pubs->list) == 0) continue;
+            if (count($all_pubs) == 0) continue;
 
             $non_ml = array();
 
-            foreach ($all_pubs->list as &$pub) {
+            foreach ($all_pubs as &$pub) {
                 $keywords = strtolower($pub->keywords);
                 if (strpos($keywords, 'machine learning') === false)
                     $non_ml[] = $pub->pub_id;
             }
 
             echo '<h2>Non Machine Learning papers for ', $name, '</h1>';
-            $pub_list =  new pdPubList($this->db, array('pub_ids' => $non_ml));
+            $pub_list =  pdPubList::create($this->db, array('pub_ids' => $non_ml));
             echo $this->displayPubList($pub_list, true);
             unset($all_pubs);
         }

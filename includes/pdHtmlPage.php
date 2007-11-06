@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.109 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.110 2007/11/06 18:05:36 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -214,13 +214,15 @@ class pdHtmlPage {
         }
 
         if (!is_array($arr) || (count($arr) == 0)) return;
+        
+        $ob_vars =& get_object_vars($this);
 
-        foreach (array_keys(get_object_vars($this)) as $member) {
-            if (isset($arr[$member])) {
-                if (is_array($arr[$member]))
-                    $this->$member = $this->stripSlashesArray($arr[$member]);
+        foreach (array_keys($arr) as $key) {
+            if (in_array($key, $ob_vars)) {
+                if (is_array($arr[$key]))
+                    $this->$key = $this->stripSlashesArray($arr[$key]);
                 else
-                    $this->$member = stripslashes($arr[$member]);
+                    $this->$key = stripslashes($arr[$key]);
             }
         }
     }

@@ -38,15 +38,15 @@ $rankings = array(
 
 $db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDBdev');
 
-$pubs = new pdPubList($db);
+$pubs = pdPubList::create($db);
 
-if (count($pubs->list) == 0) {
+if (count($pubs) == 0) {
     echo 'No publications in database';
     $db->close();
     exit;
 }
 
-foreach ($pubs->list as $pub) {
+foreach ($pubs as $pub) {
     $pub->dbLoad($db, $pub->pub_id);
 
     foreach ($rankings as $rank => $venues) {
