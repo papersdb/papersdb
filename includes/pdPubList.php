@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.33 2007/11/06 18:05:36 loyola Exp $
+// $Id: pdPubList.php,v 1.34 2007/11/06 18:42:45 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -18,8 +18,6 @@ require_once 'pdPublication.php';
  * @package PapersDB
  */
 class pdPubList {
-    public static $type;
-    public static $count;
     protected static $cat_display_order = array('In Journal (referreed)',
                                                 'In Journal (unreferreed)',
                                                 'In Conference (referreed)',
@@ -58,6 +56,9 @@ class pdPubList {
         }
         else if (isset($options['venue_id'])) {
             return self::venuePubsDbLoad($db, $options['venue_id']);
+        }
+        else if (isset($options['venue_id_count'])) {
+            return self::venuePubsCount($db, $options['venue_id_count']);
         }
         else if (isset($options['cat_id'])) {
             return self::categoryPubsDbLoad($db, $options['cat_id']);
@@ -132,8 +133,7 @@ class pdPubList {
                             array('author.author_id=pub_author.author_id',
                                   'pub_author.pub_id=publication.pub_id',
                                   'author.name like "' . $author_name . '%"'),
-                            "pdPubList::authorPubsDbLoad",
-                            array('ORDER BY' => 'publication.title ASC'));
+                            "pdPubList::authorPubsDbLoad");
 
         if ($q === false) return 0;
         
@@ -268,6 +268,22 @@ class pdPubList {
 
         uasort($list, array('pdPublication', 'pubsDateSortDesc'));
         return $list;
+    }
+
+    /**
+     * Retrieves publications for a given category.
+     */
+    private static function venuePubsCount($db, $venue_id) {
+        assert('is_object($db)');
+        assert('$venue_id != ""');
+
+        $q = $db->selectRow('publication', 'count(pub_id) as pcount',       
+ 						    array('venue_id' => $venue_id),
+                            "pdPubList::venuePubsCount");
+
+        if ($q === false) return 0;
+        
+        return $q->pcount;
     }
 
     /**
