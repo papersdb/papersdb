@@ -284,29 +284,42 @@ div#nav ul {
   padding: 0;
 }
 
-div#nav li {
-  margin-bottom: 4px;
-  width:180px;
-}
-
-div#nav li a, div#nav li.selected {
+div#nav ul li {
   background: #f4f4f4;
-  border-left: 4px solid #cccccc;
   color: #006633;
   display: block;
   font-weight: normal;
-  height: 20px !important;
   padding: 0 0 0 10px;
+  text-decoration: none;
+  /*margin-bottom: 4px;*/
+  width:180px;
+}
+
+div#nav ul li ul  {
+  margin: 0;
+}
+
+div#nav ul li ul li, div#nav ul li li a:hover {
+  border-left: 0 none;
+}
+
+div#nav ul li ul li a {
+  border-left: 0 none;
+  width: 170px;
+  margin: 0;
+  padding: 0;
+}
+
+div#nav ul li a {
+  background: #f4f4f4;
+  color: #006633;
+  display: block;
+  font-weight: normal;
   text-decoration: none;
 }
 
-div#nav li a:hover, div#nav li a.selected, div#nav li.selected {
+div#nav ul li a:hover, div#nav ul li a.selected {
   background: #CCCC99;
-  border-left: 4px solid #006633;
-}
-
-div#nav li.selected {
-  width: 166px;
 }
 
 div#sel {

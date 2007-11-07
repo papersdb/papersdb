@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.110 2007/11/06 18:05:36 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.111 2007/11/07 00:06:21 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -33,7 +33,7 @@ require_once 'HTML/Table.php';
  * @package PapersDB
  */
 class pdHtmlPage {
-	protected $page_id;
+    protected $page_id;
     protected $page_title;
     protected $relative_url;
     protected $redirectUrl;
@@ -51,7 +51,7 @@ class pdHtmlPage {
     protected $hasHelpTooltips;
     protected $form_controller;
     protected $nav_menu;
-    
+
 	const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="iso-8859-1"?>
         <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
             "http://www.w3.org/TR/html4/strict.dtd">
@@ -60,7 +60,7 @@ class pdHtmlPage {
         <title>';
 
 	const GOOGLE_ANALYTICS = '
-		<script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+		<script src="http://www.google-an||!$sub_item->enabled alytics.com/urchin.js" type="text/javascript">
         </script>
         <script type="text/javascript">
         _uacct = "UA-584619-1";
@@ -102,17 +102,18 @@ class pdHtmlPage {
             $this->db = pdDb::newFromParams();
         }
 
-        $this->check_login(); 
-        $this->nav_menu = new pdNavMenu();
+        $this->check_login();
+        $this->nav_menu = new pdNavMenu($this->access_level, $page_id);
 
-        if (($page_id != null) && ($page_id != '')
-            && (isset($this->nav_menu->nav_items[$page_id]))) {
-            $this->page_id = $page_id;
-            $this->page_title
-                = $this->nav_menu->nav_items[$page_id]->page_title;
-            $this->relative_url = $this->nav_menu->nav_items[$page_id]->url;
-            $this->login_level
-                = $this->nav_menu->nav_items[$page_id]->access_level;
+        if (!empty($page_id)) {
+        	$nav_item = $this->nav_menu->findPageId($page_id);
+
+        	if ($nav_item != null) {
+	            $this->page_id     = $page_id;
+    	        $this->page_title   = $nav_item->page_title;
+            	$this->relative_url = $nav_item->url;
+	            $this->login_level  = $nav_item->access_level;
+        	}
         }
         else {
             $this->page_title   = $title;
@@ -214,7 +215,7 @@ class pdHtmlPage {
         }
 
         if (!is_array($arr) || (count($arr) == 0)) return;
-        
+
         $ob_vars =& get_object_vars($this);
 
         foreach (array_keys($arr) as $key) {
@@ -335,63 +336,53 @@ class pdHtmlPage {
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
 
-        foreach ($this->nav_menu->nav_items as $page_id => $item) {
-            if (!$item->display || ($item->access_level <= pdNavMenuItem::MENU_NEVER))
-                continue;
-
-            // the first AND statement displays the nav menu links
-            // for someone with edit privilidges
-            //
-            // the second AND takes care of displaying the admin links
-            //
-            // the third and takes care of displaying the guest login level
-            // (not logged in) links
-            if ((($this->access_level > 0)
-                 && ($item->access_level > pdNavMenuItem::MENU_ALWAYS)
-                 && ($item->access_level < pdNavMenuItem::MENU_LEVEL_ADMIN))
-                || (($this->access_level >= 2)
-                    && ($item->access_level == pdNavMenuItem::MENU_LEVEL_ADMIN))
-                || (($this->access_level == 0)
-                    && ($item->access_level < pdNavMenuItem::MENU_LOGIN_REQUIRED))) {
-
-                // only display search results if a search was performed
-                if (($page_id == 'search_results')
-                    && !isset($_SESSION['search_results'])
-                    && !isset($_SESSION['search_url'])) {
-                    continue;
-                }
-
-                if (($page_id == $this->page_id) || !$item->enabled) {
-                    $options[$item->page_title] = '';
-                }
-                else
-                    $options[$item->page_title] = $url_prefix . $item->url;
-
-                // add redirection option to the login URL
-                //
-                // note: only add it if not at the login page
-                if (($page_id == 'login')
-                    && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
-                    $options[$item->page_title]
-                        .= '?redirect=' . $_SERVER['PHP_SELF'];
-
-                    if ($_SERVER['QUERY_STRING'] != '')
-                        $options[$item->page_title]
-                            .= '?' . $_SERVER['QUERY_STRING'];
-                }
-            }
-        }
-
         $result = '<div id="nav"><ul>';
+        
+        foreach ($this->nav_menu->nav_items as $page_id => $item) {
+        	if ($page_id == 'Home') {
+                $result .= '<li><a href="' . $url_prefix . $item->url . '"';
 
-        if (is_array($options))
-            foreach ($options as $key => $value) {
-                if ($value == '')
-                    $result .= '<li class="selected">' . $key . '</li>';
-                else
-                    $result
-                        .= '<li><a href="' . $value . '">' . $key . '</a></li>';
-            }
+                if ($this->page_id == 'home')
+                	$result .= ' class="selected"';
+
+                $result .= '>' . $item->page_title . '</a></li>';
+                continue;
+        	}        	
+        	else if (count($item->sub_items) == 0)
+                continue;
+            
+            $result .= '<li>' . $item->page_title . '<ul>';
+        
+            foreach ($item->sub_items as $sub_page_id => $sub_item) {  
+            	// derived class can override nav menu settings, check for 
+            	// each page to be enabled before displaying it      	
+                if (!$sub_item->display 
+                    || ($sub_item->access_level <= pdNavMenuItem::MENU_NEVER))
+                    continue;
+                    
+            	if (($sub_page_id == $this->page_id) || !$sub_item->enabled) {
+                    $result .= '<li><a href="#" class="selected">';
+            	}
+            	else {                  
+	                $url = $url_prefix . $sub_item->url;
+                        
+	                // if not at the login page add redirection option to the login URL
+    	            if (($sub_page_id == 'login')
+        	            && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
+            	        $url .= '?redirect=' . $_SERVER['PHP_SELF'];
+	
+    	                if ($_SERVER['QUERY_STRING'] != '')
+	    	                $url .= '?' . $_SERVER['QUERY_STRING'];
+            	    }
+                
+	                $result .= '<li><a href="' . $url . '">';
+            	}
+	            
+            	$result .= $sub_item->page_title . '</a>';
+            }            
+            
+	        $result .= '</ul></li>';
+        }
 
         $result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div>';
         return $result;
@@ -529,13 +520,15 @@ END;
     }
 
     protected function navMenuItemDisplay($page_id, $enable) {
-        assert('isset($this->nav_menu->nav_items[$page_id])');
-        $this->nav_menu->nav_items[$page_id]->display = $enable;
+       	$nav_item = $this->nav_menu->findPageId($page_id);
+       	if ($nav_item == null) return;
+        $nav_item->display = $enable;
     }
 
     protected function navMenuItemEnable($page_id, $enable) {
-        assert('isset($this->nav_menu->nav_items[$page_id])');
-        $this->nav_menu->nav_items[$page_id]->enabled = $enable;
+       	$nav_item = $this->nav_menu->findPageId($page_id);
+       	if ($nav_item == null) return;
+        $nav_item->enabled = $enable;
     }
 
     protected function getPubIcons($pub, $flags = 0xf) {
@@ -716,7 +709,7 @@ END;
     protected function displayPubList($pub_list, $enumerate = true, $max = -1,
                            			  $additional = null, $options = null) {
         assert('is_array($pub_list)');
-        
+
         if (isset($pub_list['type']) && ($pub_list['type'] == 'category')) {
             return $this->displayPubListByCategory($pub_list, $enumerate, $max,
             									   $options);
@@ -817,7 +810,7 @@ END;
 
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
-                    
+
 	            if ((is_array($options) && !empty($options['show_internal_info'])
     	             && $options['show_internal_info'])
         	        || (isset($_SESSION['user'])

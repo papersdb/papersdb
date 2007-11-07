@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.19 2007/11/02 16:36:29 loyola Exp $
+// $Id: pdNavMenu.php,v 1.20 2007/11/07 00:06:21 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -21,7 +21,8 @@ class pdNavMenuItem {
     public $access_level;
     public $display;
     public $enabled;
-
+    public $sub_items;
+    
 	/** Flags used when loading information from the database. */
 	const MENU_NEVER = 0;
 	const MENU_ALWAYS = 1;
@@ -37,6 +38,7 @@ class pdNavMenuItem {
         $this->access_level = $access_level;
         $this->display      = $display;
         $this->enabled      = $enabled;
+        $this->sub_items    = array();
     }
 };
 
@@ -52,7 +54,7 @@ class pdNavMenu {
     //
     // kinda kludgey but works
     //
-    public $all_items = array(
+    public static $all_items = array(
         'home'               => array('Home', 'index.php',
                                       pdNavMenuItem::MENU_LOGIN_NOT_REQ),
         'add_publication'    => array('Add Publication',
@@ -94,8 +96,8 @@ class pdNavMenu {
                                       pdNavMenuItem::MENU_LEVEL_ADMIN)
         );
 
-    public $not_logged_in = array(
-        'Home' ,
+    public static $menu = array(
+        'Home' => array(),
         'Search' => array(
             'advanced_search',
             'search_results'),
@@ -115,15 +117,67 @@ class pdNavMenu {
             'all_categories'
             ),
         'User'  => array(
+            'login',
             'logout',
             'edit_user')
         );
         
-    public function __construct() {
-        foreach ($this->all_items as $id => $item) {
-            $this->nav_items[$id]
-                = new pdNavMenuItem($id, $item[0], $item[1], $item[2]);
+    public function __construct($access_level, $current_page_id) {
+        foreach (self::$menu as $id => $sub_items) {
+        	if ($id == 'Home') {
+        		$item =& self::$all_items['home'];
+	            $this->nav_items[$id]
+	            	= new pdNavMenuItem($id, $item[0], $item[1], $item[2]);
+        	}
+        	else
+	            $this->nav_items[$id] = new pdNavMenuItem(
+    	        	$id, $id, null, null, $display = 1, $enabled = 1);
+            	
+        	foreach ($sub_items as $sub_id) {           	
+	        	assert('isset(self::$all_items[$sub_id])');
+
+	        	$sub_item =& self::$all_items[$sub_id];
+       		
+                if (($access_level == 0)
+                     && ($sub_item[2] >= pdNavMenuItem::MENU_LOGIN_REQUIRED))
+                     continue;
+                     
+                if (($access_level < 2)
+                    && ($sub_item[2] >= pdNavMenuItem::MENU_LEVEL_ADMIN))
+                     continue;
+                     
+                // no need to display the login item if user is logged in
+                if (($access_level >= 1) && ($sub_id == 'login'))
+                     continue;
+                        
+                // only display search results if a search was performed
+        		if (($sub_id == 'search_results')
+                    && !isset($_SESSION['search_results'])
+                    && !isset($_SESSION['search_url']))
+	                continue;
+        		
+	            $this->nav_items[$id]->sub_items[$sub_id] 
+	            	= new pdNavMenuItem($sub_id, $sub_item[0], $sub_item[1], $sub_item[2]);
+        	}
         }
+        
+        // go through items and remove the ones without sub items
+        foreach ($this->nav_items as $id => $items) {
+            if ($id == 'Home') continue;
+            
+        	if (isset($items->sub_items) && (count($items->sub_items) == 0))
+        		unset($this->nav_items[$id]);
+        }
+    }
+    
+    public function findPageId($page_id) {
+        foreach ($this->nav_items as $id => $item) {
+        	foreach ($item->sub_items as $sub_id => $sub_item) {
+        		if ($sub_item->id == $page_id)
+        			return $item->sub_items[$sub_id];
+        	}
+	    }
+	    return null;
     }
 }
 

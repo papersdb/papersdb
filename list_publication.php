@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.44 2007/11/06 18:05:36 loyola Exp $
+// $Id: list_publication.php,v 1.45 2007/11/07 00:06:21 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -28,12 +28,13 @@ require_once 'includes/pdVenueList.php';
  * @package PapersDB
  */
 class list_publication extends pdHtmlPage {
-    public $year;
-    public $author_id;
-    public $venue_id;
-    public $cat_id;
-    public $keyword;
-    public $by;
+    protected $year;
+    protected $author_id;
+    protected $venue_id;
+    protected $cat_id;
+    protected $keyword;
+    protected $by;
+    protected $menu = null;
 
     public function __construct() {
         parent::__construct('view_publications');
@@ -41,8 +42,11 @@ class list_publication extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars();
+        
+        if (!isset($this->menu))
+        	$this->menu = 1;
 
-        if (isset($this->year)) {
+       	if (isset($this->year)) {
             $pub_list = pdPubList::create(
                 $this->db, array('year_cat' => $this->year));
             $title = '<h1>Publications in ' .$this->year . '</h1>';
@@ -111,7 +115,10 @@ class list_publication extends pdHtmlPage {
             $this->pageError = true;
         }
 
-        echo $this->pubSelMenu(), "<br/>\n", $title;
+        if ($this->menu)
+	        echo $this->pubSelMenu(), "<br/>\n";
+	        
+        echo $title;	        
         echo $this->displayPubList($pub_list);
     }
 

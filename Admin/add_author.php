@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.67 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_author.php,v 1.68 2007/11/07 00:06:21 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -35,6 +35,7 @@ class add_author extends pdHtmlPage {
         parent::__construct('add_author');
         $this->loadHttpVars();
 
+        // before showing a loggin error, show the correct title for the page
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $pub =& $_SESSION['pub'];
 

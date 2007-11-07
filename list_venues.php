@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.37 2007/11/06 18:42:45 loyola Exp $
+// $Id: list_venues.php,v 1.38 2007/11/07 00:06:21 loyola Exp $
 
 /**
  * This page displays all venues.
@@ -124,8 +124,10 @@ class list_venues extends pdHtmlPage {
             $pub_count = pdPubList::create(
             	$this->db, array('venue_id_count' => $venue->venue_id));
             					   
-			$text .= '<span class="small" style="color:#000;font-weight:normal;">'
-			. '<br/>Publication entries: ' . $pub_count . '</span>';
+			$text .= '<a href="list_publication.php?venue_id='
+				. $venue->venue_id
+				. '&menu=0"><span class="small" style="color:#000;font-weight:normal;">'
+				. '<br/>Publication entries: ' . $pub_count . '</span></a>';
 
             $cells[] = $text;
 
