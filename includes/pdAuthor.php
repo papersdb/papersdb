@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.29 2007/11/06 18:05:36 loyola Exp $
+// $Id: pdAuthor.php,v 1.30 2007/11/07 22:47:46 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -175,25 +175,24 @@ class pdAuthor extends pdDbAccessor{
         $q = $db->insert('author', $settings, 'pdAuthor::dbSave');
         assert('$q');
 
-        $q = $db->selectRow('author', 'author_id', $settings,
-                            "pdAuthor::dbSave");
-        assert('($q !== false)');
-        $this->load($q);
-
+        $this->author_id = $db->insertId();
         $this->dbSaveInterests($db);
+
+        if (isset($this->name))
+            $this->nameSet($this->name);
     }
 
     public function dbSaveInterests($db) {
         if (isset($this->author_id)) {
             $db->delete('author_interest',
                         array('author_id' => $this->author_id),
-                        'pdUser::dbSave');
+                        'pdAuthor::dbSaveInterests');
         }
 
         if (count($this->interests) > 0) {
             $db_interests = pdAuthInterests::createList($db);
 
-            // first add the interests
+            // only add interests not in the database
             $arr = array();
             foreach ($this->interests as $k => $i) {
                 if (empty($i)) {
@@ -201,7 +200,7 @@ class pdAuthor extends pdDbAccessor{
                     continue;
                 }
 
-                if (in_array($db_interests, $i)) {
+                if (!in_array($i, $db_interests)) {
                     array_push($arr, array('interest_id' => 'NULL',
                                            'interest' => $i));
                 }
@@ -209,23 +208,25 @@ class pdAuthor extends pdDbAccessor{
 
             if (count($arr) > 0) {
                 $db->insert('interest', $arr, 'pdAuthor::dbSave');
-
-                // link the interest to this author
-                $arr = array();
-                foreach ($this->interests as $i) {
-                    $q = $db->selectRow('interest', 'interest_id',
-                                        array('interest' => $i),
-                                        'pdAuthor::dbSaveInterests');
-                    assert('($q !== false)');
-                    array_push($arr,
-                               array('author_id' => $this->author_id,
-                                     'interest_id' => $q->interest_id));
-                }
-
-                if (count($arr) > 0)
-                    $db->insert('author_interest', $arr, 'pdAuthor::dbSave');
             }
         }
+
+        // link the interest to this author
+        $arr = array();
+        foreach ($this->interests as $key => $i) {
+            $q = $db->selectRow('interest', 'interest_id',
+                                array('interest' => $i),
+                                'pdAuthor::dbSaveInterests');
+            assert('($q !== false)');
+            array_push($arr, array('author_id' => $this->author_id,
+                                   'interest_id' => $q->interest_id));
+
+            $this->interests[$q->interest_id] = $i;
+            unset($this->interests[$key]);
+        }
+
+        if (count($arr) > 0)
+            $db->insert('author_interest', $arr, 'pdAuthor::dbSaveInterests');
     }
 
     /**
@@ -241,6 +242,19 @@ class pdAuthor extends pdDbAccessor{
                     'pdAuthor::dbDelete');
         $db->delete('author', array('author_id' => $this->author_id),
                     'pdAuthor::dbDelete');
+
+        // check if any authors are using these interests, if not they can be
+        // deleted from the database
+        foreach ($this->interests as $id => $name) {
+            $q = $db->selectRow('author_interest',
+                                'count(author_id) as acount',
+                                array('interest_id' => $id),
+                                'pdAuthor::dbDelete');
+            if ($q->acount == 0)
+                $db->delete('interest', array('interest_id' => $id),
+                            'pdAuthor::dbDelete');
+        }
+
         $this->makeNull();
     }
 
@@ -252,33 +266,10 @@ class pdAuthor extends pdDbAccessor{
      * Loads author data from the object passed in
      */
     public function load($mixed) {
-        if (is_object($mixed)) {
-            foreach (array_keys(get_class_vars('pdAuthor')) as $member) {
-                if (isset($mixed->$member))
-                    $this->$member = $mixed->$member;
-            }
+        parent::load($mixed);
 
-            if (isset($mixed->name)) {
-                $this->nameSet($this->name);
-            }
-        }
-        else if (is_array($mixed)) {
-            foreach (array_keys(get_class_vars('psAuthor')) as $member) {
-                if (isset($mixed[$member]))
-                    $this->$member = $mixed[$member];
-            }
-
-            if (isset($mixed['name'])) {
-                $this->firstname
-                    = trim(substr($this->name, 1 + strpos($this->name, ',')));
-                $this->lastname
-                    = substr($this->name, 0, strpos($this->name, ','));
-            }
-
-            if (isset($mixed->name)) {
-                $this->nameSet($this->name);
-            }
-        }
+        if (isset($this->name))
+            $this->nameSet($this->name);
     }
 
     /**
@@ -306,6 +297,19 @@ class pdAuthor extends pdDbAccessor{
             = trim(substr($this->name, 1 + strpos($this->name, ',')));
         $this->lastname
             = substr($this->name, 0, strpos($this->name, ','));
+    }
+
+    /*
+     * Parameter $mixed can be an array or a string value.
+     */
+    public function addInterest($mixed) {
+    	if (is_array($mixed))
+    		foreach ($mixed as $interest)
+    			$this->interests[] = $interest;
+    	else if (is_string($mixed))
+    		$this->interests[] = $mixed;
+    	else
+    		assert('false');  // invalid type for $mixed
     }
 }
 

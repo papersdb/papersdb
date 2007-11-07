@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.40 2007/10/31 19:29:47 loyola Exp $
+// $Id: functions.php,v 1.41 2007/11/07 22:47:46 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -131,20 +131,24 @@ function format80($text) {
 * @return string print_r results
 * @global
 */
-function debug_capture_print_r($data)
-{
+function debug_capture_print_r($data) {
     ob_start();
     print_r($data);
-
     $result = ob_get_contents();
-
     ob_end_clean();
-
     return $result;
 }
 
 function debugVar($name,$data) {
-    $captured = explode("\n",debug_capture_print_r($data));
+    $captured = explode("\n", debug_capture_print_r($data));
+
+    if (PHP_SAPI == "cli") {
+    	echo $name, "\n";
+        foreach  ($captured as $line)
+    	    echo $line, "\n";
+    	return;
+    }
+
     echo $name, "<br/>\n<pre>";
     foreach  ($captured as $line) {
         echo debug_colorize_string($line), "\n";
@@ -162,6 +166,26 @@ function debugVar($name,$data) {
 * @global
 */
 function debug_colorize_string($string)
+{
+    /* turn array indexes to red */
+    $string = str_replace('[','[<font color="red">',$string);
+    $string = str_replace(']','</font>]',$string);
+    /* turn the word Array blue */
+    $string = str_replace('Array','<font color="blue">Array</font>',$string);
+    /* turn arrows graygreen */
+    $string = str_replace('=>','<font color="#556F55">=></font>',$string);
+    return $string;
+}
+
+/**
+* show string for cli version.
+*
+* @access private
+* @param $string string info to colorize
+* @return string HTML colorized
+* @global
+*/
+function debug_string($string)
 {
     /* turn array indexes to red */
     $string = str_replace('[','[<font color="red">',$string);
@@ -396,7 +420,9 @@ function escapeString($str)
                      ));
 }
 
-$old_error_handler = set_error_handler("userErrorHandler");
-assert_options(ASSERT_CALLBACK, 'papersdb_backtrace');
+if (PHP_SAPI != "cli") {
+	$old_error_handler = set_error_handler("userErrorHandler");
+	assert_options(ASSERT_CALLBACK, 'papersdb_backtrace');
+}
 
 ?>

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.4 2007/10/31 19:29:47 loyola Exp $
+// $Id: pdDb.php,v 1.5 2007/11/07 22:47:46 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -13,6 +13,7 @@ require_once 'includes/Database.php';
 class pdDb {
     private static $_db = null;
     private static $_db_name;
+    private static $_debug = false;
 
     private static $_db_tables = array(
         'additional_info',
@@ -53,7 +54,7 @@ class pdDb {
             switch (mysql_errno()) {
                 case 1045:
                 case 2000:
-                    echo 'failed due to authentication errors. ', 
+                    echo 'failed due to authentication errors. ',
                     	'Check database username and password<br>/';
                     break;
 
@@ -61,7 +62,7 @@ class pdDb {
                 case 2003:
                 default:
                     // General connection problem
-                    echo 'failed with error [', $errno, '] ', 
+                    echo 'failed with error [', $errno, '] ',
                     	htmlspecialchars(mysql_error()), '.<br>';
                     break;
             }
@@ -124,6 +125,14 @@ class pdDb {
     public static function venueTableUpgraded() {
         return $_SESSION['venue_table_upgraded'];
     }
+
+    public static function debug() {
+        return self::$_debug;
+    }
+
+    public static function debugOn() {
+        self::$_debug = true;
+    }
 }
 
 
@@ -143,7 +152,10 @@ function wfErrorExit() {
     //echo papersdb_backtrace();
     die();
 }
-function wfSetBit( &$dest, $bit, $state = true ) {}
+function wfSetBit( &$dest, $bit, $state = true ) {
+    return pdDb::debug();
+}
+
 function wfSuppressWarnings( $end = false ) {}
 function wfRestoreWarnings() {}
 function wfDebugDieBacktrace( $msg = '' ) {
