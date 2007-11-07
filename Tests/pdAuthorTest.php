@@ -58,7 +58,10 @@ class pdAuthorTest extends PHPUnit_Framework_TestCase {
 	    $this->assertEquals($author->webpage,      $author2->webpage);    
 	    $this->assertEquals($author->name,         $author2->name);    
         $this->assertEquals($author->email,        $author2->email);    
-        $this->assertEquals($author->organization, $author2->organization);    
+        $this->assertEquals($author->organization, $author2->organization);
+
+        unset($author); 
+	    unset($author2);   
     }
     
     public function testSimpleDelete() {

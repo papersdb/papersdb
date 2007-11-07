@@ -68,7 +68,9 @@ class list_author extends pdHtmlPage {
                 $info[] = '<span class="small">' . $author->organization
                     . '</span>';
 
-            $info[] = '<span class="small" style="color:#000;font-weight:normal;">'
+			$info[] .= '<a href="list_publication.php?author_id='
+				. $author_id
+				. '&menu=0"><span class="small" style="color:#000;font-weight:normal;">'
 	            . 'Publication entries in database: ' 
 	            . $author->totalPublications . '</span>';
 
