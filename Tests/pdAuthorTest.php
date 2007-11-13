@@ -112,5 +112,16 @@ class pdAuthorTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals($q, false);
         }
     }
+    
+    /*
+     * Assumes database already populated with sample data.
+     */
+    public function testAuthorPubs() {
+    	// load the first author with a publication
+    	$q = $this->db->selectRow('pub_author', '*', '',
+                                  'pdAuthorTest::testSimpleDelete',
+    							  'LIMIT 1');
+		debugVar('', $q);
+    }
 }
 ?>

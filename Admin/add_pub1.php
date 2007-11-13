@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.52 2007/11/06 18:05:36 loyola Exp $
+// $Id: add_pub1.php,v 1.53 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -40,7 +40,6 @@ class add_pub1 extends add_pub_base {
         }
         else if ($this->pub_id != '') {
             // pub_id passed in with $_GET variable
-            $this->db = dbCreate();
             $this->pub = new pdPublication();
             $result = $this->pub->dbLoad($this->db, $this->pub_id);
             if (!$result) {

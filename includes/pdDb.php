@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.5 2007/11/07 22:47:46 loyola Exp $
+// $Id: pdDb.php,v 1.6 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -74,30 +74,18 @@ class pdDb {
     }
 
     private static function dbIntegrityCheck() {
-        self::venueTableUpgradedCheck();
         if (isset($_SESSION['dbcheck'])) return;
-
-        $q = self::$_db->query('show tables');
-
-        if (self::$_db->numRows($q) == 0) {
-            echo "Database error encountered: not all tables available";
-            die();
+        
+        assert('is_object(self::$_db)');
+        
+        foreach (self::$_db_tables as $table) {
+        	if (! self::$_db->tableExists($table)) {
+	            echo "Database error encountered: table", $table, 
+		            "is missing from database";
+    	        die();
+        	}
         }
-
-        $member = 'Tables_in_' . self::$_db_name;
-
-        $r = self::$_db->fetchObject($q);
-        while ($r) {
-            $tables[] = $r->$member;
-            $r = self::$_db->fetchObject($q);
-        }
-
-        if ($tables != self::$_db_tables) {
-            echo "Database error encountered: not all tables available<br/>";
-            debugVar('valid', self::$_db_tables);
-            debugVar('db', $tables);
-            die();
-        }
+        self::venueTableUpgradedCheck();
         $_SESSION['dbcheck'] = true;
     }
 

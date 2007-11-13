@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.46 2007/11/06 18:05:36 loyola Exp $
+// $Id: add_pub3.php,v 1.47 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -24,7 +24,7 @@ require_once 'includes/pdAuthor.php';
  * @package PapersDB
  */
 class add_pub3 extends add_pub_base {
-    public $debug = 1;
+    public $debug = 0;
     public $cat_id;
     public $venue_id;
     public $used_by_me;

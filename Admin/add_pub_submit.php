@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.24 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_pub_submit.php,v 1.25 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -26,7 +26,7 @@ class add_pub_submit extends pdHtmlPage {
 
     public function __construct() {
         parent::__construct(null, 'Publication Submitted',
-                           'Admin/add_pub_submit.php', pdNavMenu::MENU_NEVER);
+                           'Admin/add_pub_submit.php', pdNavMenuItem::MENU_NEVER);
 
         if ($this->loginError) return;
 

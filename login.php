@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.37 2007/11/02 16:36:28 loyola Exp $
+// $Id: login.php,v 1.38 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -24,6 +24,8 @@ class login extends pdHtmlPage {
 
     public function __construct() {
         parent::__construct('login');
+
+pdDb::debugOn();
 
         if ($this->loginError) return;
 
@@ -134,16 +136,16 @@ class login extends pdHtmlPage {
             $this->redirectTimeout = 0;
           }
           else {
-            echo '<h2>Logged in</h1>', 
-            	'You have succesfully logged in as ', $_SESSION['user']->login, 
-            	'<p/>Return to <a href="index.php">main page</a>.', 
+            echo '<h2>Logged in</h1>',
+            	'You have succesfully logged in as ', $_SESSION['user']->login,
+            	'<p/>Return to <a href="index.php">main page</a>.',
             	'</div>';
           }
         }
         else if (isset($values['newaccount'])) {
             // check if username exists in database.
             if (isset($user->login)) {
-                echo 'Sorry, the username <strong>', $values['username'], 
+                echo 'Sorry, the username <strong>', $values['username'],
                 	'</strong> is already taken, please pick another one.';
                 $this->pageError = true;
                 return;
@@ -187,10 +189,10 @@ class login extends pdHtmlPage {
                      . 'email: '. $values['email']);
             }
 
-            echo '<h2>Login Request Submitted</h1>', 
-            	'A request to create your login <b>', $values['username'], 
-            	'</b> has been submitted. A confirmation email will be sent to <code>', 
-            	$values['email'], '</code> when your account is ready. ', 
+            echo '<h2>Login Request Submitted</h1>',
+            	'A request to create your login <b>', $values['username'],
+            	'</b> has been submitted. A confirmation email will be sent to <code>',
+            	$values['email'], '</code> when your account is ready. ',
             	'<p/>Return to <a href="index.php">main page</a>.';
         }
         else {

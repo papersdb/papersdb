@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.111 2007/11/07 00:06:21 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.112 2007/11/13 16:50:56 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -52,27 +52,30 @@ class pdHtmlPage {
     protected $form_controller;
     protected $nav_menu;
 
-	const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="iso-8859-1"?>
-        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-            "http://www.w3.org/TR/html4/strict.dtd">
-        <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-        <head>
-        <title>';
+    const HTML_TOP_CONTENT = '
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+  "http://www.w3.org/TR/html4/strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>';
 
-	const GOOGLE_ANALYTICS = '
-		<script src="http://www.google-an||!$sub_item->enabled alytics.com/urchin.js" type="text/javascript">
-        </script>
-        <script type="text/javascript">
-        _uacct = "UA-584619-1";
-        urchinTracker();
-        </script>';
+    const GOOGLE_ANALYTICS = '
+<script
+  src="http://www.google-analytics.com/urchin.js"
+  type="text/javascript">
+</script>
+<script type="text/javascript">
+  _uacct = "UA-584619-1";
+  urchinTracker();
+</script>';
 
     /**
      * Constructor.
      */
     public function __construct($page_id, $title = null, $relative_url = null,
-                         $login_level = pdNavMenuItem::MENU_NEVER,
-                         $useStdLayout = true) {
+                                $login_level = pdNavMenuItem::MENU_NEVER,
+                                $useStdLayout = true) {
         if (MAINTENANCE == 1) {
             echo 'PapersDB is under maintenance, please check back later';
             exit;
@@ -106,14 +109,14 @@ class pdHtmlPage {
         $this->nav_menu = new pdNavMenu($this->access_level, $page_id);
 
         if (!empty($page_id)) {
-        	$nav_item = $this->nav_menu->findPageId($page_id);
+            $nav_item = $this->nav_menu->findPageId($page_id);
 
-        	if ($nav_item != null) {
-	            $this->page_id     = $page_id;
+            if ($nav_item != null) {
+                $this->page_id     = $page_id;
     	        $this->page_title   = $nav_item->page_title;
             	$this->relative_url = $nav_item->url;
-	            $this->login_level  = $nav_item->access_level;
-        	}
+                $this->login_level  = $nav_item->access_level;
+            }
         }
         else {
             $this->page_title   = $title;
@@ -337,51 +340,51 @@ class pdHtmlPage {
             $url_prefix = '../';
 
         $result = '<div id="nav"><ul>';
-        
+
         foreach ($this->nav_menu->nav_items as $page_id => $item) {
-        	if ($page_id == 'Home') {
+            if ($page_id == 'Home') {
                 $result .= '<li><a href="' . $url_prefix . $item->url . '"';
 
                 if ($this->page_id == 'home')
-                	$result .= ' class="selected"';
+                    $result .= ' class="selected"';
 
                 $result .= '>' . $item->page_title . '</a></li>';
                 continue;
-        	}        	
-        	else if (count($item->sub_items) == 0)
+            }
+            else if (count($item->sub_items) == 0)
                 continue;
-            
+
             $result .= '<li>' . $item->page_title . '<ul>';
-        
-            foreach ($item->sub_items as $sub_page_id => $sub_item) {  
-            	// derived class can override nav menu settings, check for 
-            	// each page to be enabled before displaying it      	
-                if (!$sub_item->display 
+
+            foreach ($item->sub_items as $sub_page_id => $sub_item) {
+            	// derived class can override nav menu settings, check for
+            	// each page to be enabled before displaying it
+                if (!$sub_item->display
                     || ($sub_item->access_level <= pdNavMenuItem::MENU_NEVER))
                     continue;
-                    
+
             	if (($sub_page_id == $this->page_id) || !$sub_item->enabled) {
                     $result .= '<li><a href="#" class="selected">';
             	}
-            	else {                  
-	                $url = $url_prefix . $sub_item->url;
-                        
-	                // if not at the login page add redirection option to the login URL
+            	else {
+                    $url = $url_prefix . $sub_item->url;
+
+                    // if not at the login page add redirection option to the login URL
     	            if (($sub_page_id == 'login')
-        	            && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
+                        && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
             	        $url .= '?redirect=' . $_SERVER['PHP_SELF'];
-	
+
     	                if ($_SERVER['QUERY_STRING'] != '')
-	    	                $url .= '?' . $_SERVER['QUERY_STRING'];
+                            $url .= '?' . $_SERVER['QUERY_STRING'];
             	    }
-                
-	                $result .= '<li><a href="' . $url . '">';
+
+                    $result .= '<li><a href="' . $url . '">';
             	}
-	            
+
             	$result .= $sub_item->page_title . '</a>';
-            }            
-            
-	        $result .= '</ul></li>';
+            }
+
+            $result .= '</ul></li>';
         }
 
         $result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div>';
@@ -416,18 +419,19 @@ class pdHtmlPage {
         }
 
         return <<<END
-            <div id="container">
-            <div id="statusbar"><h1>{$status}</h1></div>
-            <ul id="titlebar">
-            <li id="compsci"><a href="http://www.uofaweb.ualberta.ca/science/">
-            FACULTY OF SCIENCE</a></li>
-            <li id="uofa"><a href="http://www.ualberta.ca/">
-            UNIVERSITY OF ALBERTA</a></li>
-            </ul>
-
-            <div id="header">
-            <h1>PapersDB</h1>
-            </div>
+<div id="container">
+<div id="statusbar"><h1>{$status}</h1></div>
+<ul id="titlebar">
+  <li id="compsci">
+    <a href="http://www.uofaweb.ualberta.ca/science/">
+    FACULTY OF SCIENCE</a>
+  </li>
+  <li id="uofa">
+    <a href="http://www.ualberta.ca/">
+    UNIVERSITY OF ALBERTA</a>
+  </li>
+</ul>
+<div id="header"><h1>PapersDB</h1></div>
 END;
     }
 
@@ -441,35 +445,34 @@ END;
         }
 
         return <<<END
-            <div id="footer">
-            For any questions/comments about the Papers Database please e-mail
-            <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
-            </div>
-            <div id="footer2">
-            <table width="100%">
-            <tr>
-            <td>
-            <a href="http://www.ualberta.ca">
-            <img src="{$uofa_logo}" alt="University of Alberta Logo" />
-            </a>
-            </td>
-            <td>
-            <a href="http://kingman.cs.ualberta.ca/">
-            <img src="{$aicml_logo}" alt="AICML Logo" />
-            </a>
-            </td>
-            <td>
-            <span id="copyright">
-            <ul>
+<div id="footer">
+  For any questions/comments about the Papers Database please e-mail
+  <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
+</div>
+<div id="footer2">
+  <table width="100%">
+    <tr>
+      <td>
+        <a href="http://www.ualberta.ca">
+          <img src="{$uofa_logo}" alt="University of Alberta Logo" />
+        </a>
+      </td>
+      <td>
+        <a href="http://kingman.cs.ualberta.ca/">
+          <img src="{$aicml_logo}" alt="AICML Logo" />
+        </a>
+      </td>
+      <td>
+        <span id="copyright">
+          <ul>
             <li>Copyright &copy; 2002-2007</li>
-                                     </ul>
-                                     </span>
-                                     </td>
-                                     </tr>
-                                     </table>
-                                     </div>
-                                     </div>
-
+          </ul>
+        </span>
+      </td>
+    </tr>
+  </table>
+</div>
+</div>
 END;
     }
 
@@ -629,7 +632,7 @@ END;
                 . $author->author_id . '">'
                 . '<img src="' . $url_prefix
                 . 'images/viewmag.gif" title="view" alt="view" height="16" '
-            . 'width="16" border="0" align="top" /></a>';
+                . 'width="16" border="0" align="top" /></a>';
 
         if ($this->access_level > 0) {
             if ($flags & 0x2)
@@ -707,12 +710,12 @@ END;
     }
 
     protected function displayPubList($pub_list, $enumerate = true, $max = -1,
-                           			  $additional = null, $options = null) {
+                                      $additional = null, $options = null) {
         assert('is_array($pub_list)');
 
         if (isset($pub_list['type']) && ($pub_list['type'] == 'category')) {
             return $this->displayPubListByCategory($pub_list, $enumerate, $max,
-            									   $options);
+                                                   $options);
         }
 
         if (count($pub_list) == 0) {
@@ -811,9 +814,9 @@ END;
                 $citation = $pub->getCitationHtml() . '&nbsp;'
                     . $this->getPubIcons($pub);
 
-	            if ((is_array($options) && !empty($options['show_internal_info'])
+                if ((is_array($options) && !empty($options['show_internal_info'])
     	             && $options['show_internal_info'])
-        	        || (isset($_SESSION['user'])
+                    || (isset($_SESSION['user'])
             	        && ($_SESSION['user']->showInternalInfo()))) {
                     $citation .= '<br/><span style="font-size:80%">';
                     if (isset($pub->ranking))
