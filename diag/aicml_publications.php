@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.2 2008/01/15 04:44:29 loyola Exp $
+// $Id: aicml_publications.php,v 1.3 2008/01/15 18:20:04 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -161,11 +161,15 @@ class author_report extends pdHtmlPage {
                                      'Young, A',
                                      'Zheng, T',
                                      'Zhu, T');
+    
+    protected $format = 0;
 
     public function __construct() {
         parent::__construct('aicml_publications');
 
         if ($this->loginError) return;
+
+        $this->loadHttpVars(true, false);
 
         echo '<h2>AICML Publications</h2>';
 
@@ -199,11 +203,21 @@ class author_report extends pdHtmlPage {
         $pubs = $this->pubs_sort($pubs);
         krsort($pubs);
         
+        if ($this->format == 1)
+        	$result = '';
+        
         foreach ($pubs as $year => $year_pubs) {
         	foreach ($year_pubs as $pub) {
-        		echo $this->getCitationHtml($pub) . '<p/>';
+        		$citation = utf8_encode($this->getCitationHtml($pub));
+        		if ($this->format == 0)
+        			echo $citation . '<p/>';
+        		else
+        			$result .= format80($citation) . "<p/>\n\n";
         	}
         }
+        
+        if ($this->format == 1)
+        	echo '<pre>' . htmlentities($result) . '</pre>';
     }
 
     // adds the publications in $pubs2 that are not already in $pubs1
@@ -298,6 +312,8 @@ class author_report extends pdHtmlPage {
             if ($pub_date[0] != 0)
                 $date_str .= $pub_date[0];
         }
+        
+        $citation .= '<span style="font-size:x-small">';
 
         if (($v != '') && ($info != '') && ($date_str != ''))
             $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
@@ -309,6 +325,8 @@ class author_report extends pdHtmlPage {
             $citation .= $info . ', ' . $date_str . '.';
         else if (($v == '') && ($info == '') && ($date_str != ''))
             $citation .= $date_str . '.';
+            
+        $citation .= '</span>';
 
         return $citation;
     }

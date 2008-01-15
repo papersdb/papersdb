@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.113 2008/01/15 02:26:36 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.114 2008/01/15 18:20:04 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -207,6 +207,14 @@ class pdHtmlPage {
         return $new_arr;
     }
 
+    /**
+     * Loads class variables (those defined in the derived class) with 
+     * variables passed in URL query string (GET) and / or HTTP POST.
+     * *
+     * @param $get If set to true then loads variables from URL query string.
+     * 
+     * @param $post If set to true then loads variables from HTTP POST.
+     */
     protected function loadHttpVars($get = true, $post = true) {
         $arr = null;
         if ($get && ($_SERVER['REQUEST_METHOD'] == 'GET')) {

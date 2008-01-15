@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.41 2007/11/07 22:47:46 loyola Exp $
+// $Id: functions.php,v 1.42 2008/01/15 18:20:04 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -408,8 +408,7 @@ function convertScalarToJavascript($val)
  * @param  string
  * @return string
  */
-function escapeString($str)
-{
+function escapeString($str) {
     return strtr($str,array(
                      "\r"    => '\r',
                      "\n"    => '\n',
