@@ -1,10 +1,10 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.5 2008/01/15 21:57:24 loyola Exp $
+// $Id: aicml_publications.php,v 1.6 2008/01/15 22:57:14 loyola Exp $
 
 /**
- * Script that reports the publications with two PI's and also one PI and one
- * PDF.
+ * Script that reports the all publications made by AICML PIs, PDFs, students
+ * and staff.
  *
  * @package PapersDB
  */

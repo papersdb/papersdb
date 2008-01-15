@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDbAccessor.php,v 1.6 2007/11/07 22:47:46 loyola Exp $
+// $Id: pdDbAccessor.php,v 1.7 2008/01/15 22:57:14 loyola Exp $
 
 /**
  * A base class for objects that access the database.
@@ -24,7 +24,7 @@ class pdDbAccessor {
 
             foreach (array_keys(get_object_vars($mixed)) as $member) {
                 if (in_array($member, $ob_vars)) {
-                    $this->$member = $mixed->$member;
+                    $this->$member = utf8_encode($mixed->$member);
                 }
             }
         }
@@ -33,7 +33,7 @@ class pdDbAccessor {
 
             foreach (array_keys($mixed) as $key) {
                 if (in_array($key, $ob_vars))
-                    $this->$key = $mixed[$key];
+                    $this->$key = utf8_encode($mixed[$key]);
             }
         }
         else

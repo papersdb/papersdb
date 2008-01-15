@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.21 2007/11/06 18:05:36 loyola Exp $
+// $Id: pdAuthorList.php,v 1.22 2008/01/15 22:57:14 loyola Exp $
 
 /**
  * Implements a class that retrieves from the database all the authors with a
@@ -47,7 +47,7 @@ class pdAuthorList {
         $list = array();
         $r = $db->fetchObject($q);
         while ($r) {
-        	$name = $r->name;
+        	$name = utf8_encode($r->name);
         	
         	if ($as_fist_last) {
 	            $names = split(',', $name);
