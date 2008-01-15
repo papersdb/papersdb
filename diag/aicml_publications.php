@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.3 2008/01/15 18:20:04 loyola Exp $
+// $Id: aicml_publications.php,v 1.4 2008/01/15 21:21:07 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -163,6 +163,10 @@ class author_report extends pdHtmlPage {
                                      'Zhu, T');
     
     protected $format = 0;
+    protected $format_label;
+    static $button_labels = array(
+    	'Display as Formatted Text',
+    	'Display as HTML');
 
     public function __construct() {
         parent::__construct('aicml_publications');
@@ -170,6 +174,12 @@ class author_report extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
+        
+        if (isset($this->format_label)) {
+        	foreach (self::$button_labels as $key => $label)
+        	if (strncmp($this->format_label, $label, strlen($label)) == 0)
+        		$this->format = $key;
+        }
 
         echo '<h2>AICML Publications</h2>';
 
@@ -203,6 +213,22 @@ class author_report extends pdHtmlPage {
         $pubs = $this->pubs_sort($pubs);
         krsort($pubs);
         
+        // now display the page
+        $buttons = array();
+        $form = new HTML_QuickForm('aicml_pubs', 'get', 'aicml_publications.php');
+        
+       	$buttons[] = HTML_QuickForm::createElement(                    
+       		'submit', 'format_label', self::$button_labels[1 - $this->format]);
+         
+        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
+
+        // create a new renderer because $form->defaultRenderer() creates
+        // a single copy
+        $renderer = new HTML_QuickForm_Renderer_Default();
+        $form->accept($renderer);
+
+        echo $renderer->toHtml();
+        
         if ($this->format == 1)
         	$result = '';
         
@@ -217,7 +243,7 @@ class author_report extends pdHtmlPage {
         }
         
         if ($this->format == 1)
-        	echo '<pre>' . htmlentities($result) . '</pre>';
+        	echo '<pre style="font-size:medium">' . htmlentities($result) . '</pre>';
     }
 
     // adds the publications in $pubs2 that are not already in $pubs1
