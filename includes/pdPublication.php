@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.127 2008/01/15 02:26:36 loyola Exp $
+// $Id: pdPublication.php,v 1.128 2008/01/15 04:44:29 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -140,23 +140,7 @@ class pdPublication extends pdDbAccessor {
         if ($flags & (self::DB_LOAD_AUTHOR_MIN
                       | self::DB_LOAD_AUTHOR_FULL)) {
             unset($this->authors);
-            $q = $db->select(array('author', 'pub_author'),
-                             array('author.author_id', 'author.name'),
-                             array('author.author_id=pub_author.author_id',
-                                   'pub_author.pub_id' => $id),
-                             "pdPublication::dbLoad",
-                             array( 'ORDER BY' => 'pub_author.rank'));
-            $r = $db->fetchObject($q);
-            while ($r) {
-                if ($flags & self::DB_LOAD_AUTHOR_FULL) {
-                    $author = new pdAuthor();
-                    $author->dbLoad($db, $r->author_id, pdAuthor::DB_LOAD_BASIC);
-                    $this->authors[] = $author;
-                }
-                else
-                    $this->authors[] = pdAuthor($r);
-                $r = $db->fetchObject($q);
-            }
+            $this->dbLoadAuthors($db, $flags);
         }
 
         if ($flags & self::DB_LOAD_POINTER) {
@@ -210,6 +194,30 @@ class pdPublication extends pdDbAccessor {
         }
 
         return true;
+    }
+
+    public function dbLoadAuthors($db, $flags = self::DB_LOAD_AUTHOR_FULL) {
+    	assert('is_object($db)');
+    	    
+    	if (isset($this->authors) && (count($this->authors) > 0)) return;
+        
+        $q = $db->select(array('author', 'pub_author'),
+                         array('author.author_id', 'author.name'),
+                         array('author.author_id=pub_author.author_id',
+                               'pub_author.pub_id' => $this->pub_id),
+                         "pdPublication::dbLoad",
+                         array( 'ORDER BY' => 'pub_author.rank'));
+        $r = $db->fetchObject($q);
+        while ($r) {
+            if ($flags & self::DB_LOAD_AUTHOR_FULL) {
+                $author = new pdAuthor();
+                $author->dbLoad($db, $r->author_id, pdAuthor::DB_LOAD_BASIC);
+                $this->authors[] = $author;
+            }
+            else
+                $this->authors[] = pdAuthor($r);
+            $r = $db->fetchObject($q);
+        }
     }
 
     private function dbLoadVenue($db) {
@@ -458,9 +466,9 @@ class pdPublication extends pdDbAccessor {
 
     public function authorsToArray() {
         if (!isset($this->authors)) return null;
-        
+
         if (count($this->authors) == 0) return null;
-        
+
         $authors = array();
         foreach ($this->authors as $pub_auth) {
         	$authors[$pub_auth->author_id]
@@ -1240,10 +1248,10 @@ class pdPublication extends pdDbAccessor {
 
         $myTitleLower = preg_replace('/\s\s+/', ' ', strtolower($this->title));
         $all_pubs = pdPubList::create($db);
-        
+
         $similarPubs = array();
         if (empty($all_pubs) || (count($all_pubs) == 0)) return $similarPubs;
-                
+
         foreach ($all_pubs as $pub) {
             $pubTitleLower
                 = preg_replace('/\s\s+/', ' ', strtolower($pub->title));
