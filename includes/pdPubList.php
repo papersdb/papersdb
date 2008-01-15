@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.34 2007/11/06 18:42:45 loyola Exp $
+// $Id: pdPubList.php,v 1.35 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -49,7 +49,9 @@ class pdPubList {
         else if (isset($options['author_id_cat'])) {
             return self::authorIdCatPubsDbLoad($db, $options['author_id_cat']);
         }
-        else if (isset($options['author_name'])) {
+        else if (isset($options['author_name'])
+	        && isset($options['date_start'])
+    	    && isset($options['date_end'])) {
             return self::authorNamePubsDbLoad($db, $options['author_name'],
                                         $options['date_start'],
                                         $options['date_end']);
@@ -74,6 +76,10 @@ class pdPubList {
         }
         else if (isset($options['year'])) {
             return self::yearPubsDBLoad($db, $options['year']);
+        }
+        else if (isset($options['date_start']) && isset($options['date_end'])) {
+            return self::datePubsDBLoad($db, $options['date_start'], 
+            	$options['date_end']);
         }
         else if (isset($options['year_cat'])) {
             return self::yearCategoryPubsDBLoad($db, $options['year_cat']);
@@ -430,6 +436,27 @@ class pdPubList {
         $q = $db->select('publication', '*',
                          array('year(published)' => $year),
                          "pdPubList::publicationsDbLoad",
+                         array( 'ORDER BY' => 'published DESC'));
+
+        $list = array();
+        if ($db->numRows($q) == 0) return $list;
+
+        $r = $db->fetchObject($q);
+        while ($r) {
+            $list[] = new pdPublication($r);
+            $r = $db->fetchObject($q);
+        }
+        return $list;
+    }
+    
+    private static function datePubsDBLoad($db, $date_start, $date_end) {
+        assert('is_object($db)');
+        
+        $between = '\'' . $date_start . '\' AND \'' . $date_end . '\'';
+
+        $q = $db->select('publication', '*',
+                         array('published BETWEEN '. $between),
+                         "pdPubList::datePubsDBLoad",
                          array( 'ORDER BY' => 'published DESC'));
 
         $list = array();

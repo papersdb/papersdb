@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.112 2007/11/13 16:50:56 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.113 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -118,7 +118,8 @@ class pdHtmlPage {
                 $this->login_level  = $nav_item->access_level;
             }
         }
-        else {
+        
+        if (empty($page_id) || ($nav_item == null)) {
             $this->page_title   = $title;
             $this->relative_url = $relative_url;
             $this->login_level  = $login_level;
@@ -248,7 +249,7 @@ class pdHtmlPage {
             $result .= '<meta http-equiv="refresh" content="5;url='
                 . $this->redirectUrl . '" />' . "\n";
         }
-
+        
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';

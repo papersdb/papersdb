@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.53 2007/11/13 16:50:56 loyola Exp $
+// $Id: add_pub1.php,v 1.54 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -23,9 +23,13 @@ require_once 'includes/pdPublication.php';
  */
 class add_pub1 extends add_pub_base {
     public $debug = 0;
-    public $cat_venue_options;
+    public $cat_venue_options;via
     public $category_list;
 
+    /**
+     * Constructor.
+     * 
+     */
     public function __construct() {
         parent::__construct();
 
@@ -116,6 +120,9 @@ class add_pub1 extends add_pub_base {
             $this->renderForm();
     }
 
+    /**
+     * Called to render the form.
+     */
     public function renderForm() {
         assert('isset($_SESSION["pub"])');
 
@@ -164,6 +171,9 @@ class add_pub1 extends add_pub_base {
         $this->javascript();
     }
 
+    /**
+     * Called to process the input typed into the form by the user.
+     */
     public function processForm() {
         assert('isset($_SESSION["pub"])');
         $form =& $this->form;

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.20 2007/11/07 00:06:21 loyola Exp $
+// $Id: pdNavMenu.php,v 1.21 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -93,7 +93,13 @@ class pdNavMenu {
                                       pdNavMenuItem::MENU_LEVEL_ADMIN),
         'sanity_checks'      => array('Sanity Checks',
                                       'diag/sanity_checks.php',
-                                      pdNavMenuItem::MENU_LEVEL_ADMIN)
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
+        'aicml_publications' => array('AICML Publications', 
+        							  'diag/aicml_publications.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
+        'author_collaboration' => array('Author Collaborations', 
+                                        'diag/author_collaboration.php',
+                                        pdNavMenuItem::MENU_LEVEL_ADMIN)
         );
 
     public static $menu = array(
@@ -119,7 +125,11 @@ class pdNavMenu {
         'User'  => array(
             'login',
             'logout',
-            'edit_user')
+            'edit_user'),
+        'Diagnostics'  => array(
+            'sanity_checks',
+            'aicml_publications',
+            'author_collaboration')
         );
         
     public function __construct($access_level, $current_page_id) {

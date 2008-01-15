@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.5 2007/11/06 18:05:36 loyola Exp $
+// $Id: sanity_checks.php,v 1.6 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -26,7 +26,6 @@ class sanity_checks extends pdHtmlPage {
     public $sub_pages = array(
         array('Pub Sanity Checks',      'pubSanityChecks.php'),
         array('Check Attachments',      'check_attachments.php'),
-        array('Author Report',          'author_report.php'),
         array('Duplicate Publications', 'duplicatePubs.php'),
         array('Create Database',        'dbcreate_mysql.php')
         );

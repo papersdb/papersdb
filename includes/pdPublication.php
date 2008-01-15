@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.126 2007/11/06 18:05:36 loyola Exp $
+// $Id: pdPublication.php,v 1.127 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -139,6 +139,7 @@ class pdPublication extends pdDbAccessor {
 
         if ($flags & (self::DB_LOAD_AUTHOR_MIN
                       | self::DB_LOAD_AUTHOR_FULL)) {
+            unset($this->authors);
             $q = $db->select(array('author', 'pub_author'),
                              array('author.author_id', 'author.name'),
                              array('author.author_id=pub_author.author_id',
@@ -148,13 +149,12 @@ class pdPublication extends pdDbAccessor {
             $r = $db->fetchObject($q);
             while ($r) {
                 if ($flags & self::DB_LOAD_AUTHOR_FULL) {
-                    $auth_count = count($this->authors);
-                    $this->authors[$auth_count] = new pdAuthor();
-                    $this->authors[$auth_count]->dbLoad($db, $r->author_id,
-                                                        pdAuthor::DB_LOAD_BASIC);
+                    $author = new pdAuthor();
+                    $author->dbLoad($db, $r->author_id, pdAuthor::DB_LOAD_BASIC);
+                    $this->authors[] = $author;
                 }
                 else
-                    $this->authors[] = $r;
+                    $this->authors[] = pdAuthor($r);
                 $r = $db->fetchObject($q);
             }
         }
@@ -457,15 +457,20 @@ class pdPublication extends pdDbAccessor {
     }
 
     public function authorsToArray() {
-        assert('is_object($$this->authors)');
-        assert('count($$this->authors) > 0');
-
+        if (!isset($this->authors)) return null;
+        
+        if (count($this->authors) == 0) return null;
+        
         $authors = array();
         foreach ($this->authors as $pub_auth) {
-            $authors[$pub_auth->author_id]
-                = $pub_auth->lastname . ', ' . $pub_auth->fistname;
+        	$authors[$pub_auth->author_id]
+                = $pub_auth->lastname . ', ' . $pub_auth->firstname;
         }
         return $authors;
+    }
+
+    public function authorsToString() {
+        return implode('; ', $this->authorsToArray());
     }
 
     public function authorsToHtml($urlPrefix = null) {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_report.php,v 1.21 2007/11/06 18:05:36 loyola Exp $
+// $Id: author_collaboration.php,v 1.1 2008/01/15 02:26:36 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -13,6 +13,7 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdPublication.php';
 
 /**
  * Renders the whole page.
@@ -43,8 +44,7 @@ class author_report extends pdHtmlPage {
     public $pi_pdf_pubs;
 
     public function __construct() {
-        parent::__construct('author_report', 'Author Report',
-                           'diag/author_report.php');
+        parent::__construct('author_collaboration');
 
         if ($this->loginError) return;
 
