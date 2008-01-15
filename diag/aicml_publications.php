@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.4 2008/01/15 21:21:07 loyola Exp $
+// $Id: aicml_publications.php,v 1.5 2008/01/15 21:57:24 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -238,7 +238,7 @@ class author_report extends pdHtmlPage {
         		if ($this->format == 0)
         			echo $citation . '<p/>';
         		else
-        			$result .= format80($citation) . "<p/>\n\n";
+        			$result .= $citation . "<br/>\n";
         	}
         }
         
@@ -271,16 +271,16 @@ class author_report extends pdHtmlPage {
     	$pub->dbLoad($this->db, $pub->pub_id);
         $citation = '';
 
+        // Title
+        $citation .= '<b>' . $pub->title. '</b>.<br/>';
+
         if (count($pub->authors) > 0) {      
         	$authors = array();             
         	foreach ($pub->authors as $auth) {
                 $authors[] = $auth->firstname[0] . '. '	. $auth->lastname;
             }
-            $citation .= '<i>' . implode(', ', $authors) . '</i>. ';
+            $citation .= '<i>' . implode(', ', $authors) . '</i>.<br/>';
         }
-
-        // Title
-        $citation .= '<b>&quot;' . $pub->title. '&quot;</b>. ';
 
         // Additional Information - Outputs the category specific information
         // if it exists
