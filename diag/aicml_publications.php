@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.6 2008/01/15 22:57:14 loyola Exp $
+// $Id: aicml_publications.php,v 1.7 2008/01/16 16:20:51 loyola Exp $
 
 /**
  * Script that reports the all publications made by AICML PIs, PDFs, students
@@ -162,11 +162,10 @@ class author_report extends pdHtmlPage {
                                      'Zheng, T',
                                      'Zhu, T');
     
-    protected $format = 0;
-    protected $format_label;
-    static $button_labels = array(
-    	'Display as Formatted Text',
-    	'Display as HTML');
+    protected $format_as_html;    
+    protected $format_normal;
+    protected $show_abstracts;
+    protected $no_abstracts;
 
     public function __construct() {
         parent::__construct('aicml_publications');
@@ -175,12 +174,6 @@ class author_report extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
         
-        if (isset($this->format_label)) {
-        	foreach (self::$button_labels as $key => $label)
-        	if (strncmp($this->format_label, $label, strlen($label)) == 0)
-        		$this->format = $key;
-        }
-
         echo '<h2>AICML Publications</h2>';
 
         $pubs = array();
@@ -217,10 +210,25 @@ class author_report extends pdHtmlPage {
         $buttons = array();
         $form = new HTML_QuickForm('aicml_pubs', 'get', 'aicml_publications.php');
         
-       	$buttons[] = HTML_QuickForm::createElement(                    
-       		'submit', 'format_label', self::$button_labels[1 - $this->format]);
-         
-        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
+        if (!isset($this->format_as_html))
+	       	$buttons[] = HTML_QuickForm::createElement(                    
+    	   		'submit', 'format_as_html', 'Display as HTML');       	
+        else if (!isset($this->format_normal))
+	       	$buttons[] = HTML_QuickForm::createElement(                    
+    	   		'submit', 'format_normal', 'Display as Formatted Text');
+	    else 
+	    	assert('false');
+        
+        if (!isset($this->show_abstracts))
+	       	$buttons[] = HTML_QuickForm::createElement(                    
+    	   		'submit', 'show_abstracts', 'Show Abstracts');       	
+        else if (!isset($this->no_abstracts))
+	       	$buttons[] = HTML_QuickForm::createElement(                    
+    	   		'submit', 'no_abstracts', 'Do Not Show Abstracts');
+	    else 
+	    	assert('false');
+	    	 
+       	$form->addGroup($buttons, 'buttons', '', '&nbsp', false);
 
         // create a new renderer because $form->defaultRenderer() creates
         // a single copy
@@ -229,20 +237,20 @@ class author_report extends pdHtmlPage {
 
         echo $renderer->toHtml();
         
-        if ($this->format == 1)
+        if (isset($this->format_as_html))
         	$result = '';
         
         foreach ($pubs as $year => $year_pubs) {
         	foreach ($year_pubs as $pub) {
         		$citation = utf8_encode($this->getCitationHtml($pub));
-        		if ($this->format == 0)
-        			echo $citation . '<p/>';
-        		else
+		        if (isset($this->format_as_html))
         			$result .= $citation . "<br/>\n";
+        		else
+		    	    echo $citation . '<p/>';
         	}
         }
         
-        if ($this->format == 1)
+        if (isset($this->format_as_html))
         	echo '<pre style="font-size:medium">' . htmlentities($result) . '</pre>';
     }
 

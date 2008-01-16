@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.114 2008/01/15 18:20:04 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.115 2008/01/16 16:20:51 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -53,7 +53,7 @@ class pdHtmlPage {
     protected $nav_menu;
 
     const HTML_TOP_CONTENT = '
-<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
   "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -251,7 +251,7 @@ class pdHtmlPage {
 
         $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
-            . 'content="text/html; charset=iso-8859-1" />' . "\n";
+            . 'content="text/html; charset=utf-8" />' . "\n";
 
         if ($this->redirectUrl != null) {
             $result .= '<meta http-equiv="refresh" content="5;url='
