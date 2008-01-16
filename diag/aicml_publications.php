@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: aicml_publications.php,v 1.7 2008/01/16 16:20:51 loyola Exp $
+// $Id: aicml_publications.php,v 1.8 2008/01/16 18:05:12 loyola Exp $
 
 /**
  * Script that reports the all publications made by AICML PIs, PDFs, students
@@ -161,11 +161,8 @@ class author_report extends pdHtmlPage {
                                      'Young, A',
                                      'Zheng, T',
                                      'Zhu, T');
-    
-    protected $format_as_html;    
-    protected $format_normal;
-    protected $show_abstracts;
-    protected $no_abstracts;
+    protected $format;
+    protected $abstracts;
 
     public function __construct() {
         parent::__construct('aicml_publications');
@@ -174,8 +171,12 @@ class author_report extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
         
-        echo '<h2>AICML Publications</h2>';
-
+        if (empty($this->format))
+	        $this->format = 0;
+	        
+	    if (empty($this->abstracts))
+	        $this->abstracts = 0;
+        
         $pubs = array();
         // first get publications by PIs
         foreach ($this->pi_authors as $pi_author => $dates) {
@@ -210,26 +211,16 @@ class author_report extends pdHtmlPage {
         $buttons = array();
         $form = new HTML_QuickForm('aicml_pubs', 'get', 'aicml_publications.php');
         
-        if (!isset($this->format_as_html))
-	       	$buttons[] = HTML_QuickForm::createElement(                    
-    	   		'submit', 'format_as_html', 'Display as HTML');       	
-        else if (!isset($this->format_normal))
-	       	$buttons[] = HTML_QuickForm::createElement(                    
-    	   		'submit', 'format_normal', 'Display as Formatted Text');
-	    else 
-	    	assert('false');
-        
-        if (!isset($this->show_abstracts))
-	       	$buttons[] = HTML_QuickForm::createElement(                    
-    	   		'submit', 'show_abstracts', 'Show Abstracts');       	
-        else if (!isset($this->no_abstracts))
-	       	$buttons[] = HTML_QuickForm::createElement(                    
-    	   		'submit', 'no_abstracts', 'Do Not Show Abstracts');
-	    else 
-	    	assert('false');
+        $elements[] = HTML_QuickForm::createElement(
+        	'advcheckbox', 'format', null, 'Display as HTML', null, array(0, 1));
+                
+        $elements[] = HTML_QuickForm::createElement(
+        	'advcheckbox', 'abstracts', null, 'Show Abstracts', null, array(0, 1));
+                
+       	$form->addGroup($elements, 'elgroup', '', '&nbsp', false);      	
+        $form->addElement('submit', 'update', 'Update');       	
 	    	 
-       	$form->addGroup($buttons, 'buttons', '', '&nbsp', false);
-
+       	
         // create a new renderer because $form->defaultRenderer() creates
         // a single copy
         $renderer = new HTML_QuickForm_Renderer_Default();
@@ -237,20 +228,22 @@ class author_report extends pdHtmlPage {
 
         echo $renderer->toHtml();
         
-        if (isset($this->format_as_html))
+        echo '<h2>AICML Publications</h2>';
+
+        if ($this->format)
         	$result = '';
         
         foreach ($pubs as $year => $year_pubs) {
         	foreach ($year_pubs as $pub) {
         		$citation = utf8_encode($this->getCitationHtml($pub));
-		        if (isset($this->format_as_html))
+		        if ($this->format)
         			$result .= $citation . "<br/>\n";
         		else
 		    	    echo $citation . '<p/>';
         	}
         }
         
-        if (isset($this->format_as_html))
+        if ($this->format)
         	echo '<pre style="font-size:medium">' . htmlentities($result) . '</pre>';
     }
 
@@ -359,6 +352,13 @@ class author_report extends pdHtmlPage {
             $citation .= $info . ', ' . $date_str . '.';
         else if (($v == '') && ($info == '') && ($date_str != ''))
             $citation .= $date_str . '.';
+            
+        if ($this->abstracts) {
+        	// indent and replace all linefeeds with spaces
+        	$citation .= '<blockquote>' 
+        		. preg_replace('/[\\n\\r]/', ' ', $pub->abstract)
+	        	. '</blockquote>';
+        }
             
         $citation .= '</span>';
 

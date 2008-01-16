@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: advanced_search.php,v 1.73 2007/11/02 22:42:26 loyola Exp $
+// $Id: advanced_search.php,v 1.74 2008/01/16 18:05:12 loyola Exp $
 
 /**
  * Performs advanced searches on publication information in the
@@ -105,8 +105,6 @@ class advanced_search extends pdHtmlPage {
         $form->addElement('select', 'cat_id', 'Category:',
                           array('' => '-- All Categories --')
                           + pdCatList::create($this->db));
-
-                          
 
         $auth_list = pdAuthorList::create($this->db);
 
