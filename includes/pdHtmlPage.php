@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.115 2008/01/16 16:20:51 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.116 2008/01/21 20:18:19 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -52,8 +52,7 @@ class pdHtmlPage {
     protected $form_controller;
     protected $nav_menu;
 
-    const HTML_TOP_CONTENT = '
-<?xml version="1.0" encoding="utf-8"?>
+    const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
   "http://www.w3.org/TR/html4/strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -109,8 +108,8 @@ class pdHtmlPage {
         $this->nav_menu = new pdNavMenu($this->access_level, $page_id);
 
         if (!empty($page_id)) {
-            $nav_item = $this->nav_menu->findPageId($page_id);
-
+	        $nav_item = $this->nav_menu->findPageId($page_id);
+	        
             if ($nav_item != null) {
                 $this->page_id     = $page_id;
     	        $this->page_title   = $nav_item->page_title;
@@ -133,12 +132,13 @@ class pdHtmlPage {
         $this->pageError       = false;
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
-
+        
         // ensure that the user is logged in if a page requires login access
         if ((($this->login_level >= pdNavMenuItem::MENU_LOGIN_REQUIRED)
-             || (strpos($this->relative_url, 'Admin/') !== false))
-            && ($this->access_level < 1)) {
-            $this->loginError = true;
+             || (strpos($this->relative_url, 'Admin/') !== false)
+             || (strpos($this->relative_url, 'diag/') !== false))
+             && ($this->access_level < 1)) {
+             $this->loginError = true;
             return;
         }
     }
@@ -251,7 +251,8 @@ class pdHtmlPage {
 
         $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
-            . 'content="text/html; charset=utf-8" />' . "\n";
+            . 'content="text/html; charset=utf-8" />' 
+            . '<meta http-equiv="Content-Language" content="en-us" />' . "\n";
 
         if ($this->redirectUrl != null) {
             $result .= '<meta http-equiv="refresh" content="5;url='
@@ -263,7 +264,7 @@ class pdHtmlPage {
             $url_prefix = '../';
 
         $result .= '<link rel="stylesheet" href="' . $url_prefix
-            . 'style.css" />' . "\n"
+            . 'style.css" type="text/css" />' . "\n"
             . "</head>\n\n<body>\n";
 
         if($this->useStdLayout) {
@@ -276,10 +277,12 @@ class pdHtmlPage {
     }
 
     private function htmlPageFooter() {
-        $result = '';
+        $result = '</div>';
         if($this->useStdLayout) {
-            $result .= '</div>' . $this->pageFooter();
+            $result .= $this->pageFooter();
         }
+
+        $result .= '</div>';
 
         // set up for google analytics
         //
@@ -288,11 +291,13 @@ class pdHtmlPage {
             $result .= self::GOOGLE_ANALYTICS;
         }
 
-        $result .= "<script type=\"text/JavaScript\">\n"
-            . "//<![CDATA[\n"
-            . $this->js
-            . "//]]>"
-            . "</script>\n";
+        if (!empty($this->js)) {
+	        $result .= "<script type=\"text/JavaScript\">\n"
+    	        . "//<![CDATA[\n"
+        	    . $this->js
+            	. "\n//]]>"
+	            . "</script>\n";
+        }
 
         if ($this->hasHelpTooltips) {
             if (strstr($this->relative_url, '/'))
@@ -402,8 +407,7 @@ class pdHtmlPage {
 
     private function loginErrorMessage() {
         return '<br/>'
-            . '<h4>You must be logged in to access this page.</h4>'
-            . '</div>';
+            . '<h4>You must be logged in to access this page.</h4>';
     }
 
     private function errorMessage() {
@@ -472,15 +476,12 @@ END;
         </a>
       </td>
       <td>
-        <span id="copyright">
-          <ul>
+          <ul id="copyright">
             <li>Copyright &copy; 2002-2007</li>
           </ul>
-        </span>
       </td>
     </tr>
   </table>
-</div>
 </div>
 END;
     }

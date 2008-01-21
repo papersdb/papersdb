@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.21 2008/01/15 02:26:36 loyola Exp $
+// $Id: pdNavMenu.php,v 1.22 2008/01/21 20:18:18 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -181,12 +181,10 @@ class pdNavMenu {
     }
     
     public function findPageId($page_id) {
-        foreach ($this->nav_items as $id => $item) {
-        	foreach ($item->sub_items as $sub_id => $sub_item) {
-        		if ($sub_item->id == $page_id)
-        			return $item->sub_items[$sub_id];
-        	}
-	    }
+        if (isset(self::$all_items[$page_id])) {
+        	$item = self::$all_items[$page_id]; 
+	        return new pdNavMenuItem($page_id, $item[0], $item[1], $item[2]);
+        }
 	    return null;
     }
 }
