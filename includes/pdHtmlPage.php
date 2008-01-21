@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.116 2008/01/21 20:18:19 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.117 2008/01/21 20:19:09 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -477,7 +477,7 @@ END;
       </td>
       <td>
           <ul id="copyright">
-            <li>Copyright &copy; 2002-2007</li>
+            <li>Copyright &copy; 2002-2008</li>
           </ul>
       </td>
     </tr>
