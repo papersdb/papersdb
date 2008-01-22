@@ -1,8 +1,8 @@
-<?php ;
-
-// $Id: aicml_publications.php,v 1.8 2008/01/16 18:05:12 loyola Exp $
+<?
 
 /**
+ * $Id: aicml_publications.php,v 1.9 2008/01/22 15:12:28 loyola Exp $
+ *
  * Script that reports the all publications made by AICML PIs, PDFs, students
  * and staff.
  *
