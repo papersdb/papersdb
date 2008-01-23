@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.54 2008/01/15 02:26:36 loyola Exp $
+// $Id: add_pub1.php,v 1.55 2008/01/23 16:36:16 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -23,7 +23,7 @@ require_once 'includes/pdPublication.php';
  */
 class add_pub1 extends add_pub_base {
     public $debug = 0;
-    public $cat_venue_options;via
+    public $cat_venue_options;
     public $category_list;
 
     /**
