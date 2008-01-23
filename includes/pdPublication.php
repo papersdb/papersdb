@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.128 2008/01/15 04:44:29 loyola Exp $
+// $Id: pdPublication.php,v 1.129 2008/01/23 17:36:36 loyola Exp $
 
 /**
  * Implements a class that accesses, from the database, some or all the
@@ -373,7 +373,7 @@ class pdPublication extends pdDbAccessor {
         $db->delete('pub_author', array('pub_id' => $this->pub_id),
                     'pdPublication::dbSave');
 
-        if (count($this->authors) > 0) {
+        if (isset($this->authors) && (count($this->authors) > 0)) {
             $arr = array();
             $count = 0;
             foreach ($this->authors as $author) {
@@ -627,14 +627,15 @@ class pdPublication extends pdDbAccessor {
     }
 
     public function clearAuthors() {
-        if (count($this->authors) == 0) return;
+        if (empty($this->authors) || (count($this->authors) == 0))
+        	return;
         unset($this->authors);
     }
 
     public function addAuthor($db, $mixed) {
         if (is_object($mixed)) {
             // check if publication already has this author
-            if ($this->authors != null)
+            if (isset($this->authors))
                 foreach ($this->authors as $author) {
                     if ($author->author_id == $mixed->author_id)
                         return;
@@ -659,7 +660,7 @@ class pdPublication extends pdDbAccessor {
         }
 
         // check if publication already has this author
-        if (count($this->authors) > 0) {
+        if (isset($this->authors) && (count($this->authors) > 0)) {
             foreach ($this->authors as $author) {
                 assert('$author->author_id != $mixed');
             }
@@ -880,22 +881,20 @@ class pdPublication extends pdDbAccessor {
     public function getCitationHtml($urlPrefix = '.', $author_links = true) {
         $citation = '';
 
-        $first = true;
-        if (count($this->authors) > 0) {
+        if (isset($this->authors) && (count($this->authors) > 0)) {
+        	$authors = array();
             foreach ($this->authors as $auth) {
-                if (!$first)
-                    $citation .= ', ';
-
+            	$content = '';
                 if ($author_links)
-                    $citation .= '<a href="' . $urlPrefix . '/view_author.php?'
+                    $content .= '<a href="' . $urlPrefix . '/view_author.php?'
                         . 'author_id=' . $auth->author_id . '">';
-                $citation .= $auth->firstname[0] . '. ' . $auth->lastname;
+                $content .= $auth->firstname[0] . '. ' . $auth->lastname;
 
                 if ($author_links)
-                    $citation .= '</a>';
-                $first = false;
+                    $content .= '</a>';
+                $authors[] = $content;
             }
-            $citation .= '. ';
+            $citation .= implode(', ', $authors) . '. ';
         }
 
         // Title
@@ -984,7 +983,7 @@ class pdPublication extends pdDbAccessor {
     public function getCitationText() {
         $citation = '';
 
-        if (count($this->authors) > 0) {
+        if (isset($this->authors) && (count($this->authors) > 0)) {
             foreach ($this->authors as $auth) {
                 $auth_text[] = $auth->firstname[0] . '. ' . $auth->lastname;
             }
@@ -1077,7 +1076,7 @@ class pdPublication extends pdDbAccessor {
                 $venue_name .= ' (within ' . $this->venue->data. ')';
         }
 
-        if (isset($this->authors)) {
+        if (isset($this->authors) && (count($this->authors) > 0)) {
             $auth_count = count($this->authors);
             if ($auth_count > 0) {
                 $bibtex .= $this->authors[0]->lastname;
