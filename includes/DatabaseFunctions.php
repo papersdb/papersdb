@@ -14,7 +14,7 @@
  * @param mixed $db database handler
  * @param string $fname name of the php public function __constructcalling
  */
-public function __constructwfQuery( $sql, $db, $fname = '' ) {
+function wfQuery( $sql, $db, $fname = '' ) {
 	global $wgOut;
 	if ( !is_numeric( $db ) ) {
 		# Someone has tried to call this the old way
@@ -35,7 +35,7 @@ public function __constructwfQuery( $sql, $db, $fname = '' ) {
  * @param string $fname name of the php public function __constructcalling
  * @return array first row from the database
  */
-public function __constructwfSingleQuery( $sql, $dbi, $fname = '' ) {
+function wfSingleQuery( $sql, $dbi, $fname = '' ) {
 	$db =& wfGetDB( $dbi );
 	$res = $db->query($sql, $fname );
 	$row = $db->fetchRow( $res );
@@ -47,7 +47,7 @@ public function __constructwfSingleQuery( $sql, $dbi, $fname = '' ) {
 /*
  * @todo document function
  */
-public function __construct&wfGetDB( $db = DB_LAST, $groups = array() ) {
+function &wfGetDB( $db = DB_LAST, $groups = array() ) {
 	global $wgLoadBalancer;
 	$ret =& $wgLoadBalancer->getConnection( $db, true, $groups );
 	return $ret;
@@ -64,7 +64,7 @@ public function __construct&wfGetDB( $db = DB_LAST, $groups = array() ) {
  * @param $dbi
  * @return Returns the previous state.
  */
-public function __constructwfIgnoreSQLErrors( $newstate, $dbi = DB_LAST ) {
+function wfIgnoreSQLErrors( $newstate, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->ignoreErrors( $newstate );
@@ -82,7 +82,7 @@ public function __constructwfIgnoreSQLErrors( $newstate, $dbi = DB_LAST ) {
  * Free a database result
  * @return bool whether result is sucessful or not
  */
-public function __constructwfFreeResult( $res, $dbi = DB_LAST )
+function wfFreeResult( $res, $dbi = DB_LAST )
 {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
@@ -97,7 +97,7 @@ public function __constructwfFreeResult( $res, $dbi = DB_LAST )
  * Get an object from a database result
  * @return object|false object we requested
  */
-public function __constructwfFetchObject( $res, $dbi = DB_LAST ) {
+function wfFetchObject( $res, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->fetchObject( $res, $dbi = DB_LAST );
@@ -110,7 +110,7 @@ public function __constructwfFetchObject( $res, $dbi = DB_LAST ) {
  * Get a row from a database result
  * @return object|false row we requested
  */
-public function __constructwfFetchRow( $res, $dbi = DB_LAST ) {
+function wfFetchRow( $res, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->fetchRow ( $res, $dbi = DB_LAST );
@@ -123,7 +123,7 @@ public function __constructwfFetchRow( $res, $dbi = DB_LAST ) {
  * Get a number of rows from a database result
  * @return integer|false number of rows
  */
-public function __constructwfNumRows( $res, $dbi = DB_LAST ) {
+function wfNumRows( $res, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->numRows( $res, $dbi = DB_LAST );
@@ -136,7 +136,7 @@ public function __constructwfNumRows( $res, $dbi = DB_LAST ) {
  * Get the number of fields from a database result
  * @return integer|false number of fields
  */
-public function __constructwfNumFields( $res, $dbi = DB_LAST ) {
+function wfNumFields( $res, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->numFields( $res );
@@ -150,7 +150,7 @@ public function __constructwfNumFields( $res, $dbi = DB_LAST ) {
  * @param integer $n id of the field
  * @return string|false name of field
  */
-public function __constructwfFieldName( $res, $n, $dbi = DB_LAST )
+function wfFieldName( $res, $n, $dbi = DB_LAST )
 {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
@@ -164,7 +164,7 @@ public function __constructwfFieldName( $res, $n, $dbi = DB_LAST )
 /**
  * @todo document function
  */
-public function __constructwfInsertId( $dbi = DB_LAST ) {
+function wfInsertId( $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->insertId();
@@ -176,7 +176,7 @@ public function __constructwfInsertId( $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfDataSeek( $res, $row, $dbi = DB_LAST ) {
+function wfDataSeek( $res, $row, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->dataSeek( $res, $row );
@@ -188,7 +188,7 @@ public function __constructwfDataSeek( $res, $row, $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfLastErrno( $dbi = DB_LAST ) {
+function wfLastErrno( $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->lastErrno();
@@ -200,7 +200,7 @@ public function __constructwfLastErrno( $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfLastError( $dbi = DB_LAST ) {
+function wfLastError( $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->lastError();
@@ -212,7 +212,7 @@ public function __constructwfLastError( $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfAffectedRows( $dbi = DB_LAST ) {
+function wfAffectedRows( $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->affectedRows();
@@ -224,7 +224,7 @@ public function __constructwfAffectedRows( $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfLastDBquery( $dbi = DB_LAST ) {
+function wfLastDBquery( $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->lastQuery();
@@ -236,7 +236,7 @@ public function __constructwfLastDBquery( $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfSetSQL( $table, $var, $value, $cond, $dbi = DB_MASTER )
+function wfSetSQL( $table, $var, $value, $cond, $dbi = DB_MASTER )
 {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
@@ -250,7 +250,7 @@ public function __constructwfSetSQL( $table, $var, $value, $cond, $dbi = DB_MAST
 /**
  * @todo document function
  */
-public function __constructwfGetSQL( $table, $var, $cond='', $dbi = DB_LAST )
+function wfGetSQL( $table, $var, $cond='', $dbi = DB_LAST )
 {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
@@ -263,7 +263,7 @@ public function __constructwfGetSQL( $table, $var, $cond='', $dbi = DB_LAST )
 /**
  * @todo document function
  */
-public function __constructwfFieldExists( $table, $field, $dbi = DB_LAST ) {
+function wfFieldExists( $table, $field, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->fieldExists( $table, $field );
@@ -275,7 +275,7 @@ public function __constructwfFieldExists( $table, $field, $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfIndexExists( $table, $index, $dbi = DB_LAST ) {
+function wfIndexExists( $table, $index, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->indexExists( $table, $index );
@@ -287,7 +287,7 @@ public function __constructwfIndexExists( $table, $index, $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfInsertArray( $table, $array, $fname = 'wfInsertArray', $dbi = DB_MASTER ) {
+function wfInsertArray( $table, $array, $fname = 'wfInsertArray', $dbi = DB_MASTER ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->insert( $table, $array, $fname );
@@ -299,7 +299,7 @@ public function __constructwfInsertArray( $table, $array, $fname = 'wfInsertArra
 /**
  * @todo document function
  */
-public function __constructwfGetArray( $table, $vars, $conds, $fname = 'wfGetArray', $dbi = DB_LAST ) {
+function wfGetArray( $table, $vars, $conds, $fname = 'wfGetArray', $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->getArray( $table, $vars, $conds, $fname );
@@ -311,7 +311,7 @@ public function __constructwfGetArray( $table, $vars, $conds, $fname = 'wfGetArr
 /**
  * @todo document function
  */
-public function __constructwfUpdateArray( $table, $values, $conds, $fname = 'wfUpdateArray', $dbi = DB_MASTER ) {
+function wfUpdateArray( $table, $values, $conds, $fname = 'wfUpdateArray', $dbi = DB_MASTER ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		$db->update( $table, $values, $conds, $fname );
@@ -324,7 +324,7 @@ public function __constructwfUpdateArray( $table, $values, $conds, $fname = 'wfU
 /**
  * @todo document function
  */
-public function __constructwfTableName( $name, $dbi = DB_LAST ) {
+function wfTableName( $name, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->tableName( $name );
@@ -336,7 +336,7 @@ public function __constructwfTableName( $name, $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfStrencode( $s, $dbi = DB_LAST ) {
+function wfStrencode( $s, $dbi = DB_LAST ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->strencode( $s );
@@ -348,7 +348,7 @@ public function __constructwfStrencode( $s, $dbi = DB_LAST ) {
 /**
  * @todo document function
  */
-public function __constructwfNextSequenceValue( $seqName, $dbi = DB_MASTER ) {
+function wfNextSequenceValue( $seqName, $dbi = DB_MASTER ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->nextSequenceValue( $seqName );
@@ -360,7 +360,7 @@ public function __constructwfNextSequenceValue( $seqName, $dbi = DB_MASTER ) {
 /**
  * @todo document function
  */
-public function __constructwfUseIndexClause( $index, $dbi = DB_SLAVE ) {
+function wfUseIndexClause( $index, $dbi = DB_SLAVE ) {
 	$db =& wfGetDB( $dbi );
 	if ( $db !== false ) {
 		return $db->useIndexClause( $index );

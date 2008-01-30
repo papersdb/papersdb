@@ -1,8 +1,8 @@
 <?php ;
 
-// $Id: pdPublication.php,v 1.129 2008/01/23 17:36:36 loyola Exp $
-
 /**
+ * $Id: pdPublication.php,v 1.130 2008/01/30 15:54:15 loyola Exp $
+ *
  * Implements a class that accesses, from the database, some or all the
  * information related to a publication.
  *
@@ -18,13 +18,14 @@ require_once 'includes/pdVenue.php';
 require_once 'includes/pdPubList.php';
 
 /**
- * Class that accesses, from the database, some or all the information related
- * to a publication.
+ * Accesses from the database some or all the information related to a 
+ * publication.
  *
  * @package PapersDB
  */
 class pdPublication extends pdDbAccessor {
-    public $pub_id;
+    /** publication's id in the database */
+    public $pub_id;  
     public $title;
     public $paper;
     public $abstract;
