@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.24 2007/08/22 17:40:18 aicmltec Exp $
+# Name: $Id: report.pl,v 1.25 2008/01/30 01:26:53 loyola Exp $
 #
 # See $USAGE.
 #
@@ -36,14 +36,14 @@ my %years = (0 => ['2002-09-01', '2003-08-31'],
              3 => ['2006-04-01', '2007-03-31'],
              4 => ['2007-04-01', '2008-03-31']);
 
-my %pi_authors = ('Szepesv.ri, C' => ['2006-09-01', '2010-01-01'],
-                  'Schuurmans, D' => ['2003-07-01', '2010-01-01'],
-                  'Schaeffer, J'  => ['2002-09-01', '2010-01-01'],
-                  'Bowling, M'    => ['2003-07-01', '2010-01-01'],
-                  'Goebel, R'     => ['2002-09-01', '2010-01-01'],
-                  'Sutton, R'     => ['2003-09-01', '2010-01-01'],
-                  'Holte, R'      => ['2002-09-01', '2010-01-01'],
-                  'Greiner, R'    => ['2002-09-01', '2010-01-01']);
+my %pi_authors = ('Szepesv.ri, C' => ['2006-09-01', '2008-03-31'],
+                  'Schuurmans, D' => ['2003-03-01', '2008-03-31'],
+                  'Schaeffer, J'  => ['2002-09-01', '2008-03-31'],
+                  'Bowling, M'    => ['2003-07-01', '2008-03-31'],
+                  'Goebel, R'     => ['2002-09-01', '2008-03-31'],
+                  'Sutton, R'     => ['2003-09-01', '2008-03-31'],
+                  'Holte, R'      => ['2002-09-01', '2008-03-31'],
+                  'Greiner, R'    => ['2002-09-01', '2008-03-31']);
 
 my @pdf_authors = ('Botea, A',
                    'Brown, M',
@@ -431,7 +431,7 @@ sub piReport {
         foreach my $t1 (sort keys %{ $author_pubs{$year} }) {
             $pi_totals{$year}{$t1} = 0;
             foreach my $authors (sort keys %{ $author_pubs{$year}{$t1} }) {
-                printf "%s - %s;%s;%s;%d;%d;", $years{$year}[0], $years{$year}[1],
+                printf "%s - %s;%s;\"%s\";%d;%d;", $years{$year}[0], $years{$year}[1],
                     $t1, $authors,
                         $author_pubs{$year}{$t1}{$authors}{'num_authors'},
                             scalar @{ $author_pubs{$year}{$t1}{$authors}{'pubs'} };
