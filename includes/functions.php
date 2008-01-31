@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.42 2008/01/15 18:20:04 loyola Exp $
+// $Id: functions.php,v 1.43 2008/01/31 22:02:23 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -417,6 +417,14 @@ function escapeString($str) {
                      '"'     => '\"',
                      '\\'    => '\\\\'
                      ));
+}
+
+function pubDate2Timestamp($date) {
+    $datesplit = split('-', $date);
+    if (count($datesplit) != 3)
+        throw new Exception("invalid date format " . $date);
+        
+    return mktime(0, 0, 0, $datesplit[1], $datesplit[2], $datesplit[0]);
 }
 
 if (PHP_SAPI != "cli") {

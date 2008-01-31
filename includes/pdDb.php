@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.6 2007/11/13 16:50:56 loyola Exp $
+// $Id: pdDb.php,v 1.7 2008/01/31 22:02:23 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -131,6 +131,7 @@ function wfDebug( $text, $logonly = false ) {
 function wfDie($txt) { echo $txt, "<br/>\n"; }
 
 $wgProfiling = 0;
+$wgDBmysql5 = false;  // sets UTF-8 character set
 
 function wfProfileIn($str) {}
 function wfProfileOut($str) { echo $str, "<br/>\n"; }

@@ -81,6 +81,13 @@ table.searchlink {
   max-width: 600px;
 }
 
+table.stats {
+  background-color: #F2F2F2;
+  border: 1px solid #AAAAAA;
+  width: 98%;
+  margin: 5px 1%;
+}
+
 tr.odd {background-color: #eee;}
 tr.even {background-color:#fff;}
 td.large {font-size:1.3em;}
@@ -241,6 +248,29 @@ td.publist {
   font-size: 0.9em;
   line-height:1.6;
 }
+
+td.stats_even {
+  background-color: #E2E2E2;
+  font-size: 0.8em;
+}
+
+td.stats_even_pub_id {
+  background-color: #E2E2E2;
+  font-size: 0.8em;
+  width: 20%;
+}
+
+td.stats_odd {
+  background-color: #FFFFFF;
+  font-size: 0.8em;
+}
+
+td.stats_odd_pub_id {
+  background-color: #FFFFFF;
+  font-size: 0.8em;
+  width: 20%;
+}
+
 
 div.field {
   color: black;
