@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.35 2007/11/02 16:36:28 loyola Exp $
+// $Id: view_author.php,v 1.36 2008/02/01 21:29:26 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -99,7 +99,7 @@ class view_author extends pdHtmlPage {
                            array('colspan' => 2));
         }
         else if ($auth->totalPublications <= 6) {
-            assert('is_array($auth->pub_list->list)');
+            assert('is_array($auth->pub_list)');
             $headingCell = 'Publications:';
 
             $table->addRow(array($headingCell));

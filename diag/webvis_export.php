@@ -23,7 +23,7 @@ foreach ($authors as $auth_id => $name) {
     $author = new pdAuthor();
     $author->dbLoad($db, $auth_id);
 
-    foreach ($author->pub_list->list as $pub) {
+    foreach ($author->pub_list as $pub) {
         $pub->dbLoad($db, $pub->pub_id);
         $auth_names = array();
 
