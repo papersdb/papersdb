@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.25 2008/01/30 01:26:53 loyola Exp $
+# Name: $Id: report.pl,v 1.26 2008/02/01 20:57:14 loyola Exp $
 #
 # See $USAGE.
 #
@@ -28,7 +28,7 @@ my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
 
 # Bioinformatics
 
-my $debugSql = 0;
+my $debugSql = 1;
 
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
@@ -351,7 +351,7 @@ sub getPubsWithCriteria {
         . 'AND (category.cat_id="1" OR category.cat_id="3") '
         . 'AND category.cat_id=pub_cat.cat_id '
         . 'AND publication.pub_id=pub_cat.pub_id '
-        . 'AND publication.keywords LIKE "%machine learning%" '
+        . 'AND publication.keywords LIKE \'%machine learning%\' '
         . 'AND publication.published BETWEEN \''
         . $startdate . '\' AND \'' . $enddate . '\'';
 
@@ -371,6 +371,7 @@ sub getPubsWithCriteria {
             .  'AND publication.venue_id is NULL '
             . 'AND category.cat_id=pub_cat.cat_id '
             . 'AND publication.pub_id=pub_cat.pub_id '
+            . 'AND publication.keywords LIKE \'%machine learning%\' '
             . 'AND publication.published BETWEEN \''
             . $startdate . '\' AND \'' . $enddate . '\'';
 

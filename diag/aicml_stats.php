@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: pub_report.php,v 1.3 2008/02/01 18:21:43 loyola Exp $
+  * $Id: aicml_stats.php,v 1.1 2008/02/01 20:57:14 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -12,172 +12,16 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
-require_once 'includes/pdHtmlPage.php';
+require_once 'diag/aicml_pubs_base.php';
 require_once 'includes/pdPublication.php';
 
 /**
- * Displays various sets of statistics for the machine learning papers
- * published by AICML PIs, PDFs, students and staff.
+ * Base class for pages that display information about the Centre's 
+ * Machine Learning papers.
  *
  * @package PapersDB
  */
-class author_report extends pdHtmlPage {
-    protected static $tier1_venues = array(
-    	'AAAI', 'AIJ', 'CCR', 'ICML', 'IJCAI', 'JAIR', 'JMLR', 'MLJ', 'NAR',
-    	'NIPS', 'UAI');
-
-    protected static $fiscal_years = array(
-        array('2002-09-01', '2003-08-31'),
-        array('2003-09-01', '2004-08-31'),
-        array('2004-09-01', '2006-03-31'),
-        array('2006-04-01', '2007-03-31'),
-        array('2007-04-01', '2008-03-31'));
-
-    protected static $aicml_authors = array(
-        'pi' => array(
-            'Bowling, M',
-            'Goebel, R',
-            'Greiner, R',
-            'Holte, R',
-            'Schaeffer, J',
-            'Schuurmans, D',
-            'Sutton, R',
-            'Szepesvari, C'),
-        'pdf' => array(
-            'Engel, Y',
-            'Kirshner, S',
-            'Price, R',
-            'Ringlstetter, C',
-            'Wang, Shaojun',
-            'Zheng, T',
-            'Zinkevich, M',
-            'Cheng, L',
-            'Southey, F'),
-        'student' => array(
-            'Antonie, M',
-            'Asgarian, N',
-            'Bard, N',
-            'Billings, D',
-            'Botea, A',
-            'Chen, J',
-            'Coulthard, E',
-            'Davison, K',
-            'Dwyer, K',
-            'Farahmand, A',
-            'Fraser, B',
-            'Geramifard, A',
-            'Ghodsi, A',
-            'Guo, Y',
-            'Guo, Z',
-            'Heydari, M',
-            'Hlynka, M',
-            'Hoehn, B',
-            'Huang, J',
-            'Jiao, F',
-            'Johanson, M',
-            'Joyce, B',
-            'Kaboli, A',
-            'Kan, M',
-            'Kapoor, A',
-            'Koop, A',
-            'Lee, C',
-            'Lee, M',
-            'Levner, I',
-            'Li, L',
-            'Lizotte, D',
-            'Lu, Z',
-            'McCracken, P',
-            'Milstein, A',
-            'Morris, M',
-            'Neufeld, J',
-            'Newton, J',
-            'Niu, Y',
-            'Paduraru, C',
-            'Poulin, B',
-            'Rafols, E',
-            'Schauenberg, T',
-            'Schmidt, M',
-            'Silver, D',
-            'Singh, A',
-            'Tanner, B',
-            'Wang, P',
-            'Wang, Q',
-            'Wang, T',
-            'Wang, Y',
-            'White, A',
-            'Wilkinson, D',
-            'Wu, J',
-            'Wu, X',
-            'Xiao, G',
-            'Xu, L',
-            'Zhang, Q',
-            'Zheng, T',
-            'Zhu, T'),
-        'staff' => array(
-            'Arthur, R',
-            'Asgarian, N',
-            'Baich, T',
-            'Block, D',
-            'Coghlan, B',
-            'Coulthard, E',
-            'Coulthard, E',
-            'Dacyk, V',
-            'DeMarco, M',
-            'Duguid, L',
-            'Eisner, R',
-            'Farhangfar, A',
-            'Flatt, A',
-            'Fraser, S',
-            'Grajkowski, J',
-            'Harrison, E',
-            'Hiew, A',
-            'Hoehn, B',
-            'Homaeian, L',
-            'Huntley, D',
-            'Jewell, K',
-            'Koop, A',
-            'Larson, B',
-            'Loh, W',
-            'Loyola, N',
-            'Ma, G',
-            'McMillan, K',
-            'Melanson, A',
-            'Morris, M',
-            'Neufeld, J',
-            'Newton, J',
-            'Nicotra, L',
-            'Pareek, P',
-            'Parker, D',
-            'Paulsen, J',
-            'Poulin, B',
-            'Radkie, M',
-            'Roberts, J',
-            'Shergill, A',
-            'Smith, C',
-            'Sokolsky, M',
-            'Stephure, M',
-            'Thorne, W',
-            'Trommelen, M',
-            'Upright, C',
-            'Vicentijevic, M',
-            'Vincent, S',
-            'Walsh, S',
-            'White, T',
-            'Woloschuk, D',
-            'Young, A',
-            'Zheng, T',
-            'Zhu, T'));
-
-    protected static $author_dates = array(
-        'Bowling, M'    => array('2003-07-01', '2008-03-31'),
-        'Goebel, R'     => array('2002-09-01', '2008-03-31'),
-        'Greiner, R'    => array('2002-09-01', '2008-03-31'),
-        'Holte, R'      => array('2002-09-01', '2008-03-31'),
-        'Schaeffer, J'  => array('2002-09-01', '2008-03-31'),
-    	'Schuurmans, D' => array('2003-03-18', '2008-03-31'),
-        'Sutton, R'     => array('2003-09-01', '2008-03-31'),
-        'Szepesvari, C' => array('2006-09-01', '2008-03-31'));
-    
+class author_report extends aicml_pubs_base {
     protected static $author_re = array(
         'Szepesvari, C' => '/Szepesv.+ri, C/');
 
@@ -190,7 +34,7 @@ class author_report extends pdHtmlPage {
     );
 
     public function __construct() {
-        parent::__construct('aicml_publications');
+        parent::__construct('aicml_stats');
 
         if ($this->loginError) return;
 
@@ -202,36 +46,7 @@ class author_report extends pdHtmlPage {
                                                 pubDate2Timestamp($fy[1]));
         }
 
-        $pubs = array();
-        // first get publications by PIs
-        foreach (self::$aicml_authors['pi'] as $name) {
-            $author_pubs = pdPubList::create($this->db,                                    
-                array('author_name' => $name,                                                        
-                	  'date_start' => self::$author_dates[$name][0],
-                      'date_end' => self::$author_dates[$name][1],
-                      'pub_id_keys' => true,
-                      'keyword' => 'machine learning'));
-            $pubs = $this->pubs_array_merge($pubs, $author_pubs);
-        }
-
-        // now get publications by all AICML members
-        $other_authors = array();
-        foreach (self::$aicml_authors as $group => $arr) 
-            if ($group != 'pi')
-                $other_authors = array_merge($other_authors, $arr);
-
-        foreach ($other_authors as $author) {
-            $author_pubs
-                = pdPubList::create($this->db,
-                                    array('author_name' => $author,
-                                          'date_start' => self::$fiscal_years[4][0],
-                                          'date_end' => self::$fiscal_years[0][1],
-                                          'pub_id_keys' => true,
-                                          'keyword' => 'machine learning'));
-            $pubs = $this->pubs_array_merge($pubs, $author_pubs);
-        }
-
-        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
+        $pubs =& $this->getMachineLearningPapers();
         
         $this->collectStats($pubs);
         
@@ -250,23 +65,6 @@ class author_report extends pdHtmlPage {
     // collect stats for all machine learning papers.
     private function collectStats(&$pubs) {
         foreach ($pubs as $pub_id => $pub) {
-            $pub->dbLoad($this->db, $pub_id);
-
-            //if ($pub->pub_id == 820)
-            //    debugVar('$pub', $pub);
-        
-            // only consider machine learning papers
-            if (!isset($pub->keywords)
-                || (strpos(strtolower($pub->keywords), 'machine learning') === false))
-                continue;
-
-            // publication must have the category assigned and
-            // category must be either 'In Journal' or 'In Conference'
-            if (!isset($pub->category)
-                || (($pub->category->cat_id != 1) 
-                    && ($pub->category->cat_id != 3)))
-                continue;
-
             $isT1 = $this->pubIsTier1($pub) ? 'Y' : 'N';
             $fy   = $this->getFiscalYearKey($pub->published);
             $pub_pi_authors = $this->getPubPiAuthors($pub);
@@ -327,8 +125,6 @@ class author_report extends pdHtmlPage {
                 }
             }
         }
-        
-        debugVar('$this->stats[fy_count]', $this->stats['fy_count']);
     }
     
     private function allPiPublicationTable() {
@@ -491,19 +287,6 @@ class author_report extends pdHtmlPage {
         return '<h3>Staff Machine Learning Papers</h3>' . $table->toHtml();
     }
 
-    // adds the publications in $pubs2 that are not already in $pubs1
-    private function pubs_array_merge($pubs1, $pubs2) {
-        assert('is_array($pubs1)');
-        assert('is_array($pubs2)');
-
-        $result = $pubs1;
-        $diffs = array_diff(array_keys($pubs2), array_keys($pubs1));
-        foreach ($diffs as $pub_id) {
-            $result[$pub_id] = $pubs2[$pub_id];
-        }
-        return $result;
-    }
-
     /* date has to be in YYYY-MM-DD format */
     private function getFiscalYearKey($date) {
         $datestamp = pubDate2Timestamp($date);
@@ -524,7 +307,7 @@ class author_report extends pdHtmlPage {
         // check that venue has a title (aka acronym) assigned
         if (!isset($pub->venue->title)) return false;
 
-        return in_array($pub->venue->title, self::$tier1_venues);
+        return ($pub->venue->rank_id == 1);
     }
 
     private function getPubMatchinglAuthors($pub, $authors, $authors_re) {

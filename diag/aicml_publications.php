@@ -1,7 +1,7 @@
 <?
 
 /**
- * $Id: aicml_publications.php,v 1.9 2008/01/22 15:12:28 loyola Exp $
+ * $Id: aicml_publications.php,v 1.10 2008/02/01 20:57:14 loyola Exp $
  *
  * Script that reports the all publications made by AICML PIs, PDFs, students
  * and staff.
@@ -12,7 +12,7 @@
 ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
-require_once 'includes/pdHtmlPage.php';
+require_once 'diag/aicml_pubs_base.php';
 require_once 'includes/pdPublication.php';
 
 /**
@@ -20,147 +20,7 @@ require_once 'includes/pdPublication.php';
  *
  * @package PapersDB
  */
-class author_report extends pdHtmlPage {
-    protected $fiscal_years = array(
-        array('2007-04-01', '2008-03-31'),
-        array('2006-04-01', '2007-03-31'),
-        array('2004-09-01', '2006-03-31'),
-        array('2003-09-01', '2004-08-31'),
-        array('2002-09-01', '2003-08-31'));
-
-    protected $pi_authors = array(
-    	'Szepesvari, C' => array('2006-09-01', '2008-03-31'),
-        'Schuurmans, D' => array('2003-07-01', '2008-03-31'),
-        'Schaeffer, J'  => array('2002-09-01', '2008-03-31'),
-        'Bowling, M'    => array('2003-07-01', '2008-03-31'),
-        'Goebel, R'     => array('2002-09-01', '2008-03-31'),
-        'Sutton, R'     => array('2003-09-01', '2008-03-31'),
-        'Holte, R'      => array('2002-09-01', '2008-03-31'),
-        'Greiner, R'    => array('2002-09-01', '2008-03-31'));
-
-    protected $pdf_authors = array('Engel, Y',
-                                   'Kirshner, S',
-                                   'Price, R',
-                                   'Ringlstetter, C',
-                                   'Wang, Shaojun',
-                                   'Zheng, T',
-                                   'Zinkevich, M',
-                                   'Cheng, L',
-                                   'Southey, F');
-
-    protected $student_authors = array('Antonie, M',
-                                       'Asgarian, N',
-                                       'Bard, N',
-                                       'Billings, D',
-                                       'Botea, A',
-                                       'Chen, J',
-                                       'Coulthard, E',
-                                       'Davison, K',
-                                       'Dwyer, K',
-                                       'Farahmand, A',
-                                       'Fraser, B',
-                                       'Geramifard, A',
-                                       'Ghodsi, A',
-                                       'Guo, Y',
-                                       'Guo, Z',
-                                       'Heydari, M',
-                                       'Hlynka, M',
-                                       'Hoehn, B',
-                                       'Huang, J',
-                                       'Jiao, F',
-                                       'Johanson, M',
-                                       'Joyce, B',
-                                       'Kaboli, A',
-                                       'Kan, M',
-                                       'Kapoor, A',
-                                       'Koop, A',
-                                       'Lee, C',
-                                       'Lee, M',
-                                       'Levner, I',
-                                       'Li, L',
-                                       'Lizotte, D',
-                                       'Lu, Z',
-                                       'McCracken, P',
-                                       'Milstein, A',
-                                       'Morris, M',
-                                       'Neufeld, J',
-                                       'Newton, J',
-                                       'Niu, Y',
-                                       'Paduraru, C',
-                                       'Poulin, B',
-                                       'Rafols, E',
-                                       'Schauenberg, T',
-                                       'Schmidt, M',
-                                       'Silver, D',
-                                       'Singh, A',
-                                       'Tanner, B',
-                                       'Wang, P',
-                                       'Wang, Q',
-                                       'Wang, T',
-                                       'Wang, Y',
-                                       'White, A',
-                                       'Wilkinson, D',
-                                       'Wu, J',
-                                       'Wu, X',
-                                       'Xiao, G',
-                                       'Xu, L',
-                                       'Zhang, Q',
-                                       'Zheng, T',
-                                       'Zhu, T');
-
-    protected $staff_authors = array('Arthur, R',
-                                     'Asgarian, N',
-                                     'Baich, T',
-                                     'Block, D',
-                                     'Coghlan, B',
-                                     'Coulthard, E',
-                                     'Coulthard, E',
-                                     'Dacyk, V',
-                                     'DeMarco, M',
-                                     'Duguid, L',
-                                     'Eisner, R',
-                                     'Farhangfar, A',
-                                     'Flatt, A',
-                                     'Fraser, S',
-                                     'Grajkowski, J',
-                                     'Harrison, E',
-                                     'Hiew, A',
-                                     'Hoehn, B',
-                                     'Homaeian, L',
-                                     'Huntley, D',
-                                     'Jewell, K',
-                                     'Koop, A',
-                                     'Larson, B',
-                                     'Loh, W',
-                                     'Loyola, N',
-                                     'Ma, G',
-                                     'McMillan, K',
-                                     'Melanson, A',
-                                     'Morris, M',
-                                     'Neufeld, J',
-                                     'Newton, J',
-                                     'Nicotra, L',
-                                     'Pareek, P',
-                                     'Parker, D',
-                                     'Paulsen, J',
-                                     'Poulin, B',
-                                     'Radkie, M',
-                                     'Roberts, J',
-                                     'Shergill, A',
-                                     'Smith, C',
-                                     'Sokolsky, M',
-                                     'Stephure, M',
-                                     'Thorne, W',
-                                     'Trommelen, M',
-                                     'Upright, C',
-                                     'Vicentijevic, M',
-                                     'Vincent, S',
-                                     'Walsh, S',
-                                     'White, T',
-                                     'Woloschuk, D',
-                                     'Young, A',
-                                     'Zheng, T',
-                                     'Zhu, T');
+class author_report extends aicml_pubs_base {
     protected $format;
     protected $abstracts;
 
@@ -179,7 +39,7 @@ class author_report extends pdHtmlPage {
         
         $pubs = array();
         // first get publications by PIs
-        foreach ($this->pi_authors as $pi_author => $dates) {
+        foreach (self::$aicml_authors[pi] as $pi_author) {
             $author_pubs
                 = pdPubList::create($this->db,
                                     array('author_name' => $pi_author,
@@ -203,8 +63,8 @@ class author_report extends pdHtmlPage {
                                           'pub_id_keys' => true));
             $pubs = $this->pubs_array_merge($pubs, $author_pubs);
         }
-
-        $pubs = $this->pubs_sort($pubs);
+        
+        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
         krsort($pubs);
         
         // now display the page
@@ -255,17 +115,6 @@ class author_report extends pdHtmlPage {
             $result[$pub_id] = $pubs2[$pub_id];
     	}
     	return $result;
-    }
-
-    // sort the publications by year
-    private function pubs_sort($pubs) {
-    	$sorted_pubs = array();
-    	foreach ($pubs as $pub_id => $pub) {
-            $publishedSplit = split('-', $pub->published);
-            assert('count($publishedSplit) == 3');
-            $sorted_pubs[$publishedSplit[0]][$pub_id] = $pub;
-    	}
-    	return $sorted_pubs;
     }
 
     private function getCitationHtml($pub) {
