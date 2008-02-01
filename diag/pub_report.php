@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: pub_report.php,v 1.2 2008/01/31 23:55:23 loyola Exp $
+  * $Id: pub_report.php,v 1.3 2008/02/01 18:21:43 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -16,7 +16,8 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 
 /**
- * Renders the page.
+ * Displays various sets of statistics for the machine learning papers
+ * published by AICML PIs, PDFs, students and staff.
  *
  * @package PapersDB
  */
@@ -181,8 +182,12 @@ class author_report extends pdHtmlPage {
         'Szepesvari, C' => '/Szepesv.+ri, C/');
 
     protected $fiscal_year_ts;
-    protected $stats;
-    protected $pi_stats;
+    protected $stats = array(
+        'pi'       => array(),  // publications for PIs combined
+        'per_pi'   => array(),  // publications per individual PI
+        'staff'    => array(),  // publications by staff 
+        'fy_count' => array()   // publication counts by PIs and staff
+    );
 
     public function __construct() {
         parent::__construct('aicml_publications');
@@ -191,7 +196,6 @@ class author_report extends pdHtmlPage {
 
         $this->loadHttpVars(true, false);
 
-        $this->stats = array();
         $this->fiscal_year_ts = array();
         foreach (self::$fiscal_years as $key => $fy) {
             $this->fiscal_year_ts[$key] = array(pubDate2Timestamp($fy[0]),
@@ -228,25 +232,39 @@ class author_report extends pdHtmlPage {
         }
 
         uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
-
-        // collect stats
+        
+        $this->collectStats($pubs);
+        
+        echo $this->allPiPublicationTable();
+        echo $this->fiscalYearTotalsTable('pi', 'PI Fiscal Year Totals');
+                      
+        foreach (self::$aicml_authors['pi'] as $pi_author) {
+            echo $this->piPublicationsTable($pi_author);
+        }
+        
+        echo $this->staffPublicationsTable();
+        echo $this->fiscalYearTotalsTable('staff', 'Staff Fiscal Year Totals');
+        echo $this->studentTotalsTable();
+    }
+    
+    // collect stats for all machine learning papers.
+    private function collectStats(&$pubs) {
         foreach ($pubs as $pub_id => $pub) {
             $pub->dbLoad($this->db, $pub_id);
 
             //if ($pub->pub_id == 820)
             //    debugVar('$pub', $pub);
-
-            // publication must have the category assigned
-            if (!isset($pub->category))
-                continue;
-
-            // category must be either 'In Journal' or 'In Conference'
-            if (($pub->category->cat_id != 1) && ($pub->category->cat_id != 3))
-                continue;
         
             // only consider machine learning papers
             if (!isset($pub->keywords)
                 || (strpos(strtolower($pub->keywords), 'machine learning') === false))
+                continue;
+
+            // publication must have the category assigned and
+            // category must be either 'In Journal' or 'In Conference'
+            if (!isset($pub->category)
+                || (($pub->category->cat_id != 1) 
+                    && ($pub->category->cat_id != 3)))
                 continue;
 
             $isT1 = $this->pubIsTier1($pub) ? 'Y' : 'N';
@@ -271,18 +289,49 @@ class author_report extends pdHtmlPage {
             foreach (self::$aicml_authors['pi'] as $pi_author) {
                 if (strpos($pub_pi_authors, $pi_author) === false) continue;
                 
-                if (!isset($this->pi_stats[$pi_author][$fy][$isT1][$pub_pi_authors]))
-                    $this->pi_stats[$pi_author][$fy][$isT1][$pub_pi_authors] = array();
+                if (!isset($this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors]))
+                    $this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors] = array();
                 array_push(
-                    $this->pi_stats[$pi_author][$fy][$isT1][$pub_pi_authors], 
+                    $this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors], 
                     $pub->pub_id);
             }
         }
         krsort($this->stats);
-        krsort($this->pi_stats);
+        krsort($this->stats['per_pi']);
         
-        echo '<h3>Machine Learning Publications by Principal Investigators</h3>';
-
+        // get totals
+        foreach (array('pi', 'staff') as $group) {
+            if (!isset($this->stats['fy_count'][$group])) {
+                $this->stats['fy_count'][$group] = array(
+                    'all' => 0,
+                	'N'   => 0, 
+                	'Y'   => 0);
+            }
+            foreach ($this->stats[$group] as $fy => $subarr1) {
+                if (!isset($this->stats['fy_count'][$group][$fy]))
+                     $this->stats['fy_count'][$group][$fy] = array(
+                        'all' => 0,
+                        'N' => 0, 
+                     	'Y' => 0);
+                     
+                foreach ($subarr1 as $t1 => $subarr2) {
+                    foreach ($subarr2 as $authors => $pub_ids) {
+                        $this->stats['fy_count'][$group][$fy][$t1] += count($pub_ids);
+                    }
+                    $this->stats['fy_count'][$group][$t1] 
+                        += $this->stats['fy_count'][$group][$fy][$t1];
+                    $this->stats['fy_count'][$group][$fy]['all'] 
+                        += $this->stats['fy_count'][$group][$fy][$t1];
+                    $this->stats['fy_count'][$group]['all'] 
+                        += $this->stats['fy_count'][$group][$fy][$t1];
+                }
+            }
+        }
+        
+        debugVar('$this->stats[fy_count]', $this->stats['fy_count']);
+    }
+    
+    private function allPiPublicationTable() {
         $table = new HTML_Table(array('class' => 'stats'));
         $table->addRow(array('Fiscal Year', 'T1', 'Author(s)',
                              'Num Pubs', 'Pub Ids'));
@@ -312,74 +361,61 @@ class author_report extends pdHtmlPage {
                 }
             }
         }
-        echo $table->toHtml();
         
-        // show totals
+        return '<h3>Machine Learning Publications by Principal Investigators</h3>'
+            . $table->toHtml();
+    }
+    
+    private function fiscalYearTotalsTable($group, $heading) {    
+        assert(isset($this->stats[$group]));
+              
         $table = new HTML_Table(array('class' => 'stats'));
         $table->addRow(array('Fiscal Year', 'T1', 'Num Pubs'));
         $table->setRowType(0, 'th');
-        $class = 'stats_odd';
-        $pub_count = array('N' => 0, 'Y' => 0);
-        foreach ($this->stats['pi'] as $fy => $subarr1) {
+        foreach ($this->stats[$group] as $fy => $subarr1) {
             krsort($subarr1);
             foreach ($subarr1 as $t1 => $subarr2) {
-                ksort($subarr2);
-                $fy_pub_count = 0;
-                foreach ($subarr2 as $authors => $pub_ids)
-                    $fy_pub_count += count($pub_ids);
-                    
+                ksort($subarr2);                   
                 $class = ($t1 == 'Y') ? 'stats_odd' : 'stats_even';
                 $table->addRow(array(implode(' - ', self::$fiscal_years[$fy]),
-                    $t1, $fy_pub_count),
+                    $t1, $this->stats['fy_count'][$group][$fy][$t1]),
                     array('class' => $class));
-                    
-                $pub_count[$t1] += $fy_pub_count;
             }
         }
-        $table->addRow(array('<b>TOTAL</b>', 'Y', $pub_count['Y']),
-                             array('class' => 'stats_odd'));
-        $table->addRow(array('<b>TOTAL</b>', 'N', $pub_count['N']),
-                             array('class' => 'stats_even'));
+        $table->addRow(array('<b>TOTAL</b>', 'Y', 
+                             $this->stats['fy_count'][$group]['Y'] ),
+                       array('class' => 'stats_odd'));
+        $table->addRow(array('<b>TOTAL</b>', 'N', 
+                             $this->stats['fy_count'][$group]['N'] ),
+                       array('class' => 'stats_even'));
                              
-        echo '<h3>Fiscal Year Totals</h3>', $table->toHtml();
-        
-        foreach (self::$aicml_authors['pi'] as $pi_author) {
-            echo $this->piPubTable($pi_author);
-        }
-
-        $table = new HTML_Table(array('class' => 'stats'));
-        $table->addRow(array('Fiscal Year Start', 'T1', 'Author(s)',
-                             'Num Pubs', 'Pub Ids'));
-        $table->setRowType(0, 'th');
-        
-        $row_count = 0;
-        foreach ($this->stats['staff'] as $fy => $subarr1) {
-            krsort($subarr1);
-            foreach ($subarr1 as $t1 => $subarr2) {
-                ksort($subarr2);
-                foreach ($subarr2 as $authors => $pub_ids) {
-                    $pub_links = array();
-                    rsort($pub_ids);
-                    foreach ($pub_ids as $pub_id) {
-                        $pub_links[] = '<a href="../view_publication.php?pub_id='
-                        	. $pub_id . '">' . $pub_id . '</a>';
-                    }
-                    
-                    $class = ($t1 == 'Y') ? 'stats_odd' : 'stats_even';
-                    $table->addRow(array(self::$fiscal_years[$fy][0], 
-                                         $t1, $authors, count($pub_ids),
-                                         implode(', ', $pub_links)),
-                                   array('class' => $class));
-                    ++$row_count;
-                    $table->updateCellAttributes($row_count, 4,
-                        array('class' => $class . '_pub_id'), NULL);
-                }
-            }
-        }
-        echo '<h3>Staff Machine Learning Papers</h3>', $table->toHtml();
+        return '<h3>' . $heading . '</h3>'. $table->toHtml();
     }
     
-    private function piPubTable($pi_name) {
+    // 
+    private function studentTotalsTable() {              
+        $table = new HTML_Table(array('class' => 'stats'));
+        $table->addRow(array('Fiscal Year', 'Student Pubs', 'Centre Pubs', 'Ratio'));
+        $table->setRowType(0, 'th');
+        foreach ($this->stats['fy_count']['staff'] as $fy => $subarr1) {
+            if (!is_numeric($fy)) continue;
+            
+            $student_pubs = $this->stats['fy_count']['staff'][$fy]['all'];
+            $pi_pubs = $this->stats['fy_count']['pi'][$fy]['all'];
+            
+            $ratio = 0;
+            if ($pi_pubs != 0)
+                $ratio = 100 * $student_pubs / $pi_pubs;
+                
+            $table->addRow(array(implode(' - ', self::$fiscal_years[$fy]),
+                                 $student_pubs, $pi_pubs, round($ratio, 2)),
+                           array('class' => 'stats_odd'));
+        }
+                             
+        return '<h3>Student to PI Publication Ratio</h3>'. $table->toHtml();
+    }
+    
+    private function piPublicationsTable($pi_name) {
         $table = new HTML_Table(array('class' => 'stats'));
         
         
@@ -389,7 +425,7 @@ class author_report extends pdHtmlPage {
         
         $row_count = 0;
         $pub_count = array('N' => 0, 'Y' => 0);
-        foreach ($this->pi_stats[$pi_name] as $fy => $subarr1) {
+        foreach ($this->stats['per_pi'][$pi_name] as $fy => $subarr1) {
             krsort($subarr1);
             foreach ($subarr1 as $t1 => $subarr2) {
                 ksort($subarr2);
@@ -420,6 +456,39 @@ class author_report extends pdHtmlPage {
         $table->addRow(array('<b>TOTAL</b>', 'N', null, $pub_count['N'], null),
                              array('class' => 'stats_even'));
         echo '<h3>', $pi_name, '</h3>', "\n", $table->toHtml();
+    }
+    
+    private function staffPublicationsTable() {    
+        $table = new HTML_Table(array('class' => 'stats'));
+        $table->addRow(array('Fiscal Year Start', 'T1', 'Author(s)',
+                             'Num Pubs', 'Pub Ids'));
+        $table->setRowType(0, 'th');
+            
+        $row_count = 0;
+        foreach ($this->stats['staff'] as $fy => $subarr1) {
+            krsort($subarr1);
+            foreach ($subarr1 as $t1 => $subarr2) {
+                ksort($subarr2);
+                foreach ($subarr2 as $authors => $pub_ids) {
+                    $pub_links = array();
+                    rsort($pub_ids);
+                    foreach ($pub_ids as $pub_id) {
+                        $pub_links[] = '<a href="../view_publication.php?pub_id='
+                        	. $pub_id . '">' . $pub_id . '</a>';
+                    }
+                    
+                    $class = ($t1 == 'Y') ? 'stats_odd' : 'stats_even';
+                    $table->addRow(array(self::$fiscal_years[$fy][0], 
+                                         $t1, $authors, count($pub_ids),
+                                         implode(', ', $pub_links)),
+                                   array('class' => $class));
+                    ++$row_count;
+                    $table->updateCellAttributes($row_count, 4,
+                        array('class' => $class . '_pub_id'), NULL);
+                }
+            }
+        }
+        return '<h3>Staff Machine Learning Papers</h3>' . $table->toHtml();
     }
 
     // adds the publications in $pubs2 that are not already in $pubs1
