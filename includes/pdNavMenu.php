@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.23 2008/02/01 20:57:14 loyola Exp $
+// $Id: pdNavMenu.php,v 1.24 2008/02/02 18:15:12 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -102,7 +102,10 @@ class pdNavMenu {
                                       pdNavMenuItem::MENU_LEVEL_ADMIN),
         'author_collaboration' => array('Author Collaborations', 
                                         'diag/author_collaboration.php',
-                                        pdNavMenuItem::MENU_LEVEL_ADMIN)
+                                        pdNavMenuItem::MENU_LEVEL_ADMIN),
+        'tag_non_ml'           => array('Tag Non ML Papers', 
+        							  'diag/tag_non_ml.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN)
         );
 
     public static $menu = array(
@@ -133,7 +136,8 @@ class pdNavMenu {
             'sanity_checks',
             'aicml_stats',
             'aicml_publications',
-            'author_collaboration')
+            'author_collaboration',
+            'tag_non_ml')
         );
         
     public function __construct($access_level, $current_page_id) {

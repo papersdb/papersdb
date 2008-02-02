@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.1 2008/02/01 20:57:14 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.2 2008/02/02 18:15:12 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -188,6 +188,12 @@ class aicml_pubs_base extends pdHtmlPage {
     public function __construct($page_id, $title = null, $relative_url = null,
                                 $login_level = pdNavMenuItem::MENU_NEVER) {
         parent::__construct($page_id, $title, $relative_url, $login_level);
+
+        $this->fiscal_year_ts = array();
+        foreach (self::$fiscal_years as $key => $fy) {
+            $this->fiscal_year_ts[$key] = array(pubDate2Timestamp($fy[0]),
+                                                pubDate2Timestamp($fy[1]));
+        }
     }
     
     protected function getMachineLearningPapers() {
@@ -241,7 +247,7 @@ class aicml_pubs_base extends pdHtmlPage {
     }    
 
     // adds the publications in $pubs2 that are not already in $pubs1
-    private function pubsArrayMerge($pubs1, $pubs2) {
+    protected function pubsArrayMerge($pubs1, $pubs2) {
         assert('is_array($pubs1)');
         assert('is_array($pubs2)');
 
@@ -251,6 +257,17 @@ class aicml_pubs_base extends pdHtmlPage {
             $result[$pub_id] = $pubs2[$pub_id];
         }
         return $result;
+    }
+
+    /* date has to be in YYYY-MM-DD format */
+    protected function getFiscalYearKey($date) {
+        $datestamp = pubDate2Timestamp($date);
+        foreach ($this->fiscal_year_ts as $key => $fyts) {
+            if (($fyts[0] <= $datestamp) && ($fyts[1] >= $datestamp))
+                return $key;
+        }
+        throw new Exception("date not within fiscal years: " + date);
+        return false;
     }
 }
 

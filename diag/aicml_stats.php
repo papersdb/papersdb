@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.1 2008/02/01 20:57:14 loyola Exp $
+  * $Id: aicml_stats.php,v 1.2 2008/02/02 18:15:12 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -25,7 +25,6 @@ class author_report extends aicml_pubs_base {
     protected static $author_re = array(
         'Szepesvari, C' => '/Szepesv.+ri, C/');
 
-    protected $fiscal_year_ts;
     protected $stats = array(
         'pi'       => array(),  // publications for PIs combined
         'per_pi'   => array(),  // publications per individual PI
@@ -39,12 +38,6 @@ class author_report extends aicml_pubs_base {
         if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
-
-        $this->fiscal_year_ts = array();
-        foreach (self::$fiscal_years as $key => $fy) {
-            $this->fiscal_year_ts[$key] = array(pubDate2Timestamp($fy[0]),
-                                                pubDate2Timestamp($fy[1]));
-        }
 
         $pubs =& $this->getMachineLearningPapers();
         
@@ -285,17 +278,6 @@ class author_report extends aicml_pubs_base {
             }
         }
         return '<h3>Staff Machine Learning Papers</h3>' . $table->toHtml();
-    }
-
-    /* date has to be in YYYY-MM-DD format */
-    private function getFiscalYearKey($date) {
-        $datestamp = pubDate2Timestamp($date);
-        foreach ($this->fiscal_year_ts as $key => $fyts) {
-            if (($fyts[0] <= $datestamp) && ($fyts[1] >= $datestamp))
-                return $key;
-        }
-        throw new Exception("date not within fiscal years: " + date);
-        return false;
     }
 
     private function pubIsTier1($pub) {

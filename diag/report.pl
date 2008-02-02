@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.26 2008/02/01 20:57:14 loyola Exp $
+# Name: $Id: report.pl,v 1.27 2008/02/02 18:15:12 loyola Exp $
 #
 # See $USAGE.
 #
@@ -24,11 +24,7 @@ Usage: $SCRIPTNAME [options]
 
 USAGE_END
 
-my @tier1venues = qw(AIJ AAAI IJCAI ICML NIPS JAIR MLJ NAR JMLR UAI CCR);
-
-# Bioinformatics
-
-my $debugSql = 1;
+my $debugSql = 0;
 
 my %years = (0 => ['2002-09-01', '2003-08-31'],
              1 => ['2003-09-01', '2004-08-31'],
@@ -36,14 +32,14 @@ my %years = (0 => ['2002-09-01', '2003-08-31'],
              3 => ['2006-04-01', '2007-03-31'],
              4 => ['2007-04-01', '2008-03-31']);
 
-my %pi_authors = ('Szepesv.ri, C' => ['2006-09-01', '2008-03-31'],
-                  'Schuurmans, D' => ['2003-03-01', '2008-03-31'],
-                  'Schaeffer, J'  => ['2002-09-01', '2008-03-31'],
-                  'Bowling, M'    => ['2003-07-01', '2008-03-31'],
+my %pi_authors = ('Bowling, M'    => ['2003-07-01', '2008-03-31'],
                   'Goebel, R'     => ['2002-09-01', '2008-03-31'],
-                  'Sutton, R'     => ['2003-09-01', '2008-03-31'],
+                  'Greiner, R'    => ['2002-09-01', '2008-03-31'],
                   'Holte, R'      => ['2002-09-01', '2008-03-31'],
-                  'Greiner, R'    => ['2002-09-01', '2008-03-31']);
+                  'Schaeffer, J'  => ['2002-09-01', '2008-03-31'],
+                  'Schuurmans, D' => ['2003-03-01', '2008-03-31'],
+                  'Sutton, R'     => ['2003-09-01', '2008-03-31'],
+                  'Szepesv.ri, C' => ['2006-09-01', '2008-03-31']);
 
 my @pdf_authors = ('Botea, A',
                    'Brown, M',
@@ -331,15 +327,13 @@ sub getPubsWithCriteria {
     if ((defined $tier1only) && ($tier1only eq "Y")) {
         $statement = 'SELECT DISTINCT publication.pub_id, '
             . 'publication.title FROM publication, venue, category, pub_cat '
-            . 'WHERE venue.title IN ('
-            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'WHERE publication.rank_id=1 '
             . 'AND publication.venue_id=venue.venue_id AND ';
     }
     elsif ((defined $tier1only) && ($tier1only eq "N")) {
         $statement = 'SELECT DISTINCT publication.pub_id, '
             . 'publication.title FROM publication, venue, category, pub_cat '
-            . 'WHERE venue.title NOT IN ('
-            . join(', ', map { $dbh->quote($_) } @tier1venues) . ') '
+            . 'WHERE publication.rank_id!=1 '
             . 'AND publication.venue_id=venue.venue_id AND ';
     }
     elsif (!defined $tier1only) {
@@ -425,7 +419,10 @@ sub piReport {
         }
     }
 
-    print "Tier-1 Venues: " . join(", ", @tier1venues) . "\n\n"
+    my $statement = 'SELECT group_concat(title SEPARATOR \', \') FROM venue where rank_id=1 ORDER BY title DESC';
+    my @row = @{ $dbh->selectrow_arrayref($statement) };
+
+    print "Tier-1 Venues: " . $row[0] . "\n\n"
         . "TIME PERIOD;T1;AUTHORS;NUM AUTHORS;NUM PUBS;PUB IDS\n";
 
     foreach my $year (sort keys %author_pubs) {
@@ -481,30 +478,33 @@ sub pdfStudentReport {
                 $hasStudent = 0;
 
                 foreach my $pub_author (@{ $pub{'authors'} }) {
-                    foreach my $pi_author (keys %pi_authors) {
-                        if (($pub_author =~ /$pi_author/)
-                            && pubDateValid($pi_author, $pub{'published'})) {
+                    foreach my $valid_author (@pdf_students_staff) {
+                        if ($pub_author =~ /$valid_author/) {
                             push(@pub_authors, $pub_author);
                         }
                     }
                 }
 
-                if (scalar @pub_authors > 0) {
-                    foreach my $pub_author (@{ $pub{'authors'} }) {
-                        foreach my $valid_author (@pdf_students_staff) {
-                            if ($pub_author =~ /$valid_author/) {
-                                push(@pub_authors, $pub_author);
-                                $hasStudent = 1;
-                            }
-                        }
-                    }
-                }
-
-                if ((scalar @pub_authors == 0) || !$hasStudent) {
+                if (scalar @pub_authors == 0) {
+                    # skip this publication since it was not made by a PDF,
+                    # student or staff
+                    #
                     #print "not with student " . $pub_id . "\n"
                     #    . pubCitation(\%pub);
                     next;
                 }
+
+                my @pi_authors = ();
+                foreach my $pub_author (@{ $pub{'authors'} }) {
+                    foreach my $pi_author (keys %pi_authors) {
+                        if (($pub_author =~ /$pi_author/)
+                            && pubDateValid($pi_author, $pub{'published'})) {
+                            push(@pi_authors, $pub_author);
+                        }
+                    }
+                }
+
+                unshift(@pub_authors, @pi_authors);
 
                 my $num_authors = scalar(@pub_authors);
                 my $authors = join(':', @pub_authors);
