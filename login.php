@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.38 2007/11/13 16:50:56 loyola Exp $
+// $Id: login.php,v 1.39 2008/02/02 23:03:33 loyola Exp $
 
 /**
  * Allows a user to log into the system.
@@ -24,8 +24,6 @@ class login extends pdHtmlPage {
 
     public function __construct() {
         parent::__construct('login');
-
-pdDb::debugOn();
 
         if ($this->loginError) return;
 

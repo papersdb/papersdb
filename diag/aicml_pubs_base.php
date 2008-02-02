@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.2 2008/02/02 18:15:12 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.3 2008/02/02 23:02:23 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -174,16 +174,7 @@ class aicml_pubs_base extends pdHtmlPage {
         'Sutton, R'     => array('2003-09-01', '2008-03-31'),
         'Szepesvari, C' => array('2006-09-01', '2008-03-31'));
     
-    protected static $author_re = array(
-        'Szepesvari, C' => '/Szepesv.+ri, C/');
-
-    protected $fiscal_year_ts;
-    protected $stats = array(
-        'pi'       => array(),  // publications for PIs combined
-        'per_pi'   => array(),  // publications per individual PI
-        'staff'    => array(),  // publications by staff 
-        'fy_count' => array()   // publication counts by PIs and staff
-    );
+    protected $aicml_pdf_studens_staff_authors;
 
     public function __construct($page_id, $title = null, $relative_url = null,
                                 $login_level = pdNavMenuItem::MENU_NEVER) {
@@ -209,20 +200,15 @@ class aicml_pubs_base extends pdHtmlPage {
             $pubs = $this->pubsArrayMerge($pubs, $author_pubs);
         }
 
-        // now get publications by all AICML members
-        $other_authors = array();
-        foreach (self::$aicml_authors as $group => $arr) 
-            if ($group != 'pi')
-                $other_authors = array_merge($other_authors, $arr);
-
-        foreach ($other_authors as $author) {
+        // now get publications by AICML PDFs, students and staff members
+     	$this->getPdfStudentsAndStaff();
+        foreach ($this->aicml_pdf_studens_staff_authors as $author) {
             $author_pubs
                 = pdPubList::create($this->db,
                                     array('author_name' => $author,
                                           'date_start' => self::$fiscal_years[4][0],
                                           'date_end' => self::$fiscal_years[0][1],
-                                          'pub_id_keys' => true,
-                                          'keyword' => 'machine learning'));
+                                          'pub_id_keys' => true));
             $pubs = $this->pubsArrayMerge($pubs, $author_pubs);
         }
         
@@ -250,13 +236,28 @@ class aicml_pubs_base extends pdHtmlPage {
     protected function pubsArrayMerge($pubs1, $pubs2) {
         assert('is_array($pubs1)');
         assert('is_array($pubs2)');
-
+ 
         $result = $pubs1;
         $diffs = array_diff(array_keys($pubs2), array_keys($pubs1));
         foreach ($diffs as $pub_id) {
             $result[$pub_id] = $pubs2[$pub_id];
         }
         return $result;
+    }
+
+    /*
+     * Use array_diff because some people appear as both students and staff 
+     * (i.e. studends were later hired as staff).
+     */
+    public function getPdfStudentsAndStaff() {
+        if (!isset($this->aicml_pdf_studens_staff_authors)) {
+            $this->aicml_pdf_studens_staff_authors = array();
+            foreach (self::$aicml_authors as $group => $arr)
+                if ($group != 'pi')
+                    $this->aicml_pdf_studens_staff_authors 
+                        = array_merge($this->aicml_pdf_studens_staff_authors,
+                                      array_diff($arr, $this->aicml_pdf_studens_staff_authors));
+        }
     }
 
     /* date has to be in YYYY-MM-DD format */

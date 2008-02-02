@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.36 2008/01/15 04:44:29 loyola Exp $
+// $Id: pdPubList.php,v 1.37 2008/02/02 23:02:23 loyola Exp $
 
 /**
  * Implements a class that builds a list of publications.
@@ -93,7 +93,7 @@ class pdPubList {
             return self::titlePubsDBLoad($db, $options['title']);
         }
         else if (isset($options['pub_ids']) && is_array($options['pub_ids'])){
-            return self::arrayPubsDBLoad($db, $options['pub_ids']);
+            return self::arrayPubsDBLoad($db, $options['pub_ids'], $options['sort']);
         }
         else if (isset($options['cat_pub_ids'])
                  && is_array($options['cat_pub_ids'])){
@@ -344,7 +344,7 @@ class pdPubList {
         return $db->numRows($q);
     }
 
-    private static function arrayPubsDBLoad($db, $pub_ids) {
+    private static function arrayPubsDBLoad($db, $pub_ids, $sort = true) {
         assert('is_object($db)');
         assert('is_array($pub_ids)');
 
@@ -361,7 +361,8 @@ class pdPubList {
 
         }
 
-        uasort($list, array('pdPublication', 'pubsDateSortDesc'));
+        if ($sort)
+        	uasort($list, array('pdPublication', 'pubsDateSortDesc'));
         return $list;
     }
 

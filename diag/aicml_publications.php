@@ -1,7 +1,7 @@
 <?
 
 /**
- * $Id: aicml_publications.php,v 1.10 2008/02/01 20:57:14 loyola Exp $
+ * $Id: aicml_publications.php,v 1.11 2008/02/02 23:02:23 loyola Exp $
  *
  * Script that reports the all publications made by AICML PIs, PDFs, students
  * and staff.
@@ -37,35 +37,6 @@ class author_report extends aicml_pubs_base {
 	    if (empty($this->abstracts))
 	        $this->abstracts = 0;
         
-        $pubs = array();
-        // first get publications by PIs
-        foreach (self::$aicml_authors[pi] as $pi_author) {
-            $author_pubs
-                = pdPubList::create($this->db,
-                                    array('author_name' => $pi_author,
-                                          'date_start' => $dates[0],
-                                          'date_end' => $dates[1],
-                                          'pub_id_keys' => true));
-            $pubs = $this->pubs_array_merge($pubs, $author_pubs);
-     	}
-
-     	// now get publications by other AICM members
-     	$other_authors = array_merge($this->pdf_authors,
-                                     $this->student_authors,
-                                     $this->staff_authors);
-
-        foreach ($other_authors as $author) {
-            $author_pubs
-                = pdPubList::create($this->db,
-                                    array('author_name' => $author,
-                                          'date_start' => $this->fiscal_years[4][0],
-                                          'date_end' => $this->fiscal_years[0][1],
-                                          'pub_id_keys' => true));
-            $pubs = $this->pubs_array_merge($pubs, $author_pubs);
-        }
-        
-        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
-        krsort($pubs);
         
         // now display the page
         $buttons = array();
@@ -90,35 +61,26 @@ class author_report extends aicml_pubs_base {
         
         echo '<h2>AICML Publications</h2>';
 
+        $pubs =& $this->getMachineLearningPapers();
+        
         if ($this->format)
         	$result = '';
         
-        foreach ($pubs as $year => $year_pubs) {
-        	foreach ($year_pubs as $pub) {
-        		$citation = utf8_encode($this->getCitationHtml($pub));
-		        if ($this->format)
-        			$result .= $citation . "<br/>\n";
-        		else
-		    	    echo $citation . '<p/>';
-        	}
-        }
+       	foreach ($pubs as $pub) {
+       		$pub->dbLoad($this->db, $pub->pub_id);
+       		$citation = utf8_encode($this->getCitationHtml($pub));
+       		if ($this->format)
+       		$result .= $citation . "<br/>\n";
+       		else
+       		echo $citation . '<p/>';
+       	}
         
         if ($this->format)
         	echo '<pre style="font-size:medium">' . htmlentities($result) . '</pre>';
     }
 
-    // adds the publications in $pubs2 that are not already in $pubs1
-    private function pubs_array_merge($pubs1, $pubs2) {
-    	$result = $pubs1;
-    	$diffs = array_diff(array_keys($pubs2), array_keys($pubs1));
-    	foreach ($diffs as $pub_id) {
-            $result[$pub_id] = $pubs2[$pub_id];
-    	}
-    	return $result;
-    }
-
     private function getCitationHtml($pub) {
-    	$pub->dbLoad($this->db, $pub->pub_id);
+    	assert('is_object($pub)');
         $citation = '';
 
         // Title

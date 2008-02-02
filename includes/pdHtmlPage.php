@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.117 2008/01/21 20:19:09 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.118 2008/02/02 23:02:23 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -107,22 +107,22 @@ class pdHtmlPage {
         $this->check_login();
         $this->nav_menu = new pdNavMenu($this->access_level, $page_id);
 
-        if (!empty($page_id)) {
+        if (isset($page_id)) {
 	        $nav_item = $this->nav_menu->findPageId($page_id);
 	        
             if ($nav_item != null) {
-                $this->page_id     = $page_id;
+                $this->page_id      = $page_id;
     	        $this->page_title   = $nav_item->page_title;
             	$this->relative_url = $nav_item->url;
                 $this->login_level  = $nav_item->access_level;
             }
         }
         
-        if (empty($page_id) || ($nav_item == null)) {
+        if (!isset($page_id) || ($nav_item == null)) {
             $this->page_title   = $title;
             $this->relative_url = $relative_url;
             $this->login_level  = $login_level;
-        }
+        }    
 
         $this->redirectTimeout = 0;
         $this->table           = null;

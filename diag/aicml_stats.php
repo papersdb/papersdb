@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.2 2008/02/02 18:15:12 loyola Exp $
+  * $Id: aicml_stats.php,v 1.3 2008/02/02 23:02:23 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -41,6 +41,7 @@ class author_report extends aicml_pubs_base {
 
         $pubs =& $this->getMachineLearningPapers();
         
+        $this->getPdfStudentsAndStaff();
         $this->collectStats($pubs);
         
         echo $this->allPiPublicationTable();
@@ -60,8 +61,10 @@ class author_report extends aicml_pubs_base {
         foreach ($pubs as $pub_id => $pub) {
             $isT1 = $this->pubIsTier1($pub) ? 'Y' : 'N';
             $fy   = $this->getFiscalYearKey($pub->published);
-            $pub_pi_authors = $this->getPubPiAuthors($pub);
-            $pub_staff_authors = $this->getPubStaffAuthors($pub);
+            $pub_pi_authors = $this->getPubMatchingAuthors(
+            	$pub, self::$aicml_authors['pi'], self::$author_re);
+            $pub_staff_authors = $this->getPubMatchingAuthors(
+            	$pub, $this->aicml_pdf_studens_staff_authors, self::$author_re);
 
             if (!isset($this->stats['pi'][$fy][$isT1][$pub_pi_authors]))
                 $this->stats['pi'][$fy][$isT1][$pub_pi_authors] = array();
@@ -292,7 +295,7 @@ class author_report extends aicml_pubs_base {
         return ($pub->venue->rank_id == 1);
     }
 
-    private function getPubMatchinglAuthors($pub, $authors, $authors_re) {
+    private function getPubMatchingAuthors($pub, $authors, $authors_re) {
         assert('is_object($pub)');
         assert('is_array($authors)');
         if (isset($authors_re))
@@ -312,30 +315,6 @@ class author_report extends aicml_pubs_base {
         }
         sort($matching_authors);
         return implode('; ', $matching_authors);
-    }
-
-    private function getPubPiAuthors($pub) {
-        assert('is_object($pub)');
-        return $this->getPubMatchinglAuthors($pub, self::$aicml_authors['pi'],
-                                             self::$author_re);
-    }
-
-    /*
-     * Use array_diff because some people appear as both students and staff 
-     * (i.e. studends were later hired as staff).
-     */
-    private function getPubStaffAuthors($pub) {
-        assert('is_object($pub)');
-        if (!isset($this->aicml_all_authors)) {
-            $this->aicml_all_authors = array();
-            foreach (self::$aicml_authors as $group => $arr)
-                if ($group != 'pi')
-                    $this->aicml_all_authors 
-                        = array_merge($this->aicml_all_authors,
-                                      array_diff($arr, $this->aicml_all_authors));
-        }
-        return $this->getPubMatchinglAuthors($pub, $this->aicml_all_authors,
-                                             self::$author_re);
     }
 }
 
