@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_non_ml.php,v 1.1 2008/02/02 18:15:12 loyola Exp $
+// $Id: tag_non_ml.php,v 1.2 2008/02/04 13:52:22 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -31,38 +31,46 @@ class tag_non_ml extends aicml_pubs_base {
         
         $pubs =& $this->getNonMachineLearningPapers();
         
-        debugVar('non ml papers', array_keys($pubs));
+        $form = new HTML_QuickForm('tag_non_ml_form');
+        
+        foreach ($pubs as $pub) {
+        	$form->addGroup(array(
+                HTML_QuickForm::createElement('static', null, null,
+        			$pub->getCitationHtml()),
+                HTML_QuickForm::createElement('advcheckbox', 
+                	'pub_tag[' . $pub->pub_id . ']',
+        			null, null, null, array('no', 'yes'))
+        		),
+        		'tag_ml_grouop', null, null, false);
+        }
+
+        if ($form->validate())
+            $this->processForm();
+        else
+            $this->renderForm($form);
     }
     
-    protected function getNonMachineLearningPapers() {
-        $pubs = array();
-        // first get publications by PIs
-        foreach (self::$aicml_authors['pi'] as $name) {
-            $author_pubs = pdPubList::create($this->db,                                    
-                array('author_name' => $name,                                                        
-                	  'date_start' => self::$author_dates[$name][0],
-                      'date_end' => self::$author_dates[$name][1],
-                      'pub_id_keys' => true,
-                      'keyword' => 'machine learning'));
-            $pubs = $this->pubsArrayMerge($pubs, $author_pubs);
-        }
+    private function processForm() {
+    
+    }
+    
+    private function renderForm(&$form) {
+        $renderer =& $form->defaultRenderer();
 
-        // now get publications by all AICML members
-        $other_authors = array();
-        foreach (self::$aicml_authors as $group => $arr) 
-            if ($group != 'pi')
-                $other_authors = array_merge($other_authors, $arr);
+        $renderer->setFormTemplate(
+            '<table width="100%" border="0" cellpadding="3" '
+            . 'cellspacing="2">'
+            . '<form{attributes}>{content}</form></table>');
+        $renderer->setHeaderTemplate(
+            '<tr><td style="white-space:nowrap;color:#ffc;" '
+            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
 
-        foreach ($other_authors as $author) {
-            $author_pubs
-                = pdPubList::create($this->db,
-                                    array('author_name' => $author,
-                                          'date_start' => self::$fiscal_years[4][0],
-                                          'date_end' => self::$fiscal_years[0][1],
-                                          'pub_id_keys' => true,
-                                          'keyword' => 'machine learning'));
-            $pubs = $this->pubsArrayMerge($pubs, $author_pubs);
-        }
+        $form->accept($renderer);
+        $this->renderer =& $renderer;
+    }
+    
+    private function getNonMachineLearningPapers() {
+    	$pubs =& $this->getAllAicmlAuthoredPapers();
         
         foreach ($pubs as $pub_id => $pub) {
             $pub->dbLoad($this->db, $pub_id);

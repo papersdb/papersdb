@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.3 2008/02/02 23:02:23 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.4 2008/02/04 13:52:22 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -188,6 +188,29 @@ class aicml_pubs_base extends pdHtmlPage {
     }
     
     protected function getMachineLearningPapers() {
+    	$pubs =& $this->getAllAicmlAuthoredPapers();
+        
+        foreach ($pubs as $pub_id => $pub) {
+            $pub->dbLoad($this->db, $pub_id);
+
+            // only consider machine learning papers
+            if (!isset($pub->keywords)
+                || (strpos(strtolower($pub->keywords), 'machine learning') === false))
+                unset($pubs[$pub_id]);
+
+            // publication must have the category assigned and
+            // category must be either 'In Journal' or 'In Conference'
+            if (!isset($pub->category)
+                || (($pub->category->cat_id != 1) 
+                    && ($pub->category->cat_id != 3)))
+                unset($pubs[$pub_id]);
+        }
+
+        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
+        return $pubs;
+    }    
+
+    protected function getAllAicmlAuthoredPapers() {
         $pubs = array();
         // first get publications by PIs
         foreach (self::$aicml_authors['pi'] as $name) {
@@ -211,26 +234,8 @@ class aicml_pubs_base extends pdHtmlPage {
                                           'pub_id_keys' => true));
             $pubs = $this->pubsArrayMerge($pubs, $author_pubs);
         }
-        
-        foreach ($pubs as $pub_id => $pub) {
-            $pub->dbLoad($this->db, $pub_id);
-
-            // only consider machine learning papers
-            if (!isset($pub->keywords)
-                || (strpos(strtolower($pub->keywords), 'machine learning') === false))
-                unset($pubs[$pub_id]);
-
-            // publication must have the category assigned and
-            // category must be either 'In Journal' or 'In Conference'
-            if (!isset($pub->category)
-                || (($pub->category->cat_id != 1) 
-                    && ($pub->category->cat_id != 3)))
-                unset($pubs[$pub_id]);
-        }
-
-        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
         return $pubs;
-    }    
+    }
 
     // adds the publications in $pubs2 that are not already in $pubs1
     protected function pubsArrayMerge($pubs1, $pubs2) {
