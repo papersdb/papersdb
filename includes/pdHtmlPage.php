@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.118 2008/02/02 23:02:23 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.119 2008/02/04 21:25:46 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -70,7 +70,13 @@ class pdHtmlPage {
 </script>';
 
     /**
-     * Constructor.
+     * Constructor for base class.
+     *
+     * @param string $page_id
+     * @param string $title
+     * @param string $relative_url
+     * @param constant $login_level see pdNavMenuItem.
+     * @param boolean $useStdLayout
      */
     public function __construct($page_id, $title = null, $relative_url = null,
                                 $login_level = pdNavMenuItem::MENU_NEVER,
@@ -544,7 +550,16 @@ END;
         $nav_item->enabled = $enable;
     }
 
-    protected function getPubIcons($pub, $flags = 0xf) {
+    /**
+     * Returns the HTML text to display the icons to link to the PDF, view, 
+     * edit, or delete the publication entry.
+     *
+     * @param object $pub pdPublication object to display the icons for.
+     * @param integer $flags the icons to display. 0x1 for the PDF/PS file,
+     * 0x2 for the view icon, 0x4 for the edit icon, 0x8 for the delete icon.
+     * @return HTML text.
+     */
+    protected function getPubIcons(&$pub, $flags = 0xf) {
         $html = '';
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))

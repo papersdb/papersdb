@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_non_ml.php,v 1.3 2008/02/04 17:34:55 loyola Exp $
+// $Id: tag_non_ml.php,v 1.4 2008/02/04 21:25:46 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -26,51 +26,60 @@ require_once 'includes/pdPubList.php';
  * @package PapersDB
  */
 class tag_non_ml extends aicml_pubs_base {
+    protected $submit;
+    
     public function __construct() {
         parent::__construct('tag_non_ml');
 
         if ($this->loginError) return;
         
+        $this->loadHttpVars();
+        
         $pubs =& $this->getNonMachineLearningPapers();
         
-        $form = new HTML_QuickForm('tag_non_ml_form');
-        $form->addElement('header', null, 'Citation</td><td>Is ML');
+        $form = new HTML_QuickForm('tag_non_ml_form', 'post', './tag_ml_submit.php');
+        $form->addElement('header', null, 'Citation</th><th style="width:7%">Is ML');
         
         $count = 0;
         foreach ($pubs as $pub) {
             ++$count;
         	$form->addGroup(array(
-                HTML_QuickForm::createElement('static', null, 'xxx',
-                    $pub->getCitationHtml()),
+                HTML_QuickForm::createElement('static', null, null,
+                    $pub->getCitationHtml() . '&nbsp;'
+                    . $this->getPubIcons($pub, 0x7)),
                 HTML_QuickForm::createElement('advcheckbox', 
                 	'pub_tag[' . $pub->pub_id . ']',
         			null, null, null, array('no', 'yes'))
         		),
         		'tag_ml_group', $count, '</td><td>', false);
         }
+        
+        $form->addElement('submit', 'submit', 'Submit');
 
         if ($form->validate())
-            $this->processForm();
+            $this->processForm($form);
         else
             $this->renderForm($form);
     }
     
-    private function processForm() {
-    
+    private function processForm(&$form) {
+        $values =& $form->exportValues();
+        debugVar('$values', $values);
     }
     
     private function renderForm(&$form) {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<form{attributes}><table width="100%" border="1" cellpadding="2" cellspacing="1">'
-            . '{content}</table></form>');
+            '<form{attributes}>{content}</form>');
         $renderer->setHeaderTemplate(
-            '<tr style="background:#CCCC99;color:#ffc;font-weight:bold">'
-            . '<td  align="left" colspan="2">{header}</td></tr>');
+            '<table class="stats"><tr><th colspan="2">{header}</th></tr></table>');
             
-        //$renderer->setGroupTemplate('{content}', 'tag_ml_group');
         $renderer->setGroupElementTemplate('{element}', 'tag_ml_group');
+        $renderer->setElementTemplate('<table><tr class="stats">'
+	        . '<td style="color: #006633;font-weight: bold;">'
+            . '{label}</td><td>{element}</td></tr></table>',
+            'tag_ml_group');
         
         $form->accept($renderer);
         $this->renderer =& $renderer;

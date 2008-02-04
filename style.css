@@ -88,6 +88,9 @@ table.stats {
   margin: 5px 1%;
 }
 
+table.stats {
+}
+
 tr.odd {background-color: #eee;}
 tr.even {background-color:#fff;}
 td.large {font-size:1.3em;}
@@ -247,6 +250,10 @@ td.publist, td.venuelist, td.catlist {
 td.publist {
   font-size: 0.9em;
   line-height:1.6;
+}
+
+tr.stats {
+  background-color: #FFFFFF;
 }
 
 td.stats_even {

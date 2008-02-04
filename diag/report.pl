@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 #
-# Name: $Id: report.pl,v 1.27 2008/02/02 18:15:12 loyola Exp $
+# Name: $Id: report.pl,v 1.28 2008/02/04 21:25:46 loyola Exp $
 #
 # See $USAGE.
 #
@@ -174,6 +174,7 @@ my @staff_authors = ('Arthur, R',
                      'Zhu, T');
 
 my %pi_totals;
+my %pub_totals;
 
 my $categoryCriteria
     = '(category.category LIKE "%In Conference%" '
@@ -411,6 +412,8 @@ sub piReport {
                 $author_pubs{$year}{$t1}{$authors}{'num_authors'} = $num_authors;
                 push(@{ $author_pubs{$year}{$t1}{$authors}{'pubs'} }, $pub_id);
 
+                $pub_totals{$year}{$t1}{$pub_id} = 1;
+
                 push(@{ $authors{$authors}{$t1} }, $pub_id);
                 if ($num_authors > 1) {
                     push(@{ $authors{'multiple'}{$t1} }, $pub_id);
@@ -438,8 +441,8 @@ sub piReport {
                         . "\"\n";
 
                 $pi_totals{$year}{$t1}
-                    += scalar @{ $author_pubs{$year}{$t1}{$authors}{'pubs'} }
-                }
+                    += scalar @{ $author_pubs{$year}{$t1}{$authors}{'pubs'} };
+            }
         }
     }
 
@@ -512,6 +515,11 @@ sub pdfStudentReport {
                 $author_pubs{$year}{$authors}{'num_authors'} = $num_authors;
                 push(@{ $author_pubs{$year}{$authors}{'pubs'} }, $pub_id);
 
+                # only count if not already in hash
+                if (!exists $pub_totals{$year}{$t1}{$pub_id}) {
+                    $pub_totals{$year}{$t1}{$pub_id} = 1;
+                }
+
                 push(@{ $authors{$authors} }, $pub_id);
                 if ($num_authors > 1) {
                     push(@{ $authors{'multiple'} }, $pub_id);
@@ -530,10 +538,10 @@ sub pdfStudentReport {
         foreach my $authors (sort keys %{ $author_pubs{$year} }) {
             printf "%s - %s;%s;%d;%d;", $years{$year}[0], $years{$year}[1],
                 $authors, $author_pubs{$year}{$authors}{'num_authors'},
-                scalar @{ $author_pubs{$year}{$authors}{'pubs'} };
+                    scalar @{ $author_pubs{$year}{$authors}{'pubs'} };
             print "\""
                 . join(', ', sort @{ $author_pubs{$year}{$authors}{'pubs'} })
-                . "\"\n";
+                    . "\"\n";
 
             $totals{$year}
                 += scalar @{ $author_pubs{$year}{$authors}{'pubs'} }
@@ -542,7 +550,8 @@ sub pdfStudentReport {
 
     print "\n\nTIME PERIOD;NUM PUBS FOR PDF AND STUDENT;TOT PUBS;\"%\"\n";
     foreach my $year (sort keys %author_pubs) {
-        my $totPubs = $pi_totals{$year}{'N'} + $pi_totals{$year}{'Y'};
+        my $totPubs = scalar(keys %{ $pub_totals{$year}{'N'} })
+            + scalar(keys %{ $pub_totals{$year}{'Y'} });
 
         printf "%s - %s;%d;%d;%f\n", $years{$year}[0], $years{$year}[1],
             $totals{$year}, $totPubs, ($totals{$year} * 100 / $totPubs);

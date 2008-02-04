@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.5 2008/02/04 17:34:55 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.6 2008/02/04 21:25:46 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -176,6 +176,15 @@ class aicml_pubs_base extends pdHtmlPage {
     
     protected $aicml_pdf_studens_staff_authors;
 
+    /**
+     * Base class constructor.
+     *
+     * @param string $page_id The page ID. If defined in pdNavMenu then it is
+     * displayed in the navigation menu.
+     * @param string $title
+     * @param string $relative_url
+     * @param string $login_level
+     */
     public function __construct($page_id, $title = null, $relative_url = null,
                                 $login_level = pdNavMenuItem::MENU_NEVER) {
         parent::__construct($page_id, $title, $relative_url, $login_level);

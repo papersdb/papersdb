@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.68 2007/11/07 00:06:21 loyola Exp $
+// $Id: add_author.php,v 1.69 2008/02/04 21:25:46 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -229,7 +229,7 @@ class add_author extends pdHtmlPage {
 
     public function processForm() {
         $form =& $this->form;
-        $values = $form->exportValues();
+        $values =& $form->exportValues();
 
         // check if user pressed "Next Step >>" button and did not enter
         // a name

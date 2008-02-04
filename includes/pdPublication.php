@@ -1,7 +1,7 @@
 <?php ;
 
 /**
- * $Id: pdPublication.php,v 1.130 2008/01/30 15:54:15 loyola Exp $
+ * $Id: pdPublication.php,v 1.131 2008/02/04 21:25:46 loyola Exp $
  *
  * Implements a class that accesses, from the database, some or all the
  * information related to a publication.
@@ -526,6 +526,18 @@ class pdPublication extends pdDbAccessor {
         $words = implode('; ', $keywords);
         $words = preg_replace("/;\s*;/", ';', $words);
         $this->keywords = $words;
+    }
+    
+    /**
+     * Adds a keyword for the publication entry.
+     *
+     * @param string $newword the new keyword to add.
+     */
+    public function keywordAdd($newword) {
+        if (!isset($this->keywords) || (strlen($this->keywords == 0)))
+            $this->keywords = $newword;
+        else
+            $this->keywords .= '; ' . $newword;
     }
 
     /**
