@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_non_ml.php,v 1.2 2008/02/04 13:52:22 loyola Exp $
+// $Id: tag_non_ml.php,v 1.3 2008/02/04 17:34:55 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -19,7 +19,9 @@ require_once 'diag/aicml_pubs_base.php';
 require_once 'includes/pdPubList.php';
 
 /**
- * Renders the whole page.
+ * For each AICML fiscal year, this script shows the publication entries that
+ * have not been tagged as "machine learning" papers and allows the user
+ * to quickly tag the papers that are actually are "machine learning" papers.
  *
  * @package PapersDB
  */
@@ -32,16 +34,19 @@ class tag_non_ml extends aicml_pubs_base {
         $pubs =& $this->getNonMachineLearningPapers();
         
         $form = new HTML_QuickForm('tag_non_ml_form');
+        $form->addElement('header', null, 'Citation</td><td>Is ML');
         
+        $count = 0;
         foreach ($pubs as $pub) {
+            ++$count;
         	$form->addGroup(array(
-                HTML_QuickForm::createElement('static', null, null,
-        			$pub->getCitationHtml()),
+                HTML_QuickForm::createElement('static', null, 'xxx',
+                    $pub->getCitationHtml()),
                 HTML_QuickForm::createElement('advcheckbox', 
                 	'pub_tag[' . $pub->pub_id . ']',
         			null, null, null, array('no', 'yes'))
         		),
-        		'tag_ml_grouop', null, null, false);
+        		'tag_ml_group', $count, '</td><td>', false);
         }
 
         if ($form->validate())
@@ -58,13 +63,15 @@ class tag_non_ml extends aicml_pubs_base {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" '
-            . 'cellspacing="2">'
-            . '<form{attributes}>{content}</form></table>');
+            '<form{attributes}><table width="100%" border="1" cellpadding="2" cellspacing="1">'
+            . '{content}</table></form>');
         $renderer->setHeaderTemplate(
-            '<tr><td style="white-space:nowrap;color:#ffc;" '
-            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
+            '<tr style="background:#CCCC99;color:#ffc;font-weight:bold">'
+            . '<td  align="left" colspan="2">{header}</td></tr>');
+            
+        //$renderer->setGroupTemplate('{content}', 'tag_ml_group');
+        $renderer->setGroupElementTemplate('{element}', 'tag_ml_group');
+        
         $form->accept($renderer);
         $this->renderer =& $renderer;
     }

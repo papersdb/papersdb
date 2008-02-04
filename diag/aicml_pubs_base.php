@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.4 2008/02/04 13:52:22 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.5 2008/02/04 17:34:55 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -187,6 +187,13 @@ class aicml_pubs_base extends pdHtmlPage {
         }
     }
     
+    /**
+     * Retrieves the publications entries with keyword "machine learning" from 
+     * the database.*
+     *
+     * @return an associative array with publication IDs for keys and 
+     * their corresponding pdPublication objects for values.
+     */
     protected function getMachineLearningPapers() {
     	$pubs =& $this->getAllAicmlAuthoredPapers();
         
@@ -237,7 +244,15 @@ class aicml_pubs_base extends pdHtmlPage {
         return $pubs;
     }
 
-    // adds the publications in $pubs2 that are not already in $pubs1
+    /**
+     * Adds the publications in $pubs2 that are not already in $pubs1.
+     *
+     * @param array $pubs1 an associative array with publication IDs for keys 
+     * and their corresponding pdPublication objects for values.
+     * @param array $pubs2 an associative array with publication IDs for keys 
+     * and their corresponding pdPublication objects for values.
+     * @return the merged array 
+     */
     protected function pubsArrayMerge($pubs1, $pubs2) {
         assert('is_array($pubs1)');
         assert('is_array($pubs2)');
@@ -250,7 +265,10 @@ class aicml_pubs_base extends pdHtmlPage {
         return $result;
     }
 
-    /*
+    /**
+     * Returns all the unique personnel names from self::$aicml_authors 
+     * excluding the PIs.
+     * 
      * Use array_diff because some people appear as both students and staff 
      * (i.e. studends were later hired as staff).
      */
@@ -265,7 +283,12 @@ class aicml_pubs_base extends pdHtmlPage {
         }
     }
 
-    /* date has to be in YYYY-MM-DD format */
+    /**
+     * Returns the corresponding fiscal year for the date passed in.
+     * 
+     * @param string $date in YYYY-MM-DD format.
+     * @return unknown
+     */
     protected function getFiscalYearKey($date) {
         $datestamp = pubDate2Timestamp($date);
         foreach ($this->fiscal_year_ts as $key => $fyts) {
