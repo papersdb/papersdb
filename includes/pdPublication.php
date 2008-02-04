@@ -1,7 +1,7 @@
 <?php ;
 
 /**
- * $Id: pdPublication.php,v 1.131 2008/02/04 21:25:46 loyola Exp $
+ * $Id: pdPublication.php,v 1.132 2008/02/04 22:45:20 loyola Exp $
  *
  * Implements a class that accesses, from the database, some or all the
  * information related to a publication.
@@ -57,6 +57,10 @@ class pdPublication extends pdDbAccessor {
 	const DB_LOAD_POINTER         = 0x20;
 	const DB_LOAD_VENUE           = 0x40;
 	const DB_LOAD_ALL             = 0x77;
+	
+	private static $publication_table_fields = array(
+	    'pub_id', 'title', 'paper', 'abstract', 'keywords', 'published', 
+	    'venue_id', 'extra_info', 'submit', 'user', 'rank_id', 'updated');
 
     public function __construct($mixed = NULL) {
         $this->paper = 'no paper';
@@ -260,15 +264,9 @@ class pdPublication extends pdDbAccessor {
     public function dbSave($db) {
         assert('is_object($db)');
 
-        $arr = array('title'      => $this->title,
-                     'paper'      => $this->paper,
-                     'abstract'   => $this->abstract,
-                     'user'       => $this->user,
-                     'keywords'   => $this->keywords,
-                     'published'  => $this->published,
-                     'extra_info' => $this->extra_info,
-                     'updated'    => date("Y-m-d"),
-                     'submit'     => $this->submit);
+        $arr = $this->membersAsArray(self::$publication_table_fields);
+        
+        debugVar('$arr', $arr);
 
         if (isset($this->rank_id))
             $arr['rank_id'] = $this->rank_id;

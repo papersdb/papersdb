@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDbAccessor.php,v 1.7 2008/01/15 22:57:14 loyola Exp $
+// $Id: pdDbAccessor.php,v 1.8 2008/02/04 22:45:20 loyola Exp $
 
 /**
  * A base class for objects that access the database.
@@ -40,7 +40,7 @@ class pdDbAccessor {
             assert('false');   // invalid type for $mixed
     }
 
-    public function membersAsArray() {
+    public function allMembersAsArray() {
         $result = array();
 
         foreach (array_keys(get_object_vars($this)) as $member) {
@@ -49,6 +49,18 @@ class pdDbAccessor {
         }
 
         return $result;
+    }
+    
+    public function membersAsArray(&$members) {
+        $result = array();
+
+        foreach ($members as $member) {
+            if (isset($this->$member))
+                $result[$member] = $this->$member;
+        }
+
+        return $result;
+        
     }
 }
 
