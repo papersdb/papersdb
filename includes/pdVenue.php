@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.35 2008/02/04 22:45:20 loyola Exp $
+// $Id: pdVenue.php,v 1.36 2008/02/05 16:08:20 loyola Exp $
 
 /**
  * Implements a class that accesses venue information from the database.
@@ -36,7 +36,7 @@ class pdVenue extends pdDbAccessor {
     public $data;
     public $options;
     
-    public static $publication_table_fields = array(
+    public static $db_table_fields = array(
         'venue_id', 'title', 'name', 'url', 'cat_id', 'editor', 'v_usage',
         'rank_id', 'date');
 
@@ -132,12 +132,14 @@ class pdVenue extends pdDbAccessor {
     }
 
     /**
+     * Saves the object to the database.
      *
+     * @param unknown_type $db
      */
     public function dbSave($db) {
         assert('is_object($db)');
 
-        $arr = $this->membersAsArray(self::$publication_table_fields);
+        $values = $this->membersAsArray(self::$db_table_fields);
         
         if ($this->v_usage == 'single')
             $values['v_usage'] = '1';
