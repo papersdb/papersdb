@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.6 2008/02/04 21:25:46 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.7 2008/02/06 15:17:15 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -204,22 +204,27 @@ class aicml_pubs_base extends pdHtmlPage {
      * their corresponding pdPublication objects for values.
      */
     protected function getMachineLearningPapers() {
-    	$pubs =& $this->getAllAicmlAuthoredPapers();
+pdDb::debugOn(); 
         
-        foreach ($pubs as $pub_id => $pub) {
-            $pub->dbLoad($this->db, $pub_id);
-
-            // only consider machine learning papers
-            if (!isset($pub->keywords)
-                || (strpos(strtolower($pub->keywords), 'machine learning') === false))
-                unset($pubs[$pub_id]);
-
-            // publication must have the category assigned and
-            // category must be either 'In Journal' or 'In Conference'
-            if (!isset($pub->category)
-                || (($pub->category->cat_id != 1) 
-                    && ($pub->category->cat_id != 3)))
-                unset($pubs[$pub_id]);
+        $q = $this->db->query('select distinct(publication.pub_id),
+ publication.title, publication.paper, publication.abstract, 
+ publication.keywords, publication.published, publication.venue_id, 
+ publication.extra_info, publication.submit, publication.user, 
+ publication.rank_id, publication.updated       
+ from publication 
+ inner join  pub_author on pub_author.pub_id=publication.pub_id 
+ inner join aicml_staff on aicml_staff.author_id=pub_author.author_id
+ inner join pub_cat on publication.pub_id=pub_cat.pub_id
+ where keywords rlike "mach.*learn.*" 
+ and pub_cat.cat_id in (1, 3)
+ and publication.published between "' . self::$fiscal_years[0][0]. '" and now()');
+        if (!$q) return false;
+        
+        $pubs = array();
+        $r = $this->db->fetchObject($q);
+        while ($r) {
+        	$pub = new pdPublication($r);
+        	$pubs[$r->pub_id] = $pub;
         }
 
         uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));

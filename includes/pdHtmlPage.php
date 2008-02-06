@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.119 2008/02/04 21:25:46 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.120 2008/02/06 15:17:15 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -18,7 +18,6 @@ require_once 'includes/pdUser.php';
 require_once 'includes/pdNavMenu.php';
 
 require_once 'HTML/QuickForm.php';
-require_once 'HTML/QuickForm/advmultiselect.php';
 require_once('HTML/QuickForm/Renderer/Default.php');
 require_once 'HTML/Table.php';
 
@@ -499,7 +498,7 @@ END;
             . 'return escape(' . $varname . ')">' . $text . '</a></span>';
     }
 
-    protected function &confirmForm($name, $action = null, $label = 'Delete') {
+    protected function confirmForm($name, $action = null, $label = 'Delete') {
         $form = new HTML_QuickForm($name, 'post', $action, '_self',
                                    'multipart/form-data');
         $form->addGroup(

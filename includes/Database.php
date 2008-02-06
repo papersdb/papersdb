@@ -401,6 +401,8 @@ class Database {
 			$sqlx = strtr( $sqlx, "\t\n", '  ' );
 			wfDebug( "SQL: $sqlx\n" );
 		}
+		
+		debugVar('$commentedSql', $commentedSql);
 
 		# Do the query and handle errors
 		$ret = $this->doQuery( $commentedSql );

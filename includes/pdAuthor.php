@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.30 2007/11/07 22:47:46 loyola Exp $
+// $Id: pdAuthor.php,v 1.31 2008/02/06 15:17:15 loyola Exp $
 
 /**
  * Storage and retrieval of author data to / from the database.
@@ -43,7 +43,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Constructor.
      */
-    public function __construct($mixed = NULL) {
+    public function __construct($mixed = null) {
         parent::__construct($mixed);
     }
 
@@ -65,7 +65,7 @@ class pdAuthor extends pdDbAccessor{
      *
      * Use flags to load individual tables
      */
-    public function dbLoad($db, $id, $flags = self::DB_LOAD_ALL) {
+    public function dbLoad(&$db, $id, $flags = self::DB_LOAD_ALL) {
         assert('is_object($db)');
 
         $this->dbLoadFlags = $flags;
@@ -94,7 +94,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    public function dbLoadInterests($db) {
+    public function dbLoadInterests(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -116,7 +116,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      *
      */
-    public function publicationsDbLoad($db) {
+    public function publicationsDbLoad(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
         assert('$this->dbLoadFlags & (self::DB_LOAD_PUBS_MIN | self::DB_LOAD_PUBS_ALL)');
@@ -146,7 +146,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Adds or modifies an author in the database.
      */
-    public function dbSave($db) {
+    public function dbSave(&$db) {
         assert('is_object($db)');
 
         // add http:// to webpage address if needed
@@ -182,7 +182,7 @@ class pdAuthor extends pdDbAccessor{
             $this->nameSet($this->name);
     }
 
-    public function dbSaveInterests($db) {
+    public function dbSaveInterests(&$db) {
         if (isset($this->author_id)) {
             $db->delete('author_interest',
                         array('author_id' => $this->author_id),
@@ -232,7 +232,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Deletes an author from the database.
      */
-    public function dbDelete($db) {
+    public function dbDelete(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
 
@@ -265,7 +265,7 @@ class pdAuthor extends pdDbAccessor{
     /**
      * Loads author data from the object passed in
      */
-    public function load($mixed) {
+    public function load(&$mixed) {
         parent::load($mixed);
 
         if (isset($this->name))
@@ -302,7 +302,7 @@ class pdAuthor extends pdDbAccessor{
     /*
      * Parameter $mixed can be an array or a string value.
      */
-    public function addInterest($mixed) {
+    public function addInterest(&$mixed) {
     	if (is_array($mixed))
     		foreach ($mixed as $interest)
     			$this->interests[] = $interest;
