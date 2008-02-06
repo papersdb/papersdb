@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.7 2008/02/06 15:17:15 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.8 2008/02/06 21:30:32 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -28,154 +28,12 @@ class aicml_pubs_base extends pdHtmlPage {
         array('2004-09-01', '2006-03-31'),
         array('2006-04-01', '2007-03-31'),
         array('2007-04-01', '2008-03-31'));
-
-    protected static $aicml_authors = array(
-        'pi' => array(
-            'Bowling, M',
-            'Goebel, R',
-            'Greiner, R',
-            'Holte, R',
-            'Schaeffer, J',
-            'Schuurmans, D',
-            'Sutton, R',
-            'Szepesvari, C'),
-        'pdf' => array(
-            'Engel, Y',
-            'Kirshner, S',
-            'Price, R',
-            'Ringlstetter, C',
-            'Wang, Shaojun',
-            'Zheng, T',
-            'Zinkevich, M',
-            'Cheng, L',
-            'Southey, F'),
-        'student' => array(
-            'Antonie, M',
-            'Asgarian, N',
-            'Bard, N',
-            'Billings, D',
-            'Botea, A',
-            'Chen, J',
-            'Coulthard, E',
-            'Davison, K',
-            'Dwyer, K',
-            'Farahmand, A',
-            'Fraser, B',
-            'Geramifard, A',
-            'Ghodsi, A',
-            'Guo, Y',
-            'Guo, Z',
-            'Heydari, M',
-            'Hlynka, M',
-            'Hoehn, B',
-            'Huang, J',
-            'Jiao, F',
-            'Johanson, M',
-            'Joyce, B',
-            'Kaboli, A',
-            'Kan, M',
-            'Kapoor, A',
-            'Koop, A',
-            'Lee, C',
-            'Lee, M',
-            'Levner, I',
-            'Li, L',
-            'Lizotte, D',
-            'Lu, Z',
-            'McCracken, P',
-            'Milstein, A',
-            'Morris, M',
-            'Neufeld, J',
-            'Newton, J',
-            'Niu, Y',
-            'Paduraru, C',
-            'Poulin, B',
-            'Rafols, E',
-            'Schauenberg, T',
-            'Schmidt, M',
-            'Silver, D',
-            'Singh, A',
-            'Tanner, B',
-            'Wang, P',
-            'Wang, Q',
-            'Wang, T',
-            'Wang, Y',
-            'White, A',
-            'Wilkinson, D',
-            'Wu, J',
-            'Wu, X',
-            'Xiao, G',
-            'Xu, L',
-            'Zhang, Q',
-            'Zheng, T',
-            'Zhu, T'),
-        'staff' => array(
-            'Arthur, R',
-            'Asgarian, N',
-            'Baich, T',
-            'Block, D',
-            'Coghlan, B',
-            'Coulthard, E',
-            'Coulthard, E',
-            'Dacyk, V',
-            'DeMarco, M',
-            'Duguid, L',
-            'Eisner, R',
-            'Farhangfar, A',
-            'Flatt, A',
-            'Fraser, S',
-            'Grajkowski, J',
-            'Harrison, E',
-            'Hiew, A',
-            'Hoehn, B',
-            'Homaeian, L',
-            'Huntley, D',
-            'Jewell, K',
-            'Koop, A',
-            'Larson, B',
-            'Loh, W',
-            'Loyola, N',
-            'Ma, G',
-            'McMillan, K',
-            'Melanson, A',
-            'Morris, M',
-            'Neufeld, J',
-            'Newton, J',
-            'Nicotra, L',
-            'Pareek, P',
-            'Parker, D',
-            'Paulsen, J',
-            'Poulin, B',
-            'Radkie, M',
-            'Roberts, J',
-            'Shergill, A',
-            'Smith, C',
-            'Sokolsky, M',
-            'Stephure, M',
-            'Thorne, W',
-            'Trommelen, M',
-            'Upright, C',
-            'Vicentijevic, M',
-            'Vincent, S',
-            'Walsh, S',
-            'White, T',
-            'Woloschuk, D',
-            'Young, A',
-            'Zheng, T',
-            'Zhu, T'));
-
-    protected static $author_dates = array(
-        'Bowling, M'    => array('2003-07-01', '2008-03-31'),
-        'Goebel, R'     => array('2002-09-01', '2008-03-31'),
-        'Greiner, R'    => array('2002-09-01', '2008-03-31'),
-        'Holte, R'      => array('2002-09-01', '2008-03-31'),
-        'Schaeffer, J'  => array('2002-09-01', '2008-03-31'),
-    	'Schuurmans, D' => array('2003-03-18', '2008-03-31'),
-        'Sutton, R'     => array('2003-09-01', '2008-03-31'),
-        'Szepesvari, C' => array('2006-09-01', '2008-03-31'));
+   
+    protected $aicml_pi_authors;
+    protected $aicml_pdf_students_staff_authors;
+    protected $aicml_pi_dates;
+    protected $aicml_pdf_students_staff_dates;
     
-    protected $aicml_pdf_studens_staff_authors;
-
     /**
      * Base class constructor.
      *
@@ -191,8 +49,8 @@ class aicml_pubs_base extends pdHtmlPage {
 
         $this->fiscal_year_ts = array();
         foreach (self::$fiscal_years as $key => $fy) {
-            $this->fiscal_year_ts[$key] = array(pubDate2Timestamp($fy[0]),
-                                                pubDate2Timestamp($fy[1]));
+            $this->fiscal_year_ts[$key] = array(date2Timestamp($fy[0]),
+                                                date2Timestamp($fy[1]));
         }
     }
     
@@ -203,9 +61,7 @@ class aicml_pubs_base extends pdHtmlPage {
      * @return an associative array with publication IDs for keys and 
      * their corresponding pdPublication objects for values.
      */
-    protected function getMachineLearningPapers() {
-pdDb::debugOn(); 
-        
+    protected function getMachineLearningPapers() {        
         $q = $this->db->query('select distinct(publication.pub_id),
  publication.title, publication.paper, publication.abstract, 
  publication.keywords, publication.published, publication.venue_id, 
@@ -225,6 +81,7 @@ pdDb::debugOn();
         while ($r) {
         	$pub = new pdPublication($r);
         	$pubs[$r->pub_id] = $pub;
+        	$r = $this->db->fetchObject($q);
         }
 
         uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
@@ -246,7 +103,7 @@ pdDb::debugOn();
 
         // now get publications by AICML PDFs, students and staff members
      	$this->getPdfStudentsAndStaff();
-        foreach ($this->aicml_pdf_studens_staff_authors as $author) {
+        foreach ($this->aicml_pdf_students_staff_authors as $author) {
             $author_pubs
                 = pdPubList::create($this->db,
                                     array('author_name' => $author,
@@ -280,20 +137,54 @@ pdDb::debugOn();
     }
 
     /**
-     * Returns all the unique personnel names from self::$aicml_authors 
-     * excluding the PIs.
-     * 
-     * Use array_diff because some people appear as both students and staff 
-     * (i.e. studends were later hired as staff).
+     * Returns all the AICML personnel names in the database.
      */
-    public function getPdfStudentsAndStaff() {
-        if (!isset($this->aicml_pdf_studens_staff_authors)) {
-            $this->aicml_pdf_studens_staff_authors = array();
-            foreach (self::$aicml_authors as $group => $arr)
-                if ($group != 'pi')
-                    $this->aicml_pdf_studens_staff_authors 
-                        = array_merge($this->aicml_pdf_studens_staff_authors,
-                                      array_diff($arr, $this->aicml_pdf_studens_staff_authors));
+    public function getPiAuthors() {
+        if (isset($this->aicml_pi_authors)) return;
+        
+        $q = $this->db->select(
+        	array('aicml_staff', 'author'),
+        	array('author.author_id', 
+        		'author.name', 
+        		'aicml_staff.start_date', 
+        		'aicml_staff.end_date'),
+        	array('aicml_staff.pos_id=1', 
+        		'aicml_staff.author_id=author.author_id'));
+        
+        $this->aicml_pi_authors = array();
+        $r = $this->db->fetchObject($q);
+        while ($r) {
+        	$this->aicml_pi_authors[$r->author_id] = $r->name;
+        	$this->aicml_pi_dates[$r->author_id] = array(
+        		date2Timestamp($r->start_date), 
+        		($r->end_date != null) ? date2Timestamp($r->end_date) : time());
+            $r = $this->db->fetchObject($q);
+        }
+    }
+
+    /**
+     * Returns all the AICML personnel names in the database.
+     */
+    public function getPdfStudentsAndStaffAuthors() {
+        if (isset($this->aicml_pdf_students_staff_authors)) return;
+        
+        $q = $this->db->select(
+        	array('aicml_staff', 'author'),
+        	array('author.author_id', 
+        		'author.name', 
+        		'aicml_staff.start_date', 
+        		'aicml_staff.end_date'),
+        	array('aicml_staff.pos_id!=1', 
+        		'aicml_staff.author_id=author.author_id'));
+        
+        $this->aicml_pdf_students_staff_authors = array();
+        $r = $this->db->fetchObject($q);
+        while ($r) {
+        	$this->aicml_pdf_students_staff_authors[$r->author_id] = $r->name;
+        	$this->aicml_pdf_students_staff_dates[$r->author_id] = array(
+        		date2Timestamp($r->start_date), 
+        		($r->end_date != null) ? date2Timestamp($r->end_date) : time());
+            $r = $this->db->fetchObject($q);
         }
     }
 
@@ -304,7 +195,7 @@ pdDb::debugOn();
      * @return unknown
      */
     protected function getFiscalYearKey($date) {
-        $datestamp = pubDate2Timestamp($date);
+        $datestamp = date2Timestamp($date);
         foreach ($this->fiscal_year_ts as $key => $fyts) {
             if (($fyts[0] <= $datestamp) && ($fyts[1] >= $datestamp))
                 return $key;

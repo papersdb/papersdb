@@ -1,7 +1,7 @@
 <?php ;
 
 /**
- * $Id: pdPublication.php,v 1.133 2008/02/05 16:08:20 loyola Exp $
+ * $Id: pdPublication.php,v 1.134 2008/02/06 21:30:32 loyola Exp $
  *
  * Implements a class that accesses, from the database, some or all the
  * information related to a publication.
@@ -462,9 +462,7 @@ class pdPublication extends pdDbAccessor {
     }
 
     public function authorsToArray() {
-        if (!isset($this->authors)) return null;
-
-        if (count($this->authors) == 0) return null;
+        if (!isset($this->authors) || (count($this->authors) == 0)) return null;
 
         $authors = array();
         foreach ($this->authors as $pub_auth) {

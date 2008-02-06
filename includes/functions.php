@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.43 2008/01/31 22:02:23 loyola Exp $
+// $Id: functions.php,v 1.44 2008/02/06 21:30:32 loyola Exp $
 
 /**
  * Common functions used by all pages.
@@ -419,7 +419,7 @@ function escapeString($str) {
                      ));
 }
 
-function pubDate2Timestamp($date) {
+function date2Timestamp($date) {
     $datesplit = split('-', $date);
     if (count($datesplit) != 3)
         throw new Exception("invalid date format " . $date);

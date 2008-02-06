@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.3 2008/02/02 23:02:23 loyola Exp $
+  * $Id: aicml_stats.php,v 1.4 2008/02/06 21:30:32 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -22,9 +22,6 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class author_report extends aicml_pubs_base {
-    protected static $author_re = array(
-        'Szepesvari, C' => '/Szepesv.+ri, C/');
-
     protected $stats = array(
         'pi'       => array(),  // publications for PIs combined
         'per_pi'   => array(),  // publications per individual PI
@@ -41,13 +38,18 @@ class author_report extends aicml_pubs_base {
 
         $pubs =& $this->getMachineLearningPapers();
         
-        $this->getPdfStudentsAndStaff();
+        // populate $this->aicml_pi_authors
+        $this->getPiAuthors(); 
+        
+        // populate $this->aicml_pdf_students_staff_authors
+        $this->getPdfStudentsAndStaffAuthors(); 
+        
         $this->collectStats($pubs);
         
         echo $this->allPiPublicationTable();
         echo $this->fiscalYearTotalsTable('pi', 'PI Fiscal Year Totals');
                       
-        foreach (self::$aicml_authors['pi'] as $pi_author) {
+        foreach ($this->aicml_pi_authors as $pi_author) {
             echo $this->piPublicationsTable($pi_author);
         }
         
@@ -58,36 +60,67 @@ class author_report extends aicml_pubs_base {
     
     // collect stats for all machine learning papers.
     private function collectStats(&$pubs) {
-        foreach ($pubs as $pub_id => $pub) {
+    	assert('isset($this->aicml_pi_authors)');
+    	assert('isset($this->aicml_pdf_students_staff_authors)');
+    	
+        foreach ($pubs as $pub_id => &$pub) {
+        	$pub->dbLoad($this->db, $pub_id,
+        		pdPublication::DB_LOAD_VENUE
+        		| pdPublication::DB_LOAD_CATEGORY
+        		| pdPublication::DB_LOAD_AUTHOR_FULL);
+        		
+        	//if ($pub_id == 941)
+        	//	debugVar('$pub', $pub);
+        		
             $isT1 = $this->pubIsTier1($pub) ? 'Y' : 'N';
             $fy   = $this->getFiscalYearKey($pub->published);
-            $pub_pi_authors = $this->getPubMatchingAuthors(
-            	$pub, self::$aicml_authors['pi'], self::$author_re);
-            $pub_staff_authors = $this->getPubMatchingAuthors(
-            	$pub, $this->aicml_pdf_studens_staff_authors, self::$author_re);
-
-            if (!isset($this->stats['pi'][$fy][$isT1][$pub_pi_authors]))
-                $this->stats['pi'][$fy][$isT1][$pub_pi_authors] = array();
-            array_push($this->stats['pi'][$fy][$isT1][$pub_pi_authors], $pub->pub_id);
-
-            if (strlen($pub_staff_authors) > 0 ) {
-                if (strlen($pub_pi_authors) > 0 )
-                    $pub_staff_authors 
-                        = implode('; ', array($pub_pi_authors, $pub_staff_authors));
-                if (!isset($this->stats['staff'][$fy][$isT1][$pub_staff_authors]))
-                    $this->stats['staff'][$fy][$isT1][$pub_staff_authors] = array();
-                array_push($this->stats['staff'][$fy][$isT1][$pub_staff_authors], 
-                           $pub->pub_id);
-            }
+        
+        	$pub_pi_authors = array_intersect_key(
+        		$pub->authorsToArray(), $this->aicml_pi_authors);
             
-            foreach (self::$aicml_authors['pi'] as $pi_author) {
-                if (strpos($pub_pi_authors, $pi_author) === false) continue;
+        	foreach ($pub_pi_authors as $author_id => $author_name) {
+        		// make sure publication published while at AICML
+        		$published_stamp = date2Timestamp($pub->published);
+        		if (($published_stamp < $this->aicml_pi_dates[$author_id][0])
+        			|| ($published_stamp > $this->aicml_pi_dates[$author_id][1]))
+        			unset($pub_pi_authors[$author_id]);
+        	}
+
+        	if (count($pub_pi_authors) > 0) {        		
+        		$names = implode('; ', $pub_pi_authors);
+        		if (!isset($this->stats['pi'][$fy][$isT1][$names]))
+        			$this->stats['pi'][$fy][$isT1][$names] = array();
+        		array_push($this->stats['pi'][$fy][$isT1][$names], $pub->pub_id);
+
+        		foreach ($pub_pi_authors as $author_id => $author_name) {
+	        		if (!isset($this->stats['per_pi'][$author_name][$fy][$isT1][$names]))
+    	    			$this->stats['per_pi'][$author_name][$fy][$isT1][$names] = array();
+        			array_push(
+        				$this->stats['per_pi'][$author_name][$fy][$isT1][$names],
+        				$pub->pub_id);
+        		}
+        	}
+
+        	$pub_staff_authors = array_intersect_key(
+        		$pub->authorsToArray(), $this->aicml_pdf_students_staff_authors);
+        
+        	foreach ($pub_staff_authors as $author_id => $author_name) {
+        		// make sure publication published while at AICML
+        		$published_stamp = date2Timestamp($pub->published);
+        		if (($published_stamp < $this->aicml_pdf_students_staff_dates[$author_id][0])
+        			|| ($published_stamp > $this->aicml_pdf_students_staff_dates[$author_id][1]))
+        			unset($pub_staff_authors[$author_id]);
+        	}
+        	
+        	if (count($pub_staff_authors) > 0) {   
+                $names  = implode('; ', $pub_staff_authors);
+        		if (count($pub_pi_authors) > 0)        		
+        			$names = implode('; ', $pub_pi_authors) . '; ' . $names;
                 
-                if (!isset($this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors]))
-                    $this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors] = array();
-                array_push(
-                    $this->stats['per_pi'][$pi_author][$fy][$isT1][$pub_pi_authors], 
-                    $pub->pub_id);
+                if (!isset($this->stats['staff'][$fy][$isT1][$names]))
+                    $this->stats['staff'][$fy][$isT1][$names] = array();
+                array_push($this->stats['staff'][$fy][$isT1][$names], 
+                           $pub->pub_id);
             }
         }
         krsort($this->stats);
@@ -210,7 +243,6 @@ class author_report extends aicml_pubs_base {
     private function piPublicationsTable($pi_name) {
         $table = new HTML_Table(array('class' => 'stats'));
         
-        
         $table->addRow(array('Fiscal Year', 'T1', 'Author(s)',
                              'Num Pubs', 'Pub Ids'));
         $table->setRowType(0, 'th');
@@ -295,26 +327,12 @@ class author_report extends aicml_pubs_base {
         return ($pub->venue->rank_id == 1);
     }
 
-    private function getPubMatchingAuthors($pub, $authors, $authors_re) {
+    /*
+     * Returns the author_ids in common
+     */
+    private function getPubMatchingAuthors($pub, $authors) {
         assert('is_object($pub)');
         assert('is_array($authors)');
-        if (isset($authors_re))
-            assert('is_array($authors_re)');
-        
-        $matching_authors = array();
-        $pub_authors = $pub->authorsToString();
-        foreach ($authors as $author) {
-            if (isset($authors_re[$author])) {
-                if (preg_match($authors_re[$author], $pub_authors) > 0)
-                    $matching_authors[] = $author;
-            }
-            else {
-                if (strpos($pub_authors, $author) !== false)
-                    $matching_authors[] = $author;
-            }
-        }
-        sort($matching_authors);
-        return implode('; ', $matching_authors);
     }
 }
 
