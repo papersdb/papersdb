@@ -1,7 +1,7 @@
 <?
 
 /**
- * $Id: aicml_publications.php,v 1.11 2008/02/02 23:02:23 loyola Exp $
+ * $Id: aicml_publications.php,v 1.12 2008/02/07 22:35:15 loyola Exp $
  *
  * Script that reports the all publications made by AICML PIs, PDFs, students
  * and staff.
@@ -39,9 +39,9 @@ class author_report extends aicml_pubs_base {
         
         
         // now display the page
-        $buttons = array();
         $form = new HTML_QuickForm('aicml_pubs', 'get', 'aicml_publications.php');
         
+        $elements = array();
         $elements[] = HTML_QuickForm::createElement(
         	'advcheckbox', 'format', null, 'Display as HTML', null, array(0, 1));
                 

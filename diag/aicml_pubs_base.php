@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.8 2008/02/06 21:30:32 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.9 2008/02/07 22:35:15 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -27,7 +27,8 @@ class aicml_pubs_base extends pdHtmlPage {
         array('2003-09-01', '2004-08-31'),
         array('2004-09-01', '2006-03-31'),
         array('2006-04-01', '2007-03-31'),
-        array('2007-04-01', '2008-03-31'));
+        array('2007-04-01', '2008-03-31'),
+        array('2008-04-01', '2009-03-31'));
    
     protected $aicml_pi_authors;
     protected $aicml_pdf_students_staff_authors;
@@ -73,7 +74,7 @@ class aicml_pubs_base extends pdHtmlPage {
  inner join pub_cat on publication.pub_id=pub_cat.pub_id
  where keywords rlike "mach.*learn.*" 
  and pub_cat.cat_id in (1, 3)
- and publication.published between "' . self::$fiscal_years[0][0]. '" and now()');
+ and publication.published >= "' . self::$fiscal_years[0][0]. '"');
         if (!$q) return false;
         
         $pubs = array();
@@ -157,7 +158,7 @@ class aicml_pubs_base extends pdHtmlPage {
         	$this->aicml_pi_authors[$r->author_id] = $r->name;
         	$this->aicml_pi_dates[$r->author_id] = array(
         		date2Timestamp($r->start_date), 
-        		($r->end_date != null) ? date2Timestamp($r->end_date) : time());
+        		($r->end_date != null) ? date2Timestamp($r->end_date) : -1);
             $r = $this->db->fetchObject($q);
         }
     }
@@ -183,7 +184,7 @@ class aicml_pubs_base extends pdHtmlPage {
         	$this->aicml_pdf_students_staff_authors[$r->author_id] = $r->name;
         	$this->aicml_pdf_students_staff_dates[$r->author_id] = array(
         		date2Timestamp($r->start_date), 
-        		($r->end_date != null) ? date2Timestamp($r->end_date) : time());
+        		($r->end_date != null) ? date2Timestamp($r->end_date) : -1);
             $r = $this->db->fetchObject($q);
         }
     }
@@ -200,7 +201,7 @@ class aicml_pubs_base extends pdHtmlPage {
             if (($fyts[0] <= $datestamp) && ($fyts[1] >= $datestamp))
                 return $key;
         }
-        throw new Exception("date not within fiscal years: " + date);
+        throw new Exception("date not within fiscal years: " + $date);
         return false;
     }
 }
