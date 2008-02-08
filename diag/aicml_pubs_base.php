@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.9 2008/02/07 22:35:15 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.10 2008/02/08 20:07:44 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -155,7 +155,7 @@ class aicml_pubs_base extends pdHtmlPage {
         $this->aicml_pi_authors = array();
         $r = $this->db->fetchObject($q);
         while ($r) {
-        	$this->aicml_pi_authors[$r->author_id] = $r->name;
+        	$this->aicml_pi_authors[$r->author_id] = utf8_encode($r->name);
         	$this->aicml_pi_dates[$r->author_id] = array(
         		date2Timestamp($r->start_date), 
         		($r->end_date != null) ? date2Timestamp($r->end_date) : -1);
