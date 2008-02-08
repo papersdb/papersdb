@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.5 2008/02/07 22:35:15 loyola Exp $
+  * $Id: aicml_stats.php,v 1.6 2008/02/08 06:22:42 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -22,7 +22,7 @@ require_once 'includes/pdPublication.php';
  * @package PapersDB
  */
 class author_report extends aicml_pubs_base {
-	protected $cvs_output;
+	protected $csv_output;
     protected $stats = array(
         'pi'       => array(),  // publications for PIs combined
         'per_pi'   => array(),  // publications per individual PI
@@ -37,7 +37,7 @@ class author_report extends aicml_pubs_base {
 
         $this->loadHttpVars(true, false);
         
-        if (isset($this->cvs_output)) {
+        if (isset($this->csv_output)) {
         	assert('isset($_SESSION["aicml_stats"])');
         	$this->stats =& $_SESSION['aicml_stats'];
         	return;
@@ -57,7 +57,7 @@ class author_report extends aicml_pubs_base {
         $form = new HTML_QuickForm('aicml_stats', 'get', 'aicml_stats.php');
         
         $elements = array();     	
-        $form->addElement('submit', 'cvs_output', 'Export to CVS');
+        $form->addElement('submit', 'csv_output', 'Export to CSV');
        	
         // create a new renderer because $form->defaultRenderer() creates
         // a single copy
@@ -334,14 +334,22 @@ class author_report extends aicml_pubs_base {
      * Allows the user to save this report as a CSV file.
      *
      * The base class uses output buffering, so we have to get the contents
-     * of the buffer before we output the CVS content.
+     * of the buffer before we output the CSV content.
      */
     public function toCsv() {
     	$this->statsToCsv('pi',
     		"Machine Learning Publications by Principal Investigators");
+    	$this->fiscalYearTotalsCsv('pi', 'PI Fiscal Year Totals');
+                      
+        // populate $this->aicml_pi_authors
+        $this->getPiAuthors();
+         
+    	foreach ($this->aicml_pi_authors as $pi_author) {
+            echo $this->piPublicationsCsv($pi_author);
+        }
+    	
     	$this->statsToCsv('staff',
     		"Staff Machine Learning Papers");
-		$this->staffPublicationsTableCsv();
 		
     	if (ob_get_length() > 0) {
             $csv_output .= ob_get_contents();
@@ -393,12 +401,42 @@ class author_report extends aicml_pubs_base {
                     "\n";
             }
         }
+        echo "\n";
     }
+
+    private function piPublicationsCsv($pi_name) {
+    	assert('isset($this->stats["per_pi"][$pi_name])');
+    	
+        echo $pi_name, "\n", 
+        	implode(',', array('Fiscal Year Start', 'T1', 'Author(s)',
+                     'Num Pubs', 'Pub Ids')), "\n";
+
+        foreach ($this->stats['per_pi'][$pi_name] as $fy => $subarr1) {
+            krsort($subarr1);
+            foreach ($subarr1 as $t1 => $subarr2) {
+                ksort($subarr2);
+                foreach ($subarr2 as $authors => $pub_ids) {
+                    $pub_links = array();
+                    rsort($pub_ids);
+                    
+                    echo implode(',',
+                    	array(self::$fiscal_years[$fy][0],
+                              $t1, 
+                              '"' . $authors . '"', 
+                              count($pub_ids),
+                              '"' . implode(', ', $pub_ids) . '"')),
+                        "\n";
+                }
+            }
+        }
+        echo "\n";
+    }
+    
 }
 
 $page = new author_report();
 
-if (isset($_GET['cvs_output']))
+if (isset($_GET['csv_output']))
 	$page->toCsv();
 else	
 	echo $page->toHtml();
