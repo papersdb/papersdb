@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.7 2008/02/08 19:58:36 loyola Exp $
+  * $Id: aicml_stats.php,v 1.8 2008/02/08 20:21:40 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -378,7 +378,7 @@ class author_report extends aicml_pubs_base {
                     echo implode(',',
                     	array(self::$fiscal_years[$fy][0],
                               $t1, 
-                              '"' . $authors . '"', 
+                              '"' . utf8_decode($authors) . '"', 
                               count($pub_ids),
                               '"' . implode(', ', $pub_ids) . '"')),
                         "\n";
@@ -424,7 +424,7 @@ class author_report extends aicml_pubs_base {
                     echo implode(',',
                     	array(self::$fiscal_years[$fy][0],
                               $t1, 
-                              '"' . $authors . '"', 
+                              '"' . utf8_decode($authors) . '"', 
                               count($pub_ids),
                               '"' . implode(', ', $pub_ids) . '"')),
                         "\n";
