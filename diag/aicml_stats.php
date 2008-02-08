@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.6 2008/02/08 06:22:42 loyola Exp $
+  * $Id: aicml_stats.php,v 1.7 2008/02/08 19:58:36 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -350,13 +350,15 @@ class author_report extends aicml_pubs_base {
     	
     	$this->statsToCsv('staff',
     		"Staff Machine Learning Papers");
+    	
+    	$this->studentTotalsCsv();
 		
     	if (ob_get_length() > 0) {
             $csv_output .= ob_get_contents();
             ob_end_clean();
         }		
     	$size_in_bytes = strlen($csv_output);		
-		header("Content-disposition:  attachment; filename=" .
+		header("Content-disposition:  attachment; filename=aicml_stats_" .
 			date("Y-m-d").".csv; size=$size_in_bytes");
 		echo $csv_output;
     }
@@ -431,7 +433,31 @@ class author_report extends aicml_pubs_base {
         }
         echo "\n";
     }
-    
+ 
+    private function studentTotalsCsv() {
+    	assert('isset($this->stats["fy_count"])');
+    	
+    	echo "Student to PI Publication Ratio\n",
+    	   	implode(',', array('Fiscal Year Start', 'Student Pubs', 
+    	   				'Centre Pubs', 'Ratio (%)')), "\n";
+    	          
+        foreach ($this->stats['fy_count']['staff'] as $fy => $subarr1) {
+            if (!is_numeric($fy)) continue;
+            
+            $student_pubs = $this->stats['fy_count']['staff'][$fy]['all'];
+            $all_pubs = count($this->stats['fy_pubs'][$fy]);
+            
+            $ratio = 0;
+            if ($all_pubs != 0)
+                $ratio = 100 * $student_pubs / $all_pubs;
+                
+            echo implode(',', array(
+            	self::$fiscal_years[$fy][0],  $student_pubs, $all_pubs, 
+            	round($ratio, 2))), "\n";
+        }
+                             
+        echo "\n";
+    }    
 }
 
 $page = new author_report();
