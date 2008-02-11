@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.25 2008/02/07 22:35:15 loyola Exp $
+// $Id: pdNavMenu.php,v 1.26 2008/02/11 22:20:58 loyola Exp $
 
 /**
  * Contains the class that builds the navigation menu.
@@ -57,9 +57,12 @@ class pdNavMenu {
     public static $all_items = array(
         'home'               => array('Home', 'index.php',
                                       pdNavMenuItem::MENU_LOGIN_NOT_REQ),
-        'add_publication'    => array('Add Publication',
+        'add_publication'    => array('Add Publication Entry',
                                       'Admin/add_pub1.php',
                                       pdNavMenuItem::MENU_LOGIN_REQUIRED),
+        'validate_publications' => array('Validate Publication Entries',
+                                      'Admin/validate_pubs.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
         'add_author'         => array('Add Author',
                                       'Admin/add_author.php',
                                       pdNavMenuItem::MENU_LOGIN_REQUIRED),
@@ -73,7 +76,7 @@ class pdNavMenu {
         'search_results'    => array('Search Results',
                                      'search_results.php',
                                       pdNavMenuItem::MENU_LOGIN_NOT_REQ),
-        'view_publications'  => array('View Publications',
+        'view_publications'  => array('View Publication Entries',
                                       'list_publication.php',
                                       pdNavMenuItem::MENU_LOGIN_NOT_REQ),
         'all_authors'        => array('View Authors', 'list_author.php',
@@ -112,7 +115,8 @@ class pdNavMenu {
             'search_results'),
         'Publications' => array(
             'add_publication',
-            'view_publications'),
+            'view_publications',
+            'validate_publications'),
         'Authors' => array(
             'add_author',
             'batch_add_authors',

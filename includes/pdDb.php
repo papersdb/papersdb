@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.8 2008/02/11 07:16:36 loyola Exp $
+// $Id: pdDb.php,v 1.9 2008/02/11 22:20:58 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -37,8 +37,9 @@ class pdDb {
         'pub_cat_info',
         'pub_col',
         'publication',
+        'pub_pending',
         'pub_rankings',
-    	'rankings',
+        'pub_valid',
     	'tag_ml_history',
     	'user',
         'user_author',

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.86 2007/11/02 22:42:26 loyola Exp $
+// $Id: view_publication.php,v 1.87 2008/02/11 22:20:58 loyola Exp $
 
 /**
  * View Publication
@@ -26,22 +26,24 @@ require_once 'includes/pdAttachmentTypesList.php';
  * @package PapersDB
  */
 class view_publication extends pdHtmlPage {
-    public $debug = 0;
-    public $pub_id;
+    private $debug = 0;
+    protected $pub_id;
+    protected $submit_pending;
+    protected $submit;
 
     public function __construct() {
         parent::__construct('view_publication', 'View Publication',
                            'view_publication.php');
-
+        
         if ($this->loginError) return;
 
-        $this->loadHttpVars(true, false);
+        $this->loadHttpVars();
 
         if (!isset($this->pub_id) || !is_numeric($this->pub_id)) {
             $this->pageError = true;
             return;
         }
-
+        
         $pub = new pdPublication();
         $result = $pub->dbLoad($this->db, $this->pub_id);
 
@@ -49,18 +51,52 @@ class view_publication extends pdHtmlPage {
             echo 'Publication does not exist';
             return;
         }
+        
+        if (isset($this->submit_pending) && $this->submit_pending) {
+            // check if this pub entry is pending
+            $q = $this->db->selectRow('pub_pending', '*',
+                array('pub_id' => $this->pub_id));
+                    
+            assert('$q');
+            $form = new HTML_QuickForm('submit_pending');
+            $form->addElement('hidden', 'submit_pending', true);
+            $form->addElement('hidden', 'pub_id', $this->pub_id);
+            $elements = array();
+            $elements[] = HTML_QuickForm::createElement(
+            	'advcheckbox', 'valid', null, 'Valid', null, array(0, 1));
+            $elements[] = HTML_QuickForm::createElement(
+            	'submit', 'submit', 'Submit');
+            $form->addGroup($elements, 'elgroup', '', '&nbsp', false);    
+            
+            // create a new renderer because $form->defaultRenderer() creates
+            // a single copy
+            $renderer = new HTML_QuickForm_Renderer_Default();
+            $form->accept($renderer);
 
-        if ($this->debug) {
-        	debugVar('$pub', $pub);
+            
+            if ($form->validate()) {
+                $values =& $form->exportValues();
+                $pub->markValid($this->db);
+                echo 'Publication entry marked as valid.';
+                return;
+            }
+            else {
+                echo "<h2>This publication entry requires validation</h2>\n";
+                echo $renderer->toHtml();  
+            }
         }
-
-        $content = "<h1>" . $pub->title;
+        
+        $this->showPublication($pub);
+    }
+    
+    private function showPublication(&$pub) {
+        $content = "<h2>" . $pub->title;
 
         if ($this->access_level > 0) {
             $content .= $this->getPubIcons($pub, 0xc);
         }
 
-        $content .= "</h1>\n" . $pub->authorsToHtml();
+        $content .= "</h2>\n" . $pub->authorsToHtml();
 
         if (isset($pub->paper) && (strtolower($pub->paper) != 'no paper')
             && (basename($pub->paper) != 'paper_')) {
@@ -211,11 +247,14 @@ class view_publication extends pdHtmlPage {
     public function lastUpdateGet($pub) {
         $string = "";
         $published = split("-",$pub->updated);
-        if($published[1] != 00)
+        
+        if (count($published) != 3) return false;
+        
+        if ($published[1] != 00)
             $string .= date("F", mktime (0,0,0,$published[1]))." ";
-        if($published[2] != 00)
+        if ($published[2] != 00)
             $string .= $published[2].", ";
-        if($published[0] != 0000)
+        if ($published[0] != 0000)
             $string .= $published[0];
         return $string;
     }

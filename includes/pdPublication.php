@@ -1,7 +1,7 @@
 <?php ;
 
 /**
- * $Id: pdPublication.php,v 1.134 2008/02/06 21:30:32 loyola Exp $
+ * $Id: pdPublication.php,v 1.135 2008/02/11 22:20:58 loyola Exp $
  *
  * Implements a class that accesses, from the database, some or all the
  * information related to a publication.
@@ -258,7 +258,9 @@ class pdPublication extends pdDbAccessor {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
         }
-        $this->deleteFiles($db);
+        $this->deleteFiles($db); 
+        $db->delete('pub_pending', array('pub_id' => $this->pub_id));
+        $db->delete('pub_valid', array('pub_id' => $this->pub_id));
     }
 
     public function dbSave($db) {
@@ -1314,6 +1316,59 @@ class pdPublication extends pdDbAccessor {
         }
 
         return $collaborations;
+    }
+
+    /**
+     * Check if this pub entry is pending.
+     *
+     * @param object $db Database connection object.
+     * @return returns true if the publication is pending.
+     */
+    public function validationRequired(&$db) {
+        assert('is_object($db)');
+        $q = $db->selectRow('pub_pending', '*', array('pub_id' => $this->pub_id));
+        return ($q !== false);
+    }
+
+    /**
+     * Can only be used by users with admin privilidages. Used to mark a 
+     * pending publication entry as valid.
+     *
+     * @param object $db Database connection object.
+     */
+    public function markValid(&$db) {
+        assert('is_object($db)');
+        
+        $user =& $_SESSION['user'];
+        assert('is_object($user)');
+        
+        if (!$user->isAdministrator()) return;
+        
+        // this was a pub entry that was pending, and was just edited
+        // by user with admin privilidges
+        $db->delete('pub_pending', array('pub_id' => $this->pub_id));
+
+        $db->insert('pub_valid', array('pub_id' => $this->pub_id,
+                                       'login' => $user->login));
+    }
+    
+    /**
+     * Marks the publication entry as pending and requires validation by
+     * a user with admin privilidges.
+     *
+     * @param object $db Database connection object.
+     */
+    public function markPending(&$db) {
+        assert('is_object($db)');
+        
+        $user =& $_SESSION['user'];
+        assert('is_object($user)');
+        
+        if ($user->isAdministrator()) return;
+        
+        // user does not have admin privilidges, tag entry as pending
+        $db->insert('pub_pending', array('pub_id' => $this->pub_id,
+                                         'login' => $user->login));
     }
 }
 

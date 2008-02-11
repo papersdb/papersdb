@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.43 2007/11/06 18:05:36 loyola Exp $
+// $Id: add_pub4.php,v 1.44 2008/02/11 22:20:58 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -304,10 +304,7 @@ class add_pub4 extends add_pub_base {
 
         $form =& $this->form;
         $user =& $_SESSION['user'];
-
         $values = $form->exportValues();
-
-        debugVar('$values', $values);
 
         $element =& $form->getElement('uploadpaper');
         if (!isset($element->message) && ($element->isUploadedFile())) {

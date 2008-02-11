@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.9 2008/02/08 20:24:42 loyola Exp $
+  * $Id: aicml_stats.php,v 1.10 2008/02/11 22:20:58 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -54,9 +54,7 @@ class author_report extends aicml_pubs_base {
         $this->collectStats($pubs);
         $_SESSION['aicml_stats'] =& $this->stats;
         
-        $form = new HTML_QuickForm('aicml_stats', 'get', 'aicml_stats.php');
-        
-        $elements = array();     	
+        $form = new HTML_QuickForm('aicml_stats', 'get', 'aicml_stats.php');       
         $form->addElement('submit', 'csv_output', 'Export to CSV');
        	
         // create a new renderer because $form->defaultRenderer() creates

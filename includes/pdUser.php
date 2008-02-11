@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.36 2007/11/02 22:42:26 loyola Exp $
+// $Id: pdUser.php,v 1.37 2008/02/11 22:20:58 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -192,6 +192,15 @@ class pdUser extends pdDbAccessor {
 
     public function showInternalInfo() {
         return ($this->options & PD_USER_OPTION_SHOW_INTERNAL_INFO);
+    }
+    
+    /**
+     * Returns true if the logged on user has administrator privilidges.
+     *
+     * @return true if the the user has administrator privilidges.
+     */
+    public function isAdministrator() {
+        return ($this->access_level >= 2);
     }
 }
 
