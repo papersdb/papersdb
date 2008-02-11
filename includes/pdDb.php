@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.7 2008/01/31 22:02:23 loyola Exp $
+// $Id: pdDb.php,v 1.8 2008/02/11 07:16:36 loyola Exp $
 
 /**
  * Singleton wrapper class for database access.
@@ -17,12 +17,14 @@ class pdDb {
 
     private static $_db_tables = array(
         'additional_info',
+    	'aicml_positions',
+    	'aicml_staff',
         'attachment_types',
         'author',
         'author_interest',
-        'cat_info',
-	    'cat_vopts',
         'category',
+    	'cat_info',
+	    'cat_vopts',
         'collaboration',
         'extra_info',
         'help_fields',
@@ -34,9 +36,11 @@ class pdDb {
         'pub_cat',
         'pub_cat_info',
         'pub_col',
-        'pub_rankings',
         'publication',
-        'user',
+        'pub_rankings',
+    	'rankings',
+    	'tag_ml_history',
+    	'user',
         'user_author',
         'venue',
         'venue_occur',

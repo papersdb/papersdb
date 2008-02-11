@@ -1,7 +1,7 @@
 <?
 
 /**
- * $Id: aicml_publications.php,v 1.12 2008/02/07 22:35:15 loyola Exp $
+ * $Id: aicml_publications.php,v 1.13 2008/02/11 07:16:36 loyola Exp $
  *
  * Script that reports the all publications made by AICML PIs, PDFs, students
  * and staff.
@@ -37,7 +37,6 @@ class author_report extends aicml_pubs_base {
 	    if (empty($this->abstracts))
 	        $this->abstracts = 0;
         
-        
         // now display the page
         $form = new HTML_QuickForm('aicml_pubs', 'get', 'aicml_publications.php');
         
@@ -67,7 +66,10 @@ class author_report extends aicml_pubs_base {
         	$result = '';
         
        	foreach ($pubs as $pub) {
-       		$pub->dbLoad($this->db, $pub->pub_id);
+       		$pub->dbLoad($this->db, $pub->pub_id,
+        		pdPublication::DB_LOAD_VENUE
+        		| pdPublication::DB_LOAD_CATEGORY
+        		| pdPublication::DB_LOAD_AUTHOR_FULL);
        		$citation = utf8_encode($this->getCitationHtml($pub));
        		if ($this->format)
        		$result .= $citation . "<br/>\n";
