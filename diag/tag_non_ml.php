@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_non_ml.php,v 1.6 2008/02/11 22:20:58 loyola Exp $
+// $Id: tag_non_ml.php,v 1.7 2008/02/11 22:57:00 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -59,31 +59,24 @@ class tag_non_ml extends aicml_pubs_base {
         }
         
         $form->addElement('submit', 'submit', 'Submit');
-
-        if ($form->validate())
-            $this->processForm($form);
-        else
-            $this->renderForm($form);
-    }
-    
-    private function processForm(&$form) {
-        $values =& $form->exportValues();
-        debugVar('$values', $values);
-        // TODO: finish this
-    }
-    
-    private function renderForm(&$form) {
+        
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<form{attributes}>{content}</form>');
+            "<form{attributes}>\n{content}\n</form>\n");
         $renderer->setHeaderTemplate(
-            '<table class="stats"><tr><th colspan="2">{header}</th></tr></table>');
+            "<table class=\"stats\">\n<tr><th colspan=\"2\">{header}</th></tr>\n</table>\n");
             
-        $renderer->setGroupElementTemplate('{element}', 'tag_ml_group');
-        $renderer->setElementTemplate('<table><tr class="stats">'
+        $renderer->setGroupElementTemplate("{element}\n", 'tag_ml_group');
+        
+        // set default template for all elements
+        $renderer->setElementTemplate("<table>\n<tr>"
+	        . "<td>{label}</td><td>{element}</td></tr>\n</table>\n");
+	        
+	    // set template for this single element
+        $renderer->setElementTemplate("<table>\n<tr class=\"stats\">"
 	        . '<td style="color: #006633;font-weight: bold;">'
-            . '{label}</td><td>{element}</td></tr></table>',
+            . "{label}</td><td>{element}</td></tr>\n</table>\n",
             'tag_ml_group');
         
         $form->accept($renderer);

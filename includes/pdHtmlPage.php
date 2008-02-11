@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.120 2008/02/06 15:17:15 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.121 2008/02/11 22:57:00 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -275,7 +275,7 @@ class pdHtmlPage {
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
             $result .= $this->navMenu();
-            $result .= '<div id="content"><p/>';
+            $result .= "<div id=\"content\">\n";
         }
 
         return $result;
