@@ -1,7 +1,7 @@
 <?php
 
  /**
-  * $Id: aicml_pubs_base.php,v 1.11 2008/02/11 22:57:00 loyola Exp $
+  * $Id: aicml_pubs_base.php,v 1.12 2008/02/12 18:08:27 loyola Exp $
   *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
@@ -72,9 +72,10 @@ class aicml_pubs_base extends pdHtmlPage {
  inner join  pub_author on pub_author.pub_id=publication.pub_id 
  inner join aicml_staff on aicml_staff.author_id=pub_author.author_id
  inner join pub_cat on publication.pub_id=pub_cat.pub_id
- inner join pub_pending on publication.pub_id!=pub_pending.pub_id
+ left join pub_pending on publication.pub_id=pub_pending.pub_id
  where keywords rlike "mach.*learn.*" 
  and pub_cat.cat_id in (1, 3)
+ and pub_pending.pub_id is NULL
  and publication.published >= "' . self::$fiscal_years[0][0]. '"');
         if (!$q) return false;
         
