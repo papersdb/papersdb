@@ -1,28 +1,8 @@
-// $Id: add_author.js,v 1.7 2007/06/07 17:36:52 aicmltec Exp $
+// $Id: add_author.js,v 1.8 2008/02/16 00:12:44 loyola Exp $
 
-var addAuthorPageHelp=
-     "To add an author you need to input the author's first name, "
-     + "last name, email address and organization. You must also "
-     + "select interet(s) that the author has. To do this you can "
-     + "select interest(s) allready in the database by selecting "
-     + "them from the listbox. You can select multiple interests "
-     + "by control-clicking on them. If you do not see the "
-     + "appropriate interest(s) you can add interest(s) using "
-     + "the Add Interest link.<br/><br/>"
-     + "Clicking the Add Interest link will bring up additional fields "
-     + "everytime you click it. You can then type in the name of the "
-     + "interest into the new field provided.";
-
-var authTitleHelp=
-    "The title of an author. Will take the form of one of: "
-    + "<ul>"
-    + "<li>Prof</li>"
-    + "<li>PostDoc</li>"
-    + "<li>PhD student</li>"
-    + "<li>MSc student</li>"
-    + "<li>Colleague</li>"
-    + "<li>etc</li>"
-    + "</ul>";
+window.addEvent('domready', function() {
+                    var Tips1 = new Tips($$('.Tips1'));
+                });
 
 function dataKeep(num) {
     var qsArray = new Array();

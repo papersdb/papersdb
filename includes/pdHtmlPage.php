@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.121 2008/02/11 22:57:00 loyola Exp $
+// $Id: pdHtmlPage.php,v 1.122 2008/02/16 00:12:44 loyola Exp $
 
 /**
  * Contains a base class for all view pages.
@@ -50,6 +50,7 @@ class pdHtmlPage {
     protected $hasHelpTooltips;
     protected $form_controller;
     protected $nav_menu;
+    protected $use_mootools = false;
 
     const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
@@ -114,7 +115,7 @@ class pdHtmlPage {
 
         if (isset($page_id)) {
 	        $nav_item = $this->nav_menu->findPageId($page_id);
-	        
+
             if ($nav_item != null) {
                 $this->page_id      = $page_id;
     	        $this->page_title   = $nav_item->page_title;
@@ -122,12 +123,12 @@ class pdHtmlPage {
                 $this->login_level  = $nav_item->access_level;
             }
         }
-        
+
         if (!isset($page_id) || ($nav_item == null)) {
             $this->page_title   = $title;
             $this->relative_url = $relative_url;
             $this->login_level  = $login_level;
-        }    
+        }
 
         $this->redirectTimeout = 0;
         $this->table           = null;
@@ -137,7 +138,7 @@ class pdHtmlPage {
         $this->pageError       = false;
         $this->useStdLayout    = $useStdLayout;
         $this->hasHelpTooltips = false;
-        
+
         // ensure that the user is logged in if a page requires login access
         if ((($this->login_level >= pdNavMenuItem::MENU_LOGIN_REQUIRED)
              || (strpos($this->relative_url, 'Admin/') !== false)
@@ -213,11 +214,11 @@ class pdHtmlPage {
     }
 
     /**
-     * Loads class variables (those defined in the derived class) with 
+     * Loads class variables (those defined in the derived class) with
      * variables passed in URL query string (GET) and / or HTTP POST.
      * *
      * @param $get If set to true then loads variables from URL query string.
-     * 
+     *
      * @param $post If set to true then loads variables from HTTP POST.
      */
     protected function loadHttpVars($get = true, $post = true) {
@@ -256,14 +257,14 @@ class pdHtmlPage {
 
         $result .= '</title>'
             . '<meta http-equiv="Content-Type" '
-            . 'content="text/html; charset=utf-8" />' 
+            . 'content="text/html; charset=utf-8" />'
             . '<meta http-equiv="Content-Language" content="en-us" />' . "\n";
 
         if ($this->redirectUrl != null) {
             $result .= '<meta http-equiv="refresh" content="5;url='
                 . $this->redirectUrl . '" />' . "\n";
         }
-        
+
         $url_prefix = '';
         if (strstr($this->relative_url, '/'))
             $url_prefix = '../';
@@ -271,6 +272,18 @@ class pdHtmlPage {
         $result .= '<link rel="stylesheet" href="' . $url_prefix
             . 'style.css" type="text/css" />' . "\n"
             . "</head>\n\n<body>\n";
+
+        if ($this->use_mootools)
+            $result .= "<script type=\"text/javascript\" src=\"" . $url_prefix
+                . "js/mootools-release-1.11.js\"></script>\n";
+
+        if (!empty($this->js)) {
+	        $result .= "<script type=\"text/JavaScript\">\n"
+    	        . "//<![CDATA[\n"
+        	    . $this->js
+            	. "\n//]]>"
+	            . "</script>\n";
+        }
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
@@ -294,14 +307,6 @@ class pdHtmlPage {
         // note this code is added only on the real site
         if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
             $result .= self::GOOGLE_ANALYTICS;
-        }
-
-        if (!empty($this->js)) {
-	        $result .= "<script type=\"text/JavaScript\">\n"
-    	        . "//<![CDATA[\n"
-        	    . $this->js
-            	. "\n//]]>"
-	            . "</script>\n";
         }
 
         if ($this->hasHelpTooltips) {
@@ -550,7 +555,7 @@ END;
     }
 
     /**
-     * Returns the HTML text to display the icons to link to the PDF, view, 
+     * Returns the HTML text to display the icons to link to the PDF, view,
      * edit, or delete the publication entry.
      *
      * @param object $pub pdPublication object to display the icons for.

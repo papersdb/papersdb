@@ -622,3 +622,23 @@ pre {
   margin:0;padding:0;margin-top:10px;font-size:0.7em;color:black;
 }
 
+.tool-tip {
+	color: #fff;
+	width: 139px;
+	z-index: 13000;
+}
+
+.tool-title {
+	font-weight: bold;
+	font-size: 11px;
+	margin: 0;
+	color: #669933;
+	padding: 8px 8px 4px;
+	background: url(images/bubble.png) top left;
+}
+
+.tool-text {
+	font-size: 11px;
+	padding: 4px 8px 8px;
+	background: url(images/bubble.png) bottom right;
+}

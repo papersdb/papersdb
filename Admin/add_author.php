@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.69 2008/02/04 21:25:46 loyola Exp $
+// $Id: add_author.php,v 1.70 2008/02/16 00:12:44 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -34,6 +34,7 @@ class add_author extends pdHtmlPage {
     public function __construct() {
         parent::__construct('add_author');
         $this->loadHttpVars();
+        $this->use_mootools = true;
 
         // before showing a loggin error, show the correct title for the page
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
@@ -68,11 +69,23 @@ class add_author extends pdHtmlPage {
 
         $form->addElement('hidden', 'author_id', $this->author_id);
 
-        if ($this->author_id == null)
-            $form->addElement('header', null,
-                              $this->helpTooltip('Add Author',
-                                                 'addAuthorPageHelp',
-                                                 'helpHeading'));
+        if ($this->author_id == null) {
+            $form->addElement(
+                'header', 'add_author_hdr',
+                '<span class="Tips1" title="Adding an Author::Input the
+ author\'s first name, last name, email address and organization. Optionally,
+ interests may be selected from the list given or new interest can be added to
+ the database.
+ &lt;p/&gt;
+ Multiple interests can be selected by holding down the control
+ key and then left-clicking on the text. If you do not see the
+ appropriate interests you can add them using the &lt;b&gt;Add
+ Interest&lt;/b&gt; link.
+ &lt;p/&gt;
+ Clicking the &lt;b&gt;Add Interest&lt;/b&gt; link will bring up a
+ new field each it is pressed. Type the text of the new interest into the
+ this field.">Add Author</span>');
+        }
         else
             $form->addElement('header', null, 'Edit Author');
 
@@ -85,13 +98,23 @@ class add_author extends pdHtmlPage {
         $form->addElement('text', 'lastname', 'Last Name:',
                           array('size' => 50, 'maxlength' => 250));
 
-        $form->addElement('select', 'authors_in_db', null, 
+        $form->addElement('select', 'authors_in_db', null,
         	pdAuthorList::create($this->db),
             array('style' => 'overflow: hidden; visibility: hidden; width: 1px; height: 0;'));
 
-        $form->addElement('text', 'title',
-                          $this->helpTooltip('Title', 'authTitleHelp') . ':',
-                          array('size' => 50, 'maxlength' => 250));
+        $tooltip = 'Title::The author\'s formal title. For example:
+ &lt;ul&gt;
+ &lt;li&gt;Professor&lt;/li&gt;
+ &lt;li&gt;PostDoc&lt;/li&gt;
+ &lt;li&gt;PhD Student&lt;/li&gt;
+ &lt;li&gt;MSc Student&lt;/li&gt;
+ &lt;li&gt;Colleague&lt;/li&gt;
+ &lt;/ul&gt;';
+
+        $form->addElement(
+            'text', 'title',
+            "<span class=\"Tips1\" title=\"$tooltip\">Title:</span>",
+            array('size' => 50, 'maxlength' => 250,));
         $form->addElement('text', 'email', 'email:',
                           array('size' => 50, 'maxlength' => 250));
         $form->addRule('email', 'invalid email address', 'email', null,
@@ -215,12 +238,16 @@ class add_author extends pdHtmlPage {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" '
-            . 'cellspacing="2" bgcolor="#CCCC99">'
-            . '<form{attributes}>{content}</form></table>');
-        $renderer->setHeaderTemplate(
-            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
+            '<form{attributes}>'
+            . '<table width="100%" border="0" cellpadding="3" '
+            . 'cellspacing="2" bgcolor="#CCCC99">{content}'
+            . '</table></form>');
+        $renderer->setHeaderTemplate('
+<tr><td style="white-space:nowrap;background:#996;color:#ffc;"
+ align="left" colspan="2"><b>{header}</b></td></tr>');
+        $renderer->setElementTemplate(
+            '<tr><td>{element}</td></tr>',
+            'author_id');
 
         $form->accept($renderer);
         $this->renderer =& $renderer;
@@ -305,12 +332,12 @@ class add_author extends pdHtmlPage {
         }
         else {
             if ($this->author_id == null)
-              echo 'Author "', $values['firstname'], ' ', $values['lastname'], 
-              	'" ', 'succesfully added to the database.', '<p/>', 
-              	'<a href="', $_SERVER['PHP_SELF'], '">', 
+              echo 'Author "', $values['firstname'], ' ', $values['lastname'],
+              	'" ', 'succesfully added to the database.', '<p/>',
+              	'<a href="', $_SERVER['PHP_SELF'], '">',
               	'Add another new author</a>';
             else
-              echo 'Changes to author "', $values['firstname'], ' ', 
+              echo 'Changes to author "', $values['firstname'], ' ',
               	$values['lastname'], '" ', 'submitted to the database.';
         }
     }
