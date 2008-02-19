@@ -1,42 +1,10 @@
-var categoryHelp=
-     "Category describes the type of document that you are submitting "
-     + "to the site. For examplethis could be a journal entry, a book "
-     + "chapter, etc.<br/><br/>"
-     + "Please use the drop down menu to select an appropriate "
-     + "category to classify your paper. If you cannot find an "
-     + "appropriate category you can select 'Add New Category' from "
-     + "the drop down menu and you will be asked for the new category "
-     + "information on a subsequent page.<br/><br/>";
+// $Id: add_pub3.js,v 1.5 2008/02/19 16:24:22 loyola Exp $
 
-var venueHelp=
-     "Where the paper was published -- specific journal, conference, "
-     + "workshop, etc. If many of the database papers are in the same "
-     + "venue, you can create a single <b>label</b> for that "
-     + "venue, to specify name of the venue, location, date, editors "
-     + "and other common information. You will then be able to use "
-     + "and re-use that information.";
+// $Id: add_pub3.js,v 1.5 2008/02/19 16:24:22 loyola Exp $
 
-var paperAtt =
-    "Attach a postscript, PDF, or other version of the publication.";
-
-var otherAtt =
-    "In addition to the primary paper attachment, attach additional "
-    + "files to this publication.";
-
-var extraInfoHelp=
-    "Specify auxiliary information, to help classify this "
-    + "publication. Eg, &quot;with student&quot; or &quot;best "
-    + "paper&quot;, etc. Note that, by default, this information will "
-    + "NOT be shown when this document is presented. Separate using "
-    + "semiolons(;).";
-
-var extLinks=
-    "Used to link this publication to an outside source such as a "
-    + "website or a publication that is not in the current database.";
-
-var pubLinks =
-    "Used to link other publications in the database to this "
-    + "publication.";
+window.addEvent('domready', function() {
+                    var Tips1 = new Tips($$('.Tips1'));
+                });
 
 function dataKeep() {
     var form =  document.forms["add_pub3"];

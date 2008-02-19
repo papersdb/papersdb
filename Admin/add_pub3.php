@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.47 2007/11/13 16:50:56 loyola Exp $
+// $Id: add_pub3.php,v 1.48 2008/02/19 16:24:22 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -41,6 +41,7 @@ class add_pub3 extends add_pub_base {
         parent::__construct();
 
         if ($this->loginError) return;
+        $this->use_mootools = true;
 
         $this->loadHttpVars(true, false);
         $this->pub =& $_SESSION['pub'];
@@ -87,17 +88,24 @@ class add_pub3 extends add_pub_base {
                 . ')</span>';
         $category[] = HTML_QuickForm::createElement(
             'static', null, null, $text);
-        $form->addGroup($category,
-                        null,
-                        $this->helpTooltip('Category', 'categoryHelp') . ':',
-                        '&nbsp;&nbsp;', false);
+
+        $tooltip = 'Category::The type of publication entry being
+submitted to the database. For example this could be a conference paper, a
+journal entry, a book chapter, etc.
+&lt;p/&gt;
+Select the appropriate category from the drop down menu';
+
+        $form->addGroup(
+            $category, null,
+            "<span class=\"Tips1\" title=\"$tooltip\">Category</span>:",
+            '&nbsp;&nbsp;', false);
 
         // Venue
         if (is_object($this->pub->category)
             && in_array($this->cat_id, array(1, 3, 4)))
-            $vlist = pdVenueList::create($this->db,
-                                         array('cat_id' => $this->cat_id,
-                                              'concat' => true));
+            $vlist = pdVenueList::create(
+                $this->db, array('cat_id' => $this->cat_id,
+                                 'concat' => true));
         else
             $vlist = pdVenueList::create($this->db, array('concat' => true));
 
@@ -111,19 +119,27 @@ class add_pub3 extends add_pub_base {
 
             foreach ($vlist as $venue_id => $name) {
                 if (in_array($venue_id, $user->venue_ids))
-                    $venues[$venue_id] = $name;
+                    $venues[$venue_id] = htmlentities($name);
             }
         }
         else {
             foreach ($vlist as $venue_id => $name) {
-                $venues[$venue_id] = $name;
+                $venues[$venue_id] = htmlentities($name);
             }
         }
 
-        $form->addElement('select', 'venue_id',
-                          $this->helpTooltip('Venue', 'venueHelp') . ':',
-                          $venues, array('style' => 'width: 70%;',
-                                         'onchange' => 'dataKeep();'));
+        $tooltip = 'Venue::Where the paper was published -- specific journal,
+conference, workshop, etc. If many of the database papers are in the same
+venue, you can create a single <b>label</b> for that
+venue, to specify name of the venue, location, date, editors
+and other common information. You will then be able to use
+and re-use that information.';
+
+        $form->addElement(
+            'select', 'venue_id',
+            "<span class=\"Tips1\" title=\"$tooltip\">Venue</span>:",
+            $venues, array('style' => 'width: 70%;',
+                           'onchange' => 'dataKeep();'));
 
         $form->addElement('submit', 'add_venue', 'Add New Venue');
 
@@ -159,8 +175,14 @@ class add_pub3 extends add_pub_base {
             'text', 'paper_rank_other', null,
             array('size' => 30, 'maxlength' => 250));
 
-        $form->addGroup($radio_rankings, 'group_rank', 'Ranking:', '<br/>',
-                        false);
+        $tooltip = 'Ranking::Select the ranking of the venue. If the venue is
+already in the database the ranking should be selected automatically.
+Sometimes the paper may have a ranking different from the venue ranking.';
+        $form->addGroup(
+            $radio_rankings, 'group_rank',
+            "<span class=\"Tips1\" title=\"$tooltip\">Ranking</span>:",
+            '<br/>',
+            false);
 
         if (($this->cat_id > 0)
             && is_object($this->pub->category)
@@ -172,21 +194,30 @@ class add_pub3 extends add_pub_base {
             }
         }
 
-        $form->addElement('date', 'pub_date', 'Date:',
-                          array('format' => 'YM', 'minYear' => '1970'));
+        $tooltip = 'Date::The date the publication was published.';
+        $form->addElement(
+            'date', 'pub_date',
+            "<span class=\"Tips1\" title=\"$tooltip\">Date</span>:",
+            array('format' => 'YM', 'minYear' => '1970'));
 
         $form->addElement('header', 'other_info', 'Other information', null);
 
-        $form->addElement('textarea', 'extra_info',
-                          $this->helpTooltip('Extra Information',
-                                             'extraInfoHelp') . ':',
-                          array('cols' => 60, 'rows' => 5));
+        $tooltip = 'Extra Information::Specify auxiliary information to help
+classify this publication. Eg, &quot;with student&quot; or &quot;best
+paper&quot;, etc.
+&lt;p/&gt;
+Note: by default this information will NOT be shown
+when this publication entry is displayed.';
+        $form->addElement(
+            'textarea', 'extra_info',
+            "<span class=\"Tips1\" title=\"$tooltip\">Extra Information</span>:",
+            array('cols' => 60, 'rows' => 5));
 
         $form->addElement('static', null, null,
                           '<span class="small">'
                           . 'Separate using semicolons.'
                           . ' See help text for examples of what goes here '
-                          . '(use mouse to over over \'Extra Information\' '
+                          . '(use mouse to hover over \'Extra Information\' '
                           . 'text).'
                           . '</span>');
 
@@ -207,7 +238,7 @@ class add_pub3 extends add_pub_base {
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
-        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
+        $form->addGroup($buttons, 'buttons', '', '&nbsp;', false);
 
         $this->form =& $form;
 
@@ -285,8 +316,8 @@ class add_pub3 extends add_pub_base {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<form{attributes}><table width="100%" border="0" cellpadding="3"
+cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');

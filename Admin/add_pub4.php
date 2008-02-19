@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub4.php,v 1.44 2008/02/11 22:20:58 loyola Exp $
+// $Id: add_pub4.php,v 1.45 2008/02/19 16:24:22 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -29,6 +29,7 @@ class add_pub4 extends add_pub_base {
         parent::__construct();
 
         if ($this->loginError) return;
+        $this->use_mootools = true;
 
         $this->pub =& $_SESSION['pub'];
 
@@ -68,7 +69,7 @@ class add_pub4 extends add_pub_base {
                     'reset', 'reset', 'Reset'),
                 HTML_QuickForm::createElement(
                     'submit', 'finish', 'Finish')),
-            'buttons', null, '&nbsp', false);
+            'buttons', null, '&nbsp;', false);
 
 
         if ($form->validate())
@@ -87,6 +88,9 @@ class add_pub4 extends add_pub_base {
 
         $form->addElement('header', null, 'Attachments');
 
+        $tooltip = 'Paper::Attach a postscript, PDF, or other version of the
+publication.';
+
         if (isset($_SESSION['paper']) && ($_SESSION['paper'] != 'none')) {
             $filename = basename($_SESSION['paper'], '.' . $user->login);
             $filename = str_replace('paper_', '', $filename);
@@ -102,16 +106,20 @@ class add_pub4 extends add_pub_base {
                     HTML_QuickForm::createElement(
                         'submit', 'remove_paper', 'Remove Paper')
                     ),
-                null, $this->helpTooltip('Current Paper', 'paperAtt') . ':',
-                '&nbsp', false);
+                null,
+                "<span class=\"Tips1\" title=\"$tooltip\">Current Paper</span>:",
+                '&nbsp;', false);
         }
         else {
-            $form->addElement('file', 'uploadpaper',
-                              $this->helpTooltip('Paper', 'paperAtt') . ':',
-                              array('size' => 45));
+            $form->addElement(
+                'file', 'uploadpaper',
+                "<span class=\"Tips1\" title=\"$tooltip\">Paper</span>:",
+                array('size' => 45));
         }
 
         $form->addElement('hidden', 'num_att', $num_att);
+
+        $tooltip = 'Attachements::Used to attach additional files to the publication entry.';
 
         for ($i = 0; $i < $num_att; $i++) {
             unset($filename);
@@ -135,7 +143,10 @@ class add_pub4 extends add_pub_base {
                         HTML_QuickForm::createElement(
                             'submit', 'remove_att' . $i, 'Remove Attachment')
                         ),
-                    null, 'Attachment ' . ($i + 1) . ':', '&nbsp;', false);
+                    null,
+                    "<span class=\"Tips1\" title=\"$tooltip\">Attachment "
+                    . ($i + 1) . '</span>:',
+                    '&nbsp;', false);
             }
         }
 
@@ -148,8 +159,8 @@ class add_pub4 extends add_pub_base {
                     'file', 'new_att', null, array('size' => 35))
                 ),
             'new_att_group',
-            $this->helpTooltip('Attachment ' . ($num_att + 1) . ':',
-                               'otherAtt'),
+            "<span class=\"Tips1\" title=\"$tooltip\">Attachment "
+            . ($num_att + 1) . '</span>:',
             '&nbsp;', false);
 
         $form->addElement('submit', 'add_att', 'Add Attachment');
@@ -161,6 +172,9 @@ class add_pub4 extends add_pub_base {
         $num_web_links = count($this->pub->web_links);
 
         $form->addElement('header', 'web_links_hdr', 'Web Links', null);
+
+        $tooltip = 'Link::Used to link this publication to an outside source
+such as a website or a publication that is not in the current database.';
 
         if (count($this->pub->web_links) > 0) {
             $c = 0;
@@ -179,7 +193,8 @@ class add_pub4 extends add_pub_base {
                             'submit', 'remove_web_link' . $c, 'Remove')
                         ),
                     'curr_web_links_group',
-                    $this->helpTooltip('Link ' . ($c+1), 'extLinks') . ':',
+                    "<span class=\"Tips1\" title=\"$tooltip\">Link "
+                    . ($c + 1) . '</span>:',
                     '&nbsp;', false);
                 $label = '';
                 $c++;
@@ -198,7 +213,7 @@ class add_pub4 extends add_pub_base {
                     array('size' => 25, 'maxlength' => 250))
                 ),
             'new_web_links_group',
-            $this->helpTooltip('New Link', 'webLinks') . ':'
+            "<span class=\"Tips1\" title=\"$tooltip\">New Link</span>:"
             . '<br/><span class="small">name&nbsp;:&nbsp;url</span>',
             '&nbsp;', false);
 
@@ -213,6 +228,9 @@ class add_pub4 extends add_pub_base {
 
         $form->addElement('header', 'related_pubs_hdr',
                           'Related Publication(s)', null);
+
+        $tooltip = 'Pub Link::Creates a relationship between this publication
+and another publication that already has an entry in the database.';
 
         if (count($this->pub->related_pubs) > 0) {
             $c = 0;
@@ -232,7 +250,9 @@ class add_pub4 extends add_pub_base {
                         HTML_QuickForm::createElement(
                             'hidden', 'related_pub_id' . $c, $intPub->pub_id)
                         ),
-                    'curr_related_pubs_group', 'Pub ' . ($c+1) . ':',
+                    'curr_related_pubs_group',
+                    "<span class=\"Tips1\" title=\"$tooltip\">Pub "
+                    . ($c + 1) . '</span>:',
                     '&nbsp;', false);
                 $label = '';
                 $c++;
@@ -248,9 +268,10 @@ class add_pub4 extends add_pub_base {
 	            else
 	                $options[$p->pub_id] = $p->title;
 	        }
-	        $form->addElement('select', 'new_related_pub',
-	                          $this->helpTooltip('New Pub', 'relatedPubs') . ':',
-	                          $options);
+	        $form->addElement(
+                    'select', 'new_related_pub',
+                    "<span class=\"Tips1\" title=\"$tooltip\">New Pub </span>:",
+                    $options);
         }
 
         $form->addElement('submit', 'add_related_pubs',
@@ -288,8 +309,8 @@ class add_pub4 extends add_pub_base {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<form{attributes}><table width="100%" border="0" cellpadding="3"
+cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');

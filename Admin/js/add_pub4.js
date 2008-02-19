@@ -1,15 +1,8 @@
-var paperAtt =
-     "Attach a postscript, PDF, or other version of the publication.";
+// $Id: add_pub4.js,v 1.4 2008/02/19 16:24:22 loyola Exp $
 
-var otherAtt =
-    "Used to attach additional files to this publication entry.";
-
-var webLinks=
-    "Used to link this publication to an outside source such as a "
-    + "website or a publication that is not in the current database.";
-
-var relatedPubs =
-    "Creates a relationship between this publication and another publication that already has an entry in the database.";
+window.addEvent('domready', function() {
+                    var Tips1 = new Tips($$('.Tips1'));
+                });
 
 function dataKeep(num) {
     var form =  document.forms["add_pub4"];

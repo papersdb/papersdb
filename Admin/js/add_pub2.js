@@ -1,4 +1,8 @@
-// $Id: add_pub2.js,v 1.2 2007/05/11 20:25:55 aicmltec Exp $
+// $Id: add_pub2.js,v 1.3 2008/02/19 16:24:22 loyola Exp $
+
+window.addEvent('domready', function() {
+                    var Tips1 = new Tips($$('.Tips1'));
+                });
 
 // If user typed in authors not in the author table, then this function
 // displays an alert to the user and lists all the names that are not in

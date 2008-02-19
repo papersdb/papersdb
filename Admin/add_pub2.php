@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.36 2007/11/02 22:42:26 loyola Exp $
+// $Id: add_pub2.php,v 1.37 2008/02/19 16:24:22 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -36,6 +36,7 @@ class add_pub2 extends add_pub_base {
         parent::__construct();
 
         if ($this->loginError) return;
+        $this->use_mootools = true;
 
         $this->pub =& $_SESSION['pub'];
 
@@ -49,11 +50,19 @@ class add_pub2 extends add_pub_base {
 
         $form->addElement('header', null, 'Select from Authors in Database');
 
-        $form->addElement('textarea', 'authors', 'Authors:',
-                          array('cols' => 60,
-                                'rows' => 5,
-                                'class' => 'wickEnabled:MYCUSTOMFLOATER',
-                                'wrap' => 'virtual'));
+        $tooltip = 'Authors::The authors of the publication. Listed in the
+same order as in the publication
+&lt;p/&gt;
+If an author is not already in the database press the &lt;b&gt;Add Author not
+in DB&lt;/b&gt; button.';
+
+        $form->addElement(
+            'textarea', 'authors',
+            "<span class=\"Tips1\" title=\"$tooltip\">Authors</span>:",
+            array('cols' => 60,
+                  'rows' => 5,
+                  'class' => 'wickEnabled:MYCUSTOMFLOATER',
+                  'wrap' => 'virtual'));
 
         $form->addElement('static', null, null,
                           '<span class="small">'
@@ -64,7 +73,11 @@ class add_pub2 extends add_pub_base {
         $form->addElement('submit', 'add_new_author', 'Add Author not in DB');
 
         // collaborations radio selections
-        $form->addElement('header', null, 'Collaborations');
+        $tooltip = 'Collaborations::If the publication is a collaboration,
+select the options that apply to this paper.';
+        $form->addElement(
+            'header', null,
+            "<span class=\"Tips1\" title=\"$tooltip\">Collaborations</span>");
         $collaborations = pdPublication::collaborationsGet($this->db);
 
         foreach ($collaborations as $col_id => $description) {
@@ -91,7 +104,7 @@ class add_pub2 extends add_pub_base {
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
-        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
+        $form->addGroup($buttons, 'buttons', '', '&nbsp;', false);
 
         $this->form =& $form;
 
@@ -137,8 +150,9 @@ class add_pub2 extends add_pub_base {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<form{attributes}>'
+            . '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
+            . 'bgcolor="#CCCC99">{content}</table></form>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
