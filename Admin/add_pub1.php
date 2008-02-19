@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.56 2008/02/16 00:12:44 loyola Exp $
+// $Id: add_pub1.php,v 1.57 2008/02/19 13:38:41 loyola Exp $
 
 /**
  * This page is the form for adding/editing a publication.
@@ -83,8 +83,8 @@ class add_pub1 extends add_pub_base {
             "<span class=\"Tips1\" title=\"$tooltip\">Abstract</span>:<br/><div class=\"small\">HTML Enabled</div>",
             array('cols' => 60, 'rows' => 10));
 
-        $tooltip = 'Keywords::Enter keywords that describe your paper and may
- be used to possibly locate your paper by others searching the database. You
+        $tooltip = 'Keywords::Enter keywords that describe your paper and could
+ possibly be used to find your paper by other users searching the database. You
  may want to enter multiple terms that are associated with your document.
  &lt;p/&gt;
  &lt;i&gt;&lt;b&gt;If your paper is Machine Learning related please put
