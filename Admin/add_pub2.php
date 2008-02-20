@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub2.php,v 1.38 2008/02/20 21:10:27 loyola Exp $
+// $Id: add_pub2.php,v 1.39 2008/02/20 21:20:14 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -144,7 +144,7 @@ select the options that apply to this paper.';
             echo '<h3>Adding Publication Entry</h3>';
 
         echo $this->pub->getCitationHtml('', false), '&nbsp;',
-            getPubIcons($this->pub, 0x1), '<p/>',
+            getPubIcons($this->db, $this->pub, 0x1), '<p/>',
             add_pub_base::similarPubsHtml();
 
         $renderer =& $form->defaultRenderer();

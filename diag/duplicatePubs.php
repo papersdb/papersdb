@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.15 2008/02/20 21:10:27 loyola Exp $
+// $Id: duplicatePubs.php,v 1.16 2008/02/20 21:20:14 loyola Exp $
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -60,7 +60,7 @@ class duplicatePubs extends pdHtmlPage {
     public function citationGet($pub) {
         assert('is_object($pub)');
 
-        $citation = $pub->getCitationHtml('..') . getPubIcons($pub);
+        $citation = $pub->getCitationHtml('..') . getPubIcons($this->db, $pub);
 
         return $citation;
     }

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.87 2008/02/11 22:20:58 loyola Exp $
+// $Id: view_publication.php,v 1.88 2008/02/20 21:20:14 loyola Exp $
 
 /**
  * View Publication
@@ -93,7 +93,7 @@ class view_publication extends pdHtmlPage {
         $content = "<h2>" . $pub->title;
 
         if ($this->access_level > 0) {
-            $content .= $this->getPubIcons($pub, 0xc);
+            $content .= getPubIcons($this->db, $pub, 0xc);
         }
 
         $content .= "</h2>\n" . $pub->authorsToHtml();
@@ -109,7 +109,7 @@ class view_publication extends pdHtmlPage {
                     $content .= $name[1];
                 $content .= '</a>&nbsp;';
 
-                $content .= $this->getPubIcons($pub, 0x1) . "<br/>\n";
+                $content .= getPubIcons($this->db, $pub, 0x1) . "<br/>\n";
 
             }
         }

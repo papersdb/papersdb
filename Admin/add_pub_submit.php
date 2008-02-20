@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_submit.php,v 1.27 2008/02/20 21:10:27 loyola Exp $
+// $Id: add_pub_submit.php,v 1.28 2008/02/20 21:20:14 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -82,7 +82,7 @@ class add_pub_submit extends pdHtmlPage {
         else 
             $pub->markPending($this->db);
 
-        echo $pub->getCitationHtml(), getPubIcons($pub);
+        echo $pub->getCitationHtml(), getPubIcons($this->db, $pub);
 
         pubSessionInit();
     }
