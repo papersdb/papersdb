@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_non_ml.php,v 1.7 2008/02/11 22:57:00 loyola Exp $
+// $Id: tag_non_ml.php,v 1.8 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -50,7 +50,7 @@ class tag_non_ml extends aicml_pubs_base {
         	$form->addGroup(array(
                 HTML_QuickForm::createElement('static', null, null,
                     $pub->getCitationHtml() . '&nbsp;'
-                    . $this->getPubIcons($pub, 0x7)),
+                    . getPubIcons($pub, 0x7)),
                 HTML_QuickForm::createElement('advcheckbox', 
                 	'pub_tag[' . $pub->pub_id . ']',
         			null, null, null, array('no', 'yes'))

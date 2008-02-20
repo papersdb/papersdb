@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.30 2007/11/02 22:42:26 loyola Exp $
+// $Id: search_results.php,v 1.31 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Displays the search resutls contained in the session variables.
@@ -84,9 +84,9 @@ class search_results extends pdHtmlPage {
         if ($pubs == null) return;
 
         echo $renderer->toHtml();
-        echo $this->displayPubList($pubs, true, -1, null, 
-        						   array('show_internal_info' 
-        						          => ($sp->show_internal_info == 'yes')));
+        echo displayPubList(
+            $this->db, $pubs, true, -1, null,  	 
+            array('show_internal_info' => ($sp->show_internal_info == 'yes')));
 
         $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
                                                 'border' => '0',

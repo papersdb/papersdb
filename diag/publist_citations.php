@@ -26,7 +26,7 @@ class publist_citations extends pdHtmlPage {
         												'sort'    => false));
         uasort($pub_list, array('pdPublication', 'pubsDateSortDesc'));
         
-        echo $this->displayPubList($pub_list, true, -1, $additional);
+        echo displayPubList($this->db, $pub_list, true, -1, $additional);
     }
 }
 

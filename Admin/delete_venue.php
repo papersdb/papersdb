@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.28 2007/11/06 18:05:36 loyola Exp $
+// $Id: delete_venue.php,v 1.29 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -52,7 +52,7 @@ class delete_venue extends pdHtmlPage {
         if (isset($pub_list) && (count($pub_list) > 0)) {
             echo 'Cannot delete venue <b>', $venue->nameGet(), '</b>.<p/>', 
             	'The venue is used by the following ', 'publications:', "\n", 
-            	$this->displayPubList($pub_list);
+            	displayPubList($this->db, $pub_list);
             return;
         }
 

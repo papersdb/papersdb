@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.45 2007/11/06 18:05:36 loyola Exp $
+// $Id: index.php,v 1.46 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Main page for PapersDB.
@@ -38,7 +38,7 @@ class index extends pdHtmlPage {
 
         echo '<h2>Recent Additions:</h2>';
 
-        echo $this->displayPubList($pub_list, false, 6);
+        echo displayPubList($this->db, $pub_list, false, 6);
     }
 
     private function pubByYears() {

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.37 2008/02/11 22:20:58 loyola Exp $
+// $Id: pdUser.php,v 1.38 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Implements a class that accesses user information from the database.
@@ -201,6 +201,54 @@ class pdUser extends pdDbAccessor {
      */
     public function isAdministrator() {
         return ($this->access_level >= 2);
+    }
+    
+    /**
+     * Returns the user's access level. If the user is logged in then it returns
+     * the access level recorded in the database. If user is not logged in
+     * then zero is returned.
+     *
+     * @return integer the corresponding access level.
+     */
+    public static function check_login(&$db) {
+        assert('is_object($db)');
+        $passwd_hash = "aicml";
+        $access_level = 0;
+
+        if (!isset($_SESSION['user'])) return $access_level;
+
+        // remember, $_SESSION['password'] will be encrypted.
+        if(!get_magic_quotes_gpc()) {
+            $_SESSION['user']->login = addslashes($_SESSION['user']->login);
+        }
+
+        // addslashes to session login before using in a query.
+        $q = $db->selectRow('user', 'password',
+        array('login' => $_SESSION['user']->login));
+
+        // make sure user exists
+        if ($q === false) return $access_level;
+
+        // now we have encrypted pass from DB in $q->password,
+        // stripslashes() just incase:
+
+        $q->password = stripslashes($q->password);
+
+        //compare:
+        if ($q->password == $_SESSION['user']->password) {
+            // valid password for login
+            // they have correct info in session variables.
+
+            if ($_SESSION['user']->verified == 1) {
+                // user is valid
+                $access_level = $_SESSION['user']->access_level;
+            }
+        }
+        else {
+            unset($_SESSION['user']); // kill incorrect session variables.
+        }
+        
+        return $access_level;
     }
 }
 

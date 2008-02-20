@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_category.php,v 1.27 2007/11/06 18:05:36 loyola Exp $
+// $Id: delete_category.php,v 1.28 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Deletes a category from the database.
@@ -60,7 +60,7 @@ class delete_category extends pdHtmlPage {
         if (isset($pub_list) && (count($pub_list) > 0)) {
             echo 'Cannot delete category <b>', $category->category, '</b>.<p/>', 
             	'The category is used by the following publications:', "\n", 
-            	$this->displayPubList($pub_list);
+            	displayPubList($this->db, $pub_list);
             return;
         }
 

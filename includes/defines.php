@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.27 2007/04/04 16:00:06 aicmltec Exp $
+// $Id: defines.php,v 1.28 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Project Constants
@@ -14,9 +14,10 @@ ini_set('display_errors', true);
 
 ini_set("include_path", ini_get("include_path") . ":./pear:../pear");
 
-
 $wgSitename = "PapersDB";
 $wgServer = "www.cs.ualberta.ca";
+
+define('SITE_NAME', 'papersdb');
 
 /** The server hosting the database. */
 if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
@@ -33,20 +34,20 @@ define('DB_PASSWD', '');
 define('DB_ADMIN', 'papersdb@cs.ualberta.ca');
 
 /**
- * The name of the database.
+ * The name of the database and the path on the fileserver where documents are 
+ * stored.
  */
-if (strpos($_SERVER['PHP_SELF'], '~papersdb'))
+if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
     define('DB_NAME',   'pubDB');
-else
-    define('DB_NAME',   'pubDBdev');
-
-/** The path on the fileserver where documents are stored. */
-if (strpos($_SERVER['PHP_SELF'], '~papersdb'))
     define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs');
-else if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
-    define('FS_PATH', '/home/nelson/public_html/papersdb');
-else
-    define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+}
+else {
+    define('DB_NAME',   'pubDBdev');
+    if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
+       define('FS_PATH', '/home/nelson/public_html/papersdb');
+    else
+        define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+}
 
 define('FS_PATH_UPLOAD', FS_PATH . '/uploaded_files/');
 

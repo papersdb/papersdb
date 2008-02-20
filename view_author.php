@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.36 2008/02/01 21:29:26 loyola Exp $
+// $Id: view_author.php,v 1.37 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Given a author id number, this displays all the info about
@@ -36,6 +36,7 @@ class view_author extends pdHtmlPage {
         if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
+        $this->use_mootools = true;
 
         // check if this author id is valid
         if (!isset($this->author_id) || !is_numeric($this->author_id)) {
@@ -76,7 +77,7 @@ class view_author extends pdHtmlPage {
                              "<a href='mailto:" . $auth->email . "'>"
                              . $auth->email . "</a>"));
         $table->addRow(array('Organization:', $auth->organization));
-        
+
         $webpage = str_replace('http://', '', $auth->webpage);
         if (isset($auth->webpage) && !empty($webpage))
             $webpage = "<a href=\"" . $auth->webpage . "\" target=\"_blank\">"
@@ -107,9 +108,7 @@ class view_author extends pdHtmlPage {
         else {
             $table->addRow(
                 array('Publications:',
-                      '<a href="./list_publication.php?'
-                      . 'type=view&author_id=' . $auth->author_id
-                      . '">View Publications by this author</a>'));
+                      '<a id="start" href="#">Show Publications by this author</a>'));
         }
 
         $table->updateColAttributes(0, array('class' => 'emph',
@@ -118,9 +117,28 @@ class view_author extends pdHtmlPage {
         $result .= $table->toHtml();
         if (($auth->totalPublications > 0)
             && ($auth->totalPublications <= 6))
-            $result .= $this->displayPubList($auth->pub_list);
+            $result .= displayPubList($this->db, $auth->pub_list);
+        else
+            $result .= "<div id=\"publist\">&nbsp;</div>";
+            
+        $this->css();
+        $this->javascript();
 
         return $result;
+    }
+    
+    private function css() {
+        $this->css = '#publist.ajax-loading {
+  background: url(images/spinner.gif) no-repeat center;
+}';
+    }
+
+    private function javascript() {
+        $js_file = FS_PATH . '/js/view_author.js';
+        assert('file_exists($js_file)');
+        $content = file_get_contents($js_file);
+
+        $this->js = str_replace('{author_id}', $this->author_id, $content);
     }
 }
 

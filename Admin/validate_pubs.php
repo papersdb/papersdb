@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: validate_pubs.php,v 1.1 2008/02/11 22:20:58 loyola Exp $
+// $Id: validate_pubs.php,v 1.2 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * View Publication
@@ -62,7 +62,7 @@ class view_publication extends pdHtmlPage {
         // add additional parameter to the view icon
         echo preg_replace('/pub_id=(\d+)/',
             'pub_id=${1}&submit_pending=true',
-            $this->displayPubList($pub_list, true));
+            displayPubList($this->db, $pub_list, true));
     }
 }
 

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.45 2007/11/07 00:06:21 loyola Exp $
+// $Id: list_publication.php,v 1.46 2008/02/20 21:10:27 loyola Exp $
 
 /**
  * Lists all the publications in database.
@@ -119,7 +119,7 @@ class list_publication extends pdHtmlPage {
 	        echo $this->pubSelMenu(), "<br/>\n";
 	        
         echo $title;	        
-        echo $this->displayPubList($pub_list);
+        echo displayPubList($this->db, $pub_list);
     }
 
     public function pubSelect($viewCat = null) {
