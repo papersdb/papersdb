@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.61 2007/11/06 18:05:36 loyola Exp $
+// $Id: add_venue.php,v 1.62 2008/04/08 14:32:07 loyola Exp $
 
 /**
  * This page displays, edits and adds venues.
@@ -393,7 +393,7 @@ class add_venue extends pdHtmlPage {
                 echo '<h3>Adding Publication Entry</h3>';
 
             echo $pub->getCitationHtml('..', false), '<p/>',
-                add_pub_base::similarPubsHtml();
+                $this->similarPubsHtml();
         }
 
         $renderer =& $form->defaultRenderer();

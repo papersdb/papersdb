@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.9 2007/10/31 20:37:27 loyola Exp $
+// $Id: add_pub_base.php,v 1.10 2008/04/08 14:32:07 loyola Exp $
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -36,7 +36,7 @@ class add_pub_base extends pdHtmlPage {
         $this->addPubDisableMenuItems();
     }
 
-    public static function similarPubsHtml() {
+    public function similarPubsHtml() {
         if (!isset($_SESSION['similar_pubs'])) return;
 
         $html = '<h3>Similar Publications in Database</h3>';

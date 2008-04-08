@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.70 2008/02/16 00:12:44 loyola Exp $
+// $Id: add_author.php,v 1.71 2008/04/08 14:32:07 loyola Exp $
 
 /**
  * Creates a form for adding or editing author information.
@@ -232,7 +232,7 @@ class add_author extends pdHtmlPage {
                 echo '<h3>Adding Publication Entry</h3>';
 
             echo $pub->getCitationHtml('..', false), '<p/>',
-                add_pub_base::similarPubsHtml();
+                $this->similarPubsHtml();
         }
 
         $renderer =& $form->defaultRenderer();

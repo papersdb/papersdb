@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub3.php,v 1.50 2008/02/20 21:20:14 loyola Exp $
+// $Id: add_pub3.php,v 1.51 2008/04/08 14:32:07 loyola Exp $
 
 /**
  * This is the form portion for adding or editing author information.
@@ -262,7 +262,7 @@ when this publication entry is displayed.';
 
         echo $this->pub->getCitationHtml('..', false), '&nbsp;',
             getPubIcons($this->db, $this->pub, 0x1), '<p/>',
-            add_pub_base::similarPubsHtml();
+            $this->similarPubsHtml();
 
         if (is_object($this->pub->category))
             $defaults['cat_id'] = $this->pub->category->cat_id;
