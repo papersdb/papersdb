@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.
@@ -33,6 +31,12 @@ class search_publication_db extends pdHtmlPage {
     protected $result_pubs;
     protected $parse_search_add_word_or_next = false;
     protected $db_authors;
+    protected static $common_words = array(
+    	"a", "all", "am", "an", "and","any","are","as", "at", "be","but","can",
+    	"did","do","does","for", "from", "had", "has","have","here","how","i",                             
+    	"if","in","is", "it","no", "not","of","on","or", "so","that","the", 
+    	"then","there", "this","to", "too","up","use", "what","when","where", 
+    	"who", "why","you");
 
     public function __construct() {
         parent::__construct('search_results');
@@ -117,24 +121,16 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Simple function to check to see if the string is a common word or not
      */
-    private function is_common_word($string){
-        $common_words = array("a", "all", "am", "an", "and","any","are","as",
-                              "at", "be","but","can","did","do","does","for",
-                              "from", "had", "has","have","here","how","i",
-                              "if","in","is", "it","no", "not","of","on","or",
-                              "so","that","the", "then","there", "this","to",
-                              "too","up","use", "what","when","where", "who",
-                              "why","you");
-
-        return in_array($string, $common_words);
+    private static function is_common_word($word){
+        return in_array($word, self::$common_words);
     }
 
     /**
-     * Add words to the array except for special tokens, keeps track of ors,
+     * Adds word to the array except for special tokens, keeps track of ORs,
      * doesn't keep track of quotes.
      */
-    private function parse_search_add_word($word, &$array) {
-        if (strlen($word) == 0)
+    private function &parse_search_add_word($word, &$array) {
+        if ($word == '')
             return $array;
         if (strcasecmp($word, "and") == 0)
             return $array;
@@ -142,14 +138,13 @@ class search_publication_db extends pdHtmlPage {
             $this->parse_search_add_word_or_next = true;
             return $array;
         }
-        else if ($this->parse_search_add_word_or_next == true) {
-            $index = count($array)-1;
-            array_push($array[$index], $word);
+        else if ($this->parse_search_add_word_or_next) {
+            $array[count($array) - 1][] = $word;
             $this->parse_search_add_word_or_next = false;
             return $array;
         }
         else {
-            array_push($array, array($word));
+            $array[] = array($word);
             return $array;
         }
     }
@@ -161,9 +156,10 @@ class search_publication_db extends pdHtmlPage {
         $search_terms = array();
         $word = "";
         $quote_mode = false;
-        for ($index=0; $index < strlen($search); $index++) {
+        $len = strlen($search);
+        for ($index = 0; $index < $len; $index++) {
             if ($search[$index] == "\"") {
-                if ($quote_mode == true) {
+                if ($quote_mode) {
                     $search_terms = $this->parse_search_add_word($word, $search_terms);
                     $quote_mode = false;
                     $word = "";
@@ -176,7 +172,7 @@ class search_publication_db extends pdHtmlPage {
             }
             else if (($search[$index] == " ") || ($search[$index] == ",")
                      || ($search[$index] == "\t")) {
-                if ($quote_mode == true) {
+                if ($quote_mode) {
                     $word .= $search[$index];
                 }
                 else {
@@ -217,10 +213,14 @@ class search_publication_db extends pdHtmlPage {
         $quick_search_array
             = $this->parse_search(stripslashes($this->sp->search));
 
+        if ($this->debug) {
+            debugVar('$quick_search_array', $quick_search_array);
+        }
         foreach ($quick_search_array as $and_terms) {
             $union_array = array();
             foreach ($and_terms as $or_terms) {
                 foreach (explode(' ', $or_terms) as $term) {
+                	debugVar('$term', $term);
                     //Search through the publication table
                     $fields = array('title', 'paper', 'abstract', 'keywords',
                                     'extra_info');
@@ -332,9 +332,8 @@ class search_publication_db extends pdHtmlPage {
                         }
                     }
                 }
-                $this->result_pubs = array_intersect($this->result_pubs,
-                                                     $union_array);
             }
+            $this->result_pubs = array_intersect($this->result_pubs, $union_array);
         }
         // All results from quick search are in $this->result_pubs
         return $this->result_pubs;
