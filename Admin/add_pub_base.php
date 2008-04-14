@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub_base.php,v 1.11 2008/04/09 14:11:18 loyola Exp $
+
 
 /**
  * Common functions used by pages for adding a new publication.

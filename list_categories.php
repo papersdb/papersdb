@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_categories.php,v 1.20 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * This page displays all venues.

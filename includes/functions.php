@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: functions.php,v 1.44 2008/02/06 21:30:32 loyola Exp $
+
 
 /**
  * Common functions used by all pages.

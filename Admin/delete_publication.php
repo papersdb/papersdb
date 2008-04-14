@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_publication.php,v 1.24 2007/11/02 16:36:28 loyola Exp $
+
 
 /**
  * Deletes a publication from the database.

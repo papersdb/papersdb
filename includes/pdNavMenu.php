@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdNavMenu.php,v 1.26 2008/02/11 22:20:58 loyola Exp $
+
 
 /**
  * Contains the class that builds the navigation menu.

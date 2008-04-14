@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthInterests.php,v 1.12 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * Storage and retrieval of author interests to / from the

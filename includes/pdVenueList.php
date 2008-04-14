@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenueList.php,v 1.20 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * Contains class to retrieve a list of venues.

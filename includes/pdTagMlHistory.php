@@ -1,6 +1,6 @@
 <?php
 
-// $Id: pdTagMlHistory.php,v 1.1 2008/02/04 22:45:20 loyola Exp $
+
 
 /**
  * Implements a class that accesses category information from the database.

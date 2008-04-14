@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDb.php,v 1.9 2008/02/11 22:20:58 loyola Exp $
+
 
 /**
  * Singleton wrapper class for database access.

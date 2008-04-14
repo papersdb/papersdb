@@ -1,6 +1,4 @@
-<?php ;
-
-// $Id: add_pub2.php,v 1.41 2008/04/09 14:11:18 loyola Exp $
+<?php
 
 /**
  * This is the form portion for adding or editing author information.

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: validate_pubs.php,v 1.2 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * View Publication

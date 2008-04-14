@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdVenue.php,v 1.36 2008/02/05 16:08:20 loyola Exp $
+
 
 /**
  * Implements a class that accesses venue information from the database.

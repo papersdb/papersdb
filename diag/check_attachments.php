@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: check_attachments.php,v 1.15 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * Script that reports the publications whose attachments are not

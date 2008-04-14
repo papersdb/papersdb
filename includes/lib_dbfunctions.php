@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: lib_dbfunctions.php,v 1.16 2007/10/26 22:03:15 aicmltec Exp $
+
 
 /**
  * DB connection is only hard coded here and in lib_functions.

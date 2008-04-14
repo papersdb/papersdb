@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdDbAccessor.php,v 1.8 2008/02/04 22:45:20 loyola Exp $
+
 
 /**
  * A base class for objects that access the database.

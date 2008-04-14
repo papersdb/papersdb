@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_interest.php,v 1.20 2007/10/31 23:17:34 loyola Exp $
+
 
 /**
  * Deletes author interests from the database.

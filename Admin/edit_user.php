@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: edit_user.php,v 1.34 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * This page displays/edits the users information.

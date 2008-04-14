@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_author.php,v 1.37 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Given a author id number, this displays all the info about

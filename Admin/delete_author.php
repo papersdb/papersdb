@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_author.php,v 1.30 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Deletes an author from the database.

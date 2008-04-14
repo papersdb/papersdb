@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: tag_ml_submit.php,v 1.2 2008/02/04 22:45:20 loyola Exp $
+
 
 /**
  * Main page for PapersDB.

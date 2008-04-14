@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: cv.php,v 1.26 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * This file outputs all the search results given to it in a CV format.

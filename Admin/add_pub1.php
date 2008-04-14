@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_pub1.php,v 1.61 2008/04/09 14:11:18 loyola Exp $
+
 
 /**
  * This page is the form for adding/editing a publication.

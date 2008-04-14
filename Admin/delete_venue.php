@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: delete_venue.php,v 1.29 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * This page confirms that the user would like to delete the selected

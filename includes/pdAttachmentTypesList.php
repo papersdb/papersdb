@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAttachmentTypesList.php,v 1.7 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * Queries the databse for the different attachment types allowed.

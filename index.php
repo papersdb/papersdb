@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: index.php,v 1.46 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Main page for PapersDB.

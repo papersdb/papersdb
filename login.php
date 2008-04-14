@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: login.php,v 1.39 2008/02/02 23:03:33 loyola Exp $
+
 
 /**
  * Allows a user to log into the system.

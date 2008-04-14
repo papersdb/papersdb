@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: duplicatePubs.php,v 1.16 2008/02/20 21:20:14 loyola Exp $
+
 
 /**
  * Script that reports the publications with two PI's and also one PI and one

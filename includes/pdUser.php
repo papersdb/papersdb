@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdUser.php,v 1.38 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Implements a class that accesses user information from the database.

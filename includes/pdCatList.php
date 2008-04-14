@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCatList.php,v 1.18 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * Implements a class that retrieves category information for all categories.

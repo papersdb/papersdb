@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_venue.php,v 1.63 2008/04/09 14:11:18 loyola Exp $
+
 
 /**
  * This page displays, edits and adds venues.

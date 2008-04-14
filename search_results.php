@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_results.php,v 1.31 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Displays the search resutls contained in the session variables.

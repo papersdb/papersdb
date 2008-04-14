@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthor.php,v 1.31 2008/02/06 15:17:15 loyola Exp $
+
 
 /**
  * Storage and retrieval of author data to / from the database.

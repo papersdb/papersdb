@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdCategory.php,v 1.20 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * Implements a class that accesses category information from the database.

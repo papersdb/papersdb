@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdPubList.php,v 1.37 2008/02/02 23:02:23 loyola Exp $
+
 
 /**
  * Implements a class that builds a list of publications.

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: search_publication_db.php,v 1.67 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * Takes info from either advanced_search.php or the navigation menu.

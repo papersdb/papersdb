@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: view_publication.php,v 1.88 2008/02/20 21:20:14 loyola Exp $
+
 
 /**
  * View Publication

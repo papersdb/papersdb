@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: logout.php,v 1.12 2007/11/02 16:36:28 loyola Exp $
+
 
 /**
  * Allows a user to log out of the system.

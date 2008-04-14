@@ -1,6 +1,4 @@
-<?php ;
-
-// $Id: advanced_search.php,v 1.74 2008/01/16 18:05:12 loyola Exp $
+<?php
 
 /**
  * Performs advanced searches on publication information in the

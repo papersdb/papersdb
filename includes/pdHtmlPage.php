@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdHtmlPage.php,v 1.123 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Contains a base class for all view pages.

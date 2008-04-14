@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_category.php,v 1.42 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * Creates a form for adding or editing a category.

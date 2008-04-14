@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdInfoList.php,v 1.10 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * Class to retrieve information table data.

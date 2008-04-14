@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: sanity_checks.php,v 1.6 2008/01/15 02:26:36 loyola Exp $
+
 
 /**
  * Main page for PapersDB.

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: defines.php,v 1.28 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Project Constants

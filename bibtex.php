@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: bibtex.php,v 1.8 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * This file outputs all the search results given to it in a BibTeX format.

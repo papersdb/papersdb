@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: add_author.php,v 1.72 2008/04/09 14:11:18 loyola Exp $
+
 
 /**
  * Creates a form for adding or editing author information.

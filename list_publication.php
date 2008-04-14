@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_publication.php,v 1.46 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Lists all the publications in database.

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: list_venues.php,v 1.38 2007/11/07 00:06:21 loyola Exp $
+
 
 /**
  * This page displays all venues.

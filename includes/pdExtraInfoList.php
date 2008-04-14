@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdExtraInfoList.php,v 1.9 2007/11/06 18:05:36 loyola Exp $
+
 
 /**
  * Retrieves the extra information items from the database.

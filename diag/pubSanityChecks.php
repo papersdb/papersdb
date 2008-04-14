@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pubSanityChecks.php,v 1.18 2008/02/20 21:10:27 loyola Exp $
+
 
 /**
  * Script that reports the publications with two PI's and also one PI and one

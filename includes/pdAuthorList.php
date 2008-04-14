@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdAuthorList.php,v 1.22 2008/01/15 22:57:14 loyola Exp $
+
 
 /**
  * Implements a class that retrieves from the database all the authors with a

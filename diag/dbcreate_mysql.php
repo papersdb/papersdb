@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: dbcreate_mysql.php,v 1.15 2008/02/11 07:16:35 loyola Exp $
+
 
 /**
  * Creates the PapersDB database.

@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: pdSearchParams.php,v 1.13 2007/11/02 16:36:29 loyola Exp $
+
 
 /**
  * Storage and retrieval of user data to / from the database.

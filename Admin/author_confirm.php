@@ -1,6 +1,6 @@
 <?php ;
 
-// $Id: author_confirm.php,v 1.7 2007/11/02 22:42:26 loyola Exp $
+
 
 /**
  * The user reaches this page only when he is adding a new author, and the
