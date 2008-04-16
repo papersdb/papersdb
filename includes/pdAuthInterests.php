@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Storage and retrieval of author interests to / from the

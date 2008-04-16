@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Deletes author interests from the database.
@@ -47,7 +45,6 @@ class delete_interest extends pdHtmlPage {
                     'submit', 'submit', 'Delete')
                 ),
             null, null, '&nbsp;', false);
-
 
         if ($form->validate()) {
             $values = $form->exportValues();

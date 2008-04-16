@@ -1,4 +1,4 @@
-<?php ;
+<?php
 
 /**
  * Lists all the authors in the database.

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Implements a class that accesses venue information from the database.

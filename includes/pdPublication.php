@@ -1,4 +1,4 @@
-<?php ;
+<?php
 
 /**
  * $Id: pdPublication.php,v 1.135 2008/02/11 22:20:58 loyola Exp $

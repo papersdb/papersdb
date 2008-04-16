@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Allows a user to log out of the system.

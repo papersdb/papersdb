@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Lists all the publications in database.
@@ -282,5 +280,4 @@ $page = new list_publication();
 echo $page->toHtml();
 
 ?>
-
 

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * The user reaches this page only when he is adding a new author, and the

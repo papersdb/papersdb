@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This is the form portion for adding or editing author information.
@@ -90,6 +88,5 @@ class add_pub_submit extends pdHtmlPage {
 
 $page = new add_pub_submit();
 echo $page->toHtml();
-
 
 ?>

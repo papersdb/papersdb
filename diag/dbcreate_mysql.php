@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Creates the PapersDB database.
@@ -181,7 +179,6 @@ PRIMARY KEY  (`add_id`))');
         $q = $this->db->insert('extra_info', $arr, 'dbcreate::tblExtraInfo');
         assert('$q');
     }
-
 
     private function tblInfo() {
         assert('is_object($this->db)');
@@ -381,6 +378,5 @@ PRIMARY KEY  (`add_id`))');
 
 $page = new dbCreate();
 echo $page->toHtml();
-
 
 ?>

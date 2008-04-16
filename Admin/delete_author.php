@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Deletes an author from the database.

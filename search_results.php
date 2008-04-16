@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Displays the search resutls contained in the session variables.

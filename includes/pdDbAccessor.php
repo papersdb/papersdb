@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * A base class for objects that access the database.

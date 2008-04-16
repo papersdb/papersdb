@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Contains the class that builds the navigation menu.

@@ -461,7 +461,6 @@ class DatabaseOracle extends Database {
 		return $valuedata;
 	}
 
-
 	function reportQueryError( $error, $errno, $sql, $fname, $tempIgnore = false ) {
 		$message = "A database error has occurred\n" .
 			"Query: $sql\n" .

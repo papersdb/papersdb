@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * DB connection is only hard coded here and in lib_functions.

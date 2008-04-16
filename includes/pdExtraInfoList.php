@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Retrieves the extra information items from the database.

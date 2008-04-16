@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Common functions used by pages for adding a new publication.
@@ -13,7 +11,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/functions.php';
-
 
 class add_pub_base extends pdHtmlPage {
     protected $pub;

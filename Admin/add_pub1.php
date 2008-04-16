@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This page is the form for adding/editing a publication.

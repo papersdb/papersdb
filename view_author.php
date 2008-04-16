@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Given a author id number, this displays all the info about

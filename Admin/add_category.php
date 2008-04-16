@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Creates a form for adding or editing a category.

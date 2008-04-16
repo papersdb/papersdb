@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Implements a class that accesses user information from the database.

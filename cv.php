@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This file outputs all the search results given to it in a CV format.

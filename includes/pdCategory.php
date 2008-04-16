@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Implements a class that accesses category information from the database.
@@ -63,7 +61,6 @@ class pdCategory extends pdDbAccessor {
         }
         return true;
     }
-
 
     public function dbLoadCategoryInfo($db) {
         assert ('isset($this->cat_id)');

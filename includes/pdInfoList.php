@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Class to retrieve information table data.

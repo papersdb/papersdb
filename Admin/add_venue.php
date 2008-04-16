@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This page displays, edits and adds venues.

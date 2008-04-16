@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Deletes a publication from the database.

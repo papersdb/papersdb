@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Contains a base class for all view pages.
@@ -21,7 +19,6 @@ require_once 'includes/pdNavMenu.php';
 require_once 'HTML/QuickForm.php';
 require_once('HTML/QuickForm/Renderer/Default.php');
 require_once 'HTML/Table.php';
-
 
 /**
  * Base class for all HTML pages in PapersDB.

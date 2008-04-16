@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This page confirms that the user would like to delete the selected
@@ -16,7 +14,6 @@ ini_set("include_path", ini_get("include_path") . ":..");
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdVenue.php';
 require_once 'includes/pdPublication.php';
-
 
 /**
  * Renders the whole page.

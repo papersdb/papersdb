@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Storage and retrieval of user data to / from the database.

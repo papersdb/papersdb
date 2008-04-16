@@ -246,7 +246,6 @@ function wfSetSQL( $table, $var, $value, $cond, $dbi = DB_MASTER )
 	}
 }
 
-
 /**
  * @todo document function
  */

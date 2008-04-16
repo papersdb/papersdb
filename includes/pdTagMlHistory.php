@@ -1,7 +1,5 @@
 <?php
 
-
-
 /**
  * Implements a class that accesses category information from the database.
  *

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Allows a user to log into the system.

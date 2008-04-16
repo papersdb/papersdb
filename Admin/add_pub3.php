@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This is the form portion for adding or editing author information.
@@ -58,7 +56,6 @@ class add_pub3 extends add_pub_base {
                 $this->pub->addVenue($this->db, $this->venue_id);
             else
                 $this->pub->venue = null;
-
 
         if (isset($this->cat_id))
             $this->pub->addCategory($this->db, $this->cat_id);
@@ -450,6 +447,5 @@ END;
 
 $page = new add_pub3();
 echo $page->toHtml();
-
 
 ?>

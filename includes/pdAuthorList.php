@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Implements a class that retrieves from the database all the authors with a

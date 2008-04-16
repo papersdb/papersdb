@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * This is the form portion for adding or editing author information.
@@ -70,7 +68,6 @@ class add_pub4 extends add_pub_base {
                 HTML_QuickForm::createElement(
                     'submit', 'finish', 'Finish')),
             'buttons', null, '&nbsp;', false);
-
 
         if ($form->validate())
             $this->processForm();
@@ -452,6 +449,5 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
 
 $page = new add_pub4();
 echo $page->toHtml();
-
 
 ?>

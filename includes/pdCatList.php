@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Implements a class that retrieves category information for all categories.

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Script that reports the publications with two PI's and also one PI and one
@@ -52,7 +50,6 @@ class pubSanityChecks extends pdHtmlPage {
         'Sutton, R'     => array('2003-09-01', '2007-03-31'),
         'Holte, R'      => array('2002-09-01', '2007-03-31'),
         'Greiner, R'    => array('2002-09-01', '2007-03-31'));
-
 
     public function __construct() {
         parent::__construct('pub_sanity_checks', 'Pub Sanity Checks',

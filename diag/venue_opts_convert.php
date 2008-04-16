@@ -1,4 +1,4 @@
-<?php ;
+<?php
 
 //#!/usr/bin/env php
 

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Creates a form for adding or editing author information.
@@ -176,7 +174,6 @@ class add_author extends pdHtmlPage {
                            null, 'client');
             $form->addRule('lastname', 'a last name is required', 'required',
                            null, 'client');
-
 
             if ($this->author_id == null)
                 $button_label = 'Add Author';
@@ -371,6 +368,5 @@ class add_author extends pdHtmlPage {
 
 $page = new add_author();
 echo $page->toHtml();
-
 
 ?>

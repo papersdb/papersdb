@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Contains class to retrieve a list of venues.

@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Script that reports the publications whose attachments are not

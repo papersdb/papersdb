@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Script that reports the publications with two PI's and also one PI and one

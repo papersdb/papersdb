@@ -482,7 +482,6 @@ class Database {
 		$this->ignoreErrors( $ignore );
 	}
 
-
 	/**
 	 * Intended to be compatible with the PEAR::DB wrapper functions.
 	 * http://pear.php.net/manual/en/package.database.db.intro-execute.php
@@ -901,7 +900,6 @@ class Database {
 			return $info !== false;
 		}
 	}
-
 
 	/**
 	 * Get information about an index into an object
@@ -1466,7 +1464,6 @@ class Database {
 		$fname = 'Database::masterPosWait';
 		wfProfileIn( $fname );
 
-
 		# Commit any open transactions
 		$this->immediateCommit();
 
@@ -1759,7 +1756,6 @@ class DatabaseMysql extends Database {
 	# Inherit all
 }
 
-
 /**
  * Result wrapper for grabbing data queried by someone else
  *
@@ -1812,7 +1808,6 @@ class ResultWrapper {
 
 }
 
-
 #------------------------------------------------------------------------------
 # Global functions
 #------------------------------------------------------------------------------
@@ -1856,7 +1851,6 @@ border=\"0\" ALT=\"Google\"></A>
 </FORM>
 <!-- SiteSearch Google -->";
 	$cachederror = "The following is a cached copy of the requested page, and may not be up to date. ";
-
 
 	if( !headers_sent() ) {
 		header( 'HTTP/1.0 500 Internal Server Error' );

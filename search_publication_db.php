@@ -74,7 +74,7 @@ class search_publication_db extends pdHtmlPage {
             . $location . '?' . $this->sp->paramsToHtmlQueryStr();
 
         if($this->sp->search != "") {
-            $this->quickSearch($this->result_pubs);
+            $this->result_pubs = $this->quickSearch();
         }
         else {
             $this->advancedSearch();
@@ -119,7 +119,7 @@ class search_publication_db extends pdHtmlPage {
         if ($thearray == null)
             $thearray = array();
 
-        $search_result = query_db($query);
+        $search_result = $this->db->query($query);
         $result = array();
 
         while ($row = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
@@ -132,9 +132,10 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Performs a quick search.
      */
-    private function quickSearch() {
+    private function &quickSearch() {    	
 		$parser = new SearchTermParser($this->sp->search);
 		$quick_search_array = $parser->getWordList();
+		$result_pubs = array();
 
         if ($this->debug) {
             debugVar('$quick_search_array', $quick_search_array);
@@ -164,7 +165,7 @@ class search_publication_db extends pdHtmlPage {
                     $this->venuesSearch('name', $term, $union_array);
 
                     //Search Categories
-                    $search_result = query_db(
+                    $search_result = $this->db->query(
                         'SELECT cat_id from category WHERE category RLIKE '
                         . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
 
@@ -186,7 +187,7 @@ class search_publication_db extends pdHtmlPage {
                         $union_array);
 
                     //Search Authors
-                    $search_result = query_db(
+                    $search_result = $this->db->query(
                         'SELECT author_id from author WHERE name RLIKE '
                         . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
 
@@ -204,7 +205,7 @@ class search_publication_db extends pdHtmlPage {
                     }
 
                     // search pub_ranking
-                    $search_result = query_db(
+                    $search_result = $this->db->query(
                         'SELECT rank_id from pub_rankings '
                         . 'WHERE description RLIKE '
                         . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
@@ -222,7 +223,7 @@ class search_publication_db extends pdHtmlPage {
                     }
 
                     // search venue_ranking
-                    $search_result = query_db(
+                    $search_result = $this->db->query(
                         'SELECT venue_id from venue_rankings '
                         . 'WHERE description RLIKE '
                         . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
@@ -240,7 +241,7 @@ class search_publication_db extends pdHtmlPage {
                     }
 
                     // search collaborations
-                    $search_result = query_db(
+                    $search_result = $this->db->query(
                         'SELECT col_id from collaboration '
                         . 'WHERE description RLIKE '
                         . quote_smart('[[:<:]]'.$term.'[[:>:]]'));
@@ -257,10 +258,10 @@ class search_publication_db extends pdHtmlPage {
                     }
                 }
             }
-            $this->result_pubs = array_intersect($this->result_pubs, $union_array);
+            $result_pubs = array_intersect($this->result_pubs, $union_array);
         }
         // All results from quick search are in $this->result_pubs
-        return $this->result_pubs;
+        return $result_pubs;
     }
 
     /**
@@ -304,7 +305,7 @@ class search_publication_db extends pdHtmlPage {
                 . "FROM info, cat_info, pub_cat "
                 . "WHERE info.info_id=cat_info.info_id AND cat_info.cat_id="
                 . quote_smart($cat_id);
-            $info_result = query_db($info_query);
+            $info_result = $this->db->query($info_query);
             while ($info_line = mysql_fetch_array($info_result, MYSQL_ASSOC)) {
                 $temporary_array = NULL;
                 $info_id = $info_line['info_id'];
@@ -390,7 +391,7 @@ class search_publication_db extends pdHtmlPage {
         foreach ($this->sp->paper_rank as $rank_id => $value) {
             if ($value != 'yes') continue;
 
-            $search_result = query_db(
+            $search_result = $this->db->query(
                 'SELECT venue_id from venue_rankings '
                 . 'WHERE rank_id=' . quote_smart($rank_id));
 
@@ -439,7 +440,6 @@ class search_publication_db extends pdHtmlPage {
         if (count($union_array) > 0)
             $this->result_pubs = array_intersect($this->result_pubs,
                                                  $union_array);
-
 
         // DATES SEARCH --------------------------------------
         if (isset($this->sp->startdate)) {
@@ -504,7 +504,7 @@ class search_publication_db extends pdHtmlPage {
     private function venuesSearch($field, $value, &$union_array) {
         assert('($field == "name") || ($field == "title")');
 
-        $search_result = query_db('SELECT venue_id from venue WHERE ' . $field
+        $search_result = $this->db->query('SELECT venue_id from venue WHERE ' . $field
                                   . ' RLIKE '
                                   . quote_smart('[[:<:]]'. $value . '[[:>:]]'));
         while ($search_array = mysql_fetch_array($search_result, MYSQL_ASSOC)) {

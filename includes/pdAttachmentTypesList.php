@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Queries the databse for the different attachment types allowed.

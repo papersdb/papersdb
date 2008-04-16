@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Deletes a category from the database.

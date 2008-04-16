@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Singleton wrapper class for database access.
@@ -127,7 +125,6 @@ class pdDb {
         self::$_debug = true;
     }
 }
-
 
 function wfDebug( $text, $logonly = false ) {
     echo $text;

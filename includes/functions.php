@@ -1,6 +1,4 @@
-<?php ;
-
-
+<?php
 
 /**
  * Common functions used by all pages.
@@ -16,7 +14,6 @@ require_once 'lib_dbfunctions.php';
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
-
 
 /**
  *  Checks to see if the given string is nothing but letters or numbers and is
@@ -155,7 +152,6 @@ function debugVar($name,$data) {
     }
     echo "</pre>\n";
 }
-
 
 /**
 * colorize a string for pretty display
