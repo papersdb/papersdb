@@ -17,7 +17,7 @@
 class pdAuthorList {
 	private function __construct() {}
 	
-    public static function create($db, $firstname = null, $lastname = null,
+    public static function &create($db, $firstname = null, $lastname = null,
     							  $as_fist_last = false) {
         assert('is_object($db)');
 
@@ -25,7 +25,6 @@ class pdAuthorList {
             $q = $db->select('author', array('author_id', 'name'), '',
                              "pdAuthorList::create",
                              array('ORDER BY' => 'name ASC'));
-            if ($q === false) return false;
         }
         else {
             if (($lastname != null) && ($firstname == null))
@@ -39,12 +38,22 @@ class pdAuthorList {
                              array('name LIKE ' . $db->addQuotes($name)),
                              "pdAuthorList::create",
                              array('ORDER BY' => 'name ASC'));
-            if ($q === false) return false;
         }
+        return self::getSelectResults($q);
+    }
+	
+    public static function createFromAuthorIds($db, $author_ids) {
+        assert('is_array($author_ids)');
 
+        $q = $db->select('author', array('author_id', 'name'),
+                         array('name' => $author_ids),
+                         '', array('ORDER BY' => 'name ASC'));
+        return self::getSelectResults($q);
+    }
+    
+    private static function &getSelectResults($q) {
         $list = array();
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$name = utf8_encode($r->name);
         	
         	if ($as_fist_last) {
@@ -55,9 +64,8 @@ class pdAuthorList {
         	}
             
             $list[$r->author_id] = $name;
-            $r = $db->fetchObject($q);
         }
-        return $list;
+        return $list;        
     }
 }
 

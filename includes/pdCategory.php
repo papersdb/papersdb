@@ -75,11 +75,8 @@ class pdCategory extends pdDbAccessor {
                          array('info.info_id=cat_info.info_id',
                                'cat_info.cat_id' => $this->cat_id),
                          "pdCategory::dbLoadCategoryInfo");
-        assert('($q !== false)');
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $this->info[$r->info_id] = $r->name;
-            $r = $db->fetchObject($q);
         }
     }
 

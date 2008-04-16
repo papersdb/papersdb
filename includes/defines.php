@@ -17,34 +17,18 @@ $wgServer = "www.cs.ualberta.ca";
 
 define('SITE_NAME', 'papersdb');
 
-/** The server hosting the database. */
-if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
-    define('DB_SERVER', 'levante:3306');
-else
-    define('DB_SERVER', 'kingman.cs.ualberta.ca:3306');
-
-/** The user id accessing the database. */
-define('DB_USER', 'papersdb');
-
-/** The user id accessing the database. */
-define('DB_PASSWD', '');
-
-define('DB_ADMIN', 'papersdb@cs.ualberta.ca');
-
 /**
  * The name of the database and the path on the fileserver where documents are 
  * stored.
  */
-if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-    define('DB_NAME',   'pubDB');
-    define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs');
+if (strpos($_SERVER['PHP_SELF'], '~papersdb') === false) {
+    define('FS_PATH', '/usr/host/loyola/htdocs/papersdb');
 }
 else {
-    define('DB_NAME',   'pubDBdev');
     if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
        define('FS_PATH', '/home/nelson/public_html/papersdb');
     else
-        define('FS_PATH', '/usr/abee4/cshome/loyola/web_docs/papersdb');
+        define('FS_PATH', '/usr/host/loyola/htdocs/papersdb');
 }
 
 define('FS_PATH_UPLOAD', FS_PATH . '/uploaded_files/');

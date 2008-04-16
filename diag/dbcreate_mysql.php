@@ -57,7 +57,7 @@ class dbCreate extends pdHtmlPage {
     private function createDatabase() {
         assert('is_object($this->db)');
 
-        $q  = $this->db->query('CREATE DATABASE ' . DB_NAME);
+        //$q  = $this->db->query('CREATE DATABASE ' . ???);
         assert('$q');
     }
 

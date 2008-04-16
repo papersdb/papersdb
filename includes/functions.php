@@ -10,7 +10,7 @@
  */
 
 /** Requires DB functions and Table classes. */
-require_once 'lib_dbfunctions.php';
+require_once 'defines.php';
 
 $relative_files_path = "uploaded_files/";
 $absolute_files_path = FS_PATH . $relative_files_path;
@@ -41,21 +41,6 @@ function isValid($string){
             return errorMessage();
     }
     return "";
-}
-
-/**
- * Strips slashes and adds quotes if the value passed in is numeric or null.
- */
-function quote_smart($value) {
-	// Stripslashes
-	if (get_magic_quotes_gpc()) {
-		$value = stripslashes($value);
-	}
-	// Quote if not a number or a numeric string
-	if (!is_numeric($value) || $value[0] == '0') {
-		$value = "'" . mysql_real_escape_string($value) . "'";
-	}
-	return $value;
 }
 
 /**
@@ -93,13 +78,8 @@ function format80($text) {
     if (!isset($text) || ($text == '')) return;
 
     $lines = explode("\n", $text);
-    foreach($lines as $line) {
-        preg_match("/^(\s+)/", $line, $m);
-
-        if (isset($m[1]))
-            $indent = $m[1];
-        else
-            $indent = ' ';
+    foreach($lines as $line) {            
+        $line = trim($line);
 
         if (strlen($line) > 80) {
             while (strlen($line) > 80) {
@@ -108,7 +88,7 @@ function format80($text) {
                     break;
                 else {
                     $new_lines[] = substr($line, 0, $splt);
-                    $line = $indent . $indent . substr($line, $splt+1);
+                    $line = substr($line, $splt+1);
                 }
             }
             $new_lines[] = $line;
@@ -119,6 +99,7 @@ function format80($text) {
 
     return implode("\n", $new_lines);
 }
+
 
 /**
 * catch the contents of a print_r into a string
@@ -345,6 +326,7 @@ function userErrorHandler($errno, $errmsg, $filename, $linenum, $vars) {
     // for testing
     echo $err;
     papersdb_backtrace();
+    exit(1);
 }
 
 /**

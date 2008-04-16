@@ -507,7 +507,7 @@ class add_venue extends pdHtmlPage {
     }
 
     private function javascript() {
-        $js_file = FS_PATH . '/Admin/js/add_venue.js';
+        $js_file = 'js/add_venue.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);
 

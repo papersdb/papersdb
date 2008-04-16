@@ -36,7 +36,7 @@ $rankings = array(
                  'NYU-CRM',
                  'TSC2007'));
 
-$db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDBdev');
+$db = new pdDb(array('name' => 'pubDB'));
 
 $pubs = pdPubList::create($db);
 

@@ -18,7 +18,7 @@ if (!isset($_GET['author_id'])) {
     exit('script called with invalid arguments');
 }
 
-$db = pdDb::newFromParams();
+$db = new pdDb();
 $auth = new pdAuthor();
 $auth->dbLoad($db, $_GET['author_id'],
     pdAuthor::DB_LOAD_PUBS_ALL | pdAuthor::DB_LOAD_INTERESTS);

@@ -340,7 +340,7 @@ class add_author extends pdHtmlPage {
     }
 
     public function javascript() {
-        $js_file = FS_PATH . '/Admin/js/add_author.js';
+        $js_file = 'js/add_author.js';
         assert('file_exists($js_file)');
 
         $content = file_get_contents($js_file);
@@ -351,7 +351,7 @@ class add_author extends pdHtmlPage {
                                  $content);
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
-            $js_file = FS_PATH . '/Admin/js/add_pub_cancel.js';
+            $js_file = 'js/add_pub_cancel.js';
 
             assert('file_exists($js_file)');
             $content = file_get_contents($js_file);

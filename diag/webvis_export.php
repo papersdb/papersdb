@@ -9,7 +9,7 @@ require_once 'includes/pdDb.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdPubList.php';
 
-$db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDB');
+$db = new pdDb(array('name' => 'pubDB'));
 
 $authors = pdAuthorList::create($db);
 

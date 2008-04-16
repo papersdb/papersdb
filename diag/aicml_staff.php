@@ -22,12 +22,10 @@ function getAicmlPositions(&$db) {
     assert('is_object($db)');
     $result = array();
     $q = $db->select('aicml_positions', '*');
-    if (!$q) return $result;
+    if (count($q) == 0) return $result;
     
-    $r = $db->fetchObject($q);
-    while ($r) {
+    foreach ($q as $r) {
         $result[$r->description] = $r->pos_id;
-        $r = $db->fetchObject($q);
     }
     return $result;
 }

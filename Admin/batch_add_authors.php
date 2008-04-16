@@ -11,7 +11,8 @@ ini_set("include_path", ini_get("include_path") . ":..");
 
 /** Requries the base class and classes to access the database. */
 require_once 'includes/pdHtmlPage.php';
-require_once('HTML/QuickForm/Renderer/QuickHtml.php');
+require_once 'includes/pdAuthor.php';
+require_once 'HTML/QuickForm/Renderer/QuickHtml.php';
 
 /**
  * Renders the whole page.
@@ -23,9 +24,22 @@ class batch_add_authors extends pdHtmlPage {
         parent::__construct('batch_add_authors');
 
         if ($this->loginError) return;
+        
+        $this->use_mootools = true;
 
         $form = new HTML_QuickForm('batch_add', 'post', null, '_self',
                                    'multipart/form-data');
+    
+        $tooltip = <<<TOOLTIP_END
+New Authors::A semi-colon separated list of author names. Names can be in the following 
+formats: 
+&lt;ul&gt;
+  &lt;li&gt;fist last&lt;/li&gt;
+  &lt;li&gt;fist initials last&lt;/li&gt;
+  &lt;li&gt;last, first&lt;/li&gt;
+  &lt;li&gt;last, first initials&lt;/li&gt;
+&lt;/ul&gt;
+TOOLTIP_END;
 
         $form->addGroup(
             array(
@@ -36,7 +50,7 @@ class batch_add_authors extends pdHtmlPage {
                     'static', 'kwgroup_help', null,
                     '<span class="small">separate using semi-colons (;)</span>')),
             'new_auth_group',
-            $this->helpTooltip('New Authors:', 'newAuthorHelp'),
+            "<span class=\"Tips1\" title=\"$tooltip\">New Authors:</span>",
             '<br/>', false);
 
         $form->addGroup(
@@ -51,10 +65,9 @@ class batch_add_authors extends pdHtmlPage {
 
         if ($form->validate()) {
             $values = $form->exportValues();
-            $values['new_authors'] = preg_replace("/;\s*;/", ';',
-                                                  $values['new_authors']);
-
-            $new_authors = split(';\s*', $values['new_authors']);
+            $values['new_authors'] 
+                = preg_replace("/;\s*;/", ';', $values['new_authors']);
+            $new_authors = preg_split('/;\s*/', $values['new_authors']);
 
             $fl_auth_list = pdAuthorList::create($this->db, null, null, true);
 
@@ -119,17 +132,13 @@ class batch_add_authors extends pdHtmlPage {
 
             $this->form =& $form;
             $this->renderer =& $renderer;
-            $this->javascript();
-        }
-    }
-
-    public function javascript() {
-        $this->js = <<<JS_END
-            public newAuthorHelp=
-            "A semi-colon separated list of author names. Names can be in "
-            + "the following formats: <ul><li>fist last</li><li>fist initials "
-            + "last</li><li>last, first</li><li>last, first initials</li></ul>";
+            
+            $this->js = <<<JS_END
+window.addEvent('domready', function() {
+                    var Tips1 = new Tips($$('.Tips1'));
+                });
 JS_END;
+        }
     }
 }
 

@@ -14,13 +14,11 @@ class pdAuthorTest extends PHPUnit_Framework_TestCase {
     protected $author;
 
     protected function setUp() {
-        $this->db = pdDb::newFromParams(DB_SERVER, DB_USER, DB_PASSWD, 'pubDBdev');
+        $this->db = new pdDb(array('name' => 'pubDBdev'));
     }
 
     protected function tearDown() {
-        $this->db->close();
         unset($this->author);
-        $this->db->debug();
     }
 
     public function testAllNull() {
@@ -98,12 +96,12 @@ class pdAuthorTest extends PHPUnit_Framework_TestCase {
                                array('author_id' => $author_id),
                                'pdAuthorTest::testSimpleDelete');
 
-        $this->assertEquals($this->db->numRows($q), 0);
+        $this->assertEquals(count($q), 0);
 
         $q = $this->db->select('author_interest', 'author_id',
                                array('author_id' => $author_id),
                                'pdAuthorTest::testSimpleDelete');
-        $this->assertEquals($this->db->numRows($q), 0);
+        $this->assertEquals(count($q), 0);
 
         foreach($interests as $i) {
             $q = $this->db->selectRow('interest', 'interest_id',

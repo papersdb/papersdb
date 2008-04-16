@@ -427,8 +427,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
     }
 
     public function javascript() {
-        $js_files = array(FS_PATH . '/Admin/js/add_pub4.js',
-                          FS_PATH . '/Admin/js/add_pub_cancel.js');
+        $js_files = array('js/add_pub4.js', 'js/add_pub_cancel.js');
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';

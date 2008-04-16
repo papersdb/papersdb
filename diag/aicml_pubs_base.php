@@ -80,11 +80,9 @@ class aicml_pubs_base extends pdHtmlPage {
         if (!$q) return false;
         
         $pubs = array();
-        $r = $this->db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$pub = new pdPublication($r);
         	$pubs[$r->pub_id] = $pub;
-        	$r = $this->db->fetchObject($q);
         }
 
         uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
@@ -155,13 +153,11 @@ class aicml_pubs_base extends pdHtmlPage {
         		'aicml_staff.author_id=author.author_id'));
         
         $this->aicml_pi_authors = array();
-        $r = $this->db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$this->aicml_pi_authors[$r->author_id] = utf8_encode($r->name);
         	$this->aicml_pi_dates[$r->author_id] = array(
         		date2Timestamp($r->start_date), 
         		($r->end_date != null) ? date2Timestamp($r->end_date) : -1);
-            $r = $this->db->fetchObject($q);
         }
     }
 
@@ -181,13 +177,11 @@ class aicml_pubs_base extends pdHtmlPage {
         		'aicml_staff.author_id=author.author_id'));
         
         $this->aicml_pdf_students_staff_authors = array();
-        $r = $this->db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$this->aicml_pdf_students_staff_authors[$r->author_id] = $r->name;
         	$this->aicml_pdf_students_staff_dates[$r->author_id] = array(
         		date2Timestamp($r->start_date), 
         		($r->end_date != null) ? date2Timestamp($r->end_date) : -1);
-            $r = $this->db->fetchObject($q);
         }
     }
 

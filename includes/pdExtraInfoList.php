@@ -20,14 +20,9 @@ class pdExtraInfoList {
 
         $q = $db->select('extra_info', array('DISTINCT name'), '',
                          "pdExtraInfoList::dbLoad");
-        
-        if ($q === false) return null;
-
         $list = array();
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[$r->name] = $r->name;
-            $r = $db->fetchObject($q);
         }
         sort($this->list);
         return $list;

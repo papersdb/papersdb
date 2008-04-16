@@ -38,16 +38,14 @@ class view_publication extends pdHtmlPage {
         $pub_ids = array();
         $q = $this->db->select('pub_pending', 'pub_id');
         
-        if ($this->db->numRows($q) == 0) {
+        if (count($q) == 0) {
             echo 'There are no publicaiton entries requiring validation.';
             return;
         }
         
-        $r = $this->db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$pub = new pdPublication($r);
         	$pub_ids[] = $r->pub_id;
-        	$r = $this->db->fetchObject($q);
         }
         
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $pub_ids,

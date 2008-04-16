@@ -15,19 +15,14 @@
 class pdCatList {
 	private function __construct() {}
 	
-    public static function create($db) {
+    public static function &create($db) {
         assert('is_object($db)');
         $q = $db->select('category', array('cat_id', 'category'), '',
                          "pdCatList::create");
         
-        
-        if ($q === false) return null;
-        
         $list = array();
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[$r->cat_id] = $r->category;
-            $r = $db->fetchObject($q);
         }
         return $list;
     }

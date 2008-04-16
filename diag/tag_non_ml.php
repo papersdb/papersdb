@@ -97,11 +97,9 @@ class tag_non_ml extends aicml_pubs_base {
         if (!$q) return false;
         
         $pubs = array();
-        $r = $this->db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
         	$pub = new pdPublication($r);
         	$pubs[$r->pub_id] = $pub;
-        	$r = $this->db->fetchObject($q);
         }
 
         uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));

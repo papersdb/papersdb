@@ -106,7 +106,7 @@ class pdHtmlPage {
         // to invoking the base class constructor, so only create the database
         // object if not already set
         if (!is_object($this->db)) {
-            $this->db = pdDb::newFromParams();
+            $this->db = pdDb::defaultNew();
         }
 
         $this->check_login();
@@ -149,8 +149,6 @@ class pdHtmlPage {
     }
 
     public function __destruct() {
-        if (is_object($this->db) && $this->db->isOpen())
-            $this->db->close();
     }
 
     /**
@@ -403,7 +401,7 @@ class pdHtmlPage {
             $status = 'Logged in as: ' . $_SESSION['user']->login;
 
             if ($this->access_level >= 2) {
-                $status .= ', DB : ' . DB_NAME;
+                $status .= ', DB : ' . $this->db->getDbName();
             }
         }
         else {

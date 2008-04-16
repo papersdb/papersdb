@@ -19,12 +19,8 @@ class pdInfoList {
         assert('is_object($db)');
         $q = $db->select('info', '*', '', "pdInfoList::dbLoad");
         
-        if ($q === false) return null;
-        
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[$r->info_id] = $r->name;
-            $r = $db->fetchObject($q);
         }
         return $list;
     }

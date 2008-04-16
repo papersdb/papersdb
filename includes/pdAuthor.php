@@ -104,10 +104,8 @@ class pdAuthor extends pdDbAccessor{
 
         // its possible that the author has no interests in the database
         // no need to assert
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $this->interests[$r->interest_id] = $r->interest;
-            $r = $db->fetchObject($q);
         }
     }
 
@@ -148,7 +146,7 @@ class pdAuthor extends pdDbAccessor{
         assert('is_object($db)');
 
         // add http:// to webpage address if needed
-        if(strpos($this->webpage, 'http') === false) {
+        if (isset($this->webpage) && (strpos($this->webpage, 'http') === false)) {
             $this->webpage = "http://" . $this->webpage;
         }
 
@@ -211,16 +209,18 @@ class pdAuthor extends pdDbAccessor{
 
         // link the interest to this author
         $arr = array();
-        foreach ($this->interests as $key => $i) {
-            $q = $db->selectRow('interest', 'interest_id',
-                                array('interest' => $i),
-                                'pdAuthor::dbSaveInterests');
-            assert('($q !== false)');
-            array_push($arr, array('author_id' => $this->author_id,
-                                   'interest_id' => $q->interest_id));
+        if (isset($this->interests)) {
+            foreach ($this->interests as $key => $i) {
+                $q = $db->selectRow('interest', 'interest_id',
+                                    array('interest' => $i),
+                                    'pdAuthor::dbSaveInterests');
+                assert('($q !== false)');
+                array_push($arr, array('author_id' => $this->author_id,
+                                       'interest_id' => $q->interest_id));
 
-            $this->interests[$q->interest_id] = $i;
-            unset($this->interests[$key]);
+                $this->interests[$q->interest_id] = $i;
+                unset($this->interests[$key]);
+            }
         }
 
         if (count($arr) > 0)
@@ -243,14 +243,14 @@ class pdAuthor extends pdDbAccessor{
 
         // check if any authors are using these interests, if not they can be
         // deleted from the database
-        foreach ($this->interests as $id => $name) {
-            $q = $db->selectRow('author_interest',
-                                'count(author_id) as acount',
-                                array('interest_id' => $id),
-                                'pdAuthor::dbDelete');
-            if ($q->acount == 0)
-                $db->delete('interest', array('interest_id' => $id),
-                            'pdAuthor::dbDelete');
+        if (isset($this->interests)) {
+            foreach ($this->interests as $id => $name) {
+                $q = $db->selectRow('author_interest',
+                	'count(author_id) as acount',
+                    array('interest_id' => $id));
+                if ($q->acount == 0)
+                $db->delete('interest', array('interest_id' => $id));
+            }
         }
 
         $this->makeNull();
@@ -274,8 +274,9 @@ class pdAuthor extends pdDbAccessor{
      * used when name is in "firstname lastname" format.
      */
     public function nameSet($name) {
+        $name = trim($name);
         $commaPos = strrpos($name, ',');
-        $spacePos = strrpos($name, ',');
+        $spacePos = strrpos($name, ' ');
 
         if (($commaPos === false) && ($spacePos === false)) {
             $this->name = $name;
@@ -283,24 +284,28 @@ class pdAuthor extends pdDbAccessor{
             return;
         }
 
-        if ($commaPos !== false)
-            $this->name = $name;
-        else if ($spacePos !== false) {
+        if (($commaPos === false) && ($spacePos !== false)) {
+            $names = explode(' ', $name);
             // put last name first
-            $this->name = substr($name, $pos + 1) . ', '
-                . substr($name, 0, $pos);
-        }
+            $this->name = trim(substr($name, $spacePos + 1)) 
+                . ', ' . trim(substr($name, 0, $spacePos));
 
-        $this->firstname
-            = trim(substr($this->name, 1 + strpos($this->name, ',')));
-        $this->lastname
-            = substr($this->name, 0, strpos($this->name, ','));
+            $this->firstname = trim(substr($name, 0, $spacePos));
+            $this->lastname  = trim(substr($name, $spacePos + 1));
+        }
+        else {
+            $this->name = $name;
+            $names = explode(',', $name);
+
+            $this->firstname = trim($names[1]);
+            $this->lastname  = trim($names[0]);
+        }
     }
 
     /*
      * Parameter $mixed can be an array or a string value.
      */
-    public function addInterest(&$mixed) {
+    public function addInterest($mixed) {
     	if (is_array($mixed))
     		foreach ($mixed as $interest)
     			$this->interests[] = $interest;

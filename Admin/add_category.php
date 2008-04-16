@@ -166,7 +166,7 @@ class add_category extends pdHtmlPage {
     }
 
     public function javascript() {
-        $js_file = FS_PATH . '/Admin/js/add_category.js';
+        $js_file = 'js/add_category.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);
 

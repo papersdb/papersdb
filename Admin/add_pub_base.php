@@ -24,7 +24,8 @@ class add_pub_base extends pdHtmlPage {
         if ((get_class($this) == "add_pub2")
             || (get_class($this) == "add_pub3")
             || (get_class($this) == "add_pub4")) {
-            if ($_SESSION['state'] != 'pub_add') {
+                
+            if (!isset($_SESSION['state']) || ($_SESSION['state'] != 'pub_add')) {
                 header('Location: add_pub1.php');
                 return;
             }

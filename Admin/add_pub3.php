@@ -329,7 +329,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
 
         $values = $form->exportValues();
 
-        if ($this->pub->category->info != null) {
+        if (isset($this->pub->category) && ($this->pub->category->info != null)) {
             foreach ($this->formInfoElementsGet() as $element => $name) {
                 if (isset($values[$element]))
                     $this->pub->info[$name] = $values[$element];
@@ -403,8 +403,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
     }
 
     public function javascript() {
-        $js_files = array(FS_PATH . '/Admin/js/add_pub3.js',
-                          FS_PATH . '/Admin/js/add_pub_cancel.js');
+        $js_files = array('js/add_pub3.js', 'js/add_pub_cancel.js');
 
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';

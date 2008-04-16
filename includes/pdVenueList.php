@@ -31,10 +31,7 @@ class pdVenueList {
                               null, "pdVenueList::dbLoad");
 
         $list = array();
-        if ($q === false) return $list;
-        
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             if (isset($options['concat'])) {
                 $title = '';
                 $name = '';
@@ -81,7 +78,6 @@ class pdVenueList {
                 else
                     $list[$r->venue_id] = $r->name;
             }
-            $r = $db->fetchObject($q);
         }
         
         uasort($list, array('pdVenueList', 'sortVenues'));
@@ -96,22 +92,20 @@ class pdVenueList {
         $fields = array('title', 'name');
 
         foreach ($fields as $field) {
-            if ($field == 'title')
+            if ($field == 'title') {
                 $q = $db->select('venue', '*',
                                  array('title LIKE ' . $db->addQuotes($letter)),
                                  "pdVenueList::loadStartingWith");
-            else
+            }
+            else {
                 $q = $db->select('venue', '*',
                                  array('name LIKE ' . $db->addQuotes($letter),
                                        'LENGTH(title)' => '0'),
                                  "pdVenueList::loadStartingWith");
-
-            if ($q === false) return $list;
-
-            $r = $db->fetchObject($q);
-            while ($r) {
+            }
+            
+            foreach ($q as $r) {
                 $list[] = new pdVenue($r);
-                $r = $db->fetchObject($q);
             }
         }
 

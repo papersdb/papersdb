@@ -102,10 +102,8 @@ class pdUser extends pdDbAccessor {
                                'user_author.author_id=author.author_id'),
                          "pdUser::collaboratorsDbLoad",
                          array('ORDER BY' => 'name ASC'));
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $this->collaborators[$r->author_id] = $r->name;
-            $r = $db->fetchObject($q);
         }
     }
 
@@ -126,14 +124,11 @@ class pdUser extends pdDbAccessor {
                                'publication.pub_id=pub_author.pub_id',
                                'user.login' => $this->login),
                          "pdUser::popularAuthorsDbLoad");
-        if ($q === false) return;
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             if (!isset($this->author_rank[$r->author_id]))
                 $this->author_rank[$r->author_id] = 0;
             else
                 $this->author_rank[$r->author_id]++;
-            $r = $db->fetchObject($q);
         }
 
         if (count($this->author_rank) > 0) {
@@ -178,13 +173,9 @@ class pdUser extends pdDbAccessor {
                          "pdAuthor::dbLoad",
                          array( 'ORDER BY' => 'venue.title'));
 
-        if ($q === false) return;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             if ($r->title != '')
                 $this->venue_ids[$r->venue_id] = $r->title;
-            $r = $db->fetchObject($q);
         }
     }
 

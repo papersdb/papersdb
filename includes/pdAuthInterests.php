@@ -20,13 +20,11 @@ class pdAuthInterests {
         $q = $db->select('interest', '*', '', 'pdAuthInterests::createList');
         
         // this DB table must always be populated
-        assert($q !== false);
+        assert('count($q) > 0');
         
         $list = array();
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[$r->interest_id] = $r->interest;
-            $r = $db->fetchObject($q);
         }
         return $list;
     }

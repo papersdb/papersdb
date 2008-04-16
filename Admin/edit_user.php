@@ -23,25 +23,7 @@ require_once 'includes/pdAuthorList.php';
  */
 class edit_user extends pdHtmlPage {
     protected $status;
-    
-    // template for a dual multi-select element shape
-    const TEMPLATE = '{javascript}
-	<table{class}>
-	<tr>
-	  <th>&nbsp;</th>
-	  <!-- BEGIN label_2 --><th>{label_2}</th><!-- END label_2 -->
-	  <th>&nbsp;</th>
-	  <!-- BEGIN label_3 --><th>{label_3}</th><!-- END label_3 -->
-	 </tr>
-	 <tr>
-	   <td class="middle">{moveup}<br/>{movedown}<br/>{remove}</td>
-	   <td class="middle">{selected}</td>
-	   <td class="middle">{add}</td>
-	   <td class="middle">{unselected}</td>
-	 </tr>
-	</table>
-	{javascript}';
-   
+    protected $db_authors;   
 
     public function __construct() {
         parent::__construct('edit_user');
@@ -71,32 +53,24 @@ class edit_user extends pdHtmlPage {
         $form->addElement('text', 'email', 'E-mail:',
                           array('size' => 50, 'maxlength' => 100));
 
+        $form->addElement('textarea', 'authors', 'Authors:',
+                          array('cols' => 60,
+                                'rows' => 5,
+                                'class' => 'wickEnabled:MYCUSTOMFLOATER',
+                                'wrap' => 'virtual'));        
+
+        $form->addElement('static', null, null,
+                          '<span class="small">'
+                          . 'There are ' . count($this->db_authors)
+                          . ' authors in the database. Type a partial name to '
+                          . 'see a list of matching authors. Separate names '
+                          . 'using commas.</span>');          
+
         $form->addElement('advcheckbox', 'option_internal_info',
                           'Options:', 'show internal info', null,
                           array('No', 'Yes'));
 
         $auth_list = pdAuthorList::create($this->db);
-
-        $authSelect =& $form->addElement('advmultiselect', 'authors', null,
-                                         $auth_list,
-                                         array('class' => 'pool',
-                                               'style' => 'width:150px;'),
-                                         SORT_ASC);
-        $authSelect->setLabel(array('Favourite Authors:', 'Selected',
-                                    'Available'));
-
-        $authSelect->setButtonAttributes('add',
-                                         array('value' => 'Add',
-                                               'class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('remove',
-                                         array('value' => 'Remove',
-                                               'class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('moveup',
-                                         array('class' => 'inputCommand'));
-        $authSelect->setButtonAttributes('movedown',
-                                         array('class' => 'inputCommand'));
-
-        $authSelect->setElementTemplate(self::TEMPLATE);
 
         $form->addElement('submit', 'Submit', 'Save');
 
@@ -134,8 +108,9 @@ class edit_user extends pdHtmlPage {
                                   & PD_USER_OPTION_SHOW_INTERNAL_INFO)
                                   ? 'Yes' : 'No'));
 
-            if (count($user->collaborators) >0)
-                $defaults['authors'] = array_keys($user->collaborators);
+            if (count($user->collaborators) >0) {
+                $defaults['authors'] = implode(', ', array_values($user->collaborators));
+            }
 
             $form->setDefaults($defaults);
 
@@ -154,13 +129,13 @@ class edit_user extends pdHtmlPage {
             $this->form =& $form;
             $this->renderer =& $renderer;
         }
-}
+    }
 
-public function showUser() {
-    $user =& $_SESSION['user'];
+    public function showUser() {
+        $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
-        echo '<h2>Login Information&nbsp;<a href="edit_user.php?status=edit">', 
+        echo '<h2>Login Information&nbsp;<a href="edit_user.php?status=edit">',
         	'<img src="../images/pencil.gif" title="edit" ', 
         	'alt="edit" height="16" width="16" border="0" ', 
         	'align="top" /></a></h2>';
@@ -176,9 +151,9 @@ public function showUser() {
         $table->addRow(array('E-mail:', $user->email));
 
         if ($user->showInternalInfo())
-            $option_value = 'Yes';
+        $option_value = 'Yes';
         else
-            $option_value = 'No';
+        $option_value = 'No';
 
         $table->addRow(array('Show Internal Info:', $option_value));
 
@@ -187,9 +162,9 @@ public function showUser() {
             $rowcount = 0;
             foreach ($user->collaborators as $collaborator) {
                 if ($rowcount == 0)
-                    $cell1 = 'Favorite Collaborators:';
+                $cell1 = 'Favorite Collaborators:';
                 else
-                    $cell1 = '';
+                $cell1 = '';
                 $table->addRow(array($cell1, $collaborator));
                 $rowcount++;
             }
@@ -201,6 +176,23 @@ public function showUser() {
         $table->updateColAttributes(0, array('class' => 'emph',
                                              'width' => '30%'));
         $this->table =& $table;
+    }
+
+    private function javascript() {
+        $this->db_authors = pdAuthorList::create($this->db, null, null, true);
+        
+        // WICK
+        $this->js .= "\ncollection="
+            . convertArrayToJavascript($this->db_authors, false)
+            . "\n";
+            
+        $js_file = 'js/wick.js';
+        assert('file_exists($js_file)');
+        $content = file_get_contents($js_file);
+
+        $this->js .= str_replace(array('{host}', '{self}', '{new_location}'),
+            array($_SERVER['HTTP_HOST'], $_SERVER['PHP_SELF'],$url),
+            $content);
     }
 }
 

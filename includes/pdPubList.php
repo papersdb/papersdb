@@ -108,7 +108,7 @@ class pdPubList {
     /**
      * Retrieves all publications.
      */
-    private static function allPubsDbLoad($db, $sortByDesc = false) {
+    private static function &allPubsDbLoad($db, $sortByDesc = false) {
         assert('is_object($db)');
 
         if ($sortByDesc)
@@ -120,12 +120,8 @@ class pdPubList {
                          array('ORDER BY' => $order));
 
         $list = array();
-        if ($q === false) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
         return $list;
     }
@@ -166,20 +162,20 @@ class pdPubList {
                                'publication.updated'),
                          array('pub_author.pub_id=publication.pub_id',
                                'pub_author.author_id'
-                               => quote_smart($author_id)),
+                               => $db->quote_smart($author_id)),
                          "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.published ASC'));
 
-        if ($db->numRows($q) == 0) return $list;
+        $count = count($q);
+        if ($count == 0) return $list;
 
         // if $numToLoad is -1 then we load all publications
         if ($numToLoad == -1)
-            $numToLoad = $db->numRows($q);
+            $numToLoad = $count;
 
-        $r = $db->fetchObject($q);
-        while ($r && ($numToLoad > 0)) {
+        foreach ($q as $r) {
+            if ($numToLoad <= 0) break;
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
             $numToLoad--;
         }
 
@@ -198,17 +194,13 @@ class pdPubList {
                          'publication.pub_id',
                          array('pub_author.pub_id=publication.pub_id',
                                'pub_author.author_id'
-                               => quote_smart($author_id)),
+                               => $db->quote_smart($author_id)),
                          "pdPubList::authorIdPubsDbLoad",
                          array('ORDER BY' => 'publication.published ASC'));
 
         $pub_ids = array();
-        if ($db->numRows($q) == 0) return $pub_ids;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $pub_ids[] = $r->pub_id;
-            $r = $db->fetchObject($q);
         }
 
         return self::arrayPubsDBLoadByCategory($db, $pub_ids);
@@ -246,15 +238,11 @@ class pdPubList {
                          array('ORDER BY' => 'publication.published ASC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
-        	if ($pub_id_keys)
+        foreach ($q as $r) {
+            if ($pub_id_keys)
         		$list[$r->pub_id] = new pdPublication($r);
         	else
             	$list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
 
         uasort($list, array('pdPublication', 'pubsDateSortDesc'));
@@ -272,12 +260,8 @@ class pdPubList {
                          "pdPubList::venuePubsDbLoad");
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
 
         uasort($list, array('pdPublication', 'pubsDateSortDesc'));
@@ -317,12 +301,8 @@ class pdPubList {
                          "pdPubList::categoryPubsDbLoad");
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
 
         uasort($list, array('pdPublication', 'pubsDateSortDesc'));
@@ -339,7 +319,7 @@ class pdPubList {
                                'pub_author.author_id' => $author_id),
                          "pdPubList::publicationsDbLoad",
                          array( 'ORDER BY' => 'publication.title ASC'));
-        return $db->numRows($q);
+        return count($q);
     }
 
     private static function arrayPubsDBLoad($db, $pub_ids, $sort = true) {
@@ -385,7 +365,7 @@ class pdPubList {
         return self::arrayPubsSortByCategory($db, $pubs);
     }
 
-    private static function arrayPubsSortByCategory($db, $pubs) {
+    private static function &arrayPubsSortByCategory($db, $pubs) {
         $list['type'] = 'category';
 
         foreach ($pubs as $pub) {
@@ -422,7 +402,7 @@ class pdPubList {
         return $list;
     }
 
-    private static function yearsPubsDBLoad($db) {
+    private static function &yearsPubsDBLoad($db) {
         assert('is_object($db)');
 
         $q = $db->select('publication', 'distinct year(published) as year', '',
@@ -430,12 +410,8 @@ class pdPubList {
                          array( 'ORDER BY' => 'published DESC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = array('year' => $r->year);
-            $r = $db->fetchObject($q);
         }
 
         foreach ($list as $key => $item) {
@@ -447,7 +423,7 @@ class pdPubList {
         return $list;
     }
 
-    private static function yearPubsDBLoad($db, $year) {
+    private static function &yearPubsDBLoad($db, $year) {
         assert('is_object($db)');
 
         $q = $db->select('publication', '*',
@@ -456,17 +432,13 @@ class pdPubList {
                          array( 'ORDER BY' => 'published DESC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
         return $list;
     }
 
-    private static function datePubsDBLoad($db, $date_start, $date_end) {
+    private static function &datePubsDBLoad($db, $date_start, $date_end) {
         assert('is_object($db)');
 
         $between = '\'' . $date_start . '\' AND \'' . $date_end . '\'';
@@ -477,12 +449,8 @@ class pdPubList {
                          array( 'ORDER BY' => 'published DESC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
         return $list;
     }
@@ -496,18 +464,14 @@ class pdPubList {
                          array( 'ORDER BY' => 'published DESC'));
 
         $pub_ids = array();
-        if ($db->numRows($q) == 0) return $pub_ids;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $pub_ids[] = $r->pub_id;
-            $r = $db->fetchObject($q);
         }
 
         return self::arrayPubsDBLoadByCategory($db, $pub_ids);
     }
 
-    private static function titlePubsDBLoad($db, $title) {
+    private static function &titlePubsDBLoad($db, $title) {
         assert('is_object($db)');
 
         $title = str_replace(' ', '%', $title);
@@ -518,12 +482,8 @@ class pdPubList {
                          array( 'ORDER BY' => 'published ASC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
         return $list;
     }
@@ -535,22 +495,18 @@ class pdPubList {
                          "pdPubList::publicationsDbLoad");
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
-            $keywords = split('; *', $r->keywords);
-            foreach ($keywords as $kw) {
-                if ($kw != '')
+        foreach ($q as $r) {
+            foreach (split('; *', $r->keywords) as $kw) {
+                if ($kw != '') {
                     $list[$kw] = true;
+                }
             }
-            $r = $db->fetchObject($q);
         }
 
         return array_keys($list);
     }
 
-    private static function keywordPubsDBLoad($db, $kw) {
+    private static function &keywordPubsDBLoad($db, $kw) {
         assert('is_object($db)');
 
         $q = $db->select(array('publication'), '*',
@@ -559,12 +515,8 @@ class pdPubList {
                          array( 'ORDER BY' => 'title ASC'));
 
         $list = array();
-        if ($db->numRows($q) == 0) return $list;
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[] = new pdPublication($r);
-            $r = $db->fetchObject($q);
         }
 
         uasort($list, array('pdPublication', 'pubsDateSortDesc'));

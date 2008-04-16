@@ -132,7 +132,7 @@ class view_author extends pdHtmlPage {
     }
 
     private function javascript() {
-        $js_file = FS_PATH . '/js/view_author.js';
+        $js_file = 'js/view_author.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);
 

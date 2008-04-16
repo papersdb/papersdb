@@ -253,7 +253,7 @@ class advanced_search extends pdHtmlPage {
             . convertArrayToJavascript($this->db_authors, false)
             . "\n";
 
-        $js_file = FS_PATH . '/js/advanced_search.js';
+        $js_file = 'js/advanced_search.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);
 
@@ -309,7 +309,7 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->show_internal_info == 'yes')),
                                  $content);
 
-        $js_file = FS_PATH . '/js/wick.js';
+        $js_file = 'js/wick.js';
         assert('file_exists($js_file)');
         $content = file_get_contents($js_file);
 

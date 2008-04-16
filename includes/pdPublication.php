@@ -88,13 +88,8 @@ class pdPublication extends pdDbAccessor {
                          "pdPublication::dbLoad",
                          array('ORDER BY' => 'col_id ASC'));
 
-        if ($q !== false) {
-            $r = $db->fetchObject($q);
-
-            while ($r) {
-                $this->collaborations[] = $r->col_id;
-                $r = $db->fetchObject($q);
-            }
+        foreach ($q as $r) {
+            $this->collaborations[] = $r->col_id;
         }
 
         if ($flags & self::DB_LOAD_CATEGORY) {
@@ -118,8 +113,8 @@ class pdPublication extends pdDbAccessor {
                     $r = $db->selectRow(
                         'pub_cat_info', 'value',
                         array('pub_id' => $id,
-                              'cat_id' => quote_smart($this->category->cat_id),
-                              'info_id' => quote_smart($info_id)),
+                              'cat_id' => $db->quote_smart($this->category->cat_id),
+                              'info_id' => $db->quote_smart($info_id)),
                         "pdPublication::dbLoad");
 
                     if (($r !== false) && ($r->value != ''))
@@ -135,10 +130,8 @@ class pdPublication extends pdDbAccessor {
                              array('additional_info.add_id=pub_add.add_id',
                                    'pub_add.pub_id' => $id),
                              "pdPublication::dbLoad");
-            $r = $db->fetchObject($q);
-            while ($r) {
+            foreach ($q as $r) {
                 $this->additional_info[] = $r;
-                $r = $db->fetchObject($q);
             }
         }
 
@@ -152,21 +145,15 @@ class pdPublication extends pdDbAccessor {
             $q = $db->select('pointer', 'value',
                              array('pub_id' => $id, 'type' => 'int'),
                              "pdPublication::dbLoad");
-            $r = $db->fetchObject($q);
-            while ($r) {
+            foreach ($q as $r) {
                 $this->related_pubs[] = $r->value;
-                $r = $db->fetchObject($q);
             }
 
             $q = $db->select('pointer', array('name', 'value'),
                              array('pub_id' => $id, 'type' => 'ext'),
                              "pdPublication::dbLoad");
-            if ($q) {
-                $r = $db->fetchObject($q);
-                while ($r) {
-                    $this->web_links[$r->name] = $r->value;
-                    $r = $db->fetchObject($q);
-                }
+            foreach ($q as $r) {
+                $this->web_links[$r->name] = $r->value;
             }
         }
 
@@ -212,16 +199,15 @@ class pdPublication extends pdDbAccessor {
                                'pub_author.pub_id' => $this->pub_id),
                          "pdPublication::dbLoad",
                          array( 'ORDER BY' => 'pub_author.rank'));
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             if ($flags & self::DB_LOAD_AUTHOR_FULL) {
                 $author = new pdAuthor();
                 $author->dbLoad($db, $r->author_id, pdAuthor::DB_LOAD_BASIC);
                 $this->authors[] = $author;
             }
-            else
+            else {
                 $this->authors[] = pdAuthor($r);
-            $r = $db->fetchObject($q);
+            }
         }
     }
 
@@ -1294,12 +1280,10 @@ class pdPublication extends pdDbAccessor {
     public static function rankingsGlobalGet(&$db) {
         $q = $db->select('pub_rankings', '*', 'pub_id is NULL',
                          "pdPublication::dbLoad");
-        assert('$q !== false');
+        assert('count($q) > 0');
 
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $rankings[$r->rank_id] = $r->description;
-            $r = $db->fetchObject($q);
         }
 
         return $rankings;
@@ -1307,12 +1291,10 @@ class pdPublication extends pdDbAccessor {
 
     public static function collaborationsGet(&$db) {
         $q = $db->select('collaboration', '*', '', "pdPublication::dbLoad");
-        assert('$q !== false');
+        assert('count($q) > 0');
 
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $collaborations[$r->col_id] = $r->description;
-            $r = $db->fetchObject($q);
         }
 
         return $collaborations;

@@ -222,9 +222,9 @@ select the options that apply to this paper.';
             . convertArrayToJavascript($this->authors, false)
             . "\n";
 
-        $js_files = array(FS_PATH . '/Admin/js/add_pub2.js',
-                          FS_PATH . '/Admin/js/add_pub_cancel.js',
-                          FS_PATH . '/js/wick.js');
+        $js_files = array('js/add_pub2.js',
+                          'js/add_pub_cancel.js',
+                          '../js/wick.js');
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');

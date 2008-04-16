@@ -26,10 +26,8 @@ class pdAttachmentTypesList {
                          "pdAttachmentTypesList::create");
         if ($q === false) return null;
 
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $list[$r->type] = $r->type;
-            $r = $db->fetchObject($q);
         }
         $_SESSION['attachment_types'] =& $list;
         return $list;        

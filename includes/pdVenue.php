@@ -69,10 +69,8 @@ class pdVenue extends pdDbAccessor {
         $q = $db->select('venue_occur', '*', array('venue_id' => $id),
                          "pdVenue::dbLoadVenue",
                          array('ORDER BY' => 'date'));
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $this->occurrences[] = $r;
-            $r = $db->fetchObject($q);
         }
 
         if (isset($this->rank_id)) {
@@ -114,15 +112,10 @@ class pdVenue extends pdDbAccessor {
 	        $q = $db->select('venue_vopts', '*', array('venue_id' => $id),
     	                     "pdVenue::dbLoadVenue");
 
-	        if ($db->numRows($q) <= 0) return;
-        
-	        $r = $db->fetchObject($q);
-    	    while ($r) {
-	        	// make sure this vopt_id is allowed for the venue's category
-	        	assert('in_array($r->vopt_id, $cat_vopts[$this->cat_id])');
-        	
+	        foreach ($q as $r) {
+	            // make sure this vopt_id is allowed for the venue's category
+	        	assert('in_array($r->vopt_id, $cat_vopts[$this->cat_id])');        	
 	       	    $this->options[$r->vopt_id] = $r->value;
-	           	$r = $db->fetchObject($q);
     	    }
         }
 
@@ -231,7 +224,7 @@ class pdVenue extends pdDbAccessor {
     /**
      *
      */
-    public function dbDelete ($db) {
+    public function dbDelete($db) {
         assert('is_object($db)');
 
         $tables = array('venue', 'venue_occur', 'venue_rankings');
@@ -240,7 +233,6 @@ class pdVenue extends pdDbAccessor {
             $db->delete($table, array('venue_id' => $this->venue_id),
                         'pdVenue::dbDelete');
         }
-        return $db->affectedRows();
     }
 
     public function addOccurrence($location, $date, $url) {
@@ -335,12 +327,8 @@ class pdVenue extends pdDbAccessor {
     public function rankingsGlobalGet(&$db) {
         $q = $db->select('venue_rankings', '*', 'venue_id is NULL',
                          "pdVenue::dbLoad");
-        assert('$q !== false');
-
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $rankings[$r->rank_id] = $r->description;
-            $r = $db->fetchObject($q);
         }
 
         return $rankings;
@@ -375,10 +363,8 @@ class pdVenue extends pdDbAccessor {
         if ($q === false) return;
         
         $vopts = array();      
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $vopts[$r->vopt_id] = $r->name;
-            $r = $db->fetchObject($q);
         }
         $_SESSION['vopts'] = $vopts;
        	
@@ -387,10 +373,8 @@ class pdVenue extends pdDbAccessor {
         if ($q === false) return;
         
         $cat_vopts = array();      
-        $r = $db->fetchObject($q);
-        while ($r) {
+        foreach ($q as $r) {
             $cat_vopts[$r->cat_id][] = $r->vopt_id;
-            $r = $db->fetchObject($q);
         }
         $_SESSION['cat_vopts'] = $cat_vopts;
     }
