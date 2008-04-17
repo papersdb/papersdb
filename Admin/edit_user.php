@@ -40,6 +40,7 @@ class edit_user extends pdHtmlPage {
     }
 
     public function editUser() {
+        $this->db_authors = pdAuthorList::create($this->db, null, null, true);
         $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
@@ -109,7 +110,9 @@ class edit_user extends pdHtmlPage {
                                   ? 'Yes' : 'No'));
 
             if (count($user->collaborators) >0) {
-                $defaults['authors'] = implode(', ', array_values($user->collaborators));
+            	$author_names = pdAuthorList::createFromAuthorIds(
+                		$this->db, array_keys($user->collaborators), true);
+                $defaults['authors'] = implode(', ', array_values($author_names));
             }
 
             $form->setDefaults($defaults);
@@ -124,10 +127,16 @@ class edit_user extends pdHtmlPage {
                 '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
                 . 'align="left" colspan="2"><b>{header}</b></td></tr>');
 
+            $renderer->setElementTemplate(
+	            '<tr><td><b>{label}</b></td>'
+    	        . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="font-size:1.1em;position:absolute;top:50px;left:0;background-color:#f4f4f4;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
+        	    'authors');
+
             $form->accept($renderer);
 
             $this->form =& $form;
             $this->renderer =& $renderer;
+            $this->javascript();
         }
     }
 
@@ -178,21 +187,15 @@ class edit_user extends pdHtmlPage {
         $this->table =& $table;
     }
 
-    private function javascript() {
-        $this->db_authors = pdAuthorList::create($this->db, null, null, true);
-        
+    private function javascript() {        
         // WICK
         $this->js .= "\ncollection="
             . convertArrayToJavascript($this->db_authors, false)
             . "\n";
             
-        $js_file = 'js/wick.js';
+        $js_file = '../js/wick.js';
         assert('file_exists($js_file)');
-        $content = file_get_contents($js_file);
-
-        $this->js .= str_replace(array('{host}', '{self}', '{new_location}'),
-            array($_SERVER['HTTP_HOST'], $_SERVER['PHP_SELF'],$url),
-            $content);
+        $this->js .= file_get_contents($js_file);
     }
 }
 

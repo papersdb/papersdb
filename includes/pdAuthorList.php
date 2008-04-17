@@ -39,19 +39,19 @@ class pdAuthorList {
                              "pdAuthorList::create",
                              array('ORDER BY' => 'name ASC'));
         }
-        return self::getSelectResults($q);
+        return self::getSelectResults($q, $as_fist_last);
     }
 	
-    public static function createFromAuthorIds($db, $author_ids) {
+    public static function createFromAuthorIds($db, $author_ids, $as_fist_last = false) {
         assert('is_array($author_ids)');
 
         $q = $db->select('author', array('author_id', 'name'),
-                         array('name' => $author_ids),
+                         array('author_id' => $author_ids),
                          '', array('ORDER BY' => 'name ASC'));
-        return self::getSelectResults($q);
+        return self::getSelectResults($q, $as_fist_last);
     }
     
-    private static function &getSelectResults($q) {
+    private static function &getSelectResults($q, $as_fist_last = false) {
         $list = array();
         foreach ($q as $r) {
         	$name = utf8_encode($r->name);

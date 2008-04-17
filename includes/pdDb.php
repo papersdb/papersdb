@@ -114,28 +114,24 @@ class pdDb {
         $this->mysqli = false;
     }
     
-    public static function &defaultNew() {            
+    public static function defaultNew() {   
+    	$server = self::$db_server;
+    	$db_name = self::$db_name;
+    	
         if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante')) {
-                $server = 'localhost';
-        }
-        else {
-        	$server = self::$db_server;
+        	$server = 'localhost';
+        	$db_name = 'pubDBdev';
         }  
                
         if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'cannell')) {
             $db_name = 'pubDBdev';
             //self::$_debug = true;
-        }
-        else {
-        	$db_name = self::$db_name;
         }  
         
-        $db = new pdDb(array('server' => $server,
+        return new pdDb(array('server' => $server,
                              'user'   => self::$db_user,
                              'passwd' => self::$db_passwd,
                              'name'   => $db_name));
-
-        return $db;
     }
     
     private static function dbIntegrityCheck() {
