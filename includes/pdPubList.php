@@ -37,6 +37,9 @@ class pdPubList {
         if (!isset($options['num_to_load']))
             $options['num_to_load'] = -1;
 
+        if (!isset($options['sort']))
+            $options['sort'] = -1;
+
         if (isset($options['auth_pubs'])) {
             return self::authorPubsNumGet($db, $options['auth_pubs']);
         }
