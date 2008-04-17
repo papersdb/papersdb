@@ -76,25 +76,27 @@ function cleanArray($array) {
  */
 function format80($text) {
     if (!isset($text) || ($text == '')) return;
-
+    
     $lines = explode("\n", $text);
-    foreach($lines as $line) {            
-        $line = trim($line);
+    foreach($lines as $line) {   
+        preg_match("/^(\s+)/", $line, $m);
+
+        $indent = '';
+        if (isset($m[1]))
+            $indent = $m[1];
 
         if (strlen($line) > 80) {
             while (strlen($line) > 80) {
                 $splt = strrpos(substr($line, 0, 80), ' ');
-                if ($splt === false)
+                if (($splt === false) || ($splt == 0))
                     break;
                 else {
                     $new_lines[] = substr($line, 0, $splt);
-                    $line = substr($line, $splt+1);
+                    $line = $indent . $indent . substr($line, $splt+1);
                 }
             }
-            $new_lines[] = $line;
         }
-        else
-            $new_lines[] = $line;
+        $new_lines[] = $line;
     }
 
     return implode("\n", $new_lines);

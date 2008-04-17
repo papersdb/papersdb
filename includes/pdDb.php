@@ -121,6 +121,7 @@ class pdDb {
         if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante')) {
         	$server = 'localhost';
         	$db_name = 'pubDBdev';
+            //self::$_debug = true;        	
         }  
                
         if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'cannell')) {

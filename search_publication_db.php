@@ -27,7 +27,7 @@ require_once 'includes/SearchTermParser.php';
  * @package PapersDB
  */
 class search_publication_db extends pdHtmlPage {
-    protected $debug = 1;
+    protected $debug = 0;
     protected $sp;
     protected $result_pubs;
     protected $db_authors;

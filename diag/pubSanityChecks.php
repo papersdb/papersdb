@@ -129,7 +129,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Non Matching Venue Rankings</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
-        echo displayPubList($this->db, $pub_list, true, -1, $additional);
+        echo displayPubList($this->db, $pub_list, true, -1, $additional, null, '../');
     }
 
     public function venueCategories() {
@@ -160,7 +160,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Non Matching Venue Category</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_cat));
-        echo displayPubList($this->db, $pub_list, true, -1, $additional);
+        echo displayPubList($this->db, $pub_list, true, -1, $additional, null, '../');
     }
 
     public function tier1Report() {
@@ -178,7 +178,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Mislabelled Tier 1</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_pubs));
-        echo displayPubList($this->db, $pub_list, true);
+        echo displayPubList($this->db, $pub_list, true, -1, null, null, '../');
     }
 
     public function pubVenueIsTier1(&$pub) {
@@ -227,7 +227,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Journal publication entries with suspect rankings</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
-        echo displayPubList($this->db, $pub_list, true, -1, $additional);
+        echo displayPubList($this->db, $pub_list, true, -1, $additional, null, '../');
     }
 
     public function venueConferenceRank() {
@@ -257,7 +257,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Conference publication entries with suspect rankings</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
-        echo displayPubList($this->db, $pub_list, true, -1, $additional);
+        echo displayPubList($this->db, $pub_list, true, -1, $additional, null, '../');
     }
 
     public function venueWorkshopRank() {
@@ -277,7 +277,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Workshop publication entries with suspect rankings</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
-        echo displayPubList($this->db, $pub_list, true);
+        echo displayPubList($this->db, $pub_list, true, -1, null, null, '../');
     }
 
     public function venuePosterRank() {
@@ -297,7 +297,7 @@ class pubSanityChecks extends pdHtmlPage {
 
         echo '<h2>Poster publication entries with suspect rankings</h1>';
         $pub_list =  pdPubList::create($this->db, array('pub_ids' => $bad_rank));
-        echo displayPubList($this->db, $pub_list, true);
+        echo displayPubList($this->db, $pub_list, true, -1, null, null, '../');
     }
 
     public function nonML() {
@@ -319,7 +319,7 @@ class pubSanityChecks extends pdHtmlPage {
 
             echo '<h2>Non Machine Learning papers for ', $name, '</h1>';
             $pub_list =  pdPubList::create($this->db, array('pub_ids' => $non_ml));
-            echo displayPubList($this->db, $pub_list, true);
+            echo displayPubList($this->db, $pub_list, true, -1, null, null, '../');
             unset($all_pubs);
         }
     }
