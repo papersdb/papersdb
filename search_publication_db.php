@@ -19,6 +19,7 @@ require_once 'includes/pdPublication.php';
 require_once 'includes/pdSearchParams.php';
 require_once 'includes/SearchTermParser.php';
 
+
 #include "includes/debug.php";
 
 /**
@@ -357,8 +358,9 @@ class search_publication_db extends pdHtmlPage {
                 if (empty($author_name)) continue;
                 
                 $author_id = array_search($author_name, $this->db_authors);
-                if ($author_id !== false)
+                if ($author_id !== false) {
 	                $author_ids[] = $author_id;
+                }
             }
 
             if (count($author_ids) > 0) {

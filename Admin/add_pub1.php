@@ -125,7 +125,7 @@ class add_pub1 extends add_pub_base {
             $buttons[] = HTML_QuickForm::createElement(
                 'submit', 'finish', 'Finish');
 
-        $form->addGroup($buttons, 'buttons', '', '&nbsp', false);
+        $form->addGroup($buttons, 'buttons', '', '&nbsp;', false);
 
         $this->db =& $this->db;
         $this->form =& $form;
@@ -171,7 +171,7 @@ class add_pub1 extends add_pub_base {
 
         $renderer->setFormTemplate(
             '<form{attributes}><table width="100%" bgcolor="#CCCC99">'
-            . '{content}</form></table>');
+            . '{content}</table></form>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');

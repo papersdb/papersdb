@@ -44,7 +44,7 @@ class add_pub2 extends add_pub_base {
         $this->authors = pdAuthorList::create($this->db, null, null, true);
 
         $form = new HTML_QuickForm('add_pub2', 'post', '', '',
-                                   array('onsubmit' => 'return check_authors();'));
+                                   array('onsubmit' => 'return check_authors("add_pub2");'));
 
         $form->addElement('header', null, 'Select from Authors in Database');
 
@@ -217,14 +217,18 @@ select the options that apply to this paper.';
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
-        // WICK
+        // WICK/
         $this->js .= "\ncollection="
             . convertArrayToJavascript($this->authors, false)
-            . "\n";
+            . ";\n\n";
+            
+        $this->js .=<<<JS_END
+window.addEvent('domready', function() {
+        var Tips1 = new Tips($$('.Tips1'));
+    });
+JS_END;
 
-        $js_files = array('js/add_pub2.js',
-                          'js/add_pub_cancel.js',
-                          '../js/wick.js');
+        $js_files = array('js/add_pub_cancel.js');
 
         foreach ($js_files as $js_file) {
             assert('file_exists($js_file)');
@@ -237,6 +241,8 @@ select the options that apply to this paper.';
                                            $url),
                                      $content);
         }
+                                 
+        $this->addJavascriptFiles(array('../js/wick.js', '../js/check_authors.js'));
     }
 }
 

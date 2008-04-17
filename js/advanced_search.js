@@ -1,49 +1,14 @@
-// $Id: advanced_search.js,v 1.4 2007/10/31 17:49:36 loyola Exp $
-
-function dataKeep(num) {
-    var form = document.forms["advSearchForm"];
-    var qsArray = new Array();
-    var qsString = "";
-
-    for (i = 0; i < form.elements.length; i++) {
-        var element = form.elements[i];
-        if ((element.value != "") && (element.value != null)
-            && (element.type != "button")
-            && (element.type != "reset")
-            && (element.type != "submit")) {
-
-            if (element.type == "checkbox") {
-                if (element.checked) {
-                    qsArray.push(element.name + "=" + element.value);
-                }
-            } 
-            else if (element.type == "select-multiple"){
-                var select_name = element.name;
-                if (select_name.indexOf("[]") > 0) {
-                    select_name = select_name.substr(0, select_name.length - 2);
-                }
-
-                var count = 0;
-                for (i=0; i < element.length; i++) {
-                    if (element.options[i].selected) {
-                        qsArray.push(select_name + "[" + count + "]=" + element.options[i].value);
-                        count++;
-                    }
-                }
-            } 
-            else {
-                qsArray.push(element.name + "=" + element.value);
-            }
-        }
-    }
-    if (qsArray.length > 0) {
-        qsString = qsArray.join("&");
-        qsString.replace(" ", "%20");
-    }
-    location.href
-        = "http://{host}{self}?"
-        + qsString;
-}
+/*-----------------------------------------------------------------------------
+ *
+ * The information contained herein is proprietary and confidential to Alberta
+ * Ingenuity Centre For Machine Learning (AICML) and describes aspects of AICML
+ * products and services that must not be used or implemented by a third party
+ * without first obtaining a license to use or implement.
+ *
+ * Copyright 2008 Alberta Ingenuity Centre For Machine Learning.
+ *
+ *-----------------------------------------------------------------------------
+ */
 
 function lastSearchUse() {
     var form = document.forms["advSearchForm"];

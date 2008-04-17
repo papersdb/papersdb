@@ -50,13 +50,13 @@ class pdHtmlPage {
     protected $form_controller;
     protected $nav_menu;
     protected $use_mootools = false;
-
+    private   $javascriptFiles = array();
+    
     const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-  "http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-<title>';
+<head>';
 
     const GOOGLE_ANALYTICS = '
 <script
@@ -158,6 +158,14 @@ class pdHtmlPage {
     private function check_login() {
         $this->access_level = pdUser::check_login($this->db);
     }
+    
+    public function addJavascriptFiles($arr) {
+        assert('is_array($arr)');
+        foreach ($arr as $file) {
+                assert('file_exists($file)');            
+        }
+        $this->javascriptFiles = array_merge($this->javascriptFiles, $arr);
+    }
 
     private function stripSlashesArray($arr) {
         assert('is_array($arr)');
@@ -210,6 +218,8 @@ class pdHtmlPage {
 
     private function htmlPageHeader() {
         $result = self::HTML_TOP_CONTENT;
+        
+        $result .= '<title>';
 
         // change the HTML title tag if this is the index page
         if ($this->page_title == 'Home')
@@ -240,17 +250,23 @@ class pdHtmlPage {
 
         if ($this->use_mootools)
             $result .= "<script type=\"text/javascript\" src=\"" . $url_prefix
-                . "js/mootools-release-1.11.js\"></script>\n";
-
-        $result .= "\n</head>\n<body>\n";
+                . "js/mootools-release-1.11.js\" /></script>\n";
 
         if (!empty($this->js)) {
-	        $result .= "<script type=\"text/JavaScript\">\n"
+	        $result .= "<script type=\"text/javascript\">\n"
     	        . "//<![CDATA[\n"
         	    . $this->js
-            	. "\n//]]>"
+            	. "\n//]]>\n"
 	            . "</script>\n";
         }
+            
+        if (count($this->javascriptFiles) > 0) {
+            foreach ($this->javascriptFiles as $filename) {
+                $result .= "<script type=\"text/javascript\" src=\"$filename\"></script>\n";
+            }
+        }
+
+        $result .= "\n</head>\n<body>\n";
 
         if($this->useStdLayout) {
             $result .= $this->pageHeader();
@@ -274,17 +290,6 @@ class pdHtmlPage {
         // note this code is added only on the real site
         if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
             $result .= self::GOOGLE_ANALYTICS;
-        }
-
-        if ($this->hasHelpTooltips) {
-            if (strstr($this->relative_url, '/'))
-                $jsFile = '../js/wz_tooltip.js';
-            else
-                $jsFile = 'js/wz_tooltip.js';
-
-            $result
-                .= '<script type="text/javascript" src="'
-                . $jsFile . '"></script>';
         }
 
         $result .= '</body></html>';
@@ -345,37 +350,46 @@ class pdHtmlPage {
             else if (count($item->sub_items) == 0)
                 continue;
 
-            $result .= '<li>' . $item->page_title . '<ul>';
-
+            $result .= '<li>' . $item->page_title;
+        
+            $list_items = array();
             foreach ($item->sub_items as $sub_page_id => $sub_item) {
-            	// derived class can override nav menu settings, check for
-            	// each page to be enabled before displaying it
+                // derived class can override nav menu settings, check for
+                // each page to be enabled before displaying it
                 if (!$sub_item->display
-                    || ($sub_item->access_level <= pdNavMenuItem::MENU_NEVER))
-                    continue;
-
-            	if (($sub_page_id == $this->page_id) || !$sub_item->enabled) {
-                    $result .= '<li><a href="#" class="selected">';
-            	}
-            	else {
+                || ($sub_item->access_level <= pdNavMenuItem::MENU_NEVER))
+                continue;
+                
+                $list_item = '<li>';
+                                
+                if (($sub_page_id == $this->page_id) || !$sub_item->enabled) {
+                    $list_item .= '<a href="#" class="selected">';
+                }
+                else {
                     $url = $url_prefix . $sub_item->url;
 
                     // if not at the login page add redirection option to the login URL
-    	            if (($sub_page_id == 'login')
+                    if (($sub_page_id == 'login')
                         && (strpos($_SERVER['PHP_SELF'], 'login.php') === false)) {
-            	        $url .= '?redirect=' . $_SERVER['PHP_SELF'];
+                        $url .= '?redirect=' . $_SERVER['PHP_SELF'];
 
-    	                if ($_SERVER['QUERY_STRING'] != '')
+                        if ($_SERVER['QUERY_STRING'] != '') {
                             $url .= '?' . $_SERVER['QUERY_STRING'];
-            	    }
+                        }
+                    }
 
-                    $result .= '<li><a href="' . $url . '">';
-            	}
+                    $list_item .= '<a href="' . $url . '">';
+                }
 
-            	$result .= $sub_item->page_title . '</a>';
+                $list_item .= $sub_item->page_title . '</a></li>';
+                $list_items[] = $list_item;
+            }
+            
+            if (count($list_items) > 0) {
+                $result .= "<ul>\n" . implode('', $list_items) . "</ul>\n";
             }
 
-            $result .= '</ul></li>';
+            $result .= '</li>';
         }
 
         $result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div>';

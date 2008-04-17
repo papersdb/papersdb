@@ -197,10 +197,8 @@ class edit_user extends pdHtmlPage {
         $this->js .= "\ncollection="
             . convertArrayToJavascript($this->db_authors, false)
             . "\n";
-            
-        $js_file = '../js/wick.js';
-        assert('file_exists($js_file)');
-        $this->js .= file_get_contents($js_file);
+                                 
+        $this->addJavascriptFiles(array('js/wick.js'));
     }
 }
 

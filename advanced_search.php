@@ -26,6 +26,13 @@ require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdSearchParams.php';
 
 /**
+ * This is just a stub, see javascript check_authors() for the real code
+ */
+function check_authors() {
+    return true;
+}
+
+/**
  * Renders the whole page.
  *
  * @package PapersDB
@@ -68,8 +75,8 @@ class advanced_search extends pdHtmlPage {
         $renderer =& $form->defaultRenderer();
 
         $renderer->setFormTemplate(
-            '<table width="100%" border="0" cellpadding="3" cellspacing="2" '
-            . 'bgcolor="#CCCC99"><form{attributes}>{content}</form></table>');
+            '<form{attributes}><table width="100%" border="0" cellpadding="3" cellspacing="2" '
+            . 'bgcolor="#CCCC99">{content}</table></form>');
         $renderer->setHeaderTemplate(
             '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
             . 'align="left" colspan="2"><b>{header}</b></td></tr>');
@@ -88,12 +95,12 @@ class advanced_search extends pdHtmlPage {
      * Creates the from used on this page. The renderer is then used to
      * display the form correctly on the page.
      */
-    public function createForm() {
+    private function createForm() {
         $user = null;
 
         $form = new HTML_QuickForm('advSearchForm', 'get',
-                                   'search_publication_db.php',
-                                   '_self', 'multipart/form-data');
+        	'search_publication_db.php', '_self', 
+            array('onsubmit' => 'return check_authors("advSearchForm");'));
 
         $form->addElement('header', null, 'Advanced Search');
         $form->addElement('text', 'title', 'Title:',
@@ -308,16 +315,8 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->author_myself != ''),
                                        ($sp->show_internal_info == 'yes')),
                                  $content);
-
-        $js_file = 'js/wick.js';
-        assert('file_exists($js_file)');
-        $content = file_get_contents($js_file);
-
-        $this->js .= str_replace(array('{host}', '{self}', '{new_location}'),
-                                 array($_SERVER['HTTP_HOST'],  
-                                       $_SERVER['PHP_SELF'],
-                                       $url),
-                                 $content);
+                                 
+       $this->addJavascriptFiles(array('js/wick.js', 'js/check_authors.js'));
     }
 }
 

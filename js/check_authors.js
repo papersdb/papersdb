@@ -1,14 +1,8 @@
-// $Id: add_pub2.js,v 1.3 2008/02/19 16:24:22 loyola Exp $
-
-window.addEvent('domready', function() {
-                    var Tips1 = new Tips($$('.Tips1'));
-                });
-
 // If user typed in authors not in the author table, then this function
 // displays an alert to the user and lists all the names that are not in
 // the author table.
-function check_authors() {
-    var form =  document.forms["add_pub2"];
+function check_authors($form) {
+    var form =  document.forms[$form];
     var authors = form.elements['authors'];
 
     // use comma as delimiter
@@ -32,12 +26,13 @@ function check_authors() {
     }
 
     if (notInDb.length > 0) {
-        var msg = 'The following author names are not in the database:\n' + notInDb.join(', ');
-        msg += '\nPlease remove them from this list and add these authors to the database using the provided button.';
+        var msg = 'The following author names are not in the database:\n\n' + notInDb.join(', ');
+        msg += '\n\nPlease remove them from this list and add these authors to the database using the provided button.';
         alert(msg);
 
         return false;
     }
     return true;
 }
+
 
