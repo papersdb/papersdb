@@ -87,12 +87,17 @@ class edit_user extends pdHtmlPage {
                 $user->options |= PD_USER_OPTION_SHOW_INTERNAL_INFO;
 
             unset($user->collaborators);
-            if (count($values['authors']) > 0) {
-                $auth_list = pdAuthorList::create($this->db);
+            
+            // need to retrieve author_ids for the selected authors
+            $selAuthors = explode(
+            	', ', preg_replace('/\s\s+/', ' ', $values['authors']));
+            $author_ids = array();
+            foreach ($selAuthors as $author) {
+                if (empty($author)) continue;
 
-                foreach ($values['authors'] as $author_id) {
-                    $user->collaborators[$author_id] = $auth_list[$author_id];
-                }
+                $result = array_search($author, $this->db_authors);
+                if ($result !== false)
+                    $user->collaborators[$result] = $this->db_authors[$result];
             }
 
             $user->dbSave($this->db);
