@@ -27,7 +27,7 @@ function check_authors($form) {
 
     if (notInDb.length > 0) {
         var msg = 'The following author names are not in the database:\n\n' + notInDb.join(', ');
-        msg += '\n\nPlease remove them from this list and add these authors to the database using the provided button.';
+        msg += '\n\nPlease remove them from the list.';
         alert(msg);
 
         return false;

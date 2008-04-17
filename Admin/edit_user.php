@@ -44,7 +44,8 @@ class edit_user extends pdHtmlPage {
         $user =& $_SESSION['user'];
         $user->collaboratorsDbLoad($this->db);
 
-        $form = new HTML_QuickForm('pubForm');
+        $form = new HTML_QuickForm('userForm', 'post', '', '',
+            array('onsubmit' => 'return check_authors("userForm");'));
 
         $form->addElement('static', 'login_label', 'Login:', $user->login);
         $form->addElement('hidden', 'status', 'edit');
@@ -125,9 +126,9 @@ class edit_user extends pdHtmlPage {
             $renderer =& $form->defaultRenderer();
 
             $renderer->setFormTemplate(
-                '<table width="100%" border="0" cellpadding="3" '
+                '<form{attributes}><table width="100%" border="0" cellpadding="3" '
                 . 'cellspacing="2" bgcolor="#CCCC99">'
-                . '<form{attributes}>{content}</form></table>');
+                . '{content}</table></form>');
             $renderer->setHeaderTemplate(
                 '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
                 . 'align="left" colspan="2"><b>{header}</b></td></tr>');
@@ -198,7 +199,7 @@ class edit_user extends pdHtmlPage {
             . convertArrayToJavascript($this->db_authors, false)
             . "\n";
                                  
-        $this->addJavascriptFiles(array('js/wick.js'));
+        $this->addJavascriptFiles(array('../js/wick.js', '../js/check_authors.js'));
     }
 }
 
