@@ -355,7 +355,7 @@ class author_report extends aicml_pubs_base {
             $csv_output = ob_get_contents();
             ob_end_clean();		
             $size_in_bytes = strlen($csv_output);
-            header("Content-digitp sposition:  attachment; filename=aicml_stats_" .
+            header("Content-disposition: attachment; filename=aicml_stats_" .
                 date("Y-m-d").".csv; size=$size_in_bytes");
             echo $csv_output;
         }

@@ -65,9 +65,11 @@ class add_pub_submit extends pdHtmlPage {
             }
 
         if (isset($_SESSION['removed_atts'])
-             && (count($_SESSION['removed_atts']) > 0))
-            foreach ($_SESSION['removed_atts'] as $filename)
-                $pub->dbAttRemove($this->db, $filename);
+             && (count($_SESSION['removed_atts']) > 0)) {
+            foreach ($_SESSION['removed_atts'] as $filename) {
+                $pub->deleteAttByFilename($this->db, $filename);
+            }
+        }
 
         if ($this->debug) {
         	debugVar('$pub', $pub);

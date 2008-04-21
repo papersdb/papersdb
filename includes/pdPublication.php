@@ -424,11 +424,12 @@ class pdPublication extends pdDbAccessor {
                     'pdPublication::dbAttUpdate');
     }
 
-    public function dbAttRemove($db, $filename) {
+    public function dbAttRemove(&$db, $filename) {
         assert('$this->pub_id != null');
-
+        if (count($this->additional_info) == 0) return;
+        
         foreach ($this->additional_info as $k => $o) {
-            if (basename($o->location) == basename($filename)) {
+            if (strpos($filename, $o->location) !== false) {
                 $dbfilename = $o->location;
                 unset($this->additional_info[$k]);
             }
@@ -728,7 +729,7 @@ class pdPublication extends pdDbAccessor {
         return is_file($path);
     }
 
-    public function paperSave($db, $papername) {
+    public function paperSave(&$db, $papername) {
         assert('is_object($db)');
         assert('isset($this->pub_id)');
 
@@ -738,14 +739,15 @@ class pdPublication extends pdDbAccessor {
             return;
 
         $user =& $_SESSION['user'];
-
         $basename = basename($papername, '.' . $user->login);
 
         if ($basename == basename($this->paper))  return;
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
-
         $filename = $pub_path . $basename;
+        
+        // if file exists then there is nothing to do
+        if (($papername == $filename) || file_exists($filename)) return;
 
         // create the publication's path if it does not exist
         if (!is_dir($pub_path)) {
@@ -753,6 +755,9 @@ class pdPublication extends pdDbAccessor {
             // mkdir permissions with 0777 does not seem to work
             chmod($pub_path, 0777);
         }
+        
+        // delete the current paper
+        $this->deletePaper($db);
 
         if (rename($papername, $filename)) {
             chmod($filename, 0777);
@@ -760,7 +765,7 @@ class pdPublication extends pdDbAccessor {
         }
     }
 
-    public function attSave($db, $att_name, $att_type) {
+    public function attSave(&$db, $att_name, $att_type) {
         assert('is_object($db)');
         assert('$this->pub_id != ""');
 
@@ -770,8 +775,12 @@ class pdPublication extends pdDbAccessor {
 
         if (count($this->additional_info) > 0)
             foreach ($this->additional_info as $att) {
-                if (basename($att_name) == basename($att->location))
+                if (basename($att_name) == basename($att->location)) {
                     return;
+                }
+                if ($att_type == $att->type) {
+                    $this->deleteAtt($db, $att);
+                }
             }
 
         // make sure this attachment is not already in the list
@@ -781,6 +790,9 @@ class pdPublication extends pdDbAccessor {
 
         $basename = basename($att_name, '.' . $user->login);
         $filename = $pub_path . $basename;
+        
+        // if file exists then there is nothing to do
+        if (file_exists($filename)) return;
 
         // create the publication's path if it does not exist
         if (!is_dir($pub_path)) {
@@ -810,15 +822,29 @@ class pdPublication extends pdDbAccessor {
         $this->paperDbUpdate($db, 'no paper');
     }
 
-    public function deleteAtt($db, $att) {
+    // used by saveAtt()
+    private function deleteAtt($db, $att) {
         assert('isset($this->pub_id)');
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
         $filepath = $pub_path . basename($att->location);
 
-        if (is_file($filepath))
+        if (file_exists($filepath))
             unlink($filepath);
         $this->dbAttRemove($db, $att->location);
+    }
+
+    public function deleteAttByFilename(&$db, $filename) {
+        if (count($this->additional_info) == 0) return;
+        
+        foreach ($this->additional_info as $k => $o) {
+            if (strpos($filename, $o->location) !== false) {
+                if (file_exists($filename)) {
+                    unlink($filename);
+                }
+            }
+        }
+        $this->dbAttRemove($db, $filename);
     }
 
     public function deleteFiles($db) {
