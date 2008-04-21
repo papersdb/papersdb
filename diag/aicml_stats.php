@@ -208,7 +208,7 @@ class author_report extends aicml_pubs_base {
                                    array('class' => $class));
                     ++$row_count;
                     $table->updateCellAttributes($row_count, 4,
-                        array('class' => $class . '_pub_id'), NULL);
+                        array('class' => $class . '_pub_id'));
                 }
             }
         }
@@ -306,7 +306,7 @@ class author_report extends aicml_pubs_base {
                                    array('class' => $class));
                     ++$row_count;
                     $table->updateCellAttributes($row_count, 4,
-                        array('class' => $class . '_pub_id'), NULL);
+                        array('class' => $class . '_pub_id'));
                     
                     $pub_count[$t1] += count($pub_ids);
                 }
@@ -352,13 +352,13 @@ class author_report extends aicml_pubs_base {
     	$this->studentTotalsCsv();
 		
     	if (ob_get_length() > 0) {
-            $csv_output .= ob_get_contents();
-            ob_end_clean();
-        }		
-    	$size_in_bytes = strlen($csv_output);		
-		header("Content-disposition:  attachment; filename=aicml_stats_" .
-			date("Y-m-d").".csv; size=$size_in_bytes");
-		echo $csv_output;
+            $csv_output = ob_get_contents();
+            ob_end_clean();		
+            $size_in_bytes = strlen($csv_output);
+            header("Content-disposition:  attachment; filename=aicml_stats_" .
+                date("Y-m-d").".csv; size=$size_in_bytes");
+            echo $csv_output;
+        }
     }
     
     private function statsToCsv($group, $heading) {    

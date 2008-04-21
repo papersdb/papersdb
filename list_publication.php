@@ -253,7 +253,7 @@ class list_publication extends pdHtmlPage {
                 $table->updateRowAttributes($i, array('class' => 'even'), true);
             else
                 $table->updateRowAttributes($i, array('class' => 'odd'), true);
-            $table->updateCellAttributes($i, 1, array('id' => 'publist'), true);
+            $table->updateCellAttributes($i, 1, array('id' => 'publist'));
         }
         $table->updateColAttributes(0, array('class' => 'publist'), true);
     }
