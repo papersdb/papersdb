@@ -346,10 +346,9 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         }
 
         if (isset($values['remove_paper'])) {
-            // check if this is a temporary file
-            if (strpos($_SESSION['paper'], '.' . $user->login) !== false)
+            if (file_exists($_SESSION['paper'])) {
                 unlink($_SESSION['paper']);
-
+            }
             $_SESSION['paper'] = 'none';
             header('Location: add_pub4.php');
             return;
@@ -357,9 +356,9 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
 
         for ($i = 0; $i < $values['num_att']; $i++) {
             if (isset($values['remove_att' . $i])) {
-                // check if this is a temporary file
-                if (strpos($_SESSION['attachments'][$i], $user->login) !== false)
+                if (file_exists($_SESSION['attachments'][$i])) {
                     unlink($_SESSION['attachments'][$i]);
+                }
 
                 if (strpos($_SESSION['attachments'][$i], 'additional_') !== false)
                     $_SESSION['removed_atts'][] = $_SESSION['attachments'][$i];

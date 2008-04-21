@@ -346,7 +346,9 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         if ($values['cat_id'] > 0) {
             if (!isset($this->pub->venue)
                 || (is_object($this->pub->venue)
-                    && ($this->pub->category != $values['cat_id'])))
+                    && isset($this->pub->category)
+                    && is_object($this->pub->category)
+                    && ($this->pub->category->cat_id != $values['cat_id'])))
                 // either no venue set for this pub entry, OR user has
                 // overriden the category since user selected one that does not
                 // match the venue
@@ -389,6 +391,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
     }
 
     public function formInfoElementsGet() {
+        assert('is_object($this->pub->category)');
         if (!is_array($this->pub->category->info)) return null;
 
         $infoElements = array_values($this->pub->category->info);

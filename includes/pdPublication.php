@@ -426,7 +426,6 @@ class pdPublication extends pdDbAccessor {
 
     public function dbAttRemove($db, $filename) {
         assert('$this->pub_id != null');
-        assert('count($this->additional_info) > 0');
 
         foreach ($this->additional_info as $k => $o) {
             if (basename($o->location) == basename($filename)) {
