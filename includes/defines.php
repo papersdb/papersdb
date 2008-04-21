@@ -21,8 +21,8 @@ define('SITE_NAME', 'papersdb');
  * The name of the database and the path on the fileserver where documents are 
  * stored.
  */
-if (strpos($_SERVER['PHP_SELF'], '~papersdb') === false) {
-    define('FS_PATH', '/usr/host/loyola/htdocs/papersdb');
+if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
+    define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs');
 }
 else {
     if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
