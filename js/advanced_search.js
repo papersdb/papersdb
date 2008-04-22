@@ -25,7 +25,9 @@ function lastSearchUse() {
         
     // since we are using PEAR HTML_QuickForm the radio checkboxes have 2
     // elements with the same name, we need to access the checkbox element
-    form.author_myself[1].checked = "{author_myself}"
+    var author_myself = document.getElementsByName("author_myself[1]");
+    if (author_myself)
+        author_myself.checked = "{author_myself}"
     form.show_internal_info[1].checked = "{show_internal_info}";
     
     var paper_rank = document.getElementsByName("paper_rank[1]");
