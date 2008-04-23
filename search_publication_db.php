@@ -280,29 +280,6 @@ class search_publication_db extends pdHtmlPage {
             //then we only keep the common ids between both arrays
             $this->result_pubs
                 = array_intersect($this->result_pubs, $temporary_array);
-
-            // Search category related fields
-            $info_query = "SELECT DISTINCT info.info_id, info.name "
-                . "FROM info, cat_info, pub_cat "
-                . "WHERE info.info_id=cat_info.info_id AND cat_info.cat_id="
-                . $this->db->quote_smart($cat_id);
-            $info_result = $this->db->query($info_query);
-            while ($info_line = mysql_fetch_array($info_result, MYSQL_ASSOC)) {
-                $temporary_array = NULL;
-                $info_id = $info_line['info_id'];
-                $info_name = strtolower($info_line['name']);
-                if($$info_name != "") {
-                    $search_query = "SELECT DISTINCT pub_id "
-                        . "FROM pub_cat_info WHERE cat_id=" . $this->db->quote_smart($cat_id)
-                        . " AND info_id=" . $this->db->quote_smart($info_id)
-                        . " AND value REGEXP "
-                        . $this->db->quote_smart('[[:<:]]'.$term.'[[:>:]]');
-                    $this->add_to_array($search_query, $temporary_array);
-
-                    $this->result_pubs
-                        = array_intersect($this->result_pubs, $temporary_array);
-                }
-            }
         }
 
         // PUBLICATION FIELDS SEARCH ------------------------------------------
