@@ -57,6 +57,13 @@ class pdAuthor extends pdDbAccessor{
         $this->pub_list = null;
         $this->totalPublications = null;
     }
+    
+    public static function &newFromDb(&$db, $author_id, $flags = self::DB_LOAD_ALL) {
+        assert('is_numeric($author_id)');
+        $author = new pdAuthor();
+        $author->dbLoad($db, $author_id, $flags);
+        return $author;
+    }
 
     /**
      * Loads a specific publication from the database.
