@@ -9,6 +9,19 @@ function relativeUrlGet() {
     return substr($_SERVER['PHP_SELF'], $pos + strlen(SITE_NAME) + 1);
 }
 
+/**
+ * Creates an HTML formatted citation list for the publications contained
+ * in $pub_list.
+ *
+ * @param object $db
+ * @param array $pub_list
+ * @param boolean $enumerate
+ * @param integer $max
+ * @param array $additional
+ * @param array $options
+ * @param string $url_prefix
+ * @return unknown
+ */
 function displayPubList(&$db, &$pub_list, $enumerate = true, 
     $max = -1, $additional = null, $options = null, $url_prefix = '') {
     assert('is_object($db)');
