@@ -15,6 +15,8 @@ require_once 'includes/pdAuthInterests.php';
 require_once 'includes/pdAuthor.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'Admin/add_pub_base.php';
+require_once 'HTML/QuickForm/advmultiselect.php';
+
 
 /**
  * Creates a form for adding or editing author information.
@@ -28,11 +30,13 @@ class add_author extends pdHtmlPage {
     public $firstname;
     public $lastname;
     public $interests;
+    private $all_interests;
 
     public function __construct() {
         parent::__construct('add_author');
         $this->loadHttpVars();
         $this->use_mootools = true;
+        $this->all_interests = pdAuthInterests::createList($this->db);
 
         // before showing a loggin error, show the correct title for the page
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
@@ -125,9 +129,37 @@ class add_author extends pdHtmlPage {
         $ref = '<br/><div class="small"><a href="javascript:dataKeep('
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
-        $form->addElement('select', 'interests', 'Interests:' . $ref,
-                          pdAuthInterests::createList($this->db),
-                          array('multiple' => 'multiple', 'size' => 15));
+        $ams = $form->addElement('advmultiselect', 'interests', null,
+        	$this->all_interests, 
+            array('size' => 15, 'class' => 'pool', 'style' =>  'width:200px;'));
+            
+        $ams->setLabel(array('Interests:' . $ref, 'Available', 'Selected'));       
+
+        $ams->setButtonAttributes('add', array('value' => 'Add >>',
+        	'class' => 'inputCommand'));
+        $ams->setButtonAttributes('remove', array('value' => '<< Remove',
+ 			'class' => 'inputCommand'));    
+
+        $template = <<<TEMPLATE_END
+{javascript}
+<table{class}>
+  <thead>
+    <tr>
+      <!-- BEGIN label_2 --><tr><th align="center">{label_2}</th><!-- END label_2 -->
+      <!-- BEGIN label_3 --><th align="center">{label_3}</th><!-- END label_3 -->
+    <tr>
+  </thead>
+<tr>
+  <td>{unselected}</td>
+  <td>{selected}</td>
+</tr>
+<tr>
+  <td>{add}</td>
+  <td>{remove}</td>
+</tr>
+</table>
+TEMPLATE_END;
+        $ams->setElementTemplate($template);   
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $form->addElement('static', null, null,
@@ -209,14 +241,13 @@ class add_author extends pdHtmlPage {
             $defaults[$member] = $this->$member;
         }
 
-        $form->setDefaults($defaults);
-
         if ($author->author_id != '') {
-          $form->setDefaults($author->asArray());
+            $defaults = array_merge($defaults, $author->asArray());
 
-          if (count($author->interests) > 0)
-            $form->setDefaults(
-              array('interests' => array_keys($author->interests)));
+            // override interests
+            if (count($author->interests) > 0) {
+                $defaults['interests'] = array_keys($author->interests);
+            }
         }
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
@@ -231,9 +262,11 @@ class add_author extends pdHtmlPage {
             echo $pub->getCitationHtml('..', false), '<p/>',
                 add_pub_base::similarPubsHtml($this->db);
         }
-
+        
+        //debugVar('defaults', $defaults);
+        $form->setDefaults($defaults);
+        
         $renderer =& $form->defaultRenderer();
-
         $renderer->setFormTemplate(
             '<form{attributes}>'
             . '<table width="100%" border="0" cellpadding="3" '
@@ -242,10 +275,7 @@ class add_author extends pdHtmlPage {
         $renderer->setHeaderTemplate('
 <tr><td style="white-space:nowrap;background:#996;color:#ffc;"
  align="left" colspan="2"><b>{header}</b></td></tr>');
-        $renderer->setElementTemplate(
-            '<tr><td>{element}</td></tr>',
-            'author_id');
-
+        
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();
@@ -291,9 +321,11 @@ class add_author extends pdHtmlPage {
         $author->webpage      = $values['webpage'];
         $author->interests    = array();
 
-        if (isset($values['interests']) && (count($values['interests']) > 0))
-            $author->interests
-                = array_merge($author->interests, $values['interests']);
+        if (isset($values['interests']) && (count($values['interests']) > 0)) {            
+            foreach ($values['interests'] as $int_id) {
+                $author->interests[$int_id] = $this->all_interests[$int_id];
+            }
+        }
 
         if (isset($values['newInterests'])
             && (count($values['newInterests']) > 0))
@@ -326,17 +358,9 @@ class add_author extends pdHtmlPage {
                 header('Location: add_author.php');
             else
                 header('Location: add_pub2.php');
+            return;
         }
-        else {
-            if ($this->author_id == null)
-              echo 'Author "', $values['firstname'], ' ', $values['lastname'],
-              	'" ', 'succesfully added to the database.', '<p/>',
-              	'<a href="', $_SERVER['PHP_SELF'], '">',
-              	'Add another new author</a>';
-            else
-              echo 'Changes to author "', $values['firstname'], ' ',
-              	$values['lastname'], '" ', 'submitted to the database.';
-        }
+        header('Location: ../view_author.php?author_id=' . $author->author_id);
     }
 
     public function javascript() {
@@ -363,6 +387,10 @@ class add_author extends pdHtmlPage {
                                      array($_SERVER['HTTP_HOST'], $url),
                                      $content);
         }
+        
+        $js_file = dirname(__FILE__) . '/../pear/HTML/QuickForm/qfamsHandler.js';
+        assert('file_exists($js_file)');
+        $this->js .=  file_get_contents($js_file);
     }
 }
 

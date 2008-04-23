@@ -250,7 +250,7 @@ class pdHtmlPage {
 
         if ($this->use_mootools)
             $result .= "<script type=\"text/javascript\" src=\"" . $url_prefix
-                . "js/mootools-release-1.11.js\" /></script>\n";
+                . "js/mootools-release-1.11.js\"></script>\n";
 
         if (!empty($this->js)) {
 	        $result .= "<script type=\"text/javascript\">\n"

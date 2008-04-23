@@ -95,7 +95,7 @@ class pdAuthor extends pdDbAccessor{
     public function dbLoadInterests(&$db) {
         assert('is_object($db)');
         assert('isset($this->author_id)');
-
+        
         $q = $db->select(array('interest', 'author_interest'),
                          array('interest.interest', 'interest.interest_id'),
                          array('interest.interest_id=author_interest.interest_id',
