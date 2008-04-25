@@ -47,7 +47,8 @@ class view_author extends pdHtmlPage {
                       (pdAuthor::DB_LOAD_PUBS_MIN
                        | pdAuthor::DB_LOAD_INTERESTS));
                        
-        if (strpos($_SERVER['HTTP_REFERER'], 'Admin/add_author.php?author_id=') !== false) {
+        if (isset($_SERVER['HTTP_REFERER']) 
+            && (strpos($_SERVER['HTTP_REFERER'], 'Admin/add_author.php?author_id=') !== false)) {
             // the user added or changed an author
             echo "Your change has been sumitted.<br/><hr/>\n";
         }
