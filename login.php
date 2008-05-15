@@ -177,7 +177,7 @@ class login extends pdHtmlPage {
 
             // only send email if running the real papersdb
             if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-                mail(DB_ADMIN, 'PapersDB: Login Request',
+                mail(PAPERSDB_EMAIL, 'PapersDB: Login Request',
                      'The following user has requested editor access '
                      . 'level for PapersDB.' . "\n\n"
                      . 'name: ' . $values['realname'] . "\n"
