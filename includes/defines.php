@@ -16,6 +16,7 @@ $wgSitename = "PapersDB";
 $wgServer = "www.cs.ualberta.ca";
 
 define('SITE_NAME', 'papersdb');
+define('PAPERSDB_EMAIL', 'papersdb@cs.ualberta.ca');
 
 /**
  * The name of the database and the path on the fileserver where documents are 
