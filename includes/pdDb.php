@@ -595,7 +595,7 @@ class pdDb {
         if (PHP_SAPI != "cli") {
             echo "<br/>\n";
         }
-        my_backtrace();
+        papersdb_backtrace();
         exit(1);
     }
 }

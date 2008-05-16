@@ -1,88 +1,66 @@
 <?php
-/* vim: set expandtab tabstop=4 shiftwidth=4: */
-// +----------------------------------------------------------------------+
-// | PHP version 4.0                                                      |
-// +----------------------------------------------------------------------+
-// | Copyright (c) 1997-2004 The PHP Group                                |
-// +----------------------------------------------------------------------+
-// | This source file is subject to version 2.0 of the PHP license,       |
-// | that is bundled with this package in the file LICENSE, and is        |
-// | available at through the world-wide-web at                           |
-// | http://www.php.net/license/2_02.txt.                                 |
-// | If you did not receive a copy of the PHP license and are unable to   |
-// | obtain it through the world-wide-web, please send a note to          |
-// | license@php.net so we can mail you a copy immediately.               |
-// +----------------------------------------------------------------------+
-// | Authors: Herim Vasquez <vasquezh@iro.umontreal.ca>                   |
-// |          Bertrand Mansion <bmansion@mamasam.com>                     |
-// |          Alexey Borzov <avb@php.net>
-// +----------------------------------------------------------------------+
-//
-// $Id: hierselect.php,v 1.2 2007/04/27 22:15:53 aicmltec Exp $
-
-require_once('HTML/QuickForm/group.php');
-require_once('HTML/QuickForm/select.php');
+/* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 
 /**
+ * Hierarchical select element
+ * 
+ * PHP versions 4 and 5
+ *
+ * LICENSE: This source file is subject to version 3.01 of the PHP license
+ * that is available through the world-wide-web at the following URI:
+ * http://www.php.net/license/3_01.txt If you did not receive a copy of
+ * the PHP License and are unable to obtain it through the web, please
+ * send a note to license@php.net so we can mail you a copy immediately.
+ *
+ * @category    HTML
+ * @package     HTML_QuickForm
+ * @author      Herim Vasquez <vasquezh@iro.umontreal.ca>
+ * @author      Bertrand Mansion <bmansion@mamasam.com>
+ * @author      Alexey Borzov <avb@php.net>
+ * @copyright   2001-2007 The PHP Group
+ * @license     http://www.php.net/license/3_01.txt PHP License 3.01
+ * @version     CVS: $Id: hierselect.php,v 1.19 2007/05/29 18:34:36 avb Exp $
+ * @link        http://pear.php.net/package/HTML_QuickForm
+ */
+
+/**
+ * Class for a group of form elements
+ */
+require_once 'HTML/QuickForm/group.php';
+/**
+ * Class for <select></select> elements
+ */
+require_once 'HTML/QuickForm/select.php';
+
+/**
+ * Hierarchical select element
+ * 
  * Class to dynamically create two or more HTML Select elements
  * The first select changes the content of the second select and so on.
  * This element is considered as a group. Selects will be named
  * groupName[0], groupName[1], groupName[2]...
  *
- * @author       Herim Vasquez <vasquezh@iro.umontreal.ca>
- * @author       Bertrand Mansion <bmansion@mamasam.com>
- * @version      1.0
- * @since        PHP4.04pl1
- * @access       public
+ * @category    HTML
+ * @package     HTML_QuickForm
+ * @author      Herim Vasquez <vasquezh@iro.umontreal.ca>
+ * @author      Bertrand Mansion <bmansion@mamasam.com>
+ * @author      Alexey Borzov <avb@php.net>
+ * @version     Release: 3.2.10
+ * @since       3.1
  */
 class HTML_QuickForm_hierselect extends HTML_QuickForm_group
-{
+{   
     // {{{ properties
 
     /**
      * Options for all the select elements
      *
-     * Format is a bit more complex as we need to know which options
-     * are related to the ones in the previous select:
-     *
-     * Ex:
-     * // first select
-     * $select1[0] = 'Pop';
-     * $select1[1] = 'Classical';
-     * $select1[2] = 'Funeral doom';
-     *
-     * // second select
-     * $select2[0][0] = 'Red Hot Chil Peppers';
-     * $select2[0][1] = 'The Pixies';
-     * $select2[1][0] = 'Wagner';
-     * $select2[1][1] = 'Strauss';
-     * $select2[2][0] = 'Pantheist';
-     * $select2[2][1] = 'Skepticism';
-     *
-     * // If only need two selects
-     * //     - and using the depracated functions
-     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
-     * $sel->setMainOptions($select1);
-     * $sel->setSecOptions($select2);
-     *
-     * //     - and using the new setOptions function
-     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
-     * $sel->setOptions(array($select1, $select2));
-     *
-     * // If you have a third select with prices for the cds
-     * $select3[0][0][0] = '15.00$';
-     * $select3[0][0][1] = '17.00$';
-     * etc
-     *
-     * // You can now use
-     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
-     * $sel->setOptions(array($select1, $select2, $select3));
-     *
+     * @see       setOptions()
      * @var       array
      * @access    private
      */
     var $_options = array();
-
+    
     /**
      * Number of select elements on this group
      *
@@ -104,10 +82,10 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
 
     /**
      * Class constructor
-     *
+     * 
      * @param     string    $elementName    (optional)Input field name attribute
      * @param     string    $elementLabel   (optional)Input field label in form
-     * @param     mixed     $attributes     (optional)Either a typical HTML attribute string
+     * @param     mixed     $attributes     (optional)Either a typical HTML attribute string 
      *                                      or an associative array. Date format is passed along the attributes.
      * @param     mixed     $separator      (optional)Use a string for one separator,
      *                                      use an array to alternate the separators.
@@ -132,8 +110,45 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      * Initialize the array structure containing the options for each select element.
      * Call the functions that actually do the magic.
      *
-     * @param     array    $options    Array of options defining each element
+     * Format is a bit more complex than for a simple select as we need to know 
+     * which options are related to the ones in the previous select:
      *
+     * Ex:
+     * <code>
+     * // first select
+     * $select1[0] = 'Pop';
+     * $select1[1] = 'Classical';
+     * $select1[2] = 'Funeral doom';
+     *
+     * // second select
+     * $select2[0][0] = 'Red Hot Chil Peppers';
+     * $select2[0][1] = 'The Pixies';
+     * $select2[1][0] = 'Wagner';
+     * $select2[1][1] = 'Strauss';
+     * $select2[2][0] = 'Pantheist';
+     * $select2[2][1] = 'Skepticism';
+     *
+     * // If only need two selects 
+     * //     - and using the deprecated functions
+     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
+     * $sel->setMainOptions($select1);
+     * $sel->setSecOptions($select2);
+     *
+     * //     - and using the new setOptions function
+     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
+     * $sel->setOptions(array($select1, $select2));
+     *
+     * // If you have a third select with prices for the cds
+     * $select3[0][0][0] = '15.00$';
+     * $select3[0][0][1] = '17.00$';
+     * // etc
+     *
+     * // You can now use
+     * $sel =& $form->addElement('hierselect', 'cds', 'Choose CD:');
+     * $sel->setOptions(array($select1, $select2, $select3));
+     * </code>
+     * 
+     * @param     array    $options    Array of options defining each element
      * @access    public
      * @return    void
      */
@@ -153,13 +168,13 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
                 $this->_nbElements++;
             }
         }
-
+        
         $this->_setOptions();
     } // end func setMainOptions
 
     // }}}
     // {{{ setMainOptions()
-
+    
     /**
      * Sets the options for the first select element. Deprecated. setOptions() should be used.
      *
@@ -178,10 +193,10 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
             $this->_createElements();
         }
     } // end func setMainOptions
-
+    
     // }}}
     // {{{ setSecOptions()
-
+    
     /**
      * Sets the options for the second select element. Deprecated. setOptions() should be used.
      * The main _options array is initialized and the _setOptions function is called.
@@ -208,13 +223,13 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
                 $this->_nbElements++;
             }
         }
-
+        
         $this->_setOptions();
     } // end func setSecOptions
-
+    
     // }}}
     // {{{ _setOptions()
-
+    
     /**
      * Sets the options for each select element
      *
@@ -236,13 +251,13 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
             }
         }
     } // end func _setOptions
-
+    
     // }}}
     // {{{ setValue()
 
     /**
      * Sets values for group's elements
-     *
+     * 
      * @param     array     $value    An array of 2 or more values, for the first,
      *                                the second, the third etc. select
      *
@@ -251,20 +266,20 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
      */
     function setValue($value)
     {
-        // fix for bug #6766. Hope this doesn't break anything more
+        // fix for bug #6766. Hope this doesn't break anything more 
         // after bug #7961. Forgot that _nbElements was used in
-        // _createElements() called in several places...
+        // _createElements() called in several places... 
         $this->_nbElements = max($this->_nbElements, count($value));
         parent::setValue($value);
         $this->_setOptions();
     } // end func setValue
-
+    
     // }}}
     // {{{ _createElements()
 
     /**
      * Creates all the elements for the group
-     *
+     * 
      * @access    private
      * @return    void
      */
@@ -292,7 +307,7 @@ class HTML_QuickForm_hierselect extends HTML_QuickForm_group
                     array('onchange' => '_hs_swapOptions(this.form, \'' . $this->_escapeString($this->getName()) . '\', ' . $keys[$i] . ');' . $onChange[$i])
                 );
             }
-
+            
             // create the js function to call
             if (!defined('HTML_QUICKFORM_HIERSELECT_EXISTS')) {
                 $this->_js .= <<<JAVASCRIPT
@@ -311,9 +326,9 @@ function _hs_findOptions(ary, keys)
 function _hs_findSelect(form, groupName, selectIndex)
 {
     if (groupName+'['+ selectIndex +']' in form) {
-        return form[groupName+'['+ selectIndex +']'];
+        return form[groupName+'['+ selectIndex +']']; 
     } else {
-        return form[groupName+'['+ selectIndex +'][]'];
+        return form[groupName+'['+ selectIndex +'][]']; 
     }
 }
 
@@ -358,7 +373,7 @@ function _hs_swapOptions(form, groupName, selectIndex)
         hsValue[i] = _hs_findSelect(form, groupName, i).value;
     }
 
-    _hs_replaceOptions(_hs_findSelect(form, groupName, selectIndex + 1),
+    _hs_replaceOptions(_hs_findSelect(form, groupName, selectIndex + 1), 
                        _hs_findOptions(_hs_options[groupName][selectIndex], hsValue));
     if (selectIndex + 1 < _hs_options[groupName].length) {
         _hs_swapOptions(form, groupName, selectIndex + 1);
@@ -372,7 +387,7 @@ function _hs_onReset(form, groupNames)
             for (var j = 0; j <= _hs_options[groupNames[i]].length; j++) {
                 _hs_setValue(_hs_findSelect(form, groupNames[i], j), _hs_defaults[groupNames[i]][j]);
                 if (j < _hs_options[groupNames[i]].length) {
-                    _hs_replaceOptions(_hs_findSelect(form, groupNames[i], j + 1),
+                    _hs_replaceOptions(_hs_findSelect(form, groupNames[i], j + 1), 
                                        _hs_findOptions(_hs_options[groupNames[i]][j], _hs_defaults[groupNames[i]].slice(0, j + 1)));
                 }
             }
@@ -524,7 +539,7 @@ JAVASCRIPT;
         $js = implode(', ', $items);
         return $assoc? '{ ' . $js . ' }': '[' . $js . ']';
     }
-
+    
     // }}}
     // {{{ _convertScalarToJavascript()
 
@@ -555,7 +570,7 @@ JAVASCRIPT;
     // {{{ _escapeString()
 
    /**
-    * Quotes the string so that it can be used in Javascript string constants
+    * Quotes the string so that it can be used in Javascript string constants   
     *
     * @access private
     * @param  string

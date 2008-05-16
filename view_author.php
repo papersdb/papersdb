@@ -32,7 +32,7 @@ class view_author extends pdHtmlPage {
                            'view_author.php');
 
         if ($this->loginError) return;
-
+        
         $this->loadHttpVars(true, false);
         $this->use_mootools = true;
 
@@ -46,14 +46,20 @@ class view_author extends pdHtmlPage {
         $auth->dbLoad($this->db, $this->author_id,
                       (pdAuthor::DB_LOAD_PUBS_MIN
                        | pdAuthor::DB_LOAD_INTERESTS));
+                       
+        if (isset($_SERVER['HTTP_REFERER']) 
+            && (strpos($_SERVER['HTTP_REFERER'], 'Admin/add_author.php?author_id=') !== false)) {
+            // the user added or changed an author
+            echo "Your change has been sumitted.<br/><hr/>\n";
+        }
 
         echo '<h3>', $auth->name;
-
         if ($this->access_level > 0) {
             echo $this->getAuthorIcons($auth, 0x6);
         }
-
         echo '</h3>',  $this->authorShow($auth);
+        
+        echo "<hr><a href='list_author.php?tab=" . $auth->name[0] . "'>Author List</a>";
     }
 
     public function authorShow($auth) {
@@ -85,13 +91,11 @@ class view_author extends pdHtmlPage {
 
         $table->addRow(array('Webpage:', $webpage));
 
-        $interestStr = '';
-        if (isset($auth->interest) && is_array($auth->interest)) {
-            foreach ($auth->interest as $interest) {
-                $interestStr .= $interest . '<br/>';
-            }
+        $interestsStr = '';
+        if (isset($auth->interests) && is_array($auth->interests)) {
+            $interestsStr = implode('; ', array_values($auth->interests));
         }
-        $table->addRow(array('Interest(s):', $interestStr));
+        $table->addRow(array('Interest(s):', $interestsStr));
 
         if ($auth->totalPublications == 0) {
             $table->addRow(array('No publications by this author'),

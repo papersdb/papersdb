@@ -1,8 +1,6 @@
 <?php
 
  /**
-  * $Id: aicml_stats.php,v 1.10 2008/02/11 22:20:58 loyola Exp $
-  *
   * Script that reports statistics for thepublications made by AICML PIs, PDFs,
   * students and staff.
   *

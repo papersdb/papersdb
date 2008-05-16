@@ -58,7 +58,7 @@ class view_publication extends pdHtmlPage {
         // add additional parameter to the view icon
         echo preg_replace('/pub_id=(\d+)/',
             'pub_id=${1}&submit_pending=true',
-            displayPubList($this->db, $pub_list, true));
+            displayPubList($this->db, $pub_list, true, -1, null, null, '../'));
     }
 }
 
