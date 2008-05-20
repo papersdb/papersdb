@@ -60,22 +60,28 @@ class author_report extends aicml_pubs_base {
         
         echo '<h2>AICML Publications</h2>';
 
-        $pubs =& $this->getMachineLearningPapers();
+        $publist =& $this->getMachineLearningPapers();
         
-        if ($this->format)
+        if ($this->format) {
         	$result = '';
+        }
         
-       	foreach ($pubs as $pub) {
-       		$pub->dbLoad($this->db, $pub->pub_id,
-        		pdPublication::DB_LOAD_VENUE
-        		| pdPublication::DB_LOAD_CATEGORY
-        		| pdPublication::DB_LOAD_AUTHOR_FULL);
-       		$citation = utf8_encode($this->getCitationHtml($pub));
-       		if ($this->format)
-       		    $result .= $citation . "<br/>\n";
-       		else
-       		    echo $citation . '<p/>';
-       	}
+        foreach ($publist as $pub) {
+            $pub->dbLoad($this->db, $pub->pub_id,
+                pdPublication::DB_LOAD_VENUE
+                | pdPublication::DB_LOAD_CATEGORY
+                | pdPublication::DB_LOAD_AUTHOR_FULL);
+            $citation = $this->getCitationHtml($pub);
+            if ($this->format) {
+                $citation = utf8_decode($citation);
+            }
+            if ($this->format) {
+                $result .= $citation . "<br/>\n";
+            }
+            else {
+                echo $citation . '<p/>';
+            }
+        }
         
         if ($this->format)
         	echo '<pre style="font-size:medium">' . htmlentities($result) . '</pre>';

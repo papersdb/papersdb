@@ -63,30 +63,26 @@ class aicml_pubs_base extends pdHtmlPage {
      * their corresponding pdPublication objects for values.
      */
     protected function getMachineLearningPapers() {        
-        $q = $this->db->query('select distinct(publication.pub_id),
- publication.title, publication.paper, publication.abstract, 
- publication.keywords, publication.published, publication.venue_id, 
- publication.extra_info, publication.submit, publication.user, 
- publication.rank_id, publication.updated       
- from publication 
- inner join  pub_author on pub_author.pub_id=publication.pub_id 
- inner join aicml_staff on aicml_staff.author_id=pub_author.author_id
- inner join pub_cat on publication.pub_id=pub_cat.pub_id
- left join pub_pending on publication.pub_id=pub_pending.pub_id
- where keywords rlike "mach.*learn.*" 
- and pub_cat.cat_id in (1, 3)
- and pub_pending.pub_id is NULL
- and publication.published >= "' . self::$fiscal_years[0][0]. '"');
-        if (!$q) return false;
-        
-        $pubs = array();
-        foreach ($q as $r) {
-        	$pub = new pdPublication($r);
-        	$pubs[$r->pub_id] = $pub;
-        }
+        $qry_str = <<<QRY_END
+SELECT group_concat(distinct(publication.pub_id) SEPARATOR ',') as pub_ids
+FROM publication 
+inner join  pub_author on pub_author.pub_id=publication.pub_id 
+inner join aicml_staff on aicml_staff.author_id=pub_author.author_id
+inner join pub_cat on publication.pub_id=pub_cat.pub_id
+left join pub_pending on publication.pub_id=pub_pending.pub_id
+where publication.keywords rlike "mach.*learn.*" 
+and publication.rank_id in (1, 2, 3)
+and pub_cat.cat_id in (1, 3)
+and pub_pending.pub_id is NULL
+and publication.published >= %s
+QRY_END;
 
-        uasort($pubs, array('pdPublication', 'pubsDateSortDesc'));
-        return $pubs;
+        $qry_str = sprintf($qry_str, self::$fiscal_years[0][0]);                
+        $q = $this->db->query($qry_str);
+        if (!$q) return false;
+        assert('count($q) == 1');
+        $pub_ids = explode(',', $q[0]->pub_ids);
+        return pdPubList::create($this->db, array('pub_ids' => $pub_ids, 'sort' => true));
     }    
 
     protected function getAllAicmlAuthoredPapers() {

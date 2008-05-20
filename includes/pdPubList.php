@@ -16,10 +16,10 @@ require_once 'pdPublication.php';
  * @package PapersDB
  */
 class pdPubList {
-    protected static $cat_display_order = array('In Journal (referreed)',
-                                                'In Journal (unreferreed)',
-                                                'In Conference (referreed)',
-                                                'In Conference (unreferreed)',
+    protected static $cat_display_order = array('In Journal (refereed)',
+                                                'In Journal (unrefereed)',
+                                                'In Conference (refereed)',
+                                                'In Conference (unrefereed)',
                                                 'In Workshop',
                                                 'Other');
 
@@ -377,9 +377,9 @@ class pdPubList {
                     case 'In Journal':
                     case 'In Conference':
                         if ($pub->rank_id <= 3)
-                            $app = ' (referreed)';
+                            $app = ' (refereed)';
                         else
-                            $app = ' (unreferreed)';
+                            $app = ' (unrefereed)';
                         $list[$pub->category->category . $app][] = $pub;
                         break;
 

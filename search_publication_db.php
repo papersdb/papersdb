@@ -353,15 +353,12 @@ class search_publication_db extends pdHtmlPage {
                 $search_result = $this->db->query(
                     'SELECT venue_id from venue_rankings '
     	            . 'WHERE rank_id=' . $this->db->quote_smart($rank_id));
-
-                while ($search_array
-                = mysql_fetch_array($search_result, MYSQL_ASSOC)) {
-                    $venue_id = $search_array['venue_id'];
-
-                    if (!empty($venue_id))
+    	            
+  	            foreach ($search_result as $row) {
+                    if (!empty($row->venue_id))
                     $this->add_to_array(
                         'SELECT DISTINCT pub_id from publication '
-                        . 'WHERE venue_id=' . $this->db->quote_smart($venue_id),
+                        . 'WHERE venue_id=' . $this->db->quote_smart($row->venue_id),
                         $union_array);
                 }
             }
