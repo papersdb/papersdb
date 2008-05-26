@@ -134,7 +134,7 @@ class search_publication_db extends pdHtmlPage {
     private function &quickSearch() {    	
 		$parser = new SearchTermParser($this->sp->search);
 		$quick_search_array = $parser->getWordList();
-		$result_pubs = array();
+		$result_pubs = $this->result_pubs;
 
         if ($this->debug) {
             debugVar('$quick_search_array', $quick_search_array);
@@ -238,8 +238,11 @@ class search_publication_db extends pdHtmlPage {
                         }
                     }
                 }
+                $result_pubs = array_intersect($result_pubs, $union_array);
+                if ($this->debug) {
+                    debugVar('$result_pubs', $result_pubs);
+                }
             }
-            $result_pubs = array_intersect($this->result_pubs, $union_array);
         }
         // All results from quick search are in $this->result_pubs
         return $result_pubs;
