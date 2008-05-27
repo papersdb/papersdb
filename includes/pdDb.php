@@ -14,7 +14,7 @@
 
 ini_set("include_path", ini_get("include_path") . ":..");
 
-require_once 'includes/defines.php';
+require_once 'defines.php';
 
 /**
  * Singleton wrapper class for database access.
@@ -117,6 +117,12 @@ class pdDb {
     public static function defaultNew() {   
     	$server = self::$db_server;
     	$db_name = self::$db_name;
+        
+        if (isset($_ENV['COMPUTERNAME']) && ($_ENV['COMPUTERNAME'] == 'GETAFIX')) {
+            $server = 'localhost';
+            $db_name = 'pubDBdev';
+            //self::$_debug = true;         
+        }  
     	
         if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante')) {
         	$server = 'localhost';

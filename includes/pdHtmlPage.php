@@ -7,14 +7,13 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path",  ini_get("include_path") . ':..');
-
 /** Requried classes to build the navigation menu. */
-require_once 'includes/functions.php';
-require_once 'includes/htmlUtils.php';
-require_once 'includes/pdDb.php';
-require_once 'includes/pdUser.php';
-require_once 'includes/pdNavMenu.php';
+require_once 'defines.php';
+require_once 'functions.php';
+require_once 'htmlUtils.php';
+require_once 'pdDb.php';
+require_once 'pdUser.php';
+require_once 'pdNavMenu.php';
 
 require_once 'HTML/QuickForm.php';
 require_once('HTML/QuickForm/Renderer/Default.php');

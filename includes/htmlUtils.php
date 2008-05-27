@@ -1,7 +1,6 @@
 <?php
 
-require_once('HTML/Table.php');
-require_once('includes/pdUser.php');
+require_once('pdUser.php');
 
 function relativeUrlGet() {
     $pos = strpos($_SERVER['PHP_SELF'], SITE_NAME);

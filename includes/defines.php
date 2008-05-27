@@ -10,8 +10,19 @@
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 
-ini_set("include_path", ini_get("include_path") . ":./pear:../pear");
+if (isset($_ENV['OS']) && ($_ENV['OS'] == 'Windows_NT')) {
+	$path_sep = ';';
+}
+else {
+    $path_sep = ':';
+}
 
+ini_set("include_path", 
+    dirname(__FILE__)  
+    . $path_sep . dirname(__FILE__) . '/../'
+    . $path_sep . dirname(__FILE__) . '/../pear/'
+    . $path_sep . ini_get("include_path"));
+    
 $wgSitename = "PapersDB";
 $wgServer = "www.cs.ualberta.ca";
 

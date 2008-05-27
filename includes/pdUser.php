@@ -8,7 +8,7 @@
  */
 
 /** Required to get the used author rank. */
-require_once 'includes/pdDbAccessor.php';
+require_once 'pdDbAccessor.php';
 require_once 'pdAuthorList.php';
 
 define('PD_USER_OPTION_SHOW_INTERNAL_INFO', 1);
