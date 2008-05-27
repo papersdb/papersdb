@@ -1373,9 +1373,12 @@ class pdPublication extends pdDbAccessor {
         
         if ($user->isAdministrator()) return;
         
-        // user does not have admin privilidges, tag entry as pending
-        $db->insert('pub_pending', array('pub_id' => $this->pub_id,
-                                         'login' => $user->login));
+        $q = $db->selectRow('pub_pending', '*', array('pub_id' => $this->pub_id));
+        if ($q === false) {
+        	// user does not have admin privilidges, tag entry as pending
+        	$db->insert('pub_pending', array('pub_id' => $this->pub_id,
+                                             'login' => $user->login));
+        }
     }
 }
 
