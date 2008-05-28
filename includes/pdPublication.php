@@ -253,6 +253,7 @@ class pdPublication extends pdDbAccessor {
         assert('is_object($db)');
 
         $arr = $this->membersAsArray(self::$db_table_fields);
+        $arr['updated'] = date('Y-m-d');
         
         if (isset($this->rank_id))
             $arr['rank_id'] = $this->rank_id;

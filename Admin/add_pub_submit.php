@@ -81,7 +81,7 @@ class add_pub_submit extends pdHtmlPage {
         else 
             $pub->markPending($this->db);
 
-        echo $pub->getCitationHtml(), getPubIcons($this->db, $pub);
+        echo $pub->getCitationHtml(), getPubIcons($this->db, $pub, 0xf, '..');
 
         pubSessionInit();
     }

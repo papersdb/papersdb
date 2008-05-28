@@ -33,10 +33,13 @@ class list_author extends pdHtmlPage {
 
         if (!isset($this->tab))
             $this->tab = 'A';
-        else if ((strlen($this->tab) != 1) || (ord($this->tab) < ord('A'))
-                 || (ord($this->tab) > ord('Z'))) {
-            $this->pageError = true;
-            return;
+        else {
+        	$tab = strtoupper($this->tab);
+        	if ((strlen($tab) != 1) || (ord($tab) < ord('A'))
+        	   || (ord($tab) > ord('Z'))) {
+        		$this->pageError = true;
+        		return;
+        	}
         }
 
         $auth_list = pdAuthorList::create($this->db, null, $this->tab);

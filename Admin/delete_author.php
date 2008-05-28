@@ -52,7 +52,7 @@ class delete_author extends pdHtmlPage {
         if (isset($pub_list) && (count($pub_list) > 0)) {
             echo 'Cannot delete Author <b>', $author->name, '</b>.<p/>', 
             	'The author has the following publications in the database:',
-            	displayPubList($this->db, $pub_list);
+            	displayPubList($this->db, $pub_list, true, -1, null, null, '../');
             return;
         }
 

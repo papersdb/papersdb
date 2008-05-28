@@ -16,6 +16,7 @@
  */
 
 /** Requries the base class and classes to access the database. */
+require_once 'includes/defines.php';
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdAuthor.php';
 

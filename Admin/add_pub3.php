@@ -327,6 +327,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         $form =& $this->form;
 
         $values = $form->exportValues();
+        debugVar('values', $values);
 
         if (isset($this->pub->category) && ($this->pub->category->info != null)) {
             foreach ($this->formInfoElementsGet() as $element => $name) {

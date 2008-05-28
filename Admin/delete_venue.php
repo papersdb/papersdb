@@ -48,7 +48,7 @@ class delete_venue extends pdHtmlPage {
         if (isset($pub_list) && (count($pub_list) > 0)) {
             echo 'Cannot delete venue <b>', $venue->nameGet(), '</b>.<p/>', 
             	'The venue is used by the following ', 'publications:', "\n", 
-            	displayPubList($this->db, $pub_list);
+                displayPubList($this->db, $pub_list, true, -1, null, null, '../');
             return;
         }
 

@@ -1,6 +1,7 @@
 <?php
 
-require_once('pdUser.php');
+require_once 'pdUser.php';
+require_once 'HTML/Table.php';
 
 function relativeUrlGet() {
     $pos = strpos($_SERVER['PHP_SELF'], SITE_NAME);
@@ -55,13 +56,13 @@ function displayPubList(&$db, &$pub_list, $enumerate = true,
         $table->setAutoGrow(true);
     
     
-        $citation = $pub->getCitationHtml() . '&nbsp;' 
+        $citation = $pub->getCitationHtml($url_prefix) . '&nbsp;' 
             . getPubIcons($db, $pub, 0xf, $url_prefix);
 
         if ((is_array($options) && !empty($options['show_internal_info'])
-        && $options['show_internal_info'])
-        || (isset($_SESSION['user'])
-        && ($_SESSION['user']->showInternalInfo()))) {
+            && $options['show_internal_info'])
+            || (isset($_SESSION['user'])
+            && ($_SESSION['user']->showInternalInfo()))) {
             $citation .= '<br/><span style="font-size:80%">';
             if (isset($pub->ranking))
             $citation .= 'Ranking: ' . $pub->ranking;
@@ -83,15 +84,17 @@ function displayPubList(&$db, &$pub_list, $enumerate = true,
         $citation .= '<br/><span style="font-size:90%;color:#006633;font-weight:bold;">'
         . $additional[$pub_id] . '</span>';
 
-        if ($enumerate)
-        $cells[] = $count . '.';
+        if ($enumerate) {
+        	$cells[] = $count . '.';
+        }
 
         $cells[] = $citation;
 
         $table->addRow($cells);
 
-        if ($enumerate)
-        $table->updateColAttributes(0, array('class' => 'item'), NULL);
+        if ($enumerate) {
+        	$table->updateColAttributes(0, array('class' => 'item'), NULL);
+        }
 
         $result .= $table->toHtml();
         unset($table);
@@ -131,7 +134,7 @@ $max = -1, $options = null, $url_prefix = '') {
                                               'cellspacing' => '0'));
             $table->setAutoGrow(true);
 
-            $citation = $pub->getCitationHtml() . '&nbsp;' 
+            $citation = $pub->getCitationHtml($url_prefix) . '&nbsp;' 
                 . getPubIcons($db, $pub, 0xF, $url_prefix);
 
             if ((is_array($options) && !empty($options['show_internal_info'])
