@@ -1,7 +1,6 @@
 <?php
 
-ini_set("include_path",  ini_get("include_path") . ':..');
-
+require_once '../includes/defines.php';
 require_once 'PHPUnit/Framework.php';
 require_once 'includes/functions.php';
 require_once 'includes/pdDb.php';

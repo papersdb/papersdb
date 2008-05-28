@@ -127,6 +127,10 @@ class pdHtmlPage {
             $this->relative_url = relativeUrlGet();
             $this->login_level  = $login_level;
         }
+        
+        if ($relative_url != null) {
+        	$this->relative_url = $relative_url;
+        }
 
         $this->redirectTimeout = 0;
         $this->table           = null;

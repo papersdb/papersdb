@@ -7,9 +7,8 @@
  * @subpackage HTML_Generator
  */
 
-ini_set("include_path", ini_get("include_path") . ":..");
-
 /** Requires the base class and classes to access the database. */
+require_once '../includes/defines.php';
 require_once 'Admin/add_pub_base.php';
 require_once 'includes/pdAuthorList.php';
 require_once 'includes/pdPublication.php';

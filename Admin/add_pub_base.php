@@ -6,8 +6,8 @@
  * @package PapersDB
  */
 
-ini_set("include_path", ini_get("include_path") . ":..");
 
+require_once '../includes/defines.php';
 require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPublication.php';
 require_once 'includes/functions.php';

@@ -7,8 +7,7 @@
  * author is specified in the URL query string.
  */
 
-ini_set("include_path", ini_get("include_path") . ":..");
-
+require_once '../includes/defines.php';
 require_once 'includes/functions.php';
 require_once 'includes/htmlUtils.php';
 require_once 'includes/pdDb.php';

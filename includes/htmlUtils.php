@@ -4,8 +4,13 @@ require_once('pdUser.php');
 
 function relativeUrlGet() {
     $pos = strpos($_SERVER['PHP_SELF'], SITE_NAME);
-    assert('$pos !== false');
-    return substr($_SERVER['PHP_SELF'], $pos + strlen(SITE_NAME) + 1);
+    if ($pos !== false) {
+    	return substr($_SERVER['PHP_SELF'], $pos + strlen(SITE_NAME) + 1);
+    }
+    if (strpos($_SERVER['PHP_SELF'], 'http://papersdb:8080/') === 0) {
+        return substr($_SERVER['PHP_SELF'], 21);    	
+    }
+    return '';
 }
 
 /**

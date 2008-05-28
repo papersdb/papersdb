@@ -9,9 +9,8 @@
  * @package PapersDB
  */
 
-ini_set("include_path", ini_get("include_path") . ":..");
-
 /** Requries the base class and classes to access the database. */
+require_once '../includes/defines.php';
 require_once 'diag/aicml_pubs_base.php';
 require_once 'includes/pdPublication.php';
 
