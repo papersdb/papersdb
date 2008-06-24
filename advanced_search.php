@@ -38,21 +38,21 @@ function check_authors() {
  * @package PapersDB
  */
 class advanced_search extends pdHtmlPage {
-    protected $debug = 0;
-    protected $cat_list;
-    protected $category;
-    protected $search;
     protected $cat_id;
-    protected $title;
-    protected $paper;
-    protected $abstract;
-    protected $venue;
-    protected $keywords;
-    protected $authors;
-    protected $selected_authors;
-    protected $startdate;
-    protected $enddate;
     protected $db_authors;
+//    protected $selected_authors;
+//    protected $cat_list;
+//    protected $category;
+//    protected $search;
+//    protected $title;
+//    protected $paper;
+//    protected $abstract;
+//    protected $venue;
+//    protected $keywords;
+//    protected $authors;
+//    protected $startdate;
+//    protected $enddate;
+//    protected $user_info;
 
     public function __construct() {
         parent::__construct('advanced_search');
@@ -68,7 +68,6 @@ class advanced_search extends pdHtmlPage {
 
         $form = $this->createForm();
         $this->form =& $form;
-        $this->setFormValues();
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
@@ -110,6 +109,8 @@ class advanced_search extends pdHtmlPage {
         $form->addElement('select', 'cat_id', 'Category:',
                           array('' => '-- All Categories --')
                           + pdCatList::create($this->db));
+        $form->addElement('text', 'abstract', 'Abstract:',
+                          array('size' => 60, 'maxlength' => 250));
 
         $auth_list = pdAuthorList::create($this->db);
 
@@ -131,7 +132,7 @@ class advanced_search extends pdHtmlPage {
                           . 'see a list of matching authors. Separate names '
                           . 'using commas.</span>');
                           
-        if ($user != null) {
+        if ($user != null) {                                       
             $form->addElement('advcheckbox', 'author_myself',
                 null, 'add me to the search', null, array('', $user->author_id));
         }
@@ -166,10 +167,8 @@ class advanced_search extends pdHtmlPage {
             $form->addGroup($radio_cols, 'group_collaboration',
                             'Collaboration:', '<br/>', false);
         }
-
+        
         $form->addElement('text', 'paper', 'Paper filename:',
-                          array('size' => 60, 'maxlength' => 250));
-        $form->addElement('text', 'abstract', 'Abstract:',
                           array('size' => 60, 'maxlength' => 250));
 
         $kwElement[0] =& HTML_QuickForm::createElement(
@@ -181,8 +180,13 @@ class advanced_search extends pdHtmlPage {
         $form->addGroup($kwElement, 'keywordsGroup', 'Keywords:', '<br/>',
                         false);
 
-        $form->addGroup(
-            array(
+        if (isset($_SESSION['user'])
+            && ($_SESSION['user']->showUserInfo())) {
+            $form->addElement('text', 'user_info', 'User Info:',
+                array('size' => 60, 'maxlength' => 250));
+        }
+
+        $form->addGroup(array(
                 HTML_QuickForm::createElement(
                     'date', 'startdate', 'Start Date:',
                     array('format' => 'YM', 'minYear' => '1970')),
@@ -193,14 +197,15 @@ class advanced_search extends pdHtmlPage {
                 ),
             null, 'Published Between:', '&nbsp;', false);
 
-        $form->addElement(
+        if (isset($_SESSION['user'])) {
+            $form->addElement(
                 'advcheckbox', 'show_internal_info',
                 'Options:', 'show internal information', null, 
         		array('no', 'yes'));
+        }
             
         $form->addGroup(
             array(
-                HTML_QuickForm::createElement('reset', 'Clear', 'Clear'),
                 HTML_QuickForm::createElement(
                     'button', 'fill_last', 'Load Previous Search Terms',
                     array('onClick' => 'lastSearchUse();')),
@@ -209,38 +214,6 @@ class advanced_search extends pdHtmlPage {
             'buttonsGroup', '', '&nbsp;', false);
                 
         return $form;
-    }
-
-    /**
-     * Assigns the form's values as per the HTTP GET string.
-     */
-    public function setFormValues() {
-        $defaults = array(
-            'search'     => $this->search,
-            'cat_id'     => $this->cat_id,
-            'title'      => $this->title,
-            'paper'      => $this->paper,
-            'abstract'   => $this->abstract,
-            'venue'      => $this->venue,
-            'keywords'   => $this->keywords,
-            'startdate'  => array('Y' => $this->startdate['Y'],
-                                  'M' => $this->startdate['M']),
-            'enddate'    => array('Y' => $this->enddate['Y'],
-                                  'M' => $this->enddate['M']));
-        
-        if (count($this->authors) > 0) {
-            foreach ($this->authors as $author)
-                $auth_names[] = $author->firstname . ' ' . $author->lastname;
-            $defaults['authors'] = implode(', ', $auth_names);
-        }
-
-        if (empty($this->enddate)
-            || (empty($this->enddate['Y']) && ($this->enddate['M']))) {
-            $defaults['enddate']['Y'] = date('Y');
-            $defaults['enddate']['M'] = date('m');
-        }
-
-        $this->form->setConstants($defaults);
     }
 
     /**
@@ -288,10 +261,11 @@ class advanced_search extends pdHtmlPage {
                                        '{paper_col3}',
                                        '{paper_col4}',
                                        '{author_myself}',
-								       '{show_internal_info}'),
+								       '{show_internal_info}',
+								       '{user_info}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF'],
-                                       $this->selected_authors,
+                                       $sp->authors,
                                        $sp->cat_id,
                                        $sp->title,
                                        $sp->authors,
@@ -313,7 +287,8 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->paper_col[3] == 'yes'),
                                        ($sp->paper_col[4] == 'yes'),
                                        ($sp->author_myself != ''),
-                                       ($sp->show_internal_info == 'yes')),
+                                       ($sp->show_internal_info == 'yes'),
+                                       $sp->user_info),
                                  $content);
                                  
        $this->addJavascriptFiles(array('js/wick.js', 'js/check_authors.js'));

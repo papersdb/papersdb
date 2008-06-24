@@ -148,6 +148,12 @@ class search_publication_db extends pdHtmlPage {
                     //Search through the publication table
                     $fields = array('title', 'paper', 'abstract', 'keywords',
                                     'extra_info');
+                    
+                    if (isset($_SESSION['user'])
+                        && ($_SESSION['user']->showUserInfo())) {
+                        // search on user info field also
+                        $fields[] = 'user';
+                    }
 
                     foreach ($fields as $field) {
                         $this->add_to_array(
@@ -397,6 +403,24 @@ class search_publication_db extends pdHtmlPage {
 
                 $this->add_to_array('SELECT DISTINCT pub_id from pub_col '
 	                . 'WHERE col_id=' . $this->db->quote_smart($col_id),
+	                $union_array);
+            }
+
+            if (count($union_array) > 0) {
+                $this->result_pubs 
+                    = array_intersect($this->result_pubs, $union_array);
+            }
+        }
+        
+        // user info
+        if (!empty($this->sp->user_info)) {
+            pdDb::debugOn();
+            $union_array = array();
+            $user_infos = preg_split('/\s*[;,]\s*/', $this->sp->user_info);
+            foreach ($user_infos as $user_info) {
+                $user_info = trim($user_info);
+                $this->add_to_array('SELECT DISTINCT pub_id from publication '
+	                . "WHERE user like '%$user_info%'",
 	                $union_array);
             }
 

@@ -22,6 +22,7 @@ function lastSearchUse() {
     form.abstract.value    = "{abstract}";
     form.venue.value       = "{venue}";
     form.keywords.value    = "{keywords}";
+    form.user_info.value   = "{user_info}";
         
     // since we are using PEAR HTML_QuickForm the radio checkboxes have 2
     // elements with the same name, we need to access the checkbox element

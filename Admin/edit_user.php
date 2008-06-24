@@ -69,6 +69,10 @@ class edit_user extends pdHtmlPage {
 
         $form->addElement('advcheckbox', 'option_internal_info',
                           'Options:', 'show internal info', null,
+                          array('No', 'Yes'));        
+
+        $form->addElement('advcheckbox', 'option_user_info',
+                          'Options:', 'show user info', null,
                           array('No', 'Yes'));
 
         $auth_list = pdAuthorList::create($this->db);
@@ -84,7 +88,9 @@ class edit_user extends pdHtmlPage {
             $user->email = $values['email'];
             $user->options = 0;
             if ($values['option_internal_info'] == 'Yes')
-                $user->options |= PD_USER_OPTION_SHOW_INTERNAL_INFO;
+                $user->options |= pdUser::OPTION_SHOW_INTERNAL_INFO;
+            if ($values['option_user_info'] == 'Yes')
+                $user->options |= pdUser::OPTION_SHOW_USER_INFO;
 
             unset($user->collaborators);
             
@@ -108,12 +114,14 @@ class edit_user extends pdHtmlPage {
             echo '<h2>Login Information</h2>';
 
             $defaults = array('name' => $user->name,
-                              'email' => $user->email,
-                              'option_internal_info'
-                              => (($user->options
-                                  & PD_USER_OPTION_SHOW_INTERNAL_INFO)
-                                  ? 'Yes' : 'No'));
+                              'email' => $user->email);
+            
+            $defaults['option_internal_info'] 
+                = $user->showInternalInfo() ? 'Yes' : 'No';
 
+            $defaults['option_user_info'] 
+                = $user->showUserInfo() ? 'Yes' : 'No';
+                
             if (count($user->collaborators) >0) {
             	$author_names = pdAuthorList::createFromAuthorIds(
                 		$this->db, array_keys($user->collaborators), true);
@@ -164,12 +172,11 @@ class edit_user extends pdHtmlPage {
         $table->addRow(array('Name:', $user->name));
         $table->addRow(array('E-mail:', $user->email));
 
-        if ($user->showInternalInfo())
-        $option_value = 'Yes';
-        else
-        $option_value = 'No';
-
+        $option_value = $user->showInternalInfo() ? 'Yes' : 'No';
         $table->addRow(array('Show Internal Info:', $option_value));
+        
+        $option_value = $user->showUserInfo() ? 'Yes' : 'No';
+        $table->addRow(array('Show User Info:', $option_value));
 
         if (is_array($user->collaborators)
             && (count($user->collaborators) > 0)) {

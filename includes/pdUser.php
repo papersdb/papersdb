@@ -11,8 +11,6 @@
 require_once 'pdDbAccessor.php';
 require_once 'pdAuthorList.php';
 
-define('PD_USER_OPTION_SHOW_INTERNAL_INFO', 1);
-
 /**
  * Class that accesses user information from the database.
  *
@@ -33,6 +31,10 @@ class pdUser extends pdDbAccessor {
     public $author_id;
     public $venue_ids;
     public $options;
+    
+    // bitmasks for different options
+    const OPTION_SHOW_INTERNAL_INFO = 0x1;
+    const OPTION_SHOW_USER_INFO = 0x2;
 
     /**
      * Constructor.
@@ -180,7 +182,11 @@ class pdUser extends pdDbAccessor {
     }
 
     public function showInternalInfo() {
-        return ($this->options & PD_USER_OPTION_SHOW_INTERNAL_INFO);
+        return ($this->options & self::OPTION_SHOW_INTERNAL_INFO);
+    }
+
+    public function showUserInfo() {
+        return ($this->options & self::OPTION_SHOW_USER_INFO);
     }
     
     /**

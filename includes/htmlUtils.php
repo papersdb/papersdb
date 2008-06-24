@@ -138,16 +138,16 @@ $max = -1, $options = null, $url_prefix = '') {
                 . getPubIcons($db, $pub, 0xF, $url_prefix);
 
             if ((is_array($options) && !empty($options['show_internal_info'])
-            && $options['show_internal_info'])
-            || (isset($_SESSION['user'])
-            && ($_SESSION['user']->showInternalInfo()))) {
+                    && $options['show_internal_info'])
+                || (isset($_SESSION['user'])
+                    && ($_SESSION['user']->showInternalInfo()))) {
                 $citation .= '<br/><span style="font-size:80%">';
-                if (isset($pub->ranking))
-                $citation .= 'Ranking: ' . $pub->ranking;
+                if (isset($pub->ranking)) {
+                    $citation .= 'Ranking: ' . $pub->ranking;
+                }
 
                 if (is_array($pub->collaborations)
-                && (count($pub->collaborations) > 0)) {
-
+                    && (count($pub->collaborations) > 0)) {
                     $values = array();
                     foreach ($pub->collaborations as $col_id) {
                         $values[] = $col_desciptions[$col_id];
@@ -156,19 +156,25 @@ $max = -1, $options = null, $url_prefix = '') {
                     $citation .= '<br/>Collaboration:'
                     . implode(', ', $values);
                 }
+                
+                if (isset($_SESSION['user'])
+                    && ($_SESSION['user']->showUserInfo())) {
+                    $citation .= "<br/>User Info: {$pub->user}";
+                        
+                }
                 $citation .= '</span>';
             }
 
-            if ($enumerate)
-            $cells[] = $count . '.';
+            if ($enumerate) {
+                $cells[] = $count . '.';
+            }
 
             $cells[] = $citation;
 
             $table->addRow($cells);
 
             if ($enumerate)
-            $table->updateColAttributes(
-            0, array('class' => 'item'), NULL);
+            $table->updateColAttributes(0, array('class' => 'item'), NULL);
 
             $result .= $table->toHtml();
             unset($table);

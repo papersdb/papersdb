@@ -189,8 +189,10 @@ class view_publication extends pdHtmlPage {
             $table->addRow(array('Extra Info:', $pub->extraInfoGet()));
         }
 
-        if ($pub->user != '')
+        if (isset($_SESSION['user'])
+            && ($_SESSION['user']->showUserInfo())) {
             $table->addRow(array('User Info:', $pub->user));
+        }
 
         if (count($pub->web_links) > 0) {
             $c = 0;

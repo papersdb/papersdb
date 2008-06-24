@@ -29,6 +29,7 @@ class pdSearchParams {
     public $paper_rank_other;
     public $paper_col;
     public $show_internal_info;
+    public $user_info;
 
     /**
      * Constructor.
