@@ -899,7 +899,7 @@ class pdPublication extends pdDbAccessor {
         return $result;
     }
 
-    public function getCitationHtml($urlPrefix = '.', $author_links = true) {
+    public function getCitationHtml($urlPrefix = './', $author_links = true) {
         $citation = '';
 
         if (isset($this->authors) && (count($this->authors) > 0)) {
@@ -907,7 +907,7 @@ class pdPublication extends pdDbAccessor {
             foreach ($this->authors as $auth) {
             	$content = '';
                 if ($author_links)
-                    $content .= '<a href="' . $urlPrefix . '/view_author.php?'
+                    $content .= '<a href="' . $urlPrefix . 'view_author.php?'
                         . 'author_id=' . $auth->author_id . '">';
                 $content .= $auth->firstname[0] . '. ' . $auth->lastname;
 
