@@ -22,14 +22,20 @@ function lastSearchUse() {
     form.abstract.value    = "{abstract}";
     form.venue.value       = "{venue}";
     form.keywords.value    = "{keywords}";
-    form.user_info.value   = "{user_info}";
+    
+    user_info = document.getElementsByName("user_info");
+    if (user_info.length == 1)
+    	user_info[0].value = "{user_info}";
+    
+    show_internal_info = document.getElementsByName("show_internal_info");
+    if (show_internal_info.length == 2)
+        show_internal_info[1].checked = "{show_internal_info}";
         
     // since we are using PEAR HTML_QuickForm the radio checkboxes have 2
     // elements with the same name, we need to access the checkbox element
-    var author_myself = document.getElementsByName("author_myself[1]");
-    if (author_myself)
-        author_myself.checked = "{author_myself}"
-    form.show_internal_info[1].checked = "{show_internal_info}";
+    author_myself = document.getElementsByName("author_myself");
+    if (author_myself.length == 2)
+        author_myself[1].checked = "{author_myself}"
     
     var paper_rank = document.getElementsByName("paper_rank[1]");
     if (paper_rank.length == 2) 
@@ -44,7 +50,7 @@ function lastSearchUse() {
     	paper_rank[1].checked = "{paper_rank3}";
 
   	paper_rank = document.getElementsByName("paper_rank[4]");
-    if (paper_rank.length == 4) 
+    if (paper_rank.length == 2) 
     	paper_rank[1].checked = "{paper_rank4}";
     	
     var paper_rank_other = document.getElementsByName("paper_rank_other");  
@@ -64,7 +70,7 @@ function lastSearchUse() {
     	paper_col[1].checked = "{paper_col3}";
 
   	paper_col = document.getElementsByName("paper_col[4]");
-    if (paper_col.length == 4) 
+    if (paper_col.length == 2) 
     	paper_col[1].checked = "{paper_col4}";
     	    	
     var date = document.getElementsByName("startdate[Y]");

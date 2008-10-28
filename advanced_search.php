@@ -40,19 +40,6 @@ function check_authors() {
 class advanced_search extends pdHtmlPage {
     protected $cat_id;
     protected $db_authors;
-//    protected $selected_authors;
-//    protected $cat_list;
-//    protected $category;
-//    protected $search;
-//    protected $title;
-//    protected $paper;
-//    protected $abstract;
-//    protected $venue;
-//    protected $keywords;
-//    protected $authors;
-//    protected $startdate;
-//    protected $enddate;
-//    protected $user_info;
 
     public function __construct() {
         parent::__construct('advanced_search');
@@ -68,6 +55,10 @@ class advanced_search extends pdHtmlPage {
 
         $form = $this->createForm();
         $this->form =& $form;
+
+        $this->form->setDefaults(array(
+        	'enddate' => array('Y' => 2010, 'M' => 12)
+        ));
 
         // NOTE: order is important here: this must be called after creating
         // the form elements, but before rendering them.
@@ -262,6 +253,7 @@ class advanced_search extends pdHtmlPage {
                                        '{paper_col4}',
                                        '{author_myself}',
 								       '{show_internal_info}',
+								       '{have_user_info}',
 								       '{user_info}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF'],
@@ -288,6 +280,8 @@ class advanced_search extends pdHtmlPage {
                                        ($sp->paper_col[4] == 'yes'),
                                        ($sp->author_myself != ''),
                                        ($sp->show_internal_info == 'yes'),
+                                       (isset($_SESSION['user'])
+                                        && ($_SESSION['user']->showInternalInfo()) ? 'true' : 'false'),
                                        $sp->user_info),
                                  $content);
                                  

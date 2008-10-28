@@ -263,7 +263,7 @@ class search_publication_db extends pdHtmlPage {
             $parser = new SearchTermParser($this->sp->venue);
             $the_search_array = $parser->getWordList();
             foreach ($the_search_array as $and_terms) {
-                $union_array = null;
+                $union_array = array();
                 foreach ($and_terms as $or_term) {
                     $this->venuesSearch('title', $or_term, $union_array);
                     $this->venuesSearch('name', $or_term, $union_array);
@@ -382,7 +382,7 @@ class search_publication_db extends pdHtmlPage {
         }
 
         if (!empty($this->sp->paper_rank_other)) {
-            $this->add_to_array('SELECT DISTINCT pub_id from rankings '
+            $this->add_to_array('SELECT DISTINCT pub_id from pub_rankings '
                                 . 'WHERE description LIKE '
                                 . $this->db->quote_smart(
                                     "%" . $this->sp->paper_rank_other . "%"),
