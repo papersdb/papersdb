@@ -172,7 +172,7 @@ class pdUser extends pdDbAccessor {
                                'venue.name'),
                          array('publication.submit' => $this->name,
                                'publication.venue_id=venue.venue_id'),
-                         "pdAuthor::dbLoad",
+                         "pdAuthor::venueIdsGet",
                          array( 'ORDER BY' => 'venue.title'));
 
         foreach ($q as $r) {

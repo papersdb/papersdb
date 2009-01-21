@@ -114,7 +114,7 @@ Select the appropriate category from the drop down menu';
             $user->venueIdsGet($this->db);
 
             foreach ($vlist as $venue_id => $name) {
-                if (in_array($venue_id, $user->venue_ids))
+                if (isset($user->venue_ids[$venue_id]))
                     $venues[$venue_id] = htmlentities($name);
             }
         }

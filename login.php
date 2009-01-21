@@ -35,7 +35,7 @@ class login extends pdHtmlPage {
             return;
         }
 
-        if (strpos($this->redirect, 'login.php') !== false) {
+        if (empty($this->redirect) || strpos($this->redirect, 'login.php') !== false) {
             // never redirect to the login page
             $this->redirect = 'index.php';
         }
