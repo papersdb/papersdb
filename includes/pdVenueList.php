@@ -21,7 +21,7 @@ class pdVenueList {
      */
     public static function create($db, $options = null) {
         if (isset($options['starting_with']))
-            return self::loadStartingWith($db, $options['starting_with']);
+            return self::loadStartingWith($db, $options['starting_with'], $options['cat_id']);
         else if (isset($options['cat_id']))
             $q = $db->select('venue', array('venue_id', 'title', 'name'),
                              array('cat_id' => $options['cat_id']),
@@ -84,29 +84,24 @@ class pdVenueList {
         return $list;
     }
 
-    private static function loadStartingWith($db, $letter) {
+    private static function loadStartingWith($db, $letter, $cat_id = null) {
         assert('strlen($letter) == 1');
 
         $list = array();
         $letter .= '%';
         $fields = array('title', 'name');
+        
+        $conds = array('(title LIKE ' . $db->addQuotes($letter) . ') OR ' 
+            . '(name LIKE ' . $db->addQuotes($letter) . ')');
+        
+        if ($cat_id != null) {
+        	$conds[] = "cat_id = $cat_id";
+        }
 
-        foreach ($fields as $field) {
-            if ($field == 'title') {
-                $q = $db->select('venue', '*',
-                                 array('title LIKE ' . $db->addQuotes($letter)),
-                                 "pdVenueList::loadStartingWith");
-            }
-            else {
-                $q = $db->select('venue', '*',
-                                 array('name LIKE ' . $db->addQuotes($letter),
-                                       'LENGTH(title)' => '0'),
-                                 "pdVenueList::loadStartingWith");
-            }
-            
-            foreach ($q as $r) {
-                $list[] = new pdVenue($r);
-            }
+        $q = $db->select('venue', '*', $conds, "pdVenueList::loadStartingWith");
+
+        foreach ($q as $r) {
+        	$list[] = new pdVenue($r);
         }
 
         uasort($list, array('pdVenueList', 'sortVenuesObjs'));

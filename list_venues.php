@@ -12,6 +12,7 @@ require_once 'includes/pdHtmlPage.php';
 require_once 'includes/pdPubList.php';
 require_once 'includes/pdVenueList.php';
 require_once 'includes/pdVenue.php';
+require_once 'includes/pdCatList.php';
 
 /**
  * Renders the whole page.
@@ -19,12 +20,15 @@ require_once 'includes/pdVenue.php';
  * @package PapersDB
  */
 class list_venues extends pdHtmlPage {
-    public $tab;
+    protected $cat_id;
+	protected $tab;
 
     public function __construct() {
         parent::__construct('all_venues');
 
         if ($this->loginError) return;
+
+        $this->loadHttpVars(true, false);
 
         if (!isset($this->tab))
             $this->tab = 'A';
@@ -34,15 +38,38 @@ class list_venues extends pdHtmlPage {
             return;
         }
 
-        $this->loadHttpVars(true, false);
-
         $venue_list = pdVenueList::create(
-        	$this->db, array('starting_with' => $this->tab));
+        	$this->db, array('starting_with' => $this->tab, 'cat_id' => $this->cat_id));
+        	
+        	
+        $this->category = new pdCategory();
+        $this->category->dbLoad($this->db, $this->cat_id);        
+        
+        $form = new HTML_QuickForm('cat_selection', 'get', 'list_venues.php');
+        $form->addElement('hidden', 'tab', $this->tab);
+        $form->addElement('select', 'cat_id', 'Category:',
+            array('' => '-- All Categories --') + pdCatList::create($this->db),
+            array('onchange' => 'update();'));
+        $renderer =& $form->defaultRenderer();
+        $form->accept($renderer);
+        
+        $form->setDefaults(array('cat_id' => ''));
 
-        echo $this->alphaSelMenu($this->tab, get_class($this) . '.php');
+        $alpha_menu = $this->alphaSelMenu($this->tab, get_class($this) . '.php');
+                
+        // put category id in the alpha menu
+        if (!empty($this->cat_id)) {
+        	$alpha_menu = preg_replace('/tab=(\w)/', "tab=\\1&cat_id=$this->cat_id", $alpha_menu);
+        }
+           
+        $this->javascript();
+        
+        echo $alpha_menu;       
 
         echo '<h2>Publication Venues</h2>';
-
+        
+        echo $renderer->toHtml();
+        
         if (empty($venue_list) || (count($venue_list) == 0)) {
             echo 'No venues with name starting with ', $this->tab, '<br/>';
             return;
@@ -138,6 +165,20 @@ class list_venues extends pdHtmlPage {
             echo $table->toHtml();
             unset($table);
         }
+    }
+
+    public function javascript() {
+    	$js_file = 'js/list_venues.js';
+
+    	$pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
+    	$url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
+
+    	assert('file_exists($js_file)');
+    	$content = file_get_contents($js_file);
+
+    	$this->js .= str_replace(array('{host}', '{self}', '{new_location}'),
+    	   array($_SERVER['HTTP_HOST'], $_SERVER['PHP_SELF'], $url),
+    	   $content);
     }
 }
 

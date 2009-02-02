@@ -1,11 +1,7 @@
-// $Id: add_pub3.js,v 1.5 2008/02/19 16:24:22 loyola Exp $
 
-window.addEvent('domready', function() {
-                    var Tips1 = new Tips($$('.Tips1'));
-                });
 
-function dataKeep() {
-    var form =  document.forms["add_pub3"];
+function update() {
+    var form =  document.forms["cat_selection"];
     var qsArray = new Array();
     var qsString = "";
 
@@ -21,7 +17,7 @@ function dataKeep() {
                     qsArray.push(element.name + "=" + element.value);
                 }
             }
-            else if (element.type != "hidden") {
+            else {
                 qsArray.push(form.elements[i].name + "="
                              + form.elements[i].value);
             }
@@ -36,4 +32,3 @@ function dataKeep() {
 
     location.href = "http://{host}{self}?" + qsString;
 }
-
