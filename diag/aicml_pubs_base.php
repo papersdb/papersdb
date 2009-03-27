@@ -27,7 +27,8 @@ class aicml_pubs_base extends pdHtmlPage {
         array('2004-09-01', '2006-03-31'),
         array('2006-04-01', '2007-03-31'),
         array('2007-04-01', '2008-03-31'),
-        array('2008-04-01', '2009-03-31'));
+        array('2008-04-01', '2009-03-31'),
+        array('2009-04-01', '2010-03-31'));
    
     protected $aicml_pi_authors;
     protected $aicml_pdf_students_staff_authors;
@@ -192,7 +193,7 @@ QRY_END;
             if (($fyts[0] <= $datestamp) && ($fyts[1] >= $datestamp))
                 return $key;
         }
-        throw new Exception("date not within fiscal years: " + $date);
+        //throw new Exception("date not within fiscal years: " + $date);
         return false;
     }
 }

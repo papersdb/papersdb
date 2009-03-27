@@ -88,9 +88,8 @@ class author_report extends aicml_pubs_base {
         		        		
             $isT1 = ($pub->rank_id == 1) ? 'Y' : 'N';
             $fy   = $this->getFiscalYearKey($pub->published);
-        	
-            //if ($pub_id == 906)
-        	//	debugVar('$isT1', $isT1);
+            
+            if ($fy === false) continue;
         	
             if (!isset($this->stats['fy_pubs'][$fy]))
             	$this->stats['fy_pubs'][$fy] = array();
