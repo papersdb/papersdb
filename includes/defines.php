@@ -40,13 +40,13 @@ else {
     if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
        define('FS_PATH', '/home/nelson/public_html/papersdb');
     else
-        define('FS_PATH', '/usr/host/loyola/htdocs/papersdb');
+        define('FS_PATH', '/home/loyola/proj/php/papersdb');
 }
 
 define('FS_PATH_UPLOAD', FS_PATH . '/uploaded_files/');
 
 $relative_files_path = "uploaded_files/";
-$absolute_files_path = FS_PATH . $relative_files_path;
+$absolute_files_path = FS_PATH . "/" . $relative_files_path;
 
 define('MAINTENANCE', 0);
 

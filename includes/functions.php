@@ -12,8 +12,8 @@
 /** Requires DB functions and Table classes. */
 require_once 'defines.php';
 
-$relative_files_path = "uploaded_files/";
-$absolute_files_path = FS_PATH . $relative_files_path;
+//$relative_files_path = "uploaded_files/";
+//$absolute_files_path = FS_PATH . $relative_files_path;
 
 /**
  *  Checks to see if the given string is nothing but letters or numbers and is
@@ -345,7 +345,7 @@ function convertArrayToJavascript($array, $assoc = true) {
     } else {
         $items = array();
         foreach ($array as $key => $val) {
-            $item = $assoc? "'" . $escapeString($key) . "': ": '';
+            $item = $assoc? "'" . escapeString($key) . "': ": '';
             if (is_array($val)) {
                 $item .= convertArrayToJavascript($val, $assoc);
             } else {
@@ -381,7 +381,7 @@ function convertScalarToJavascript($val)
     }
 }
 
-/**
+/**it
  * Quotes the string so that it can be used in Javascript string constants
  *
  * @access private

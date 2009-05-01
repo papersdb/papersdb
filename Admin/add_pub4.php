@@ -67,11 +67,13 @@ class add_pub4 extends add_pub_base {
                 HTML_QuickForm::createElement(
                     'submit', 'finish', 'Finish')),
             'buttons', null, '&nbsp;', false);
-
-        if ($form->validate())
+                
+        if ($form->validate()) { 
             $this->processForm();
-        else
+        }
+        else {
             $this->renderForm();
+        }
     }
 
     public function formAddAttachments() {
@@ -107,6 +109,7 @@ publication.';
                 '&nbsp;', false);
         }
         else {
+            $form->setMaxFileSize(10485760);
             $form->addElement(
                 'file', 'uploadpaper',
                 "<span class=\"Tips1\" title=\"$tooltip\">Paper</span>:",
@@ -324,7 +327,7 @@ cellspacing="2" bgcolor="#CCCC99">{content}</table></form>');
         $values = $form->exportValues();
 
         $element =& $form->getElement('uploadpaper');
-        if (!isset($element->message) && ($element->isUploadedFile())) {
+        if (!isset($element->message) && $element->isUploadedFile()) {
             $basename = 'paper_' . $_FILES['uploadpaper']['name'] . '.'
                 . $user->login;
             $element->moveUploadedFile(FS_PATH_UPLOAD, $basename);
