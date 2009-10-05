@@ -89,6 +89,14 @@ class add_pub4 extends add_pub_base {
         $tooltip = 'Paper::Attach a postscript, PDF, or other version of the
 publication.';
 
+        $form->addElement('static', null, null,
+                          '<span class="normal">'
+                          . 'The maximum upload file size is ' . ini_get('upload_max_filesize') 
+                          . '. If you need to attach a file that is larger, please email it '
+                          . 'to <a href="mailto:papersdb@cs.ualberta.ca">papersdb@cs.ualberta.ca</a> '
+                          . 'with the publication title in the subject line.'
+                          . '</span>');
+
         if (isset($_SESSION['paper']) && ($_SESSION['paper'] != 'none')) {
             $filename = basename($_SESSION['paper'], '.' . $user->login);
             $filename = str_replace('paper_', '', $filename);

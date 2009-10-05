@@ -130,7 +130,7 @@ class pdDb {
                
         if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'localhost')) {
             $server = 'localhost';
-            $db_name = 'pubdbbak';
+            $db_name = 'pubdbdev';
             self::$_debug = false;
         }  
         
