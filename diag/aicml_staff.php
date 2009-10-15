@@ -1,126 +1,65 @@
-<?php 
+<?php
 
 /**
  * Main page for PapersDB.
  *
- * $Id: aicml_staff.php,v 1.1 2008/02/06 15:17:15 loyola Exp $
- * 
+ * Main page for public access, provides a login, and a function that selects
+ * the most recent publications added.
+ *
  * @package PapersDB
+ * @subpackage HTML_Generator
  */
 
+/** Requries the base class and classes to access the database. */
 require_once '../includes/defines.php';
-require_once("includes/functions.php");
-require_once("includes/pdDb.php");
+require_once 'includes/pdHtmlPage.php';
+require_once 'includes/pdAicmlStaff.php';
+require_once 'includes/pdAicmlStaffList.php';
 
-$usage =<<<USAGE_END
-USAGE: {$argv[0]} filename
+/**
+ * Renders the whole page.
+ *
+ * @package PapersDB
+ */
+class aicml_staff extends pdHtmlPage {
+    public function __construct() {
+        parent::__construct('aicml_staff');
 
-USAGE_END;
+        if ($this->loginError) return;
 
-function getAicmlPositions(&$db) {
-    assert('is_object($db)');
-    $result = array();
-    $q = $db->select('aicml_positions', '*');
-    if (count($q) == 0) return $result;
-    
-    foreach ($q as $r) {
-        $result[$r->description] = $r->pos_id;
-    }
-    return $result;
-}
+        echo '<h1>AICML Staff</h1>';
 
-function getAuthorId(&$db, $name) {
-    assert('is_object($db)');
-    $q = $db->selectRow('author', 'author_id', 
-        array('name LIKE "%' . $name . '%"'));
-    if (!$q) return -1;
-    return $q->author_id;
-}
-
-if (count($argv) != 2) 
-    exit($usage);
-
-$filename = $argv[1]; 
-
-$contents = file_get_contents($filename);
-if (!$contents)
-    exit("\ncould not open file " . $filename . "\n");
-
-$info = array();    
-foreach (explode("\n", $contents) as $key => $line) {
-    $args = explode("\t", $line);
-    $n = count($args);
-    
-    if (($n != 4) && ($n != 5)) {
-        echo 'skipping line: ', $key, " only ", $n, " arguments\n";
-        continue;
-    }
-    
-    $firstname = trim($args[1]);
-    
-    $info[$key] = array(
-        'fullname'   => trim($args[0]) . ', ' . $firstname,
-        'shortname'  => trim($args[0]) . ', ' . $firstname[0],
-        'position'   => trim($args[2]),
-        'start_date' => trim($args[3]));        
-    
-    if (isset($args[4]))
-        $info[$key]['end_date'] = trim($args[4]);
-}
-
-if (count($info) == 0)
-    exit('no data to update database with');
-    
-//pdDb::debugOn();    
-    
-$db = pdDb::newFromParams();
-$positions =& getAicmlPositions($db);
-
-$staff = array();
-foreach ($info as $key => $p) {
-    $author_id = getAuthorId($db, $p['fullname']);
-    if ($author_id < 0) {
-        $author_id = getAuthorId($db, $p['shortname']);
-        if ($author_id < 0) {
-            // author information will not be added to database
-            echo "author ", $p['fullname'], " not in database\n";
-            continue;
-        }
-    }
-    
-    // make sure the position matches the one in the database    
-    if (!in_array($p['position'], array_keys($positions))) {
-        if ($p['position'] == 'PI')
-            $pos_id = $positions['Principal Investigator'];
-        else if ($p['position'] == 'PDF')
-            $pos_id = $positions['Post Doctoral Fellow'];
-        else if ($p['position'] == 'PhD')
-            $pos_id = $positions['PhD Student'];
-        else if ($p['position'] == 'MSc')
-            $pos_id = $positions['MSc Student'];
-    }
-    else
-        $pos_id = $positions[$p['position']];
-    
-    $staff_member = array(
-        'author_id' => $author_id,
-        'pos_id'    => $pos_id,
-        'start_date' => $p['start_date']
-    );
-    
-    if (isset($p['end_date']))
-        $staff_member['end_date'] = $p['end_date'];
+        $table = new HTML_Table(array('class' => 'stats'));
+        $table->addRow(array('Name', 'Start', 'End', 'Num Pubs', 'Pub Ids'));
+        $table->setRowType(0, 'th');
         
-    $staff[] = $staff_member;
+        //pdDb::debugOn();
+
+        $staff_list = pdAicmlStaffList::create($this->db);
+        foreach ($staff_list as $staff_id => $author_id) {
+            $staff = pdAicmlStaff::newFromDb($this->db, $staff_id, pdAicmlStaff::DB_LOAD_PUBS_MIN);
+            $author = pdAuthor::newFromDb($this->db, $author_id, pdAuthor::DB_LOAD_MIN);
+
+            //debugVar('staff', array($staff, $author));
+
+            $pub_links = array();
+            if (isset($staff->pub_ids)) {
+                foreach ($staff->pub_ids as $pub_id) {
+                    $pub_links[] = '<a href="../view_publication.php?pub_id='
+                    . $pub_id . '">' . $pub_id . '</a>';
+                }
+            }
+
+            $table->addRow(array($author->name, $staff->start_date, $staff->end_date,
+                count($staff->pub_ids),
+                implode(', ', $pub_links)),
+                array('class' => 'stats_odd'));
+        }
+        echo $table->toHtml();
+    }
 }
 
-// $staff contains staff members that are already in the papersDb database
-foreach ($staff as $member) {
-    $result = $db->insert('aicml_staff', $member);
-    if (!$result)
-        echo 'could not insert staff information for ', $member['author_id'], "\n";
-}
+$page = new aicml_staff();
+echo $page->toHtml();
 
-debugVar('$staff', $staff);
-   
 ?>

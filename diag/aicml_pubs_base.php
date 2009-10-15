@@ -64,7 +64,7 @@ class aicml_pubs_base extends pdHtmlPage {
      */
     protected function getMachineLearningPapers() {        
         $qry_str = <<<QRY_END
-SELECT group_concat(distinct(publication.pub_id) SEPARATOR ',') as pub_ids
+SELECT publication.pub_id
 FROM publication 
 inner join  pub_author on pub_author.pub_id=publication.pub_id 
 inner join aicml_staff on aicml_staff.author_id=pub_author.author_id
@@ -74,7 +74,7 @@ where publication.keywords rlike "mach.*learn.*"
 and publication.rank_id in (1, 2, 3)
 and pub_cat.cat_id in (1, 3)
 and pub_pending.pub_id is NULL
-and publication.published >= %s
+and publication.published >= '%s'
 QRY_END;
 
         $qry_str = sprintf($qry_str, self::$fiscal_years[0][0]);                
@@ -106,10 +106,10 @@ left join pub_pending on publication.pub_id=pub_pending.pub_id
 where publication.keywords rlike "mach.*learn.*" 
 and pub_cat.cat_id in (1, 3)
 and pub_pending.pub_id is NULL
-and publication.published >= %s
+and publication.published >= '%s'
 QRY_END;
 
-        $qry_str = sprintf($qry_str, self::$fiscal_years[0][0]);                
+        $qry_str = sprintf($qry_str, self::$fiscal_years[0][0]);
         $q = $this->db->query($qry_str);
         if (!$q) return false;
         assert('count($q) > 0');

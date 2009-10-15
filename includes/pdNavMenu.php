@@ -92,6 +92,9 @@ class pdNavMenu {
                                       pdNavMenuItem::MENU_LOGIN_REQUIRED),
         'add_category'       => array('Add Category', 'Admin/add_category.php',
                                       pdNavMenuItem::MENU_LEVEL_ADMIN),
+        'aicml_staff'        => array('AICML Staff',
+                                      'diag/aicml_staff.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
         'sanity_checks'      => array('Sanity Checks',
                                       'diag/sanity_checks.php',
                                       pdNavMenuItem::MENU_LEVEL_ADMIN),
@@ -135,6 +138,7 @@ class pdNavMenu {
             'logout',
             'edit_user'),
         'Diagnostics'  => array(
+            'aicml_staff',
             'sanity_checks',
             'aicml_stats',
             'aicml_publications',
