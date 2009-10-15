@@ -19,12 +19,12 @@ require_once 'includes/pdPublication.php';
  *
  * @package PapersDB
  */
-class aicml_publications extends aicml_pubs_base {
+class aicml_publications_no_rank extends aicml_pubs_base {
     protected $format;
     protected $abstracts;
 
     public function __construct() {
-        parent::__construct('aicml_publications');
+        parent::__construct('aicml_publications_no_rank');
 
         if ($this->loginError) return;
 
@@ -57,9 +57,9 @@ class aicml_publications extends aicml_pubs_base {
 
         echo $renderer->toHtml();
         
-        echo '<h2>AICML Publications</h2>';
+        echo '<h2>AICML Publications (no rank)</h2>';
 
-        $publist =& $this->getMachineLearningPapers();
+        $publist =& $this->getMachineLearningPapersNoRank();
         
         if ($this->format) {
         	$result = '';
@@ -185,7 +185,7 @@ class aicml_publications extends aicml_pubs_base {
 
 }
 
-$page = new aicml_publications();
+$page = new aicml_publications_no_rank();
 echo $page->toHtml();
 
 ?>

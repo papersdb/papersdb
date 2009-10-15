@@ -101,6 +101,9 @@ class pdNavMenu {
         'aicml_publications' => array('AICML Publications', 
         							  'diag/aicml_publications.php',
                                       pdNavMenuItem::MENU_LEVEL_ADMIN),
+        'aicml_publications_no_rank' => array('AICML Publications (no rank)', 
+                                      'diag/aicml_publications_no_rank.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
         'tag_non_ml'           => array('Tag Non ML Papers', 
         							  'diag/tag_non_ml.php',
                                       pdNavMenuItem::MENU_LEVEL_ADMIN)
@@ -135,6 +138,7 @@ class pdNavMenu {
             'sanity_checks',
             'aicml_stats',
             'aicml_publications',
+            'aicml_publications_no_rank',
             'tag_non_ml')
         );
         
