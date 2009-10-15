@@ -67,6 +67,13 @@ class pdPublication extends pdDbAccessor {
 
         parent::__construct($mixed);
     }
+    
+    public static function &newFromDb(&$db, $pub_id, $flags = self::DB_LOAD_ALL) {
+        assert('is_numeric($pub_id)');
+        $pub = new pdPublication();
+        $pub->dbLoad($db, $pub_id, $flags);
+        return $pub;
+    }
 
     /**
      * Loads a specific publication from the database.
@@ -1305,6 +1312,18 @@ class pdPublication extends pdDbAccessor {
 
     public static function rankingsGlobalGet(&$db) {
         $q = $db->select('pub_rankings', '*', 'pub_id is NULL',
+                         "pdPublication::dbLoad");
+        assert('count($q) > 0');
+
+        foreach ($q as $r) {
+            $rankings[$r->rank_id] = $r->description;
+        }
+
+        return $rankings;
+    }
+
+    public static function rankingsAllGet(&$db) {
+        $q = $db->select('pub_rankings', '*', '',
                          "pdPublication::dbLoad");
         assert('count($q) > 0');
 

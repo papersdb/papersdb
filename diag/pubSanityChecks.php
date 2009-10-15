@@ -105,23 +105,36 @@ class pubSanityChecks extends pdHtmlPage {
                 $this->pageError = true;
         }
     }
+    
+    private function getAllPubIds() {
+        $q = $this->db->select('publication', 'pub_id', '', "pdPubList::allPubsDbLoad");
+
+        $all_pub_ids = array();
+        foreach ($q as $r) {
+            $all_pub_ids[] = $r->pub_id;
+        }
+        return $all_pub_ids;
+    }
 
     public function venueRankings() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
-        $rankings = pdPublication::rankingsGlobalGet($this->db);
+        $rankings = pdPublication::rankingsAllGet($this->db);
 
-        foreach ($all_pubs as $pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->venue)
-                && ($pub->venue->rank_id != 0)
+                && !empty($pub->venue->rank_id)
+                && isset($rankings[$pub->venue->rank_id])
                 && ($pub->venue->rank_id != $pub->rank_id)) {
                 $bad_rank[] = $pub->pub_id;
-                $additional[$pub->pub_id]
-                    = 'Venue ranking: ' . $rankings[$pub->venue->rank_id];
+                
+                if (isset($rankings[$pub->venue->rank_id])) {
+                    $additional[$pub->pub_id]
+                        = 'Venue ranking: ' . $rankings[$pub->venue->rank_id];
+                }
             }
             unset($pub);
         }
@@ -132,13 +145,12 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueCategories() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_cat = array();
         $additional = array();
         $categories = pdCatList::create($this->db);
-
-        foreach ($all_pubs as &$pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             if (is_object($pub->venue)
                 && is_object($pub->category)) {
@@ -166,9 +178,8 @@ class pubSanityChecks extends pdHtmlPage {
         $bad_pubs = array();
 
         // check for T1 pubs
-        $all_pubs = pdPubList::create($this->db);
-        foreach ($all_pubs as $pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             if ($this->pubVenueIsTier1($pub) && ($pub->rank_id != 1))
                 $bad_pubs[] = $pub->pub_id;
@@ -200,12 +211,11 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueJournalRank() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
-
-        foreach ($all_pubs as &$pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
@@ -230,12 +240,11 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueConferenceRank() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
         $additional = array();
-
-        foreach ($all_pubs as &$pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
@@ -260,11 +269,10 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venueWorkshopRank() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
 
-        foreach ($all_pubs as &$pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
@@ -280,11 +288,10 @@ class pubSanityChecks extends pdHtmlPage {
     }
 
     public function venuePosterRank() {
-        $all_pubs = pdPubList::create($this->db);
         $bad_rank = array();
 
-        foreach ($all_pubs as &$pub) {
-            $pub->dbLoad($this->db, $pub->pub_id);
+        foreach ($this->getAllPubIds() as $pub_id) {
+            $pub = pdPublication::newFromDb($this->db, $pub_id);
 
             // if the ranking does not match the venue
             if (is_object($pub->category)
