@@ -84,8 +84,9 @@ class pdDb {
         $user   = isset($options['user'])   ? $options['user']   : self::$db_user;  
         $passwd = isset($options['passwd']) ? $options['passwd']   : self::$db_passwd; 
 
-        $this->mysqli = mysqli::init();
-        $this->mysqli->real_connect($server, $user, $passwd, $this->current_db_name);
+        //$this->mysqli = mysqli::init();
+        //$this->mysqli->real_connect($server, $user, $passwd, $this->current_db_name);
+        $this->mysqli = new mysqli($server, $user, $passwd, $this->current_db_name);
         
         if (mysqli_connect_errno()) {
             die("Connect failed: " . mysqli_connect_error() . "\n");
