@@ -1,0 +1,402 @@
+/*
+Original design: Daleri Mega (v1.0 - July 10, 2008) - A free xhtml/css website template by Andreas Viklund and stylishtemplate.com.
+For more information, see http://andreasviklund.com/templates/daleri-mega/
+*/ /* Body */
+* {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background: #303030 url(../images/bodybg.gif) top center repeat-x;
+	color: #eee;
+	font: 76% Verdana, Arial, Tahoma, "Trebuchet MS", sans-serif;
+	line-height: 1.4em;
+	text-align: center;
+	padding: 0;
+}
+
+#wrap {
+	width: 95%;
+	min-width: 750px;
+	background-color: #fff;
+	color: #555;
+	padding: 1%;
+	margin: 0 auto 0 auto;
+	text-align: left;
+	border: 1px solid #555;
+}
+
+#top {
+	width: 95%;
+	margin: 15px auto 15px auto;
+}
+
+#skiplinks {
+	width: 40%;
+	float: right;
+	color: #ddd;
+	font-size: 1.1em;
+	text-align: right;
+	margin: 0;
+	padding: 0;
+}
+
+#skiplinks a {
+	color: #bacac8;
+	border-bottom: 1px dotted #aaa;
+}
+
+#skiplinks a:hover {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px dotted #fff;
+}
+
+/* Header and title */
+#sitetitle {
+	float: left;
+	text-align: left;
+}
+
+#sitetitle h1 {
+	font-weight: 700;
+	font-size: 2.4em;
+	color: #ddd;
+	letter-spacing: -1px;
+	line-height: 1.3em;
+	margin: 0;
+	padding: 0;
+}
+
+#sitetitle h1 a {
+	font-weight: 700;
+	letter-spacing: -1px;
+	color: #bacac8;
+}
+
+#sitetitle h1 a:hover {
+	color: #fff;
+}
+
+#sitetitle p {
+	margin: 5px 0 0 0;
+	padding: 0;
+	letter-spacing: -1px;
+	font-size: 1.3em;
+	color: #ccc;
+}
+
+/* Main menu */
+#mainmenu {
+	margin: 0 0 10px 0;
+}
+
+#mainmenu dl {
+	float: left;
+	display: block;
+	width: 16%;
+	margin: 0 0.5% 5px 0.5%;
+}
+
+#mainmenu dl.introduction {
+	float: left;
+	display: block;
+	width: 31%;
+	margin: 0 0 5px 0.5%;
+}
+
+#mainmenu dl dt {
+	border-bottom: 1px solid #ccc;
+	padding: 0;
+	font-weight: 700;
+	margin: 0;
+	color: #777;
+}
+
+#mainmenu dl dt a {
+	font-weight: 700;
+	color: #555;
+	font-size: 1.1em;
+}
+
+#mainmenu dl dt a:hover {
+	color: #444;
+}
+
+#mainmenu dl dd {
+	padding: 0;
+	margin: 0;
+	border-bottom: 1px solid #eee;
+}
+
+#mainmenu dl dd a {
+	font-weight: 400;
+	padding: 1px 0 1px 5px;
+	color: #4d699d;
+	display: block;
+}
+
+#mainmenu dl dd a:hover {
+	color: #444;
+	background: #eaeaea;
+}
+
+/* Headline */
+#headline {
+	text-align: center;
+	margin: 5px 0 15px 0;
+	border: 1px solid #e0e0e0;
+	background-color: #f0f0f0;
+	color: #777;
+	font-size: 0.9em;
+}
+
+#headline p {
+	margin: 2px;
+	padding: 0;
+}
+
+/* Headers */
+h2,h3,h4 {
+	margin: 0 0 12px;
+	padding-bottom: 5px;
+	color: #555;
+	font-weight: 700;
+}
+
+/* Content */
+#content {
+	text-align: left;
+	width: 80%;
+	float: right;
+}
+
+#content h2 {
+	font-size: 1.7em;
+	letter-spacing: -1px;
+	clear: left;
+	border-bottom: 2px solid #ccc;
+}
+
+#content h3 {
+	font-size: 1.4em;
+	letter-spacing: -1px;
+	margin-bottom: 7px;
+}
+
+#content h2 a,#content h3 a {
+	font-weight: 700;
+	border: 0;
+}
+
+#content p {
+	margin: 0 0 15px;
+}
+
+#content a {
+	border-bottom: 1px dotted #888;
+}
+
+#content a:hover {
+	color: #222;
+	border-bottom: 1px dotted #000;
+}
+
+#content ul,#content ol {
+	margin: 0 0 15px 10px;
+	padding: 0 0 0 5px;
+}
+
+#content ul li,#content ol li {
+	margin: 0 0 4px 5px;
+}
+
+#content ul ul,#content ol ol {
+	margin: 5px 0 5px 10px;
+}
+
+/* Sidebar */
+#sidebar {
+	text-align: left;
+	float: left;
+	margin: 0;
+	width: 19%;
+}
+
+#sidebar h2,#sidebar h3 {
+	font-size: 1.4em;
+	padding: 0 0 2px 0;
+	margin: 0 0 5px 0;
+	border-bottom: 2px solid #ccc;
+}
+
+#sidebar p,#sidebar ul,#sidebar ol {
+	margin: 0 0 15px 0;
+	padding: 0;
+}
+
+#sidebar ul li {
+	list-style: none;
+	margin: 0 0 3px 0;
+}
+
+#sidebar ul li a {
+	font-weight: 400;
+	font-size: 1.1em;
+}
+
+#sidebar ul ul {
+	margin: 3px 0 3px 10px;
+	font-size: 1em;
+}
+
+#sidebar ul ul li {
+	margin: 2px 0;
+}
+
+#sidebar ul ul li a {
+	font-weight: 400;
+}
+
+#sidebar ul.sidemenu li {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 2px 0;
+}
+
+#sidebar ul.sidemenu li a {
+	display: block;
+	overflow: visible;
+	padding: 2px 0 2px 5px;
+	background-color: #f4f4f4;
+	font-weight: 400;
+	border: 1px solid #e0e0e0;
+	font-size: 1.1em;
+}
+
+#sidebar ul.sidemenu li a:hover,#sidebar ul li.current a {
+	border: 1px solid #ddd;
+	color: #444;
+	background-color: #fff;
+}
+
+#sidebar ul.sidemenu li.current li a {
+	background-color: #f8f8f8;
+	color: #467aa7;
+	border: 1px solid #eee;
+	border-bottom: 1px solid #ddd;
+}
+
+#sidebar ul.sidemenu ul {
+	margin: 0;
+	padding: 2px 0 0 15px;
+}
+
+#sidebar ul.sidemenu ul li {
+	letter-spacing: 0;
+}
+
+#sidebar ul.sidemenu ul li a {
+	font-size: 0.9em;
+	padding: 1px 0 1px 5px;
+}
+
+/* Footer */
+#footer {
+	clear: both;
+	width: 95%;
+	line-height: 1.6em;
+	color: #ccc;
+	margin: 0 auto;
+	padding: 10px 0;
+}
+
+#footer p {
+	margin: 0;
+	padding: 0;
+}
+
+#footer a {
+	color: #bacac8;
+	border-bottom: 1px dotted #aaa;
+}
+
+#footer a:hover {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px dotted #fff;
+}
+
+/* Links and tags */
+a {
+	color: #4d699d;
+	font-weight: 400;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #444;
+	text-decoration: none;
+}
+
+img,a img {
+	border: 0;
+}
+
+/* Various classes */
+.left {
+	float: left;
+	width: 98%;
+	text-align: left;
+}
+
+.right {
+	float: right;
+	width: 48%;
+	text-align: left;
+}
+
+.trio1 {
+	float: left;
+	width: 31%;
+	padding: 0 2% 0 0;
+}
+
+.trio2 {
+	float: left;
+	width: 31%;
+	padding: 0 2% 0 0;
+}
+
+.trio3 {
+	float: left;
+	width: 33%;
+	padding: 0;
+}
+
+.textleft {
+	text-align: left;
+}
+
+.textright {
+	text-align: right;
+}
+
+.textcenter {
+	text-align: center;
+}
+
+.introtext,.introtext a {
+	font-weight: 700;
+}
+
+.clear {
+	visibility: hidden;
+	clear: both;
+	height: 2px;
+}
+
+.hide {
+	display: none;
+}

@@ -1,5 +1,3 @@
-// $Id: view_author.js,v 1.2 2008/02/20 21:40:36 loyola Exp $
-
 window.addEvent('domready', function() {   
 	var state = 0;
 	var start = $('start');
@@ -46,4 +44,3 @@ window.addEvent('domready', function() {
     	});		
     }
 }); 
-
