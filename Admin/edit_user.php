@@ -131,22 +131,7 @@ class edit_user extends pdHtmlPage {
             $form->setDefaults($defaults);
 
             $renderer =& $form->defaultRenderer();
-
-            $renderer->setFormTemplate(
-                '<form{attributes}><table width="100%" border="0" cellpadding="3" '
-                . 'cellspacing="2" bgcolor="#CCCC99">'
-                . '{content}</table></form>');
-            $renderer->setHeaderTemplate(
-                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
-            $renderer->setElementTemplate(
-	            '<tr><td><b>{label}</b></td>'
-    	        . '<td><div style="position:relative;text-align:left"><table id="MYCUSTOMFLOATER" class="myCustomFloater" style="font-size:1.1em;position:absolute;top:50px;left:0;background-color:#f4f4f4;display:none;visibility:hidden"><tr><td><div class="myCustomFloaterContent"></div></td></tr></table></div>{element}</td></tr>',
-        	    'authors');
-
             $form->accept($renderer);
-
             $this->form =& $form;
             $this->renderer =& $renderer;
             $this->javascript();

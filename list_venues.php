@@ -24,7 +24,7 @@ class list_venues extends pdHtmlPage {
 	protected $tab;
 
     public function __construct() {
-        parent::__construct('all_venues');
+        parent::__construct('list_venues');
 
         if ($this->loginError) return;
 

@@ -76,14 +76,6 @@ class author_confirm extends pdHtmlPage {
             echo '</ul>Do you really want to add this author?';
 
             $renderer =& $this->form->defaultRenderer();
-
-            $renderer->setFormTemplate(
-                '<table width="100%" border="0" cellpadding="3" cellspacing="2">'
-                . '<form{attributes}>{content}</form></table>');
-            $renderer->setHeaderTemplate(
-                '<tr><td '
-                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-
             $this->form->accept($renderer);
             $this->renderer =& $renderer;
         }

@@ -168,7 +168,7 @@ div#container {
 }
 
 #statusbar {
-	background: url(images/statusbar.png) no-repeat top left;
+	background: url(../images/statusbar.png) no-repeat top left;
 	clear: both;
 	text-align: right;
 	width: 100%;
@@ -340,7 +340,7 @@ div.field:hover {
 }
 
 div#header {
-	background: url(images/header.png) no-repeat top left;
+	background: url(../images/header.png) no-repeat top left;
 	clear: both;
 	color: #006633;
 	min-width: 800px;
@@ -688,13 +688,13 @@ pre {
 	margin: 0;
 	color: #669933;
 	padding: 8px 8px 4px;
-	background: url(images/bubble.png) top left;
+	background: url(../images/bubble.png) top left;
 }
 
 .tool-text {
 	font-size: 11px;
 	padding: 4px 8px 8px;
-	background: url(images/bubble.png) bottom right;
+	background: url(../images/bubble.png) bottom right;
 }
 
 table.pool th {

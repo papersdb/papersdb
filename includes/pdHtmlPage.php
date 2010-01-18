@@ -50,7 +50,7 @@ class pdHtmlPage {
 	protected $nav_menu;
 	protected $use_mootools = false;
 	private   $javascriptFiles = array();
-	private   $styleSheets = array('css/daleri-mega.css', 'css/custom.css');
+	private   $styleSheets = array('css/style.css', 'css/custom.css');
 
 	const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -294,7 +294,7 @@ class pdHtmlPage {
 	}
 
 	private function htmlPageFooter() {
-		$result = '</div>';
+		$result = '';
 		if($this->useStdLayout) {
 			$result .= $this->pageFooter();
 		}
@@ -330,7 +330,7 @@ class pdHtmlPage {
 			ob_end_clean();
 		}
 
-		if (isset($this->form)) {			
+		if (isset($this->form) && empty($this->renderer)) {			
 			$this->renderer =& $this->form->defaultRenderer();
 
 			$this->renderer->setFormTemplate(
@@ -349,15 +349,15 @@ class pdHtmlPage {
 		else if (($this->renderer != null) && ($this->table != null)) {
 			$result .= $this->renderer->toHtml($this->table->toHtml());
 		}
-		else if ($this->renderer != null) {
+		else if (isset($this->renderer)) {
 			$result .= $this->renderer->toHtml();
 		}
 		else if ($this->table != null) {
 			$result .= $this->table->toHtml();
 		}
 
-		$result .= '<hr class="clear"/></div>' . $this->navMenu()
-		. '<hr class="clear"/>' . $this->htmlPageFooter();
+		$result .= '</div>' . $this->navMenu()
+		.  $this->htmlPageFooter();
 
 		return $result;
 	}
@@ -367,7 +367,7 @@ class pdHtmlPage {
 		if (strstr($this->relative_url, '/'))
 		$url_prefix = '../';
 
-		$result = '<div id="sidebar"><div class="left"><ul class="sidemenu">';
+		$result = '<div id="nav"><ul>';
 
 		foreach ($this->nav_menu->nav_items as $page_id => $item) {
 			if ($page_id == 'Home') {
@@ -425,7 +425,7 @@ class pdHtmlPage {
 			$result .= '</li>';
 		}
 
-		$result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div></div>';
+		$result .= "</ul>\n" . $this->quickSearchFormCreate() . '</div>';
 		return $result;
 	}
 
@@ -456,17 +456,19 @@ class pdHtmlPage {
 		}
 
 		return <<<END
-<div id="top">
-<p id="skiplinks">
+<div id="container">
+<div id="statusbar"><h1>{$status}</h1></div>
+<ul id="titlebar">
+  <li id="compsci">
     <a href="http://www.uofaweb.ualberta.ca/science/">
-    FACULTY OF SCIENCE</a> |
+    FACULTY OF SCIENCE</a>
+  </li>
+  <li id="uofa">
     <a href="http://www.ualberta.ca/">
     UNIVERSITY OF ALBERTA</a>
-<div id="sitetitle"><h1><a href="#">PapersDB</a></h1><p class="status">{$status}</p>
-</div>
-<hr class="clear"/>
-</div>
-<div id="wrap">
+  </li>
+</ul>
+<div id="header"><h1>PapersDB</h1></div>
 END;
 	}
 
@@ -480,10 +482,11 @@ END;
 		}
 
 		return <<<END
-</div>
         <div id="footer">
   For any questions/comments about the Papers Database please e-mail
   <a href="mailto:papersdb@cs.ualberta.ca">PapersDB Administrator</a>
+  </div>
+<div id="footer2">
   <table width="100%">
     <tr>
       <td>

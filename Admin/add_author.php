@@ -265,16 +265,7 @@ TEMPLATE_END;
         //debugVar('defaults', $defaults);
         $form->setDefaults($defaults);
         
-        $renderer =& $form->defaultRenderer();
-        $renderer->setFormTemplate(
-            '<form{attributes}>'
-            . '<table width="100%" border="0" cellpadding="3" '
-            . 'cellspacing="2" bgcolor="#CCCC99">{content}'
-            . '</table></form>');
-        $renderer->setHeaderTemplate('
-<tr><td style="white-space:nowrap;background:#996;color:#ffc;"
- align="left" colspan="2"><b>{header}</b></td></tr>');
-        
+        $renderer =& $form->defaultRenderer();        
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();

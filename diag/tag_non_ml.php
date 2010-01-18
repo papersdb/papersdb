@@ -57,25 +57,7 @@ class tag_non_ml extends aicml_pubs_base {
         
         $form->addElement('submit', 'submit', 'Submit');
         
-        $renderer =& $form->defaultRenderer();
-
-        $renderer->setFormTemplate(
-            "<form{attributes}>\n{content}\n</form>\n");
-        $renderer->setHeaderTemplate(
-            "<table class=\"stats\">\n<tr><th colspan=\"2\">{header}</th></tr>\n</table>\n");
-            
-        $renderer->setGroupElementTemplate("{element}\n", 'tag_ml_group');
-        
-        // set default template for all elements
-        $renderer->setElementTemplate("<table>\n<tr>"
-	        . "<td>{label}</td><td>{element}</td></tr>\n</table>\n");
-	        
-	    // set template for this single element
-        $renderer->setElementTemplate("<table>\n<tr class=\"stats\">"
-	        . '<td style="color: #006633;font-weight: bold;">'
-            . "{label}</td><td>{element}</td></tr>\n</table>\n",
-            'tag_ml_group');
-        
+        $renderer =& $form->defaultRenderer(); 
         $form->accept($renderer);
         $this->renderer =& $renderer;
     }
