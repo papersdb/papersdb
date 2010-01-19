@@ -87,7 +87,8 @@ class authorize_new_users extends pdHtmlPage {
             $user->access_level = $values['submit']['access'][$user->login];
             $user->dbSave($this->db);
             $recipient = $user->email;
-            if ($_SERVER['SERVER_NAME'] == 'localhost') {
+            // only send email if running the real papersdb
+            if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
                 $recipient = 'root@localhost';
             }
             $result = mail($recipient,
