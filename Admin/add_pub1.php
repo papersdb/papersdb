@@ -164,23 +164,6 @@ class add_pub1 extends add_pub_base {
         }
 
         $renderer =& $this->form->defaultRenderer();
-
-        $this->form->setRequiredNote(
-            '<font color="#FF0000">*</font> shows the required fields.');
-
-        $renderer->setFormTemplate(
-            '<form{attributes}><table width="100%" bgcolor="#CCCC99">'
-            . '{content}</table></form>');
-        $renderer->setHeaderTemplate(
-            '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-            . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-        $renderer->setGroupTemplate(
-            '<table><tr>{content}</tr></table>', 'name');
-
-        $renderer->setElementTemplate(
-            '<tr><td colspan="2">{label}</td></tr>',
-            'categoryinfo');
-
         $this->form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();

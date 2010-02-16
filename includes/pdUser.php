@@ -70,7 +70,9 @@ class pdUser extends pdDbAccessor {
         assert('isset($this->login)');
         $db->update('user', array('name'    => $this->name,
                                   'email'   => $this->email,
-                                  'options' => $this->options),
+                                  'options' => $this->options,
+                                  'verified' => $this->verified,
+                                  'access_level' => $this->access_level),
                     array('login' => $this->login),
                     'pdUser::dbSave');
 

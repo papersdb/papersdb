@@ -1,15 +1,3 @@
-/*-----------------------------------------------------------------------------
- *
- * The information contained herein is proprietary and confidential to Alberta
- * Ingenuity Centre For Machine Learning (AICML) and describes aspects of AICML
- * products and services that must not be used or implemented by a third party
- * without first obtaining a license to use or implement.
- *
- * Copyright 2008 Alberta Ingenuity Centre For Machine Learning.
- *
- *-----------------------------------------------------------------------------
- */
-
 function lastSearchUse() {
     var form = document.forms["advSearchForm"];
     var authorselect = form.elements["authorselect[]"];

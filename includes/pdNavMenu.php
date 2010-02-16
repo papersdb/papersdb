@@ -87,6 +87,8 @@ class pdNavMenu {
                                       pdNavMenuItem::MENU_LOGIN_REQUIRED),
         'login'              => array('Login or Register', 'login.php',
                                       pdNavMenuItem::MENU_ALWAYS),
+        'authorize_new_users'=> array('Authorize new users', 'Admin/authorize_new_users.php',
+                                      pdNavMenuItem::MENU_LEVEL_ADMIN),
         'edit_user'          => array('User Preferences',
                                       'Admin/edit_user.php',
                                       pdNavMenuItem::MENU_LOGIN_REQUIRED),
@@ -136,6 +138,7 @@ class pdNavMenu {
         'User'  => array(
             'login',
             'logout',
+            'authorize_new_users',
             'edit_user'),
         'Diagnostics'  => array(
             'aicml_staff',

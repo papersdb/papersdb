@@ -1,5 +1,3 @@
-
-
 function update() {
     var form =  document.forms["cat_selection"];
     var qsArray = new Array();

@@ -113,22 +113,7 @@ TOOLTIP_END;
 
             $form->setRequiredNote(
                 '<font color="#FF0000">*</font> shows the required fields.');
-
-            $renderer->setFormTemplate(
-                '<table width="100%" bgcolor="#CCCC99">'
-                . '<form{attributes}>{content}</form></table>');
-            $renderer->setHeaderTemplate(
-                '<tr><td style="white-space:nowrap;background:#996;color:#ffc;" '
-                . 'align="left" colspan="2"><b>{header}</b></td></tr>');
-            $renderer->setGroupTemplate(
-                '<table><tr>{content}</tr></table>', 'name');
-
-            $renderer->setElementTemplate(
-                '<tr><td colspan="2">{label}</td></tr>',
-                'categoryinfo');
-
             $form->accept($renderer);
-
             $this->form =& $form;
             $this->renderer =& $renderer;
             

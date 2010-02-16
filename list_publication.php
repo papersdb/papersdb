@@ -14,11 +14,7 @@
  */
 
 /** Requires base class and class that build publication lists. */
-require_once 'includes/pdHtmlPage.php';
-require_once 'includes/pdPubList.php';
-require_once 'includes/pdAuthorList.php';
-require_once 'includes/pdCatList.php';
-require_once 'includes/pdVenueList.php';
+require_once 'includes/functions.php';
 
 /**
  * Renders the whole page.
@@ -74,12 +70,6 @@ class list_publication extends pdHtmlPage {
                 $this->db, array('cat_id' => $this->cat_id));
             $title = '<h1>Publications in Category "'
                 . $cl[$this->cat_id] . '"</h1>';
-        }
-        else if (isset($this->keyword)) {
-            $pub_list = pdPubList::create(
-                $this->db, array('keyword' => $this->keyword));
-            $title = '<h1>Publications with keyword "' .$this->keyword
-                . '"</h1>';
         }
         else if (isset($this->keyword)) {
             $pub_list = pdPubList::create(

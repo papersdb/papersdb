@@ -1,0 +1,52 @@
+#sitetitle .status {
+    font-size: 0.8em;
+    font-weight: bold;
+    margin: 0;
+    padding: 3px 6px;
+}
+
+div#selalpha {
+	margin-bottom: 1em;
+	margin: 10px auto 0px auto;
+	z-index: 1;
+}
+
+div#selalpha ul {
+	font-size: 0.9em;
+	list-style-type: none;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	z-index: 2;
+}
+
+div#selalpha li {
+	display: inline;
+	margin: 0 0.15em;
+	position: relative;
+}
+
+div#selalpha ul li a {
+	background: #f4f4f4;
+	border-bottom: 0;
+	border-left: 4px solid #cccccc;
+	color: #006633;
+	float: left;
+	font-weight: bold;
+	height: 3ex;
+	padding: 0 0 0 3px;
+	text-align: left;
+	text-decoration: none;
+	vertical-align: middle;
+	width: 2ex;
+}
+
+div#selalpha li a:hover,div#selalpha li a.selected {
+	background: #CCCC99;
+	border-left: 4px solid #006633;
+	color: #006633;
+}
+
+div#selalpha li a:visited {
+	
+}
