@@ -61,44 +61,44 @@ class authorize_new_users extends pdHtmlPage {
 	public function processForm() {
 		$form =& $this->form;
 		$values = $form->exportValues();
-		
+
 		// check for errors
 		$auth_errors = array();
 		foreach ($this->users as $user) {
 			if ($values['submit']['auth'][$user->login] == 'no') continue;
 			if (intval($values['submit']['access'][$user->login]) == 0) {
 				$auth_errors[] = array(
-				    'user' => $user, 
+				    'user' => $user,
 				    'access' => $values['submit']['access'][$user->login]
 				);
 			}
 		}
-		
+
 		if (count($auth_errors) != 0) {
 			$_SESSION['auth_errors'] = $auth_errors;
 			header('Location: auth_error.php');
 			return;
 		}
-		
+
 		$auth_success = array();
         foreach ($this->users as $user) {
             if ($values['submit']['auth'][$user->login] == 'no') continue;
             $user->verified = 1;
             $user->access_level = $values['submit']['access'][$user->login];
             $user->dbSave($this->db);
-            $recipient = $user->email;
+            $recipients = "{$user->email},papersdb@cs.ualberta.ca";
             // only send email if running the real papersdb
             if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-                $recipient = 'root@localhost';
+                $recipients = 'root@localhost';
             }
-            $result = mail($recipient,
+            $result = mail($recipients,
                 'Re: PapersDB: Login',
                 "Your account has been created. You can now log into PapersDB at:\n"
                 . "http://www.cs.ualberta.ca/~papersdb/");
-            $auth_success[] = array('user' => $user, 
+            $auth_success[] = array('user' => $user,
                 'email' => $result ? 'Sent' : 'Error');
         }
-		
+
         $_SESSION['auth_success'] = $auth_success;
         header('Location: auth_success.php');
 	}
