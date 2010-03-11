@@ -44,12 +44,12 @@ class search_publication_db extends pdHtmlPage {
         if ($this->debug) {
             debugVar('_SESSION', $_SESSION);
         }
-        
+
         $this->db_authors = pdAuthorList::create($this->db, null, null, true);
-        
+
         $sel_author_names = explode(', ', preg_replace('/\s\s+/', ' ',
                                                        $this->sp->authors));
-        $this->sp->authors = implode(', ', cleanArray($sel_author_names));        
+        $this->sp->authors = implode(', ', cleanArray($sel_author_names));
 
         $pub_id_count = 0;
 
@@ -131,7 +131,7 @@ class search_publication_db extends pdHtmlPage {
     /**
      * Performs a quick search.
      */
-    private function &quickSearch() {    	
+    private function &quickSearch() {
 		$parser = new SearchTermParser($this->sp->search);
 		$quick_search_array = $parser->getWordList();
 		$result_pubs = $this->result_pubs;
@@ -139,7 +139,7 @@ class search_publication_db extends pdHtmlPage {
         if ($this->debug) {
             debugVar('$quick_search_array', $quick_search_array);
         }
-        
+
         foreach ($quick_search_array as $and_terms) {
             $union_array = array();
             foreach ($and_terms as $or_terms) {
@@ -148,7 +148,7 @@ class search_publication_db extends pdHtmlPage {
                     //Search through the publication table
                     $fields = array('title', 'paper', 'abstract', 'keywords',
                                     'extra_info');
-                    
+
                     if (isset($_SESSION['user'])
                         && ($_SESSION['user']->showUserInfo())) {
                         // search on user info field also
@@ -204,7 +204,7 @@ class search_publication_db extends pdHtmlPage {
                         'SELECT rank_id from pub_rankings '
                         . 'WHERE description RLIKE '
                         . $this->db->quote_smart('[[:<:]]'.$term.'[[:>:]]'));
-                        
+
                     foreach ($search_result as $r) {
                         if (is_numeric($rank_id)) {
                             $this->add_to_array(
@@ -219,7 +219,7 @@ class search_publication_db extends pdHtmlPage {
                         'SELECT venue_id from venue_rankings '
                         . 'WHERE description RLIKE '
                         . $this->db->quote_smart('[[:<:]]'.$term.'[[:>:]]'));
-                        
+
                     foreach ($search_result as $r) {
                         if (is_numeric($r->venue_id)) {
                             $this->add_to_array(
@@ -234,7 +234,7 @@ class search_publication_db extends pdHtmlPage {
                         'SELECT col_id from collaboration '
                         . 'WHERE description RLIKE '
                         . $this->db->quote_smart('[[:<:]]'.$term.'[[:>:]]'));
-                        
+
                     foreach ($search_result as $r) {
                         if($r->col_id != null) {
                             $this->add_to_array(
@@ -316,16 +316,16 @@ class search_publication_db extends pdHtmlPage {
 
         // MYSELF or AUTHOR SELECTED SEARCH -----------------------------------
         $authors = array();
-        
+
         if (!empty($this->sp->authors)) {
             // need to retrieve author_ids for the selected authors
             $sel_author_names = explode(', ', preg_replace('/\s\s+/', ' ',
                                                            $this->sp->authors));
-                                                     
+
         	$author_ids = array();
             foreach ($sel_author_names as $author_name) {
                 if (empty($author_name)) continue;
-                
+
                 $author_id = array_search($author_name, $this->db_authors);
                 if ($author_id !== false) {
 	                $author_ids[] = $author_id;
@@ -337,9 +337,11 @@ class search_publication_db extends pdHtmlPage {
             }
         }
 
-        if (($this->sp->author_myself != '')
-            && ($_SESSION['user']->author_id != ''))
-            array_push($authors, $_SESSION['user']->author_id);
+        if (!empty($_SESSION['user'])) {
+           if (($this->sp->author_myself != '')
+               && ($_SESSION['user']->author_id != ''))
+              array_push($authors, $_SESSION['user']->author_id);
+        }
 
         if (count($authors) > 0) {
             foreach ($authors as $auth_id) {
@@ -362,7 +364,7 @@ class search_publication_db extends pdHtmlPage {
                 $search_result = $this->db->query(
                     'SELECT venue_id from venue_rankings '
     	            . 'WHERE rank_id=' . $this->db->quote_smart($rank_id));
-    	            
+
   	            foreach ($search_result as $row) {
                     if (!empty($row->venue_id))
                     $this->add_to_array(
@@ -407,11 +409,11 @@ class search_publication_db extends pdHtmlPage {
             }
 
             if (count($union_array) > 0) {
-                $this->result_pubs 
+                $this->result_pubs
                     = array_intersect($this->result_pubs, $union_array);
             }
         }
-        
+
         // user info
         if (!empty($this->sp->user_info)) {
             pdDb::debugOn();
@@ -425,7 +427,7 @@ class search_publication_db extends pdHtmlPage {
             }
 
             if (count($union_array) > 0) {
-                $this->result_pubs 
+                $this->result_pubs
                     = array_intersect($this->result_pubs, $union_array);
             }
         }

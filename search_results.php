@@ -78,12 +78,12 @@ class search_results extends pdHtmlPage {
 
         $pubs = pdPubList::create(
             $this->db, array('cat_pub_ids' => $_SESSION['search_results']));
-            
+
         if ($pubs == null) return;
 
         echo $renderer->toHtml();
         echo displayPubList(
-            $this->db, $pubs, true, -1, null,  	 
+            $this->db, $pubs, true, -1, null,
             array('show_internal_info' => ($sp->show_internal_info == 'yes')));
 
         $searchLinkTable = new HTML_Table(array('id' => 'searchlink',
@@ -144,8 +144,8 @@ class search_results extends pdHtmlPage {
                         $name = preg_replace('/_/', ' ', ucwords($param));
                         $value = $sp->$param;
                     }
-                    
-                    if (($param == 'show_internal_info') 
+
+                    if (($param == 'show_internal_info')
                          && ($sp->$param == 'no'))
                          continue;
 
@@ -156,7 +156,7 @@ class search_results extends pdHtmlPage {
             $al = null;
             $values = array();
 
-            if (($sp->author_myself != '')
+            if (!empty($_SESSION['user']) && ($sp->author_myself != '')
                 && ($_SESSION['user']->author_id != '')) {
                 $authors = pdAuthorList::create($this->db, null, null, true);
                 $values[] = $authors[$_SESSION['user']->author_id];
@@ -175,10 +175,10 @@ class search_results extends pdHtmlPage {
 	                // ranking
     	            $label = 'Ranking:';
         	        $rankings = pdPublication::rankingsGlobalGet($this->db);
-                
+
             	    foreach ($sp->paper_rank as $rank_id => $value) {
     	                if ($value != 'yes') continue;
-	
+
     	                $table->addRow(array($label, $rankings[$rank_id]));
         	            $label = '';
             	    }
@@ -192,10 +192,10 @@ class search_results extends pdHtmlPage {
 	                // collaboration
     	            $label = 'Collaboration:';
         	        $collaborations = pdPublication::collaborationsGet($this->db);
-	
+
     	            foreach ($sp->paper_col as $col_id => $value) {
         	            if ($value != 'yes') continue;
-	
+
     	                $table->addRow(array($label, $collaborations[$col_id]));
         	            $label = '';
             	    }
