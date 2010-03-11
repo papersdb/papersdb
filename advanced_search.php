@@ -43,13 +43,13 @@ class advanced_search extends pdHtmlPage {
 
     public function __construct() {
         parent::__construct('advanced_search');
-        
+
         $this->addStyleSheets('css/wick.css');
 
         if ($this->loginError) return;
 
         $this->loadHttpVars(true, false);
-        
+
         $this->db_authors = pdAuthorList::create($this->db, null, null, true);
 
         $this->category = new pdCategory();
@@ -83,7 +83,7 @@ class advanced_search extends pdHtmlPage {
         $user = null;
 
         $form = new HTML_QuickForm('advSearchForm', 'get',
-        	'search_publication_db.php', '_self', 
+        	'search_publication_db.php', '_self',
             array('onsubmit' => 'return check_authors("advSearchForm");'));
 
         $form->addElement('text', 'title', 'Title:',
@@ -115,8 +115,8 @@ class advanced_search extends pdHtmlPage {
                           . ' authors in the database. Type a partial name to '
                           . 'see a list of matching authors. Separate names '
                           . 'using commas.</span>');
-                          
-        if ($user != null) {                                       
+
+        if ($user != null) {
             $form->addElement('advcheckbox', 'author_myself',
                 null, 'add me to the search', null, array('', $user->author_id));
         }
@@ -151,7 +151,7 @@ class advanced_search extends pdHtmlPage {
             $form->addGroup($radio_cols, 'group_collaboration',
                             'Collaboration:', '<br/>', false);
         }
-        
+
         $form->addElement('text', 'paper', 'Paper filename:',
                           array('size' => 60, 'maxlength' => 250));
 
@@ -184,10 +184,10 @@ class advanced_search extends pdHtmlPage {
         if (isset($_SESSION['user'])) {
             $form->addElement(
                 'advcheckbox', 'show_internal_info',
-                'Options:', 'show internal information', null, 
+                'Options:', 'show internal information', null,
         		array('no', 'yes'));
         }
-            
+
         $form->addGroup(
             array(
                 HTML_QuickForm::createElement(
@@ -196,7 +196,7 @@ class advanced_search extends pdHtmlPage {
                 HTML_QuickForm::createElement('submit', 'Submit', 'Search')
                 ),
             'buttonsGroup', '', '&nbsp;', false);
-                
+
         return $form;
     }
 
@@ -208,7 +208,7 @@ class advanced_search extends pdHtmlPage {
             $sp = $_SESSION['search_params'];
         else
             $sp = new pdSearchParams();
-            
+
         $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
         $url = substr($_SERVER['PHP_SELF'], 0, $pos) . 'papersdb';
 
@@ -235,19 +235,7 @@ class advanced_search extends pdHtmlPage {
                                        '{startdateY}',
                                        '{startdateM}',
                                        '{enddateY}',
-                                       '{enddateM}',
-                                       '{paper_rank1}',
-                                       '{paper_rank2}',
-                                       '{paper_rank3}',
-                                       '{paper_rank4}',
-                                       '{paper_col1}',
-                                       '{paper_col2}',
-                                       '{paper_col3}',
-                                       '{paper_col4}',
-                                       '{author_myself}',
-								       '{show_internal_info}',
-								       '{have_user_info}',
-								       '{user_info}'),
+                                       '{enddateM}'),
                                  array($_SERVER['HTTP_HOST'],
                                        $_SERVER['PHP_SELF'],
                                        $sp->authors,
@@ -262,22 +250,37 @@ class advanced_search extends pdHtmlPage {
                                        $sp->startdate['Y'],
                                        $sp->startdate['M'],
                                        $sp->enddate['Y'],
-                                       $sp->enddate['M'],
-                                       ($sp->paper_rank[1] == 'yes'),
-                                       ($sp->paper_rank[2] == 'yes'),
-                                       ($sp->paper_rank[3] == 'yes'),
-                                       ($sp->paper_rank[4] == 'yes'),
-                                       ($sp->paper_col[1] == 'yes'),
-                                       ($sp->paper_col[2] == 'yes'),
-                                       ($sp->paper_col[3] == 'yes'),
-                                       ($sp->paper_col[4] == 'yes'),
-                                       ($sp->author_myself != ''),
-                                       ($sp->show_internal_info == 'yes'),
-                                       (isset($_SESSION['user'])
-                                        && ($_SESSION['user']->showInternalInfo()) ? 'true' : 'false'),
-                                       $sp->user_info),
+                                       $sp->enddate['M']),
                                  $content);
-                                 
+
+        if (!empty($_SESSION['user'])) {
+           $this->js = str_replace(array('{paper_rank1}',
+                                          '{paper_rank2}',
+                                          '{paper_rank3}',
+                                          '{paper_rank4}',
+                                          '{paper_col1}',
+                                          '{paper_col2}',
+                                          '{paper_col3}',
+                                          '{paper_col4}',
+                                          '{author_myself}',
+                                          '{show_internal_info}',
+                                          '{have_user_info}',
+                                          '{user_info}'),
+                                    array(($sp->paper_rank[1] == 'yes'),
+                                          ($sp->paper_rank[2] == 'yes'),
+                                          ($sp->paper_rank[3] == 'yes'),
+                                          ($sp->paper_rank[4] == 'yes'),
+                                          ($sp->paper_col[1] == 'yes'),
+                                          ($sp->paper_col[2] == 'yes'),
+                                          ($sp->paper_col[3] == 'yes'),
+                                          ($sp->paper_col[4] == 'yes'),
+                                          ($sp->author_myself != ''),
+                                          ($sp->show_internal_info == 'yes'),
+                                          ($_SESSION['user']->showInternalInfo() ? 'true' : 'false'),
+                                          $sp->user_info),
+                                    $this->js);
+        }
+
        $this->addJavascriptFiles(array('js/wick.js', 'js/check_authors.js'));
     }
 }
