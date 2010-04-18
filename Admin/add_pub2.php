@@ -55,7 +55,8 @@ in DB&lt;/b&gt; button.';
 
         $form->addElement(
             'textarea', 'authors',
-            "<span class=\"Tips1\" title=\"$tooltip\">Authors</span>:",
+            "<div id=\"MYCUSTOMFLOATER\"  class=\"myCustomFloater\" style=\"position:absolute;top:200px;left:600px;background-color:#cecece;display:none;visibility:hidden\"><div class=\"myCustomFloaterContent\"></div></div>"
+            . "<span class=\"Tips1\" title=\"$tooltip\">Authors</span>:",
             array('cols' => 60,
                   'rows' => 5,
                   'class' => 'wickEnabled:MYCUSTOMFLOATER',
@@ -143,7 +144,7 @@ select the options that apply to this paper.';
         echo $this->pub->getCitationHtml('', false), '&nbsp;',
             getPubIcons($this->db, $this->pub, 0x1), '<p/>',
             add_pub_base::similarPubsHtml($this->db);
-            
+
         $renderer =& $form->defaultRenderer();
         $form->accept($renderer);
         $this->renderer =& $renderer;
@@ -206,7 +207,7 @@ select the options that apply to this paper.';
         $this->js .= "\ncollection="
             . convertArrayToJavascript($this->authors, false)
             . ";\n\n";
-            
+
         $this->js .=<<<JS_END
 window.addEvent('domready', function() {
         var Tips1 = new Tips($$('.Tips1'));
@@ -226,7 +227,7 @@ JS_END;
                                            $url),
                                      $content);
         }
-                                 
+
         $this->addJavascriptFiles(array('../js/wick.js', '../js/check_authors.js'));
     }
 }
