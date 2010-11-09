@@ -20,7 +20,7 @@ require_once 'defines.php';
 
 class pdDb {
     private $mysqli;
-    private static $db_server = 'kingman.cs.ualberta.ca';
+    private static $db_server = 'localhost';
     private static $db_user = 'papersdb';
     private static $db_name = 'pubDB';
     private static $db_passwd = '';

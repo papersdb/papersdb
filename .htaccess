@@ -1,8 +1,0 @@
-ErrorDocument 400 /errors/request.php
-ErrorDocument 401 /errors/authreq.php
-ErrorDocument 403 /errors/forbidden.php
-ErrorDocument 404 /errors/notfound.php
-php_value register_globals Off
-php_value track_vars On
-php_value arg_separator.output "&amp;"
-php_value arg_separator.input "&"
