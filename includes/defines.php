@@ -27,7 +27,7 @@ define('PAPERSDB_EMAIL', 'papersdb@cs.ualberta.ca');
  * stored.
  */
 if (strpos($_SERVER['PHP_SELF'], '~papersdb') !== false) {
-    define('FS_PATH', '/usr/abee/cshome/papersdb/web_docs');
+    define('FS_PATH', '/home/papersdb/web_docs');
 }
 else {
     if (isset($_ENV['HOSTNAME']) && ($_ENV['HOSTNAME'] == 'levante'))
