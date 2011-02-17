@@ -59,7 +59,7 @@ class advanced_search extends pdHtmlPage {
         $this->form =& $form;
 
         $this->form->setDefaults(array(
-        	'enddate' => array('Y' => 2010, 'M' => 12)
+        	'enddate' => array('Y' => 2015, 'M' => 12)
         ));
 
         // NOTE: order is important here: this must be called after creating
