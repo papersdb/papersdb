@@ -186,7 +186,8 @@ class add_venue extends pdHtmlPage {
                                   array('size' => 50, 'maxlength' => 250));
 
                 $form->addElement('date', 'venue_date', 'Date:',
-                                  array('format' => 'YM', 'minYear' => '1970'));
+                                  array('format' => 'YM', 'minYear' => pdPublication::MIN_YEAR, 
+                    'maxYear' => pdPublication::MAX_YEAR));
             }
 
             if (($this->venue->category->category == 'In Conference')
@@ -209,7 +210,8 @@ class add_venue extends pdHtmlPage {
                     $form->addElement('date', 'newOccurrenceDate[' . $i . ']',
                                       'Date:',
                                       array('format' => 'YM',
-                                            'minYear' => '1970'));
+                                            'minYear' => pdPublication::MIN_YEAR, 
+                    'maxYear' => pdPublication::MAX_YEAR));
 
                     $form->addElement('text',
                                       'newOccurrenceUrl[' . $i . ']',

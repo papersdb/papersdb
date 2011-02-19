@@ -58,6 +58,9 @@ class pdPublication extends pdDbAccessor {
 	const DB_LOAD_VENUE           = 0x40;
 	const DB_LOAD_ALL             = 0x77;
 	
+	const MIN_YEAR = 1970;
+	const MAX_YEAR = 2015;
+	
 	private static $db_table_fields = array(
 	    'pub_id', 'title', 'paper', 'abstract', 'keywords', 'published', 
 	    'venue_id', 'extra_info', 'submit', 'user', 'rank_id', 'updated');
