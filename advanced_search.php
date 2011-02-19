@@ -59,7 +59,7 @@ class advanced_search extends pdHtmlPage {
         $this->form =& $form;
 
         $this->form->setDefaults(array(
-        	'enddate' => array('Y' => 2010, 'M' => 12)
+        	'enddate' => array('Y' => 2015, 'M' => 12)
         ));
 
         // NOTE: order is important here: this must be called after creating
@@ -173,13 +173,13 @@ class advanced_search extends pdHtmlPage {
         $form->addGroup(array(
                 HTML_QuickForm::createElement(
                     'date', 'startdate', 'Start Date:',
-                    array('format' => 'YM', 'minYear' => '1970')),
+                    array('format' => 'YM', 'minYear' => '1970', 'maxYear' => '2015')),
                 HTML_QuickForm::createElement('static', null, null, 'and'),
                 HTML_QuickForm::createElement(
                     'date', 'enddate', 'End Date:',
-                    array('format' => 'YM', 'minYear' => '1970')),
+                    array('format' => 'YM', 'minYear' => '1970', 'maxYear' => '2015')),
                 ),
-            null, 'Published Between:', '&nbsp;', false);
+            null, 'Published between:', '&nbsp;', false);
 
         if (isset($_SESSION['user'])) {
             $form->addElement(
