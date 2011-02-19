@@ -194,7 +194,7 @@ Sometimes the paper may have a ranking different from the venue ranking.';
         $form->addElement(
             'date', 'pub_date',
             "<span class=\"Tips1\" title=\"$tooltip\">Date</span>:",
-            array('format' => 'YM', 'minYear' => '1970'));
+            array('format' => 'YM', 'minYear' => '1970', 'maxYear' => '2015'));
 
         $form->addElement('header', 'other_info', 'Other information', null);
 

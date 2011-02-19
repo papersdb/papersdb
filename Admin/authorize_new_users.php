@@ -86,10 +86,11 @@ class authorize_new_users extends pdHtmlPage {
             $user->verified = 1;
             $user->access_level = $values['submit']['access'][$user->login];
             $user->dbSave($this->db);
-            $recipients = "{$user->email},papersdb@cs.ualberta.ca";
             // only send email if running the real papersdb
             if (strpos($_SERVER['PHP_SELF'], '~papersdb')) {
-                $recipients = 'root@localhost';
+                $recipients = "{$user->email},papersdb@cs.ualberta.ca";
+            } else {
+            	$recipients = 'loyola@ualberta.ca';
             }
             $result = mail($recipients,
                 'Re: PapersDB: Login',
