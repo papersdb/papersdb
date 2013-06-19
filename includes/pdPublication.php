@@ -18,14 +18,14 @@ require_once 'includes/pdVenue.php';
 require_once 'includes/pdPubList.php';
 
 /**
- * Accesses from the database some or all the information related to a 
+ * Accesses from the database some or all the information related to a
  * publication.
  *
  * @package PapersDB
  */
 class pdPublication extends pdDbAccessor {
     /** publication's id in the database */
-    public $pub_id;  
+    public $pub_id;
     public $title;
     public $paper;
     public $abstract;
@@ -57,12 +57,12 @@ class pdPublication extends pdDbAccessor {
 	const DB_LOAD_POINTER         = 0x20;
 	const DB_LOAD_VENUE           = 0x40;
 	const DB_LOAD_ALL             = 0x77;
-	
+
 	const MIN_YEAR = 1970;
 	const MAX_YEAR = 2015;
-	
+
 	private static $db_table_fields = array(
-	    'pub_id', 'title', 'paper', 'abstract', 'keywords', 'published', 
+	    'pub_id', 'title', 'paper', 'abstract', 'keywords', 'published',
 	    'venue_id', 'extra_info', 'submit', 'user', 'rank_id', 'updated');
 
     public function __construct($mixed = NULL) {
@@ -70,7 +70,7 @@ class pdPublication extends pdDbAccessor {
 
         parent::__construct($mixed);
     }
-    
+
     public static function &newFromDb(&$db, $pub_id, $flags = self::DB_LOAD_ALL) {
         assert('is_numeric($pub_id)');
         $pub = new pdPublication();
@@ -200,9 +200,9 @@ class pdPublication extends pdDbAccessor {
 
     public function dbLoadAuthors($db, $flags = self::DB_LOAD_AUTHOR_FULL) {
     	assert('is_object($db)');
-    	    
+
     	if (isset($this->authors) && (count($this->authors) > 0)) return;
-        
+
         $q = $db->select(array('author', 'pub_author'),
                          array('author.author_id', 'author.name'),
                          array('author.author_id=pub_author.author_id',
@@ -254,7 +254,7 @@ class pdPublication extends pdDbAccessor {
             $db->delete($table, array('pub_id' => $this->pub_id),
                         'pdPublication::dbDelete');
         }
-        $this->deleteFiles($db); 
+        $this->deleteFiles($db);
         $db->delete('pub_pending', array('pub_id' => $this->pub_id));
         $db->delete('pub_valid', array('pub_id' => $this->pub_id));
     }
@@ -264,7 +264,7 @@ class pdPublication extends pdDbAccessor {
 
         $arr = $this->membersAsArray(self::$db_table_fields);
         $arr['updated'] = date('Y-m-d');
-        
+
         if (isset($this->rank_id))
             $arr['rank_id'] = $this->rank_id;
 
@@ -438,7 +438,7 @@ class pdPublication extends pdDbAccessor {
     public function dbAttRemove(&$db, $filename) {
         assert('$this->pub_id != null');
         if (count($this->additional_info) == 0) return;
-        
+
         foreach ($this->additional_info as $k => $o) {
             if (strpos($filename, $o->location) !== false) {
                 $dbfilename = $o->location;
@@ -520,7 +520,7 @@ class pdPublication extends pdDbAccessor {
         $words = preg_replace("/;\s*;/", ';', $words);
         $this->keywords = $words;
     }
-    
+
     /**
      * Adds a keyword for the publication entry.
      *
@@ -756,7 +756,7 @@ class pdPublication extends pdDbAccessor {
 
         $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
         $filename = $pub_path . $basename;
-        
+
         // if file exists then there is nothing to do
         if (($papername == $filename) || file_exists($filename)) return;
 
@@ -766,7 +766,7 @@ class pdPublication extends pdDbAccessor {
             // mkdir permissions with 0777 does not seem to work
             chmod($pub_path, 0777);
         }
-        
+
         // delete the current paper
         $this->deletePaper($db);
 
@@ -801,7 +801,7 @@ class pdPublication extends pdDbAccessor {
 
         $basename = basename($att_name, '.' . $user->login);
         $filename = $pub_path . $basename;
-        
+
         // if file exists then there is nothing to do
         if (file_exists($filename)) return;
 
@@ -847,7 +847,7 @@ class pdPublication extends pdDbAccessor {
 
     public function deleteAttByFilename(&$db, $filename) {
         if (count($this->additional_info) == 0) return;
-        
+
         foreach ($this->additional_info as $k => $o) {
             if (strpos($filename, $o->location) !== false) {
                 if (file_exists($filename)) {
@@ -919,7 +919,11 @@ class pdPublication extends pdDbAccessor {
                 if ($author_links)
                     $content .= '<a href="' . $urlPrefix . 'view_author.php?'
                         . 'author_id=' . $auth->author_id . '">';
-                $content .= $auth->firstname[0] . '. ' . $auth->lastname;
+                if (strlen($auth->firstname) > 0) {
+                   $content .= $auth->firstname[0] . '. ' . $auth->lastname;
+                } else {
+                   $content .= $auth->lastname;
+                }
 
                 if ($author_links)
                     $content .= '</a>';
@@ -1361,19 +1365,19 @@ class pdPublication extends pdDbAccessor {
     }
 
     /**
-     * Can only be used by users with admin privilidages. Used to mark a 
+     * Can only be used by users with admin privilidages. Used to mark a
      * pending publication entry as valid.
      *
      * @param object $db Database connection object.
      */
     public function markValid(&$db) {
         assert('is_object($db)');
-        
+
         $user =& $_SESSION['user'];
         assert('is_object($user)');
-        
+
         if (!$user->isAdministrator()) return;
-        
+
         // this was a pub entry that was pending, and was just edited
         // by user with admin privilidges
         $db->delete('pub_pending', array('pub_id' => $this->pub_id));
@@ -1381,7 +1385,7 @@ class pdPublication extends pdDbAccessor {
         $db->insert('pub_valid', array('pub_id' => $this->pub_id,
                                        'login' => $user->login));
     }
-    
+
     /**
      * Marks the publication entry as pending and requires validation by
      * a user with admin privilidges.
@@ -1390,12 +1394,12 @@ class pdPublication extends pdDbAccessor {
      */
     public function markPending(&$db) {
         assert('is_object($db)');
-        
+
         $user =& $_SESSION['user'];
         assert('is_object($user)');
-        
+
         if ($user->isAdministrator()) return;
-        
+
         $q = $db->selectRow('pub_pending', '*', array('pub_id' => $this->pub_id));
         if ($q === false) {
         	// user does not have admin privilidges, tag entry as pending
