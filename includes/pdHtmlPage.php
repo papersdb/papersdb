@@ -330,7 +330,7 @@ class pdHtmlPage {
 			ob_end_clean();
 		}
 
-		if (isset($this->form) && empty($this->renderer)) {			
+		if (isset($this->form) && empty($this->renderer)) {
 			$this->renderer =& $this->form->defaultRenderer();
 
 			$this->renderer->setFormTemplate(
@@ -474,7 +474,7 @@ END;
 
 	private function pageFooter() {
 		$uofa_logo = 'images/uofa_logo.gif';
-		$aicml_logo = 'images/aicml.gif';
+		$aicml_logo = 'images/aicml_logo.png';
 
 		if (strstr($this->relative_url, '/')) {
 			$uofa_logo = '../' . $uofa_logo;
@@ -495,8 +495,8 @@ END;
         </a>
       </td>
       <td>
-        <a href="http://kingman.cs.ualberta.ca/">
-          <img src="{$aicml_logo}" alt="AICML Logo" />
+        <a href="http://www.aicml.ca/">
+          <img src="{$aicml_logo}" width="162" alt="AICML Logo" />
         </a>
       </td>
       <td>
