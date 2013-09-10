@@ -67,8 +67,8 @@ class add_pub4 extends add_pub_base {
                 HTML_QuickForm::createElement(
                     'submit', 'finish', 'Finish')),
             'buttons', null, '&nbsp;', false);
-                
-        if ($form->validate()) { 
+
+        if ($form->validate()) {
             $this->processForm();
         }
         else {
@@ -91,7 +91,7 @@ publication.';
 
         $form->addElement('static', null, null,
                           '<span class="normal">'
-                          . 'The maximum upload file size is ' . ini_get('upload_max_filesize') 
+                          . 'The maximum upload file size is ' . ini_get('upload_max_filesize')
                           . '. If you need to attach a file that is larger, please email it '
                           . 'to <a href="mailto:papersdb@cs.ualberta.ca">papersdb@cs.ualberta.ca</a> '
                           . 'with the publication title in the subject line.'
@@ -386,13 +386,15 @@ and another publication that already has an entry in the database.';
         }
 
         for ($i = 0; $i < $values['num_web_links']; $i++) {
-            if (isset($values['remove_web_link' . $i])) {
-                $this->pub->delWebLink($values['curr_web_link_text' . $i]);
-
-                if (! $this->debug)
-                    header('Location: add_pub4.php');
-                return;
-            }
+           $key = 'curr_web_link_text' . $i;
+           $this->pub->delWebLink($values[$key]);
+           if (! isset($values['remove_web_link' . $i])) {
+              $this->pub->addWebLink($values[$key], $values['curr_web_link_url' . $i]);
+           } else if (! $this->debug) {
+              // force an update of the form by returning here
+              header('Location: add_pub4.php');
+              return;
+           }
         }
 
         if ($values['new_related_pub'] > 0) {
@@ -400,17 +402,19 @@ and another publication that already has an entry in the database.';
         }
 
         for ($i = 0; $i < $values['num_related_pubs']; $i++) {
-            if (isset($values['remove_related_pub' . $i])) {
-                $this->pub->relatedPubRemove($values['related_pub_id' . $i]);
+           if (isset($values['remove_related_pub' . $i])) {
+              $this->pub->relatedPubRemove($values['related_pub_id' . $i]);
 
-                if (! $this->debug)
-                    header('Location: add_pub4.php');
-                return;
-            }
+              // force an update of the form by returning here
+              if (! $this->debug) {
+                 header('Location: add_pub4.php');
+              }
+              return;
+           }
         }
 
         if ($this->debug) {
-            return;
+           return;
         }
 
         if (isset($values['add_att'])) {
