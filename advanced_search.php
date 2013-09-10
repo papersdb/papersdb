@@ -234,7 +234,6 @@ class advanced_search extends pdHtmlPage {
 
       if (! isset($sp->enddate['Y'])) {
          $sp->enddate['Y'] = pdPublication::MAX_YEAR;
-
       }
 
       if (! isset($sp->enddate['M'])) {

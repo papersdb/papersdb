@@ -18,309 +18,309 @@ require_once 'includes/pdAuthInterests.php';
  * @package PapersDB
  */
 class pdAuthor extends pdDbAccessor{
-    public $author_id;
-    public $title;
-    public $webpage;
-    public $name;
-    public $firstname;
-    public $lastname;
-    public $email;
-    public $organization;
-    public $interests;
-    public $dbLoadFlags;
-    public $pub_list;
-    public $totalPublications;
+   public $author_id;
+   public $title;
+   public $webpage;
+   public $name;
+   public $firstname;
+   public $lastname;
+   public $email;
+   public $organization;
+   public $interests;
+   public $dbLoadFlags;
+   public $pub_list;
+   public $totalPublications;
 
-	const DB_LOAD_BASIC     = 0;
-	const DB_LOAD_MIN       = 1;
-	const DB_LOAD_INTERESTS = 2;
-	const DB_LOAD_PUBS_MIN  = 4;
-	const DB_LOAD_PUBS_ALL  = 8;
-	const DB_LOAD_ALL       = 0xF;
+   const DB_LOAD_BASIC     = 0;
+   const DB_LOAD_MIN       = 1;
+   const DB_LOAD_INTERESTS = 2;
+   const DB_LOAD_PUBS_MIN  = 4;
+   const DB_LOAD_PUBS_ALL  = 8;
+   const DB_LOAD_ALL       = 0xF;
 
-    /**
-     * Constructor.
-     */
-    public function __construct($mixed = null) {
-        parent::__construct($mixed);
-    }
+   /**
+    * Constructor.
+    */
+   public function __construct($mixed = null) {
+      parent::__construct($mixed);
+   }
 
-    public function makeNull() {
-        $this->author_id = null;
-        $this->title = null;
-        $this->webpage = null;
-        $this->name = null;
-        $this->email = null;
-        $this->organization = null;
-        $this->interests = null;
-        $this->dbLoadFlags = null;
-        $this->pub_list = null;
-        $this->totalPublications = null;
-    }
-    
-    public static function &newFromDb(&$db, $author_id, $flags = self::DB_LOAD_ALL) {
-        assert('is_numeric($author_id)');
-        $author = new pdAuthor();
-        $author->dbLoad($db, $author_id, $flags);
-        return $author;
-    }
+   public function makeNull() {
+      $this->author_id = null;
+      $this->title = null;
+      $this->webpage = null;
+      $this->name = null;
+      $this->email = null;
+      $this->organization = null;
+      $this->interests = null;
+      $this->dbLoadFlags = null;
+      $this->pub_list = null;
+      $this->totalPublications = null;
+   }
 
-    /**
-     * Loads a specific publication from the database.
-     *
-     * Use flags to load individual tables
-     */
-    public function dbLoad(&$db, $id, $flags = self::DB_LOAD_ALL) {
-        assert('is_object($db)');
+   public static function &newFromDb(&$db, $author_id, $flags = self::DB_LOAD_ALL) {
+      assert('is_numeric($author_id)');
+      $author = new pdAuthor();
+      $author->dbLoad($db, $author_id, $flags);
+      return $author;
+   }
 
-        $this->dbLoadFlags = $flags;
+   /**
+    * Loads a specific publication from the database.
+    *
+    * Use flags to load individual tables
+    */
+   public function dbLoad(&$db, $id, $flags = self::DB_LOAD_ALL) {
+      assert('is_object($db)');
 
-        if ($flags == self::DB_LOAD_MIN)
-            $fields = array('author_id', 'name');
-        else
-            $fields = '*';
+      $this->dbLoadFlags = $flags;
 
-        $q = $db->selectRow('author', $fields, array('author_id' => $id),
-                            "pdAuthor::dbLoad");
-        if ($q === false) return false;
-        $this->load($q);
+      if ($flags == self::DB_LOAD_MIN)
+         $fields = array('author_id', 'name');
+      else
+         $fields = '*';
 
-        if ($flags & self::DB_LOAD_INTERESTS)
-            $this->dbLoadInterests($db);
+      $q = $db->selectRow('author', $fields, array('author_id' => $id),
+                          "pdAuthor::dbLoad");
+      if ($q === false) return false;
+      $this->load($q);
 
-        if ($flags & (self::DB_LOAD_PUBS_MIN
-                      | self::DB_LOAD_PUBS_ALL)) {
-            $this->publicationsDbLoad($db);
-        }
+      if ($flags & self::DB_LOAD_INTERESTS)
+         $this->dbLoadInterests($db);
 
-        return true;
-    }
+      if ($flags & (self::DB_LOAD_PUBS_MIN
+                    | self::DB_LOAD_PUBS_ALL)) {
+         $this->publicationsDbLoad($db);
+      }
 
-    /**
-     *
-     */
-    public function dbLoadInterests(&$db) {
-        assert('is_object($db)');
-        assert('isset($this->author_id)');
-        
-        $q = $db->select(array('interest', 'author_interest'),
-                         array('interest.interest', 'interest.interest_id'),
-                         array('interest.interest_id=author_interest.interest_id',
-                               'author_interest.author_id' => $this->author_id),
-                         "pdAuthor::dbLoadInterests");
+      return true;
+   }
 
-        // its possible that the author has no interests in the database
-        // no need to assert
-        foreach ($q as $r) {
-            $this->interests[$r->interest_id] = $r->interest;
-        }
-    }
+   /**
+    *
+    */
+   public function dbLoadInterests(&$db) {
+      assert('is_object($db)');
+      assert('isset($this->author_id)');
 
-    /**
-     *
-     */
-    public function publicationsDbLoad(&$db) {
-        assert('is_object($db)');
-        assert('isset($this->author_id)');
-        assert('$this->dbLoadFlags & (self::DB_LOAD_PUBS_MIN | self::DB_LOAD_PUBS_ALL)');
+      $q = $db->select(array('interest', 'author_interest'),
+                       array('interest.interest', 'interest.interest_id'),
+                       array('interest.interest_id=author_interest.interest_id',
+                             'author_interest.author_id' => $this->author_id),
+                       "pdAuthor::dbLoadInterests");
 
-        $this->totalPublications
-            = pdPubList::authorNumPublications($db, $this->author_id);
+      // its possible that the author has no interests in the database
+      // no need to assert
+      foreach ($q as $r) {
+         $this->interests[$r->interest_id] = $r->interest;
+      }
+   }
 
-        // if self::DB_LOAD_PUBS_MIN flag is set and the author has
-        // published more than 6 papers, then load nothing
-        $numToLoad = 0;
-        if (($this->dbLoadFlags & self::DB_LOAD_PUBS_MIN)
-            && ($this->totalPublications <= 6)) {
-            $numToLoad = $this->totalPublications;
-        }
+   /**
+    *
+    */
+   public function publicationsDbLoad(&$db) {
+      assert('is_object($db)');
+      assert('isset($this->author_id)');
+      assert('$this->dbLoadFlags & (self::DB_LOAD_PUBS_MIN | self::DB_LOAD_PUBS_ALL)');
 
-        if ($this->dbLoadFlags & self::DB_LOAD_PUBS_ALL) {
-            $numToLoad = $this->totalPublications;
-        }
+      $this->totalPublications
+         = pdPubList::authorNumPublications($db, $this->author_id);
 
-        if ($numToLoad > 0) {
-            $this->pub_list = pdPubList::create(
-            	$db, array('author_id' => $this->author_id,
-                'num_to_load' => $numToLoad));
-        }
-    }
+      // if self::DB_LOAD_PUBS_MIN flag is set and the author has
+      // published more than 6 papers, then load nothing
+      $numToLoad = 0;
+      if (($this->dbLoadFlags & self::DB_LOAD_PUBS_MIN)
+          && ($this->totalPublications <= 6)) {
+         $numToLoad = $this->totalPublications;
+      }
 
-    /**
-     * Adds or modifies an author in the database.
-     */
-    public function dbSave(&$db) {
-        assert('is_object($db)');
+      if ($this->dbLoadFlags & self::DB_LOAD_PUBS_ALL) {
+         $numToLoad = $this->totalPublications;
+      }
 
-        // add http:// to webpage address if needed
-        if (isset($this->webpage) && (strpos($this->webpage, 'http') === false)) {
-            $this->webpage = "http://" . $this->webpage;
-        }
+      if ($numToLoad > 0) {
+         $this->pub_list = pdPubList::create(
+            $db, array('author_id' => $this->author_id,
+                       'num_to_load' => $numToLoad));
+      }
+   }
 
-        if (isset($this->author_id)) {
-            $db->update('author', array('name' => $this->name,
-                                        'title' => $this->title,
-                                        'email' => $this->email,
-                                        'organization' => $this->organization,
-                                        'webpage' => $this->webpage),
-                        array('author_id' => $this->author_id),
-                        'pdAuthor::dbSave');
-            $this->dbSaveInterests($db);
-            return;
-        }
+   /**
+    * Adds or modifies an author in the database.
+    */
+   public function dbSave(&$db) {
+      assert('is_object($db)');
 
-        foreach(array('name', 'title', 'email', 'organization', 'webpage')
-                as $item) {
-            if ($this->$item != NULL)
-                $settings[$item] = $this->$item;
-        }
+      // add http:// to webpage address if needed
+      if (isset($this->webpage) && (strpos($this->webpage, 'http') !== 0)) {
+         $this->webpage = "http://" . $this->webpage;
+      }
 
-        $q = $db->insert('author', $settings, 'pdAuthor::dbSave');
-        assert('$q');
+      if (isset($this->author_id)) {
+         $db->update('author', array('name' => $this->name,
+                                     'title' => $this->title,
+                                     'email' => $this->email,
+                                     'organization' => $this->organization,
+                                     'webpage' => $this->webpage),
+                     array('author_id' => $this->author_id),
+                     'pdAuthor::dbSave');
+         $this->dbSaveInterests($db);
+         return;
+      }
 
-        $this->author_id = $db->insertId();
-        $this->dbSaveInterests($db);
+      foreach(array('name', 'title', 'email', 'organization', 'webpage')
+              as $item) {
+         if ($this->$item != NULL)
+            $settings[$item] = $this->$item;
+      }
 
-        if (isset($this->name))
-            $this->nameSet($this->name);
-    }
+      $q = $db->insert('author', $settings, 'pdAuthor::dbSave');
+      assert('$q');
 
-    public function dbSaveInterests(&$db) {
-        if (isset($this->author_id)) {
-            $db->delete('author_interest',
-                        array('author_id' => $this->author_id),
-                        'pdAuthor::dbSaveInterests');
-        }
+      $this->author_id = $db->insertId();
+      $this->dbSaveInterests($db);
 
-        if (count($this->interests) > 0) {
-            $db_interests = pdAuthInterests::createList($db);
+      if (isset($this->name))
+         $this->nameSet($this->name);
+   }
 
-            // only add interests not in the database
-            $arr = array();
-            foreach ($this->interests as $k => $i) {
-                if (empty($i)) {
-                    unset($this->interests[$k]);
-                    continue;
-                }
+   public function dbSaveInterests(&$db) {
+      if (isset($this->author_id)) {
+         $db->delete('author_interest',
+                     array('author_id' => $this->author_id),
+                     'pdAuthor::dbSaveInterests');
+      }
 
-                if (!in_array($i, $db_interests)) {
-                    array_push($arr, array('interest_id' => 'NULL',
-                                           'interest' => $i));
-                }
+      if (count($this->interests) > 0) {
+         $db_interests = pdAuthInterests::createList($db);
+
+         // only add interests not in the database
+         $arr = array();
+         foreach ($this->interests as $k => $i) {
+            if (empty($i)) {
+               unset($this->interests[$k]);
+               continue;
             }
 
-            if (count($arr) > 0) {
-                $db->insert('interest', $arr, 'pdAuthor::dbSave');
+            if (!in_array($i, $db_interests)) {
+               array_push($arr, array('interest_id' => 'NULL',
+                                      'interest' => $i));
             }
-        }
+         }
 
-        // link the interest to this author
-        $arr = array();
-        if (isset($this->interests)) {
-            foreach ($this->interests as $key => $i) {
-                $q = $db->selectRow('interest', 'interest_id',
-                                    array('interest' => $i),
-                                    'pdAuthor::dbSaveInterests');
-                assert('($q !== false)');
-                array_push($arr, array('author_id' => $this->author_id,
-                                       'interest_id' => $q->interest_id));
+         if (count($arr) > 0) {
+            $db->insert('interest', $arr, 'pdAuthor::dbSave');
+         }
+      }
 
-                $this->interests[$q->interest_id] = $i;
-                unset($this->interests[$key]);
-            }
-        }
+      // link the interest to this author
+      $arr = array();
+      if (isset($this->interests)) {
+         foreach ($this->interests as $key => $i) {
+            $q = $db->selectRow('interest', 'interest_id',
+                                array('interest' => $i),
+                                'pdAuthor::dbSaveInterests');
+            assert('($q !== false)');
+            array_push($arr, array('author_id' => $this->author_id,
+                                   'interest_id' => $q->interest_id));
 
-        if (count($arr) > 0)
-            $db->insert('author_interest', $arr, 'pdAuthor::dbSaveInterests');
-    }
+            $this->interests[$q->interest_id] = $i;
+            unset($this->interests[$key]);
+         }
+      }
 
-    /**
-     * Deletes an author from the database.
-     */
-    public function dbDelete(&$db) {
-        assert('is_object($db)');
-        assert('isset($this->author_id)');
+      if (count($arr) > 0)
+         $db->insert('author_interest', $arr, 'pdAuthor::dbSaveInterests');
+   }
 
-        $db->delete('author_interest', array('author_id' => $this->author_id),
-                    'pdAuthor::dbDelete');
-        $db->delete('pub_author', array('author_id' => $this->author_id),
-                    'pdAuthor::dbDelete');
-        $db->delete('author', array('author_id' => $this->author_id),
-                    'pdAuthor::dbDelete');
+   /**
+    * Deletes an author from the database.
+    */
+   public function dbDelete(&$db) {
+      assert('is_object($db)');
+      assert('isset($this->author_id)');
 
-        // check if any authors are using these interests, if not they can be
-        // deleted from the database
-        if (isset($this->interests)) {
-            foreach ($this->interests as $id => $name) {
-                $q = $db->selectRow('author_interest',
-                	'count(author_id) as acount',
-                    array('interest_id' => $id));
-                if ($q->acount == 0)
-                $db->delete('interest', array('interest_id' => $id));
-            }
-        }
+      $db->delete('author_interest', array('author_id' => $this->author_id),
+                  'pdAuthor::dbDelete');
+      $db->delete('pub_author', array('author_id' => $this->author_id),
+                  'pdAuthor::dbDelete');
+      $db->delete('author', array('author_id' => $this->author_id),
+                  'pdAuthor::dbDelete');
 
-        $this->makeNull();
-    }
+      // check if any authors are using these interests, if not they can be
+      // deleted from the database
+      if (isset($this->interests)) {
+         foreach ($this->interests as $id => $name) {
+            $q = $db->selectRow('author_interest',
+                                'count(author_id) as acount',
+                                array('interest_id' => $id));
+            if ($q->acount == 0)
+               $db->delete('interest', array('interest_id' => $id));
+         }
+      }
 
-    public function asArray() {
-        return get_object_vars($this);
-    }
+      $this->makeNull();
+   }
 
-    /**
-     * Loads author data from the object passed in
-     */
-    public function load(&$mixed) {
-        parent::load($mixed);
+   public function asArray() {
+      return get_object_vars($this);
+   }
 
-        if (isset($this->name))
-            $this->nameSet($this->name);
-    }
+   /**
+    * Loads author data from the object passed in
+    */
+   public function load($mixed) {
+      parent::load($mixed);
 
-    /**
-     * used when name is in "firstname lastname" format.
-     */
-    public function nameSet($name) {
-        $name = trim($name);
-        $commaPos = strrpos($name, ',');
-        $spacePos = strrpos($name, ' ');
+      if (isset($this->name))
+         $this->nameSet($this->name);
+   }
 
-        if (($commaPos === false) && ($spacePos === false)) {
-            $this->name = $name;
-            $this->lastname = $name;
-            return;
-        }
+   /**
+    * used when name is in "firstname lastname" format.
+    */
+   public function nameSet($name) {
+      $name = trim($name);
+      $commaPos = strrpos($name, ',');
+      $spacePos = strrpos($name, ' ');
 
-        if (($commaPos === false) && ($spacePos !== false)) {
-            $names = explode(' ', $name);
-            // put last name first
-            $this->name = trim(substr($name, $spacePos + 1)) 
-                . ', ' . trim(substr($name, 0, $spacePos));
+      if (($commaPos === false) && ($spacePos === false)) {
+         $this->name = $name;
+         $this->lastname = $name;
+         return;
+      }
 
-            $this->firstname = trim(substr($name, 0, $spacePos));
-            $this->lastname  = trim(substr($name, $spacePos + 1));
-        }
-        else {
-            $this->name = $name;
-            $names = explode(',', $name);
+      if (($commaPos === false) && ($spacePos !== false)) {
+         $names = explode(' ', $name);
+         // put last name first
+         $this->name = trim(substr($name, $spacePos + 1))
+            . ', ' . trim(substr($name, 0, $spacePos));
 
-            $this->firstname = trim($names[1]);
-            $this->lastname  = trim($names[0]);
-        }
-    }
+         $this->firstname = trim(substr($name, 0, $spacePos));
+         $this->lastname  = trim(substr($name, $spacePos + 1));
+      }
+      else {
+         $this->name = $name;
+         $names = explode(',', $name);
 
-    /*
-     * Parameter $mixed can be an array or a string value.
-     */
-    public function addInterest($mixed) {
-    	if (is_array($mixed))
-    		foreach ($mixed as $interest)
-    			$this->interests[] = $interest;
-    	else if (is_string($mixed))
-    		$this->interests[] = $mixed;
-    	else
-    		assert('false');  // invalid type for $mixed
-    }
+         $this->firstname = trim($names[1]);
+         $this->lastname  = trim($names[0]);
+      }
+   }
+
+   /*
+    * Parameter $mixed can be an array or a string value.
+    */
+   public function addInterest($mixed) {
+      if (is_array($mixed))
+         foreach ($mixed as $interest)
+            $this->interests[] = $interest;
+      else if (is_string($mixed))
+         $this->interests[] = $mixed;
+      else
+         assert('false');  // invalid type for $mixed
+   }
 }
 
 ?>

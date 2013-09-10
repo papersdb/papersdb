@@ -60,7 +60,7 @@ class list_author extends pdHtmlPage {
                             | pdAuthor::DB_LOAD_PUBS_MIN);
 
             $name = '<span class="emph"><a href="view_author.php?author_id='
-                . $author_id . '">' . $name . '</a>&nbsp;';
+               . $author_id . '">' . $name . '</a>&nbsp;';
             $icons = $this->getAuthorIcons($author) . '</span>';
 
             $info = array();
@@ -74,12 +74,11 @@ class list_author extends pdHtmlPage {
 			$info[] .= '<a href="list_publication.php?author_id='
 				. $author_id
 				. '&menu=0"><span class="small" style="color:#000;font-weight:normal;">'
-	            . 'Publication entries in database: ' 
+	            . 'Publication entries in database: '
 	            . $author->totalPublications . '</span>';
 
             $table = new HTML_Table(array('class' => 'publist'));
-            $table->addRow(array($name . '<br/>' . implode('<br/>', $info), 
-                                 $icons));
+            $table->addRow(array($name . '<br/>' . implode('<br/>', $info), $icons));
             $table->updateColAttributes(1, array('class' => 'icons'), NULL);
             echo $table->toHtml();
             unset($table);

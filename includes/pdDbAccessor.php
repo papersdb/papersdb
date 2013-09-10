@@ -22,7 +22,7 @@ class pdDbAccessor {
 
             foreach (array_keys(get_object_vars($mixed)) as $member) {
                 if (in_array($member, $ob_vars)) {
-                    $this->$member = utf8_encode($mixed->$member);
+                    $this->$member = $mixed->$member;
                 }
             }
         }
@@ -31,7 +31,7 @@ class pdDbAccessor {
 
             foreach (array_keys($mixed) as $key) {
                 if (in_array($key, $ob_vars))
-                    $this->$key = utf8_encode($mixed[$key]);
+                    $this->$key = $mixed[$key];
             }
         }
         else
@@ -48,7 +48,7 @@ class pdDbAccessor {
 
         return $result;
     }
-    
+
     public function membersAsArray(&$members) {
         $result = array();
 
@@ -58,7 +58,7 @@ class pdDbAccessor {
         }
 
         return $result;
-        
+
     }
 }
 

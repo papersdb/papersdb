@@ -52,9 +52,7 @@ class pdHtmlPage {
 	private   $javascriptFiles = array();
 	private   $styleSheets = array('css/style.css', 'css/custom.css');
 
-	const HTML_TOP_CONTENT = '<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-  "http://www.w3.org/TR/xhtml/DTD/xhtml1-strict.dtd">
+	const HTML_TOP_CONTENT = '<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>';
 
@@ -242,7 +240,7 @@ class pdHtmlPage {
 
 		$result .= '</title>'
 		. '<meta http-equiv="Content-Type" '
-		. 'content="text/html; charset=utf-8" />'
+		. 'content="text/html; charset=UTF-8" />'
 		. '<meta http-equiv="Content-Language" content="en-us" />' . "\n";
 
 		if ($this->redirectUrl != null) {

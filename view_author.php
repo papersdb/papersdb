@@ -33,7 +33,7 @@ class view_author extends pdHtmlPage {
                            'view_author.php');
 
         if ($this->loginError) return;
-        
+
         $this->loadHttpVars(true, false);
         $this->use_mootools = true;
 
@@ -47,8 +47,8 @@ class view_author extends pdHtmlPage {
         $auth->dbLoad($this->db, $this->author_id,
                       (pdAuthor::DB_LOAD_PUBS_MIN
                        | pdAuthor::DB_LOAD_INTERESTS));
-                       
-        if (isset($_SERVER['HTTP_REFERER']) 
+
+        if (isset($_SERVER['HTTP_REFERER'])
             && (strpos($_SERVER['HTTP_REFERER'], 'Admin/add_author.php?author_id=') !== false)) {
             // the user added or changed an author
             echo "Your change has been sumitted.<br/><hr/>\n";
@@ -59,7 +59,7 @@ class view_author extends pdHtmlPage {
             echo $this->getAuthorIcons($auth, 0x6);
         }
         echo '</h3>',  $this->authorShow($auth);
-        
+
         echo "<hr><a href='list_author.php?tab=" . $auth->name[0] . "'>Author List</a>";
     }
 
@@ -123,13 +123,13 @@ class view_author extends pdHtmlPage {
             $result .= displayPubList($this->db, $auth->pub_list);
         else
             $result .= "<div id=\"publist\">&nbsp;</div>";
-            
+
         $this->css();
         $this->javascript();
 
         return $result;
     }
-    
+
     private function css() {
         $this->css = '#publist.ajax-loading {
   background: url(images/spinner.gif) no-repeat center;

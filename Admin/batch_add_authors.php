@@ -23,15 +23,15 @@ class batch_add_authors extends pdHtmlPage {
         parent::__construct('batch_add_authors');
 
         if ($this->loginError) return;
-        
+
         $this->use_mootools = true;
 
         $form = new HTML_QuickForm('batch_add', 'post', null, '_self',
                                    'multipart/form-data');
-    
+
         $tooltip = <<<TOOLTIP_END
-New Authors::A semi-colon separated list of author names. Names can be in the following 
-formats: 
+New Authors::A semi-colon separated list of author names. Names can be in the following
+formats:
 &lt;ul&gt;
   &lt;li&gt;fist last&lt;/li&gt;
   &lt;li&gt;fist initials last&lt;/li&gt;
@@ -47,7 +47,7 @@ TOOLTIP_END;
                     array('cols' => 60, 'rows' => 10)),
                 HTML_QuickForm::createElement(
                     'static', 'kwgroup_help', null,
-                    '<span class="small">separate using semi-colons (;)</span>')),
+                    '<span class="small">Name format is: GIVEN_NAME1 [GIVEN_NAME2 .. etc.] LAST_NAME. Separate using semi-colons (;)</span>')),
             'new_auth_group',
             "<span class=\"Tips1\" title=\"$tooltip\">New Authors:</span>",
             '<br/>', false);
@@ -64,8 +64,7 @@ TOOLTIP_END;
 
         if ($form->validate()) {
             $values = $form->exportValues();
-            $values['new_authors'] 
-                = preg_replace("/;\s*;/", ';', $values['new_authors']);
+            $values['new_authors'] = preg_replace("/;\s*;/", ';', $values['new_authors']);
             $new_authors = preg_split('/;\s*/', $values['new_authors']);
 
             $fl_auth_list = pdAuthorList::create($this->db, null, null, true);
@@ -89,7 +88,7 @@ TOOLTIP_END;
 
             if (count($new_auths) > 0) {
                 if (count($in_db_auths) > 0) {
-                    echo '</ul>', 'Only these authors were added to the database:', 
+                    echo '</ul>', 'Only these authors were added to the database:',
                     	'<ul>';
                 }
                 else {
@@ -116,7 +115,7 @@ TOOLTIP_END;
             $form->accept($renderer);
             $this->form =& $form;
             $this->renderer =& $renderer;
-            
+
             $this->js = <<<JS_END
 window.addEvent('domready', function() {
                     var Tips1 = new Tips($$('.Tips1'));
