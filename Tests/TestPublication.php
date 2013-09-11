@@ -89,9 +89,10 @@ TEST_SAVE_WITH_NO_ASSOC_ABSTRACT_END;
          $pub->addWebLink($key, $val);
       }
 
-      $this->assertEquals(2, count($pub->web_links));
+      $web_links = $pub->getWebLinks();
+      $this->assertEquals(2, count($web_links));
       foreach ($web_links as $key => $val) {
-         $this->assertEquals($val, $pub->web_links[$key]);
+         $this->assertEquals($val, $web_links[$key]);
       }
    }
 
@@ -107,8 +108,9 @@ TEST_SAVE_WITH_NO_ASSOC_ABSTRACT_END;
 
       $pub->delWebLink('web_link_1');
 
-      $this->assertEquals(1, count($pub->web_links));
-      $this->assertFalse(in_array('web_link_1_url', $pub->web_links));
+      $web_links = $pub->getWebLinks();
+      $this->assertEquals(1, count($web_links));
+      $this->assertFalse(in_array('web_link_1_url', $web_links));
    }
 
    public function testWebLinksRemove() {
@@ -116,8 +118,108 @@ TEST_SAVE_WITH_NO_ASSOC_ABSTRACT_END;
       $pub->addWebLink('web_link_1', 'web_link_1_url');
       $pub->addWebLink('web_link_2', 'web_link_2_url');
       $pub->webLinkRemoveAll();
-      $this->assertEquals(0, count($pub->web_links));
+      $web_links = $pub->getWebLinks();
+      $this->assertEquals(0, count($web_links));
    }
+
+   public function testWebLinkSave() {
+      $web_links = array(
+         'web_link_1' => 'http://web_link_1_url/',
+         'web_link_2' => 'https://web_link_2_url/');
+
+      $pub = new pdPublication();
+      $pub->title =  uniqid('pub_title_');
+      foreach ($web_links as $key => $val) {
+         $pub->addWebLink($key, $val);
+      }
+      $pub->dbSave($this->db);
+
+      $r = $this->mysqli->query("SELECT * FROM pointer WHERE pub_id=" . $pub->pub_id);
+      $this->assertEquals(2, $r->num_rows);
+
+      $result_links = array();
+      while ($resultObj = $r->fetch_object()) {
+         $this->assertEquals('ext', $resultObj->type);
+         $result_links[$resultObj->name] = $resultObj->value;
+      }
+      $r->close();
+
+      foreach ($web_links as $key => $val) {
+         $this->assertEquals($val, $result_links[$key]);
+      }
+   }
+
+   /**
+    * Test that when web links are saved the string "http://" is prepended to them
+    * when saved to the database.
+    */
+   public function testWebLinkSaveAppend() {
+      $web_links = array(
+         'web_link_1' => 'web_link_1_url/',
+         'web_link_2' => 'web_link_2_url/');
+
+      $pub = new pdPublication();
+      $pub->title =  uniqid('pub_title_');
+      foreach ($web_links as $key => $val) {
+         $pub->addWebLink($key, $val);
+      }
+      $pub->dbSave($this->db);
+
+      $r = $this->mysqli->query("SELECT * FROM pointer WHERE pub_id=" . $pub->pub_id);
+      $this->assertEquals(2, $r->num_rows);
+
+      $result_links = array();
+      while ($resultObj = $r->fetch_object()) {
+         $this->assertEquals('ext', $resultObj->type);
+         $result_links[$resultObj->name] = $resultObj->value;
+      }
+      $r->close();
+
+      foreach ($web_links as $key => $val) {
+         $this->assertEquals('http://' . $val, $result_links[$key]);
+      }
+   }
+
+
+   /**
+    * Test that when web links are saved the string "http://" is prepended to them
+    * when saved to the database.
+    */
+   public function testWebLinkDbRemove() {
+      $web_links = array(
+         'web_link_1' => 'http://web_link_1_url/',
+         'web_link_2' => 'https://web_link_2_url/');
+
+      $pub = new pdPublication();
+      $pub->title =  uniqid('pub_title_');
+      foreach ($web_links as $key => $val) {
+         $pub->addWebLink($key, $val);
+      }
+      $pub->dbSave($this->db);
+
+      $keys = array_keys($web_links);
+      $pub->delWebLink($keys[0]);
+      $pub->dbSave($this->db);
+
+      $r = $this->mysqli->query("SELECT * FROM pointer WHERE pub_id=" . $pub->pub_id);
+      $this->assertEquals(1, $r->num_rows);
+
+      $result_links = array();
+      while ($resultObj = $r->fetch_object()) {
+         $this->assertEquals('ext', $resultObj->type);
+         $result_links[$resultObj->name] = $resultObj->value;
+      }
+      $r->close();
+
+      $this->assertEquals($web_links[$keys[1]], $result_links[$keys[1]]);
+
+      $pub->delWebLink($keys[1]);
+      $pub->dbSave($this->db);
+
+      $r = $this->mysqli->query("SELECT * FROM pointer WHERE pub_id=" . $pub->pub_id);
+      $this->assertEquals(0, $r->num_rows);
+   }
+
 }
 
 ?>

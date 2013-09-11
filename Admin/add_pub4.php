@@ -176,16 +176,17 @@ publication.';
     public function formAddWebLinks() {
         $form =& $this->form;
 
-        $num_web_links = count($this->pub->web_links);
+        $web_links = $this->pub->getWebLinks();
+        $num_web_links = count($web_links);
 
         $form->addElement('header', 'web_links_hdr', 'Web Links', null);
 
         $tooltip = 'Link::Used to link this publication to an outside source
 such as a website or a publication that is not in the current database.';
 
-        if (count($this->pub->web_links) > 0) {
+        if (count($web_links) > 0) {
             $c = 0;
-            foreach (array_keys($this->pub->web_links) as $text) {
+            foreach (array_keys($web_links) as $text) {
                 $form->addGroup(
                     array(
                         HTML_QuickForm::createElement(
@@ -293,9 +294,10 @@ and another publication that already has an entry in the database.';
 
         $defaults = array();
 
-        if (count($this->pub->web_links) > 0) {
+        $web_links = $this->pub->getWebLinks();
+        if (count($web_links) > 0) {
             $c = 0;
-            foreach ($this->pub->web_links as $text => $url) {
+            foreach ($web_links as $text => $url) {
                 $defaults['curr_web_link_text' . $c] = $text;
                 $defaults['curr_web_link_url' . $c] = $url;
                 $c++;

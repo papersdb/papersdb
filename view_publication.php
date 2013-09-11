@@ -32,7 +32,7 @@ class view_publication extends pdHtmlPage {
     public function __construct() {
         parent::__construct('view_publication', 'View Publication',
                            'view_publication.php');
-        
+
         if ($this->loginError) return;
 
         $this->loadHttpVars();
@@ -41,7 +41,7 @@ class view_publication extends pdHtmlPage {
             $this->pageError = true;
             return;
         }
-        
+
         $pub = new pdPublication();
         $result = $pub->dbLoad($this->db, $this->pub_id);
 
@@ -49,12 +49,12 @@ class view_publication extends pdHtmlPage {
             echo 'Publication does not exist';
             return;
         }
-        
+
         if (isset($this->submit_pending) && $this->submit_pending) {
             // check if this pub entry is pending
             $q = $this->db->selectRow('pub_pending', '*',
                 array('pub_id' => $this->pub_id));
-                    
+
             assert('$q');
             $form = new HTML_QuickForm('submit_pending');
             $form->addElement('hidden', 'submit_pending', true);
@@ -64,14 +64,14 @@ class view_publication extends pdHtmlPage {
             	'advcheckbox', 'valid', null, 'Valid', null, array(0, 1));
             $elements[] = HTML_QuickForm::createElement(
             	'submit', 'submit', 'Submit');
-            $form->addGroup($elements, 'elgroup', '', '&nbsp', false);    
-            
+            $form->addGroup($elements, 'elgroup', '', '&nbsp', false);
+
             // create a new renderer because $form->defaultRenderer() creates
             // a single copy
             $renderer = new HTML_QuickForm_Renderer_Default();
             $form->accept($renderer);
 
-            
+
             if ($form->validate()) {
                 $values =& $form->exportValues();
                 $pub->markValid($this->db);
@@ -80,13 +80,13 @@ class view_publication extends pdHtmlPage {
             }
             else {
                 echo "<h2>This publication entry requires validation</h2>\n";
-                echo $renderer->toHtml();  
+                echo $renderer->toHtml();
             }
         }
-        
+
         $this->showPublication($pub);
     }
-    
+
     private function showPublication(&$pub) {
         $content = "<h2>" . $pub->title;
 
@@ -194,9 +194,10 @@ class view_publication extends pdHtmlPage {
             $table->addRow(array('User Info:', $pub->user));
         }
 
-        if (count($pub->web_links) > 0) {
+        $web_links = $pub->getWebLinks();
+        if (count($web_links) > 0) {
             $c = 0;
-            foreach ($pub->web_links as $name => $url) {
+            foreach ($web_links as $name => $url) {
                 if ($c == 0)
                     $label = 'Web Links:';
                 else
@@ -247,9 +248,9 @@ class view_publication extends pdHtmlPage {
     public function lastUpdateGet($pub) {
         $string = "";
         $published = split("-",$pub->updated);
-        
+
         if (count($published) != 3) return false;
-        
+
         if ($published[1] != 00)
             $string .= date("F", mktime (0,0,0,$published[1]))." ";
         if ($published[2] != 00)

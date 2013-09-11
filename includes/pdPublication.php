@@ -40,7 +40,7 @@ class pdPublication extends pdDbAccessor {
    public $info;
    public $category;
    public $related_pubs;
-   public $web_links;
+   private $web_links;
    public $dbLoadFlags;
    public $additional_info; // these are the additional attached files
    public $user;
@@ -67,6 +67,7 @@ class pdPublication extends pdDbAccessor {
 
    public function __construct($mixed = NULL) {
       $this->paper = 'no paper';
+      $this->web_links = array();
 
       parent::__construct($mixed);
    }
@@ -317,10 +318,6 @@ class pdPublication extends pdDbAccessor {
       $arr = array();
       if (count($this->web_links) > 0) {
          foreach ($this->web_links as $text => $link) {
-            if (strpos($link, 'http') !== 0) {
-               $link = 'http://' . $link;
-            }
-
             array_push($arr, array('pub_id' => $this->pub_id,
                                    'type'   => 'ext',
                                    'name'   => $text,
@@ -328,13 +325,14 @@ class pdPublication extends pdDbAccessor {
          }
       }
 
-      if (count($this->related_pubs ) > 0)
+      if (count($this->related_pubs ) > 0) {
          foreach ($this->related_pubs as $pub_id) {
             array_push($arr, array('pub_id' => $this->pub_id,
                                    'type'   => 'int',
                                    'name'   => '-',
                                    'value'  => $pub_id));
          }
+      }
 
       $db->insert('pointer', $arr, 'pdPublication::dbSave');
 
@@ -682,7 +680,18 @@ class pdPublication extends pdDbAccessor {
       $this->authors[] = $author;
    }
 
+   public function getWebLinks() {
+      $results = array();
+      foreach ($this->web_links as $name => $url) {
+         $results[$name] = $url;
+      }
+      return $results;
+   }
+
    public function addWebLink($name, $url) {
+      if (strpos($url, 'http') !== 0) {
+         $url = 'http://' . $url;
+      }
       $this->web_links[$name] = $url;
    }
 
