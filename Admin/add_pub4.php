@@ -379,22 +379,29 @@ and another publication that already has an entry in the database.';
             }
         }
 
+        $this->pub->webLinkRemoveAll();
+
         if (($values['new_web_link_text'] != '')
             && ($values['new_web_link_url'] != '')) {
             $this->pub->addWebLink($values['new_web_link_text'],
                              $values['new_web_link_url'] );
         }
 
+        $link_removed = 0;
         for ($i = 0; $i < $values['num_web_links']; $i++) {
            $key = 'curr_web_link_text' . $i;
-           $this->pub->delWebLink($values[$key]);
-           if (! isset($values['remove_web_link' . $i])) {
+
+           if (isset($values['remove_web_link' . $i])) {
+              $link_removed = 1;
+           } else {
               $this->pub->addWebLink($values[$key], $values['curr_web_link_url' . $i]);
-           } else if (! $this->debug) {
-              // force an update of the form by returning here
-              header('Location: add_pub4.php');
-              return;
            }
+        }
+
+        if ($link_removed && !$this->debug) {
+           // force an update of the form by returning here
+           header('Location: add_pub4.php');
+           return;
         }
 
         if ($values['new_related_pub'] > 0) {

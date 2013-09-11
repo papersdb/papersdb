@@ -1,14 +1,14 @@
 DUMP DATABASE
-  mysqldump -h kingman -u papersdb pubDB | gzip > pubDB_`date +%y_%m_%d`.sql.gz
+  mysqldump -h localhost -u papersdb pubDB | gzip > pubDB_`date +%y_%m_%d`.sql.gz
 
-BACKUPT TO NEW DATABASE
-  gzip -dc pubDB_<date>.sql.gz | mysql -h kingman -P 3306 -u papersdb pubDBdev 
+BACKUP TO NEW DATABASE
+  gzip -dc pubDB_<date>.sql.gz | mysql -h localhost -P 3306 -u papersdb pubDBdev
 
 VENUE UPGRADE PROCEDURE
   - backup the real database
-      mysql -h kingman -u papersdb pubDBdev < dump.sql
+      mysql -h localhost -u papersdb pubDBdev < dump.sql
   - modify the user table to new format:
-      mysql -h kingman -u papersdb pubDBdev < new_user_table.sql
+      mysql -h localhost -u papersdb pubDBdev < new_user_table.sql
   - add venue_id field to publication table
   - run the venues.php script
   - rename the venue table to venueold

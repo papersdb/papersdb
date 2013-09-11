@@ -18,7 +18,7 @@ class pdDbAccessor {
      */
     public function load($mixed) {
         if (is_object($mixed)) {
-            $ob_vars =& array_keys(get_object_vars($this));
+            $ob_vars = array_keys(get_object_vars($this));
 
             foreach (array_keys(get_object_vars($mixed)) as $member) {
                 if (in_array($member, $ob_vars)) {
@@ -27,7 +27,7 @@ class pdDbAccessor {
             }
         }
         else if (is_array($mixed)) {
-            $ob_vars =& array_keys(get_object_vars($this));
+            $ob_vars = array_keys(get_object_vars($this));
 
             foreach (array_keys($mixed) as $key) {
                 if (in_array($key, $ob_vars))

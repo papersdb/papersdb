@@ -382,7 +382,7 @@ function convertScalarToJavascript($val)
 	}
 }
 
-/**it
+/**
  * Quotes the string so that it can be used in Javascript string constants
  *
  * @access private
@@ -401,7 +401,22 @@ function escapeString($str) {
 }
 
 function __autoload($class_name) {
-    require_once $class_name . '.php';
+    $files = array(
+        $class_name . '.php',
+        str_replace('_', '/', $class_name) . '.php',
+    );
+    foreach (explode(PATH_SEPARATOR, ini_get('include_path')) as $base_path)
+    {
+        foreach ($files as $file)
+        {
+            $path = "$base_path/$file";
+            if (file_exists($path) && is_readable($path))
+            {
+                include_once $path;
+                return;
+            }
+        }
+    }
 }
 
 function date2Timestamp($date) {

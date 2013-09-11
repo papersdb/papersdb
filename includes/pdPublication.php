@@ -317,7 +317,7 @@ class pdPublication extends pdDbAccessor {
       $arr = array();
       if (count($this->web_links) > 0) {
          foreach ($this->web_links as $text => $link) {
-            if ((strpos($link, 'http://') !== 0) && (strpos($link, 'https://') !== 0)) {
+            if (strpos($link, 'http') !== 0) {
                $link = 'http://' . $link;
             }
 
@@ -687,14 +687,20 @@ class pdPublication extends pdDbAccessor {
    }
 
    public function delWebLink($name) {
-      if (isset($this->web_links[$name]))
+      if (isset($this->web_links[$name])) {
          unset($this->web_links[$name]);
+      }
    }
 
    public function webLinkRemove($text, $link) {
       if (count($this->web_links) == 0) return;
 
       unset($this->web_links[$text]);
+   }
+
+   public function webLinkRemoveAll() {
+      unset($this->web_links);
+      $this->web_links = array();
    }
 
    public function paperDbUpdate($db, $paper) {
