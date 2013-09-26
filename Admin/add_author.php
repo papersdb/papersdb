@@ -129,15 +129,15 @@ class add_author extends pdHtmlPage {
             . ($this->numNewInterests+1) .')">[Add Interest]</a></div>';
 
         $ams = $form->addElement('advmultiselect', 'interests', null,
-        	$this->all_interests, 
+        	$this->all_interests,
             array('size' => 15, 'class' => 'pool', 'style' =>  'width:200px;'));
-            
-        $ams->setLabel(array('Interests:' . $ref, 'Available', 'Selected'));       
+
+        $ams->setLabel(array('Interests:' . $ref, 'Available', 'Selected'));
 
         $ams->setButtonAttributes('add', array('value' => 'Add >>',
         	'class' => 'inputCommand'));
         $ams->setButtonAttributes('remove', array('value' => '<< Remove',
- 			'class' => 'inputCommand'));    
+ 			'class' => 'inputCommand'));
 
         $template = <<<TEMPLATE_END
 {javascript}
@@ -158,7 +158,7 @@ class add_author extends pdHtmlPage {
 </tr>
 </table>
 TEMPLATE_END;
-        $ams->setElementTemplate($template);   
+        $ams->setElementTemplate($template);
 
         if (isset($_SESSION['state']) && ($_SESSION['state'] == 'pub_add')) {
             $form->addElement('static', null, null,
@@ -261,11 +261,11 @@ TEMPLATE_END;
             echo $pub->getCitationHtml('..', false), '<p/>',
                 add_pub_base::similarPubsHtml($this->db);
         }
-        
+
         //debugVar('defaults', $defaults);
         $form->setDefaults($defaults);
-        
-        $renderer =& $form->defaultRenderer();        
+
+        $renderer =& $form->defaultRenderer();
         $form->accept($renderer);
         $this->renderer =& $renderer;
         $this->javascript();
@@ -311,7 +311,7 @@ TEMPLATE_END;
         $author->webpage      = $values['webpage'];
         $author->interests    = array();
 
-        if (isset($values['interests']) && (count($values['interests']) > 0)) {            
+        if (isset($values['interests']) && (count($values['interests']) > 0)) {
             foreach ($values['interests'] as $int_id) {
                 $author->interests[$int_id] = $this->all_interests[$int_id];
             }
@@ -377,8 +377,8 @@ TEMPLATE_END;
                                      array($_SERVER['HTTP_HOST'], $url),
                                      $content);
         }
-        
-        $js_file = dirname(__FILE__) . '/../pear/HTML/QuickForm/qfamsHandler.js';
+
+        $js_file = '/usr/share/php/data/HTML_QuickForm_advmultiselect/qfamsHandler.js';
         assert('file_exists($js_file)');
         $this->js .=  file_get_contents($js_file);
     }
