@@ -763,7 +763,7 @@ class pdPublication extends pdDbAccessor {
 
       # 'No Paper' was used in a previous version of the software
          if (!isset($papername)
-         || (strpos(strtolower($papername), 'no paper') !== false))
+             || (strpos(strtolower($papername), 'no paper') !== false))
             return;
 
       $user =& $_SESSION['user'];
@@ -779,21 +779,21 @@ class pdPublication extends pdDbAccessor {
 
       // create the publication's path if it does not exist
       if (!is_dir($pub_path)) {
-      mkdir($pub_path, 0777);
-      // mkdir permissions with 0777 does not seem to work
-      chmod($pub_path, 0777);
-   }
+         mkdir($pub_path, 0777);
+         // mkdir permissions with 0777 does not seem to work
+         chmod($pub_path, 0777);
+      }
 
       // delete the current paper
       $this->deletePaper($db);
 
       if (rename($papername, $filename)) {
-      chmod($filename, 0777);
-      $this->paperDbUpdate($db, $basename);
-   }
+         chmod($filename, 0777);
+         $this->paperDbUpdate($db, $basename);
+      }
    }
 
-      public function attSave(&$db, $att_name, $att_type) {
+   public function attSave(&$db, $att_name, $att_type) {
       assert('is_object($db)');
       assert('$this->pub_id != ""');
 
@@ -803,13 +803,13 @@ class pdPublication extends pdDbAccessor {
 
       if (count($this->additional_info) > 0)
          foreach ($this->additional_info as $att) {
-      if (basename($att_name) == basename($att->location)) {
-      return;
-   }
-      if ($att_type == $att->type) {
-      $this->deleteAtt($db, $att);
-   }
-   }
+            if (basename($att_name) == basename($att->location)) {
+               return;
+            }
+            if ($att_type == $att->type) {
+               $this->deleteAtt($db, $att);
+            }
+         }
 
       // make sure this attachment is not already in the list
       $basename = basename($att_name, '.' . $user->login);
@@ -824,18 +824,18 @@ class pdPublication extends pdDbAccessor {
 
       // create the publication's path if it does not exist
       if (!is_dir($pub_path)) {
-      mkdir($pub_path, 0777);
-      // mkdir permissions with 0777 does not seem to work
-      chmod($pub_path, 0777);
-   }
+         mkdir($pub_path, 0777);
+         // mkdir permissions with 0777 does not seem to work
+         chmod($pub_path, 0777);
+      }
 
       if (rename($att_name, $filename)) {
-      chmod($filename, 0777);
-      $this->dbAttUpdate($db, $basename, $att_type);
-   }
+         chmod($filename, 0777);
+         $this->dbAttUpdate($db, $basename, $att_type);
+      }
    }
 
-      public function deletePaper($db) {
+   public function deletePaper($db) {
       assert('isset($this->pub_id)');
 
       if (!isset($this->paper)) return;
@@ -850,8 +850,8 @@ class pdPublication extends pdDbAccessor {
       $this->paperDbUpdate($db, 'no paper');
    }
 
-      // used by saveAtt()
-      private function deleteAtt($db, $att) {
+   // used by saveAtt()
+   private function deleteAtt($db, $att) {
       assert('isset($this->pub_id)');
 
       $pub_path = FS_PATH_UPLOAD . $this->pub_id . '/';
@@ -862,34 +862,34 @@ class pdPublication extends pdDbAccessor {
       $this->dbAttRemove($db, $att->location);
    }
 
-      public function deleteAttByFilename(&$db, $filename) {
+   public function deleteAttByFilename(&$db, $filename) {
       if (count($this->additional_info) == 0) return;
 
       foreach ($this->additional_info as $k => $o) {
-      if (strpos($filename, $o->location) !== false) {
-      if (file_exists($filename)) {
-      unlink($filename);
-   }
-   }
-   }
+         if (strpos($filename, $o->location) !== false) {
+            if (file_exists($filename)) {
+               unlink($filename);
+            }
+         }
+      }
       $this->dbAttRemove($db, $filename);
    }
 
-      public function deleteFiles($db) {
+   public function deleteFiles($db) {
       $this->deletePaper($db);
 
       if (count($this->additional_info) > 0) {
-      foreach ($this->additional_info as $att) {
-      $this->deleteAtt($db, $att);
-   }
-   }
+         foreach ($this->additional_info as $att) {
+            $this->deleteAtt($db, $att);
+         }
+      }
 
       $pub_path = FS_PATH_UPLOAD . $this->pub_id;
 
       rm($pub_path);
    }
 
-      public function attFilenameGet($num) {
+   public function attFilenameGet($num) {
       if ($this->pub_id == '') return null;
 
       assert('$num < count($this->additional_info)');
@@ -898,7 +898,7 @@ class pdPublication extends pdDbAccessor {
          . basename($this->additional_info[$num]->location);
    }
 
-      public function paperAttGetUrl() {
+   public function paperAttGetUrl() {
       if(strtolower($this->paper) == 'no paper') return '';
 
       $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
@@ -911,7 +911,7 @@ class pdPublication extends pdDbAccessor {
       return $result;
    }
 
-      public function attachmentGetUrl($att_num) {
+   public function attachmentGetUrl($att_num) {
       if($att_num >= count($this->additional_info)) return '';
 
       $pos = strpos($_SERVER['PHP_SELF'], 'papersdb');
@@ -926,28 +926,28 @@ class pdPublication extends pdDbAccessor {
       return $result;
    }
 
-      public function getCitationHtml($urlPrefix = './', $author_links = true) {
+   public function getCitationHtml($urlPrefix = './', $author_links = true) {
       $citation = '';
 
       if (isset($this->authors) && (count($this->authors) > 0)) {
-      $authors = array();
-      foreach ($this->authors as $auth) {
-      $content = '';
-      if ($author_links)
-         $content .= '<a href="' . $urlPrefix . 'view_author.php?'
-            . 'author_id=' . $auth->author_id . '">';
-      if (strlen($auth->firstname) > 0) {
-      $content .= $auth->firstname[0] . '. ' . $auth->lastname;
-   } else {
-      $content .= $auth->lastname;
-   }
+         $authors = array();
+         foreach ($this->authors as $auth) {
+            $content = '';
+            if ($author_links)
+               $content .= '<a href="' . $urlPrefix . 'view_author.php?'
+                  . 'author_id=' . $auth->author_id . '">';
+            if (strlen($auth->firstname) > 0) {
+               $content .= $auth->firstname[0] . '. ' . $auth->lastname;
+            } else {
+               $content .= $auth->lastname;
+            }
 
-      if ($author_links)
-         $content .= '</a>';
-      $authors[] = $content;
-   }
-      $citation .= implode(', ', $authors) . '. ';
-   }
+            if ($author_links)
+               $content .= '</a>';
+            $authors[] = $content;
+         }
+         $citation .= implode(', ', $authors) . '. ';
+      }
 
       // Title
       $citation .= '<span class="pub_title">&quot;' . $this->title
@@ -965,58 +965,58 @@ class pdPublication extends pdDbAccessor {
 
       // category -> if not conference, journal, or workshop, book or in book
       if (is_object($this->category)
-         && !empty($this->category->category)
-         && (!in_array($this->category->category,
-         array('In Conference', 'In Journal', 'In Workshop',
-         'In Book', 'Book')))) {
-      $v .= $this->category->category;
-   }
+          && !empty($this->category->category)
+          && (!in_array($this->category->category,
+                        array('In Conference', 'In Journal', 'In Workshop',
+                              'In Book', 'Book')))) {
+         $v .= $this->category->category;
+      }
 
       if (is_object($this->venue)) {
-      if (!empty($v))
-         $v .= ', ';
+         if (!empty($v))
+            $v .= ', ';
 
-      if (isset($pub_date))
-         $url = $this->venue->urlGet($pub_date[0]);
-      else
-         $url = $this->venue->urlGet();
+         if (isset($pub_date))
+            $url = $this->venue->urlGet($pub_date[0]);
+         else
+            $url = $this->venue->urlGet();
 
-      if ($url != '') {
-      $v .= ' <a href="' .  $url . '" target="_blank">';
-   }
+         if ($url != '') {
+            $v .= ' <a href="' .  $url . '" target="_blank">';
+         }
 
-      $vname = $this->venue->nameGet();
+         $vname = $this->venue->nameGet();
 
-      if ($vname != '')
-         $v .= $vname;
-      else
-         $v .= $this->venue->title;
+         if ($vname != '')
+            $v .= $vname;
+         else
+            $v .= $this->venue->title;
 
-      if ($url != '') {
-      $v .= '</a>';
-   }
+         if ($url != '') {
+            $v .= '</a>';
+         }
 
-      if (!empty($this->venue->data)
-         && ($this->venue->categoryGet() == 'Workshop'))
-         $v .= ' (within ' . $this->venue->data. ')';
+         if (!empty($this->venue->data)
+             && ($this->venue->categoryGet() == 'Workshop'))
+            $v .= ' (within ' . $this->venue->data. ')';
 
-      if (isset($pub_date))
-         $location = $this->venue->locationGet($pub_date[0]);
-      else
-         $location = $this->venue->locationGet();
+         if (isset($pub_date))
+            $location = $this->venue->locationGet($pub_date[0]);
+         else
+            $location = $this->venue->locationGet();
 
-      if ($location != '')
-         $v .= ', ' . $location;
-   }
+         if ($location != '')
+            $v .= ', ' . $location;
+      }
 
       $date_str = '';
 
       if (isset($pub_date)) {
-      if ($pub_date[1] != 0)
-         $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
-      if ($pub_date[0] != 0)
-         $date_str .= $pub_date[0];
-   }
+         if ($pub_date[1] != 0)
+            $date_str .= date('F', mktime (0, 0, 0, $pub_date[1])) . ' ';
+         if ($pub_date[0] != 0)
+            $date_str .= $pub_date[0];
+      }
 
       if (($v != '') && ($info != '') && ($date_str != ''))
          $citation .= $v . ', ' . $info . ', ' . $date_str . '.';
@@ -1032,29 +1032,29 @@ class pdPublication extends pdDbAccessor {
       return $citation;
    }
 
-      public function getCitationText() {
+   public function getCitationText() {
       $citation = '';
 
       if (isset($this->authors) && (count($this->authors) > 0)) {
-      foreach ($this->authors as $auth) {
-      $auth_text[] = $auth->firstname[0] . '. ' . $auth->lastname;
-   }
+         foreach ($this->authors as $auth) {
+            $auth_text[] = $auth->firstname[0] . '. ' . $auth->lastname;
+         }
 
-      if (count($auth_text) > 0)
-         $citation .= implode(', ', $auth_text) . '. ';
-   }
+         if (count($auth_text) > 0)
+            $citation .= implode(', ', $auth_text) . '. ';
+      }
 
       // Title
       $citation .= $this->title . '. ';
 
       // category -> if not conference, journal, or workshop, book or in book
       if (is_object($this->category)
-         && !empty($this->category->category)
-         && (!in_array($this->category->category,
-         array('In Conference', 'In Journal', 'In Workshop',
-         'In Book', 'Book')))) {
-      $citation .= $this->category->category . ', ';
-   }
+          && !empty($this->category->category)
+          && (!in_array($this->category->category,
+                        array('In Conference', 'In Journal', 'In Workshop',
+                              'In Book', 'Book')))) {
+         $citation .= $this->category->category . ', ';
+      }
 
       // Additional Information - Outputs the category specific information
       // if it exists
@@ -1065,16 +1065,16 @@ class pdPublication extends pdDbAccessor {
       //  Venue
       $v = '';
       if (is_object($this->venue)) {
-      $vname = $this->venue->nameGet();
-      if ($vname != '')
-         $v .= $vname;
-      else
-         $v .= $this->venue->title;
+         $vname = $this->venue->nameGet();
+         if ($vname != '')
+            $v .= $vname;
+         else
+            $v .= $this->venue->title;
 
-      $location = $this->venue->locationGet($pub_date[0]);
-      if ($location != '')
-         $v .= ', ' . $location;
-   }
+         $location = $this->venue->locationGet($pub_date[0]);
+         if ($location != '')
+            $v .= ', ' . $location;
+      }
 
       $date_str = '';
       if ($pub_date[1] != 0)
@@ -1094,95 +1094,95 @@ class pdPublication extends pdDbAccessor {
       return $citation;
    }
 
-      public function getBibtex() {
-      $bibtex = '@inproceedings{';
+   public function getBibtex() {
+      $bibtex = '@incollection{';
 
       if (is_object($this->category) && isset($this->category->category)) {
-      if ($this->category->category == 'In Conference') {
-      $bibtex = '@inconference{';
-   }
-      else if ($this->category->category == 'In Journal') {
-      $bibtex = '@article{';
-   }
-      else if (($this->category->category == 'In Book')
-         || ($this->category->category == 'Book')) {
-      $bibtex = '@book{';
-   }
-      else  {
-      $text = preg_replace('/\s/' , '', $this->category->category);
-      $bibtex = '@' . $text . '{';
-   }
-   }
+         if ($this->category->category == 'In Conference') {
+            $bibtex = '@incollection{';
+         }
+         else if ($this->category->category == 'In Journal') {
+            $bibtex = '@article{';
+         }
+         else if (($this->category->category == 'In Book')
+                  || ($this->category->category == 'Book')) {
+            $bibtex = '@book{';
+         }
+         else  {
+            $text = preg_replace('/\s/' , '', $this->category->category);
+            $bibtex = '@' . $text . '{';
+         }
+      }
 
-      $pub_date = split('-', $this->published);
+      $pub_date = explode('-', $this->published);
       $venue_short = '';
       if (is_object($this->venue)) {
-      if (isset($this->venue->title))
-         $venue_short = preg_replace("/['-]\d+/", '',
-         $this->venue->title);
+         if (isset($this->venue->title))
+            $venue_short = preg_replace("/['-]\d+/", '',
+                                        $this->venue->title);
 
-      $venue_name = $this->venue->nameGet();
+         $venue_name = $this->venue->nameGet();
 
-      if (!empty($this->venue->data)
-         && ($this->venue->categoryGet() == 'Workshop'))
-         $venue_name .= ' (within ' . $this->venue->data. ')';
-   }
+         if (!empty($this->venue->data)
+             && ($this->venue->categoryGet() == 'Workshop'))
+            $venue_name .= ' (within ' . $this->venue->data. ')';
+      }
 
       if (isset($this->authors) && (count($this->authors) > 0)) {
-      $auth_count = count($this->authors);
-      if ($auth_count > 0) {
-      $bibtex .= $this->authors[0]->lastname;
-      if ($auth_count == 2)
-         $bibtex .= '+' . $this->authors[1]->lastname;
-      else if ($auth_count > 2)
-         $bibtex .= '+al';
+         $auth_count = count($this->authors);
+         if ($auth_count > 0) {
+            $bibtex .= $this->authors[0]->lastname;
+            if ($auth_count == 2)
+               $bibtex .= '+' . $this->authors[1]->lastname;
+            else if ($auth_count > 2)
+               $bibtex .= '+al';
 
-      if (isset($venue_short))
-         $bibtex .= ':' . $venue_short;
+            if (isset($venue_short))
+               $bibtex .= ':' . $venue_short;
 
-      $bibtex = preg_replace("/\s/", '', $bibtex);
-      $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
+            $bibtex = preg_replace("/\s/", '', $bibtex);
+            $bibtex .= substr($pub_date[0], 2) . ",\n" . '  author = {';
 
-      $arr = array();
-      foreach ($this->authors as $auth) {
-      $arr[] = $auth->firstname . ' ' . $auth->lastname;
-   }
-      $bibtex .= implode(' and ', $arr) . "},\n";
-   }
-   }
-      else
+            $arr = array();
+            foreach ($this->authors as $auth) {
+               $arr[] = $auth->firstname . ' ' . $auth->lastname;
+            }
+            $bibtex .= implode(' and ', $arr) . "},\n";
+         }
+      } else {
          $bibtex .= $this->pub_id . ",\n";
+      }
 
       $bibtex .= '  title = {' . $this->title . "},\n";
 
       // show info
       if (count($this->info) > 0) {
-      foreach ($this->info as $key => $value) {
-      if ($value != '') {
-      $bibtex .= '  ' . $key . ' = ';
+         foreach ($this->info as $key => $value) {
+            if ($value != '') {
+               $bibtex .= '  ' . $key . ' = ';
 
-      if (strpos($value, ' '))
-         $bibtex .= '{' . $value . "},\n";
-      else
-         $bibtex .= $value . ",\n";
-   }
-   }
-   }
+               if (($key == 'Pages') || strpos($value, ' '))
+                  $bibtex .= '{' . $value . "},\n";
+               else
+                  $bibtex .= '"' . $value . "\",\n";
+            }
+         }
+      }
 
       if (isset($venue_name)) {
-      if (is_object($this->category)) {
-      if (($this->category->category == 'In Conference')
-         || ($this->category->category == 'In Workshop')) {
-      $bibtex .= '  booktitle = {' . $venue_name . "},\n";
-   }
-      else if ($this->category->category == 'In Journal') {
-      $bibtex .= '  journal = {' . $venue_name . "},\n";
-   }
-   }
-      else {
-      $bibtex .= '  booktitle = {' . $venue_name . "},\n";
-   }
-   }
+         if (is_object($this->category)) {
+            if (($this->category->category == 'In Conference')
+                || ($this->category->category == 'In Workshop')) {
+               $bibtex .= '  booktitle = {' . $venue_name . "},\n";
+            }
+            else if ($this->category->category == 'In Journal') {
+               $bibtex .= '  journal = {' . $venue_name . "},\n";
+            }
+         }
+         else {
+            $bibtex .= '  booktitle = {' . $venue_name . "},\n";
+         }
+      }
 
       $bibtex .= '  year = ' . $pub_date[0] . ",\n";
 
@@ -1191,110 +1191,110 @@ class pdPublication extends pdDbAccessor {
       return format80($bibtex);
    }
 
-      public function getInfoForCitation() {
+   public function getInfoForCitation() {
       if (count($this->info) == 0) return null;
 
       $info = array();
 
       if (!isset($this->category)) {
-      return $this->info2str(array_keys($this->info), $this->info);
-   }
+         return $this->info2str(array_keys($this->info), $this->info);
+      }
 
       switch ($this->category->category) {
-      case 'In Conference':
-         $validKeys = array('Editor', 'Pages');
-         break;
+         case 'In Conference':
+            $validKeys = array('Editor', 'Pages');
+            break;
 
-      case 'In Journal':
-         $validKeys = array('Editor', 'Volume', 'Number', 'Pages');
-         break;
+         case 'In Journal':
+            $validKeys = array('Editor', 'Volume', 'Number', 'Pages');
+            break;
 
-      case 'In Workshop':
-         $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
-         'Number', 'Pages');
-         break;
+         case 'In Workshop':
+            $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
+                               'Number', 'Pages');
+            break;
 
-      case 'In Book':
-         $validKeys = array('Book Title', 'Edition', 'Publisher',
-         'Editor', 'Volume', 'Number', 'Pages');
-         break;
+         case 'In Book':
+            $validKeys = array('Book Title', 'Edition', 'Publisher',
+                               'Editor', 'Volume', 'Number', 'Pages');
+            break;
 
-      case 'Book':
-         $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume');
-         break;
+         case 'Book':
+            $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume');
+            break;
 
-      case 'Video':
-         $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
-         'Number');
-         break;
+         case 'Video':
+            $validKeys = array('Edition', 'Publisher', 'Editor', 'Volume',
+                               'Number');
+            break;
 
-      case 'Technical Report':
-         $validKeys = array('Institution', 'Number');
-         break;
+         case 'Technical Report':
+            $validKeys = array('Institution', 'Number');
+            break;
 
-      case 'MSc Thesis':
-         $validKeys = array('School', 'Type');
-         break;
+         case 'MSc Thesis':
+            $validKeys = array('School', 'Type');
+            break;
 
-      case 'PhD Thesis':
-         $validKeys = array('Type');
-         break;
+         case 'PhD Thesis':
+            $validKeys = array('Type');
+            break;
 
-      case 'Application':
-         $validKeys = array('Pages');
-         break;
+         case 'Application':
+            $validKeys = array('Pages');
+            break;
 
-      default:
-         // use whatever has been defined for this category
-         $validKeys = array_keys($this->info);
-         break;
-   }
+         default:
+            // use whatever has been defined for this category
+            $validKeys = array_keys($this->info);
+            break;
+      }
 
       return $this->info2str($validKeys, $this->info);
    }
 
-      public function info2str($validKeys, $values) {
+   public function info2str($validKeys, $values) {
       $info = array();
 
       // need to merge 'Volume' and 'Number' if they exist
       if (in_array('Volume', $validKeys) && in_array('Number', $validKeys)
-         && isset($values['Volume']) && ($values['Volume'] != '')
-         && isset($values['Number']) && ($values['Number'] != '')) {
-      $values['Volume'] = $values['Volume']
-         . '(' . $values['Number'] . ')';
+          && isset($values['Volume']) && ($values['Volume'] != '')
+          && isset($values['Number']) && ($values['Number'] != '')) {
+         $values['Volume'] = $values['Volume']
+            . '(' . $values['Number'] . ')';
 
-      // now remove 'Number' from $validKeys
-      $validKeys = array_diff($validKeys, array('Number'));
-   }
+         // now remove 'Number' from $validKeys
+         $validKeys = array_diff($validKeys, array('Number'));
+      }
 
       foreach ($validKeys as $key) {
-      if (isset($values[$key]) && ($values[$key] != '')) {
-      if ($key == 'Edition')
-         $info[] = '(Edition ' . $values[$key] . ')';
-      else if ($key == 'Editor')
-         $info[] = '(ed: ' . $values[$key] . ')';
-      else if ($key == 'Number')
-         $info[] = '(' . $values[$key] . ')';
-      else if ($key == 'Pages')
-         $info[] = 'pp ' . $values[$key];
-      else
-         $info[] = $values[$key];
-   }
-   }
+         if (isset($values[$key]) && ($values[$key] != '')) {
+            if ($key == 'Edition')
+               $info[] = '(Edition ' . $values[$key] . ')';
+            else if ($key == 'Editor')
+               $info[] = '(ed: ' . $values[$key] . ')';
+            else if ($key == 'Number')
+               $info[] = '(' . $values[$key] . ')';
+            else if ($key == 'Pages')
+               $info[] = 'pp ' . $values[$key];
+            else
+               $info[] = $values[$key];
+         }
+      }
       return implode(', ', $info);
    }
 
-      // Previous versions of the code used 'No Paper' and '<path>/paper_' to
-      // state that there was no attachment.
-      public function paperFilenameGet() {
+   // Previous versions of the code used 'No Paper' and '<path>/paper_' to
+   // state that there was no attachment.
+   public function paperFilenameGet() {
       $basename = basename($this->paper);
       if (($this->pub_id == '') || (strtolower($this->paper) == 'no paper')
-         || ($this->paper == '') || ($basename == 'paper_')) return null;
+          || ($this->paper == '') || ($basename == 'paper_')) return null;
 
       return FS_PATH_UPLOAD . $this->pub_id . '/' . $basename;
    }
 
-      public function duplicateTitleCheck($db) {
+   public function duplicateTitleCheck($db) {
       assert('is_object($db)');
 
       $myTitleLower = preg_replace('/\s\s+/', ' ', strtolower($this->title));
@@ -1304,90 +1304,90 @@ class pdPublication extends pdDbAccessor {
       if (empty($all_pubs) || (count($all_pubs) == 0)) return $similarPubs;
 
       foreach ($all_pubs as $pub) {
-      $pubTitleLower
-         = preg_replace('/\s\s+/', ' ', strtolower($pub->title));
+         $pubTitleLower
+            = preg_replace('/\s\s+/', ' ', strtolower($pub->title));
 
-      if (isset($this->pub_id) && ($this->pub_id == $pub->pub_id))
-         continue;
+         if (isset($this->pub_id) && ($this->pub_id == $pub->pub_id))
+            continue;
 
-      if ($myTitleLower == $pubTitleLower) {
-      $similarPubs[] = $pub->pub_id;
-   }
-   }
+         if ($myTitleLower == $pubTitleLower) {
+            $similarPubs[] = $pub->pub_id;
+         }
+      }
       return $similarPubs;
    }
 
-      public static function pubsTitleSort($a , $b) {
+   public static function pubsTitleSort($a , $b) {
       if (strtolower($a->title) == strtolower($b->title)) return 0;
 
       return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
    }
 
-      public static function pubsDateSortDesc($a , $b) {
+   public static function pubsDateSortDesc($a , $b) {
       if (strtolower($a->published) == strtolower($b->published)) {
-      if (strtolower($a->title) == strtolower($b->title)) return 0;
+         if (strtolower($a->title) == strtolower($b->title)) return 0;
 
-      return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
-   }
+         return (strtolower($a->title) < strtolower($b->title)) ? -1 : 1;
+      }
 
       return (strtolower($a->published) > strtolower($b->published))
          ? -1 : 1;
    }
 
-      public static function rankingsGlobalGet(&$db) {
+   public static function rankingsGlobalGet(&$db) {
       $q = $db->select('pub_rankings', '*', 'pub_id is NULL',
-         "pdPublication::dbLoad");
+                       "pdPublication::dbLoad");
       assert('count($q) > 0');
 
       foreach ($q as $r) {
-      $rankings[$r->rank_id] = $r->description;
-   }
+         $rankings[$r->rank_id] = $r->description;
+      }
 
       return $rankings;
    }
 
-      public static function rankingsAllGet(&$db) {
+   public static function rankingsAllGet(&$db) {
       $q = $db->select('pub_rankings', '*', '',
-         "pdPublication::dbLoad");
+                       "pdPublication::dbLoad");
       assert('count($q) > 0');
 
       foreach ($q as $r) {
-      $rankings[$r->rank_id] = $r->description;
-   }
+         $rankings[$r->rank_id] = $r->description;
+      }
 
       return $rankings;
    }
 
-      public static function collaborationsGet(&$db) {
+   public static function collaborationsGet(&$db) {
       $q = $db->select('collaboration', '*', '', "pdPublication::dbLoad");
       assert('count($q) > 0');
 
       foreach ($q as $r) {
-      $collaborations[$r->col_id] = $r->description;
-   }
+         $collaborations[$r->col_id] = $r->description;
+      }
 
       return $collaborations;
    }
 
-      /**
-       * Check if this pub entry is pending.
-       *
-       * @param object $db Database connection object.
-       * @return returns true if the publication is pending.
-       */
-      public function validationRequired(&$db) {
+   /**
+    * Check if this pub entry is pending.
+    *
+    * @param object $db Database connection object.
+    * @return returns true if the publication is pending.
+    */
+   public function validationRequired(&$db) {
       assert('is_object($db)');
       $q = $db->selectRow('pub_pending', '*', array('pub_id' => $this->pub_id));
       return ($q !== false);
    }
 
-      /**
-       * Can only be used by users with admin privilidages. Used to mark a
-       * pending publication entry as valid.
-       *
-       * @param object $db Database connection object.
-       */
-      public function markValid(&$db) {
+   /**
+    * Can only be used by users with admin privilidages. Used to mark a
+    * pending publication entry as valid.
+    *
+    * @param object $db Database connection object.
+    */
+   public function markValid(&$db) {
       assert('is_object($db)');
 
       $user =& $_SESSION['user'];
@@ -1400,16 +1400,16 @@ class pdPublication extends pdDbAccessor {
       $db->delete('pub_pending', array('pub_id' => $this->pub_id));
 
       $db->insert('pub_valid', array('pub_id' => $this->pub_id,
-         'login' => $user->login));
+                                     'login' => $user->login));
    }
 
-      /**
-       * Marks the publication entry as pending and requires validation by
-       * a user with admin privilidges.
-       *
-       * @param object $db Database connection object.
-       */
-      public function markPending(&$db) {
+   /**
+    * Marks the publication entry as pending and requires validation by
+    * a user with admin privilidges.
+    *
+    * @param object $db Database connection object.
+    */
+   public function markPending(&$db) {
       assert('is_object($db)');
 
       $user =& $_SESSION['user'];
@@ -1419,11 +1419,11 @@ class pdPublication extends pdDbAccessor {
 
       $q = $db->selectRow('pub_pending', '*', array('pub_id' => $this->pub_id));
       if ($q === false) {
-      // user does not have admin privilidges, tag entry as pending
-      $db->insert('pub_pending', array('pub_id' => $this->pub_id,
-         'login' => $user->login));
+         // user does not have admin privilidges, tag entry as pending
+         $db->insert('pub_pending', array('pub_id' => $this->pub_id,
+                                          'login' => $user->login));
+      }
    }
-   }
-   }
+}
 
 ?>

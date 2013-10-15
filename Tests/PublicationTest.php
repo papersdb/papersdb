@@ -5,7 +5,7 @@ require_once '../includes/functions.php';
 require_once '../includes/pdDb.php';
 require_once '../includes/pdAuthor.php';
 
-class pdAuthorTest extends PHPUnit_Framework_TestCase {
+class PublicationTest extends PHPUnit_Framework_TestCase {
    protected $db;
    protected $mysqli;
 
@@ -218,6 +218,18 @@ TEST_SAVE_WITH_NO_ASSOC_ABSTRACT_END;
 
       $r = $this->mysqli->query("SELECT * FROM pointer WHERE pub_id=" . $pub->pub_id);
       $this->assertEquals(0, $r->num_rows);
+   }
+
+   public function testBibtexPages() {
+      $pub = new pdPublication();
+      $pub->title =  uniqid('pub_title_');
+      $pub->addCategory($this->db, 1);
+      $pub->info['Editor'] = 'test';
+      $pub->info['Pages'] = '22-23';
+      $pub->dbSave($this->db);
+
+      //var_dump($pub);
+      var_dump($pub->getBibtex());
    }
 
 }
