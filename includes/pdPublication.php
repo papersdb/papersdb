@@ -1100,17 +1100,20 @@ class pdPublication extends pdDbAccessor {
       if (is_object($this->category) && isset($this->category->category)) {
          if ($this->category->category == 'In Conference') {
             $bibtex = '@incollection{';
-         }
-         else if ($this->category->category == 'In Journal') {
+         } else if ($this->category->category == 'In Journal') {
             $bibtex = '@article{';
-         }
-         else if (($this->category->category == 'In Book')
-                  || ($this->category->category == 'Book')) {
+         } else if ($this->category->category == 'In Book') {
+            $bibtex = '@inbook{';
+         } else if ($this->category->category == 'Book') {
             $bibtex = '@book{';
-         }
-         else  {
-            $text = preg_replace('/\s/' , '', $this->category->category);
-            $bibtex = '@' . $text . '{';
+         } else if ($this->category->category == 'MSc Thesis') {
+            $bibtex = '@mastersthesis{';
+         } else if ($this->category->category == 'PhD Thesis') {
+            $bibtex = '@phdthesis{';
+         } else if ($this->category->category == 'Technical Report') {
+            $bibtex = '@manual{';
+         } else  {
+            $bibtex = '@misc{';
          }
       }
 
@@ -1215,7 +1218,7 @@ class pdPublication extends pdDbAccessor {
             break;
 
          case 'In Book':
-            $validKeys = array('Book Title', 'Edition', 'Publisher',
+            $validKeys = array('Booktitle', 'Edition', 'Publisher',
                                'Editor', 'Volume', 'Number', 'Pages');
             break;
 
