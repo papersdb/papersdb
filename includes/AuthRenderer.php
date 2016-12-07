@@ -27,7 +27,7 @@ class AuthRenderer {
 		$this->setHeaderTemplate();
 		$this->setRequiredNoteTemplate();
 
-		$this->FormRenderer = & new HTML_QuickForm_Renderer_Default();
+		$this->FormRenderer = new HTML_QuickForm_Renderer_Default();
 		$this->FormRenderer->setFormTemplate($this->FormTemplate);
 		$this->FormRenderer->setElementTemplate($this->ElementTemplate);
 		$this->FormRenderer->setHeaderTemplate($this->HeaderTemplate);
@@ -67,7 +67,7 @@ HTML;
                     <div id="requirednote clear"><span class="required">*</span> Denotes required field.</div>
 HTML;
 	}
-	
+
     function toHtml() {
         return $this->FormRenderer->toHtml();
     }

@@ -23,7 +23,7 @@ class pdDb {
    private static $db_server = 'localhost';
    private static $db_user = 'papersdb';
    private static $db_name = 'pubDB';
-   private static $db_passwd = '';
+   private static $db_passwd = 'ozzy498';
    private static $_debug = false;
 
    private $current_db_name;

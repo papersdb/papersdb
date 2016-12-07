@@ -50,7 +50,7 @@ class delete_author extends pdHtmlPage {
         	$this->db, array('author_id' => $this->author_id));
 
         if (isset($pub_list) && (count($pub_list) > 0)) {
-            echo 'Cannot delete Author <b>', $author->name, '</b>.<p/>', 
+            echo 'Cannot delete Author <b>', $author->name, '</b>.<p/>',
             	'The author has the following publications in the database:',
             	displayPubList($this->db, $pub_list, true, -1, null, null, '../');
             return;
@@ -75,7 +75,7 @@ class delete_author extends pdHtmlPage {
                 return;
             }
 
-            $renderer =& new HTML_QuickForm_Renderer_QuickHtml();
+            $renderer = new HTML_QuickForm_Renderer_QuickHtml();
             $form->accept($renderer);
 
             $table = new HTML_Table(array('width' => '100%',

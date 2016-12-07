@@ -364,7 +364,7 @@ class pdPubList {
     		if ($result !== false)
     			$pubs[] = $pub;
         }
-        
+
         return self::arrayPubsSortByCategory($db, $pubs);
     }
 
@@ -410,7 +410,7 @@ class pdPubList {
 
         $q = $db->select('publication', 'distinct year(published) as year', '',
                          "pdPubList::publicationsDbLoad",
-                         array( 'ORDER BY' => 'published DESC'));
+                         array( 'ORDER BY' => 'year DESC'));
 
         $list = array();
         foreach ($q as $r) {
