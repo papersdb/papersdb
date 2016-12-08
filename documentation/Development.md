@@ -2,15 +2,21 @@
 
 ## Setting up development environment
 
-These instructions will set up a PHP development environment on Ubuntu
-16.04 or later. Assumes you have root privileges.
+These instructions will set up a PHP development environment for
+PapersDB. These instructions work on Ubuntu 16.04 or later. *It is
+assumed you have root privileges.*
 
 1. Install the required packages:
+
     ```sh
+    sudo add-apt-repository ppa:ondrej/php
+    sudo apt-get update
     sudo apt-get install mysql-server apache2 libapache2-mod-php5.6 php5.6 php5.6-mysql php5.6-xml
     ```
-1. Fork the PapersDB Github repository: https://github.com/papersdb/papersdb
+1. Fork the PapersDB Github repository:
+   https://github.com/papersdb/papersdb
 1. Clone the PapersDB sofware repository:
+
     ```sh
     cd <your_projects_parent_directory>
     git clone git@github.com:<your_github_user_name>/papersdb.git
@@ -23,7 +29,9 @@ These instructions will set up a PHP development environment on Ubuntu
     ```sh
     cd /etc/apache2/sites-available
     ```
-    And, as user `root`, create a file named `papersdb.conf` with the following content:
+    And, as user `root`, create a file named `papersdb.conf` with the
+    following content:
+
     ```conf
     <VirtualHost *:8080>
         ServerAdmin webmaster@localhost
@@ -60,14 +68,17 @@ These instructions will set up a PHP development environment on Ubuntu
 
     *Note that if you chose a different port for the VirtualHost, you
     would put that port number instead of `8080`.*
-1. Now, as user `root` install PEAR (PHP Extension and Application Repository):
+1. As user `root`, install PEAR (PHP Extension and Application
+   Repository):
+
     ```sh
     wget http://pear.php.net/go-pear.phar
     php go-pear.phar
     ```
     You will be asked for a file layout, just press <kbd>Enter</kbd>
     to choose the default layout.
-1. Install the following PEAR packages:
+1. As user `root`, install the following PEAR packages:
+
     ```sh
     pear install HTML_Table
     pear install HTML_QuickForm
@@ -117,6 +128,7 @@ These instructions will set up a PHP development environment on Ubuntu
     ```sh
     sudo service apache2 restart
     ```
-1. Now use a web browser and enter this url: https://localhost:8080/
+1. Now use a web browser and enter this url to see the application's
+   main page: [http://localhost:8080/](http://localhost:8080/)
 
-    Replace `8080` with the port number you chose if different.
+    Replace `8080` with the port number you chose, if different.
